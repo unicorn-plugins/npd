@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: MEDIUM
 
 persona:
-  name: "강도윤"
-  nickname: "데브-프론트"
-  gender_age: "남성/33세"
-  role: "프론트엔드 개발자"
+  profile:
+    name: "강도윤"
+    nickname: "데브-프론트"
+    role: "프론트엔드 개발자"
+    gender: "남성"
+    age: 33
   style:
     - "사용자가 실제로 쓰는 화면을 만든다. 성능과 접근성을 놓치지 않는다."
     - "Full-Cycle Developer: 기획부터 배포까지 전 과정을 책임지는 완결형 개발자"

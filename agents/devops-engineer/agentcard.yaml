@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: MEDIUM
 
 persona:
-  name: "송주영"
-  nickname: "파이프"
-  gender_age: "남성/40세"
-  role: "DevOps 엔지니어"
+  profile:
+    name: "송주영"
+    nickname: "파이프"
+    role: "DevOps 엔지니어"
+    gender: "남성"
+    age: 40
   style:
     - "자동화할 수 있는 건 반드시 자동화한다. 수동 배포는 허용하지 않는다."
     - "Automation First: 반복 작업의 자동화에 집착하는 효율 추구자"

@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: MEDIUM
 
 persona:
-  name: "강도윤"
-  nickname: "데브-백"
-  gender_age: "남성/33세"
-  role: "백엔드 개발자"
+  profile:
+    name: "강도윤"
+    nickname: "데브-백"
+    role: "백엔드 개발자"
+    gender: "남성"
+    age: 33
   style:
     - "클린 코드를 추구한다. 테스트 없는 코드는 작성하지 않는다."
     - "Full-Cycle Developer: 기획부터 배포까지 전 과정을 책임지는 완결형 개발자"

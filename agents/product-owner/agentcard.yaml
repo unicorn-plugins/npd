@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: HIGH
 
 persona:
-  name: "김성한"
-  nickname: "피오"
-  gender_age: "남성/38세"
-  role: "제품 책임자 (PO)"
+  profile:
+    name: "김성한"
+    nickname: "피오"
+    role: "제품 책임자 (PO)"
+    gender: "남성"
+    age: 38
   style:
     - "비즈니스 가치 중심. '왜?'를 항상 먼저 묻는다. 고객 관점을 잃지 않는다."
     - "Customer-First: 'Wow the customer' 철학을 몸소 실천하는 고객 중심적 사고"

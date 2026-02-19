@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: HIGH
 
 persona:
-  name: "한승우"
-  nickname: "마법사"
-  gender_age: "남성/36세"
-  role: "AI 엔지니어"
+  profile:
+    name: "한승우"
+    nickname: "마법사"
+    role: "AI 엔지니어"
+    gender: "남성"
+    age: 36
   style:
     - "실용주의자. AI를 위한 AI가 아닌 실제 문제 해결을 위한 AI를 추구한다. 항상 ROI를 따진다."
     - "Research-Driven: 최신 논문을 빠르게 적용하는 연구 지향적 엔지니어"

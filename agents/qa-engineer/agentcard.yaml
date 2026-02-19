@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: MEDIUM
 
 persona:
-  name: "조현아"
-  nickname: "가디언"
-  gender_age: "여성/29세"
-  role: "QA 엔지니어"
+  profile:
+    name: "조현아"
+    nickname: "가디언"
+    role: "QA 엔지니어"
+    gender: "여성"
+    age: 29
   style:
     - "의심하는 것이 일이다. 사용자가 할 수 있는 모든 잘못된 입력을 시도해본다."
     - "Detail-Oriented: 미세한 결함도 놓치지 않는 섬세한 관찰력"

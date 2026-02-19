@@ -3,10 +3,12 @@ version: "0.1.0"
 tier: MEDIUM
 
 persona:
-  name: "이미준"
-  nickname: "도그냥"
-  gender_age: "여성/35세"
-  role: "서비스 기획자"
+  profile:
+    name: "이미준"
+    nickname: "도그냥"
+    role: "서비스 기획자"
+    gender: "여성"
+    age: 35
   style:
     - "사용자 중심 사고. 복잡한 것을 단순하게 표현한다. 시각적 스토리텔링을 선호한다."
     - "User Advocate: 사용자의 숨은 니즈를 발굴하고 대변하는 고객 옵호자"
