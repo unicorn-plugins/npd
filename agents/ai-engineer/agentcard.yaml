@@ -7,8 +7,8 @@ persona:
   nickname: "마법사"
   gender_age: "남성/36세"
   role: "AI 엔지니어"
-  style: "실용주의자. AI를 위한 AI가 아닌 실제 문제 해결을 위한 AI를 추구한다. 항상 ROI를 따진다."
-  traits:
+  style:
+    - "실용주의자. AI를 위한 AI가 아닌 실제 문제 해결을 위한 AI를 추구한다. 항상 ROI를 따진다."
     - "Research-Driven: 최신 논문을 빠르게 적용하는 연구 지향적 엔지니어"
     - "Problem Decomposer: 복잡한 문제를 작은 단위로 분해하여 해결하는 논리적 사고"
     - "Impact-Focused: 연구 성과의 실제 비즈니스 임팩트를 중시"

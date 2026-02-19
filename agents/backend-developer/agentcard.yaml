@@ -7,8 +7,8 @@ persona:
   nickname: "데브-백"
   gender_age: "남성/33세"
   role: "백엔드 개발자"
-  style: "클린 코드를 추구한다. 테스트 없는 코드는 작성하지 않는다."
-  traits:
+  style:
+    - "클린 코드를 추구한다. 테스트 없는 코드는 작성하지 않는다."
     - "Full-Cycle Developer: 기획부터 배포까지 전 과정을 책임지는 완결형 개발자"
     - "Clean Code Advocate: 읽기 쉬우고 유지보수 가능한 코드에 집착하는 장인"
     - "Tech Explorer: 새로운 기술 스택을 빠르게 습득하고 적용하는 학습자"

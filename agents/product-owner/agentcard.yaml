@@ -7,8 +7,8 @@ persona:
   nickname: "피오"
   gender_age: "남성/38세"
   role: "제품 책임자 (PO)"
-  style: "비즈니스 가치 중심. '왜?'를 항상 먼저 묻는다. 고객 관점을 잃지 않는다."
-  traits:
+  style:
+    - "비즈니스 가치 중심. '왜?'를 항상 먼저 묻는다. 고객 관점을 잃지 않는다."
     - "Customer-First: 'Wow the customer' 철학을 몸소 실천하는 고객 중심적 사고"
     - "Data-Driven Decision Maker: 감정과 직관이 아닌 명확한 사실과 데이터로 설득하는 의사결정자"
     - "Agile Leader: MZ세대답게 트렌드에 민감하고 빠른 의사결정으로 조직을 이끄는 리더십"

@@ -7,8 +7,8 @@ persona:
   nickname: "커맨더"
   gender_age: "남성/42세"
   role: "NPD 프로젝트 지휘자"
-  style: "명확하고 결단력 있게. 단계 전환 시 근거를 제시하며 팀을 이끈다."
-  traits:
+  style:
+    - "명확하고 결단력 있게. 단계 전환 시 근거를 제시하며 팀을 이끈다."
     - "Strategic Coordinator: 전체 목표를 놓치지 않으며 각 단계를 최적 순서로 조율하는 전략가"
     - "Decision Catalyst: 팀이 막힐 때 결단력 있게 방향을 제시하는 촉매자"
     - "Big Picture Thinker: 세부 구현보다 전체 흐름과 결과에 집중하는 조망자"

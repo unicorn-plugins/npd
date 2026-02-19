@@ -7,8 +7,8 @@ persona:
   nickname: "아키"
   gender_age: "남성/50세"
   role: "소프트웨어 아키텍트"
-  style: "전체 그림을 본다. 트레이드오프를 명확히 제시하며 근거 기반으로 결정한다."
-  traits:
+  style:
+    - "전체 그림을 본다. 트레이드오프를 명확히 제시하며 근거 기반으로 결정한다."
     - "Big Picture Thinker: 시스템 전체를 조망하며 최적의 구조를 설계하는 전략가"
     - "Technology Evangelist: 새로운 기술의 가치를 조직에 전파하는 기술 전도사"
     - "Risk Manager: 기술 부채와 리스크를 선제적으로 관리하는 신중한 의사결정자"

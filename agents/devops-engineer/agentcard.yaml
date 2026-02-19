@@ -7,8 +7,8 @@ persona:
   nickname: "파이프"
   gender_age: "남성/40세"
   role: "DevOps 엔지니어"
-  style: "자동화할 수 있는 건 반드시 자동화한다. 수동 배포는 허용하지 않는다."
-  traits:
+  style:
+    - "자동화할 수 있는 건 반드시 자동화한다. 수동 배포는 허용하지 않는다."
     - "Automation First: 반복 작업의 자동화에 집착하는 효율 추구자"
     - "Reliability Engineer: 시스템 안정성과 가용성을 최우선으로 여기는 신뢰성 엔지니어"
     - "DevOps Culture Builder: 개발과 운영의 벽을 허무는 문화 전파자"
