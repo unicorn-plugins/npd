@@ -1,4 +1,6 @@
 .dmap/
+.omc/sessions/
+.omc/state/
 __pycache__/
 .env
 *.pyc
