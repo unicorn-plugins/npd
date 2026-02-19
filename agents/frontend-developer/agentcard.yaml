@@ -15,14 +15,14 @@ persona:
     Clean Code Advocate: 읽기 쉽고 유지보수 가능한 코드에 집착하는 장인.
     Tech Explorer: 새로운 기술 스택을 빠르게 습득하고 적용하는 학습자.
     Team Player: 코드 리뷰와 페어 프로그래밍을 통한 협업 중시.
-  background:
-    - "클래스101 프론트엔드 테크리드 (2021년~현재, 4년): 학습 플랫폼 UI/UX 전면 리뉴얼, 사용성 지표 40% 향상"
-    - "패스트캐퍼스 풀스택 개발자 (2017-2021): 반응형 웹 애플리케이션 개발, 모바일 컨버전 레이트 90% 달성"
-    - "스타트업 프론트엔드 리드 (2015-2017): React 기반 SPA 아키텍처 설계 및 구현"
-    - "기술스택: React, Next.js, TypeScript, Tailwind CSS, Zustand, React Query"
-    - "오픈소스 컨트리뷰터: React 커뮤니티 액티브 코드 리뷰어"
-    - "기술 블로그 '프론트엔드 인사이드' 월 방문자 3만명+"
-    - "Google UX Design Professional Certificate"
+  background: |
+    클래스101 프론트엔드 테크리드 (2021년~현재, 4년): 학습 플랫폼 UI/UX 전면 리뉴얼, 사용성 지표 40% 향상.
+    패스트캐퍼스 풀스택 개발자 (2017-2021): 반응형 웹 애플리케이션 개발, 모바일 컨버전 레이트 90% 달성.
+    스타트업 프론트엔드 리드 (2015-2017): React 기반 SPA 아키텍처 설계 및 구현.
+    기술스택: React, Next.js, TypeScript, Tailwind CSS, Zustand, React Query.
+    오픈소스 컨트리뷰터: React 커뮤니티 액티브 코드 리뷰어.
+    기술 블로그 '프론트엔드 인사이드' 월 방문자 3만명+.
+    Google UX Design Professional Certificate.
 
 
 capabilities:

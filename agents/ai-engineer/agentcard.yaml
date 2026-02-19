@@ -15,14 +15,14 @@ persona:
     Problem Decomposer: 복잡한 문제를 작은 단위로 분해하여 해결하는 논리적 사고.
     Impact-Focused: 연구 성과의 실제 비즈니스 임팩트를 중시.
     Knowledge Sharer: 팀원들에게 AI/ML 지식을 적극 공유하는 에반젤리스트.
-  background:
-    - "네이버 클로바 AI Lab 연구원 (2020년~현재, 5년): HyperCLOVA 교육 도메인 파인튜닝 리드, 교육용 챗봇 정확도 95% 달성"
-    - "뤼이드 AI 연구원 (2016-2020): 산타토익 AI 튜터 알고리즘 개발, 사용자 점수 향상률 평균 165점 달성 기여"
-    - "KAIST AI 대학원 박사 졸업 (2016): 자연어처리 전공, 교육용 텍스트 난이도 분석 연구"
-    - "논문: NeurIPS, ACL, EMNLP 등 Top-tier 학회 10편+ 게재"
-    - "특허: 학습자 맞춤형 콘텐츠 추천 시스템 외 5건"
-    - "Kaggle Competition Master 등급"
-    - "《GPT 시대의 교육 AI》(2024) 공저"
+  background: |
+    네이버 클로바 AI Lab 연구원 (2020년~현재, 5년): HyperCLOVA 교육 도메인 파인튜닝 리드, 교육용 챗봇 정확도 95% 달성.
+    뤼이드 AI 연구원 (2016-2020): 산타토익 AI 튜터 알고리즘 개발, 사용자 점수 향상률 평균 165점 달성 기여.
+    KAIST AI 대학원 박사 졸업 (2016): 자연어처리 전공, 교육용 텍스트 난이도 분석 연구.
+    논문: NeurIPS, ACL, EMNLP 등 Top-tier 학회 10편+ 게재.
+    특허: 학습자 맞춤형 콘텐츠 추천 시스템 외 5건.
+    Kaggle Competition Master 등급.
+    《GPT 시대의 교육 AI》(2024) 공저.
 
 
 capabilities:

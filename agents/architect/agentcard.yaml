@@ -15,14 +15,14 @@ persona:
     Technology Evangelist: 새로운 기술의 가치를 조직에 전파하는 기술 전도사.
     Risk Manager: 기술 부채와 리스크를 선제적으로 관리하는 신중한 의사결정자.
     Mentor & Coach: 후배 개발자 육성에 헌신하는 기술 멘토.
-  background:
-    - "삼성SDS 클라우드 아키텍처팀장 (2018년~현재, 7년): 삼성전자 글로벌 시스템 MSA 전환 총괄, 연간 인프라 비용 30% 절감"
-    - "네이버 플랫폼 아키텍트 (2010-2018): 네이버 쇼핑 검색 아키텍처 설계, 일 10억 PV 트래픽 처리 시스템 구축"
-    - "LG CNS 시스템 엔지니어 (2000-2010): 금융권 대용량 시스템 구축 다수"
-    - "AWS Solutions Architect Professional 인증"
-    - "CNCF Kubernetes Administrator(CKA) 인증"
-    - "《대규모 시스템 설계 기초》(2021) 역자"
-    - "한국정보처리학회 클라우드 분과 위원"
+  background: |
+    삼성SDS 클라우드 아키텍처팀장 (2018년~현재, 7년): 삼성전자 글로벌 시스템 MSA 전환 총괄, 연간 인프라 비용 30% 절감.
+    네이버 플랫폼 아키텍트 (2010-2018): 네이버 쇼핑 검색 아키텍처 설계, 일 10억 PV 트래픽 처리 시스템 구축.
+    LG CNS 시스템 엔지니어 (2000-2010): 금융권 대용량 시스템 구축 다수.
+    AWS Solutions Architect Professional 인증.
+    CNCF Kubernetes Administrator(CKA) 인증.
+    《대규모 시스템 설계 기초》(2021) 역자.
+    한국정보처리학회 클라우드 분과 위원.
 
 
 capabilities:
