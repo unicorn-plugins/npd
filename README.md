@@ -60,7 +60,8 @@ claude plugin install npd@npd
 
 > **설치 후 초기 설정:**
 > ```
-> /npd:setup
+> /npd:prepare   # 로컬 개발 환경 사전준비 (최초 1회)
+> /npd:setup     # 플러그인 환경 설정
 > ```
 
 ---
@@ -78,6 +79,7 @@ claude plugin update npd
 ### 권장 사용 순서
 
 ```
+0. /npd:prepare  → 로컬 개발 환경 사전준비 (기본 프로그램, Claude Code + OMC 설치 안내)
 1. /npd:setup    → MCP 서버 설치, 환경변수 설정
 2. /npd:create   → 새 프로젝트 생성 (모노레포 + domain-expert + GitHub 레포)
 3. /npd:plan     → 기획 단계 (PO·서비스기획자·아키텍트·도메인전문가·AI엔지니어 협업)
@@ -90,6 +92,7 @@ claude plugin update npd
 
 | 명령어 | 유형 | 설명 |
 |--------|------|------|
+| `/npd:prepare` | Setup | 로컬 개발 환경 사전준비 (기본 프로그램, Claude Code + OMC 설치 안내) |
 | `/npd:setup` | Setup | 플러그인 초기 설정 (MCP 서버, 환경변수) |
 | `/npd:help` | Utility | 사용법 안내 |
 | `/npd:create` | Core | 새 프로젝트 생성 (모노레포 + domain-expert + GitHub 레포) |

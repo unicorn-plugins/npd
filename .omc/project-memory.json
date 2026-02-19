@@ -1,0 +1,81 @@
+{
+  "version": "1.0.0",
+  "lastScanned": 1771517722951,
+  "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
+  "techStack": {
+    "languages": [],
+    "frameworks": [],
+    "packageManager": null,
+    "runtime": null
+  },
+  "build": {
+    "buildCommand": null,
+    "testCommand": null,
+    "lintCommand": null,
+    "devCommand": null,
+    "scripts": {}
+  },
+  "conventions": {
+    "namingStyle": null,
+    "importStyle": null,
+    "testPattern": null,
+    "fileOrganization": null
+  },
+  "structure": {
+    "isMonorepo": false,
+    "workspaces": [],
+    "mainDirectories": [],
+    "gitBranches": null
+  },
+  "customNotes": [],
+  "directoryMap": {
+    "agents": {
+      "path": "agents",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771517722922,
+      "keyFiles": []
+    },
+    "commands": {
+      "path": "commands",
+      "purpose": null,
+      "fileCount": 9,
+      "lastAccessed": 1771517722922,
+      "keyFiles": [
+        "add-ext-skill.md",
+        "create.md",
+        "deploy.md",
+        "design.md",
+        "develop.md"
+      ]
+    },
+    "gateway": {
+      "path": "gateway",
+      "purpose": null,
+      "fileCount": 2,
+      "lastAccessed": 1771517722923,
+      "keyFiles": [
+        "install.yaml",
+        "runtime-mapping.yaml"
+      ]
+    },
+    "resources": {
+      "path": "resources",
+      "purpose": null,
+      "fileCount": 1,
+      "lastAccessed": 1771517722923,
+      "keyFiles": [
+        "resource.md"
+      ]
+    },
+    "skills": {
+      "path": "skills",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1771517722923,
+      "keyFiles": []
+    }
+  },
+  "hotPaths": [],
+  "userDirectives": []
+}
