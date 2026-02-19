@@ -1,0 +1,10 @@
+.dmap/secrets/
+__pycache__/
+.env
+*.pyc
+*.pyo
+.venv/
+venv/
+node_modules/
+.DS_Store
+*.log

@@ -1,0 +1,7 @@
+tools:
+  - name: file_read
+    description: "테스트 케이스, 설계 문서 읽기"
+  - name: file_write
+    description: "테스트 결과, 버그 리포트 작성"
+  - name: shell
+    description: "테스트 실행"

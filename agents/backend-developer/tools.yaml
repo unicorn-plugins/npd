@@ -1,0 +1,11 @@
+tools:
+  - name: file_read
+    description: "소스코드, 설계 문서, 가이드 읽기"
+  - name: file_write
+    description: "백엔드 소스코드, 테스트코드, 설정 파일 작성"
+  - name: file_edit
+    description: "기존 소스코드 수정"
+  - name: shell
+    description: "빌드, 테스트 실행"
+  - name: mcp_context7
+    description: "Spring Boot, JPA 등 공식 문서 조회"

@@ -1,0 +1,5 @@
+tools:
+  - name: file_read
+    description: "산출물 문서 및 현재 상태 파일 읽기"
+  - name: task
+    description: "에이전트 위임 및 병렬 작업 조율"

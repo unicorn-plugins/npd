@@ -1,0 +1,5 @@
+tools:
+  - name: file_read
+    description: "기획 문서, 가이드 읽기"
+  - name: file_write
+    description: "유저스토리, 사용자 여정 지도, 프로토타입 기획서 작성"

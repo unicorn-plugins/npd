@@ -1,0 +1,12 @@
+{
+  "name": "npd",
+  "version": "0.0.1",
+  "description": "사람과 AI가 협업하여 새로운 프로젝트의 기획-설계-개발-배포 전 과정을 지원하는 플러그인",
+  "author": {
+    "name": "Unicorn Inc."
+  },
+  "repository": "https://github.com/unicorn-plugins/npd",
+  "homepage": "https://github.com/unicorn-plugins/npd",
+  "license": "MIT",
+  "keywords": ["npd", "dmap", "plugin", "multi-agent", "new-product-development", "fullstack"]
+}

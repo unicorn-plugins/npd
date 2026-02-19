@@ -1,0 +1,35 @@
+# NPD 플러그인 런타임 매핑 테이블
+# 추상 선언(tier, 추상 도구) → 구체 구현(모델, 실제 도구) 매핑
+
+version: "1.0"
+
+# ── 티어 매핑 ──────────────────────────────────────────
+tiers:
+  LOW:    claude-haiku-4-5
+  MEDIUM: claude-sonnet-4-5
+  HIGH:   claude-opus-4-5
+  HEAVY:  claude-opus-4-5
+
+# ── 추상 도구 → 구체 도구 매핑 ────────────────────────
+tools:
+  file_read:    Read
+  file_write:   Write
+  file_edit:    Edit
+  file_glob:    Glob
+  file_grep:    Grep
+  shell:        Bash
+  web_search:   WebSearch
+  web_fetch:    WebFetch
+  task:         Task
+  mcp_context7: mcp__context7__query-docs
+  mcp_context7_resolve: mcp__context7__resolve-library-id
+  github_create_repo: mcp__filesystem__write_file
+
+# ── forbidden_actions 매핑 ─────────────────────────────
+# 에이전트 agentcard.yaml의 forbidden_actions 추상 선언 → 실제 도구 차단
+forbidden_actions:
+  file_write:   [Write, Edit, MultiEdit]
+  file_delete:  [Bash]
+  web_access:   [WebSearch, WebFetch]
+  shell_exec:   [Bash]
+  task_spawn:   [Task]

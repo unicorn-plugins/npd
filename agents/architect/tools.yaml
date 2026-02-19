@@ -1,0 +1,7 @@
+tools:
+  - name: file_read
+    description: "설계 가이드, 요구사항 문서 읽기"
+  - name: file_write
+    description: "설계 산출물(아키텍처, 시퀀스, API, 클래스, 데이터) 작성"
+  - name: web_search
+    description: "최신 아키텍처 패턴, 기술 레퍼런스 조회"

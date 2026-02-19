@@ -1,0 +1,14 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "npd",
+  "owner": {
+    "name": "Unicorn Inc."
+  },
+  "plugins": [
+    {
+      "name": "npd",
+      "version": "0.0.1",
+      "source": "./"
+    }
+  ]
+}

@@ -1,0 +1,9 @@
+tools:
+  - name: file_read
+    description: "배포 가이드, 설정 파일 읽기"
+  - name: file_write
+    description: "Dockerfile, K8s 매니페스트, CI/CD 워크플로우 작성"
+  - name: file_edit
+    description: "기존 배포 설정 수정"
+  - name: shell
+    description: "Docker 빌드, kubectl 명령, 배포 실행"

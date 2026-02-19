@@ -1,0 +1,5 @@
+tools:
+  - name: file_read
+    description: "기획 문서 및 요구사항 읽기"
+  - name: file_write
+    description: "제품 비전 문서, MVP 범위 문서 작성"

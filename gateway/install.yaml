@@ -1,0 +1,22 @@
+# NPD 플러그인 설치 매니페스트
+# Setup 스킬 실행 시 이 파일을 읽어 도구 인프라를 구성함
+
+mcp_servers:
+  - name: context7
+    description: "라이브러리 공식 문서 검색 및 코드 예시 제공"
+    config: mcp/context7.json
+    scope: user
+    required: false
+
+custom_tools:
+  - name: create_repo
+    description: "GitHub REST API 기반 원격 저장소 생성 및 초기 푸시"
+    source: resources/tools/create_repo/
+    type: python
+    required: false
+
+  - name: check_mermaid
+    description: "Docker 기반 Mermaid 다이어그램 문법 검증"
+    source: resources/tools/check_mermaid/
+    type: cli
+    required: false
