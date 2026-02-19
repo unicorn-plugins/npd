@@ -1,4 +1,4 @@
-.dmap/secrets/
+.dmap/
 __pycache__/
 .env
 *.pyc
