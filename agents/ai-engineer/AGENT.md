@@ -34,3 +34,15 @@ AI 연동 아키텍처를 설계하며, Claude API·OpenAI 등 AI 기능을 직�
 - AI 기회 목록: `docs/plan/ai-opportunities.md`
 - AI 연동 설계: `docs/design/ai-integration.md`
 - AI 구현 코드: `src/ai/` 디렉토리
+
+## 참조
+
+- 첨부된 `agentcard.yaml`을 참조하여 역할, 역량, 핸드오프 조건을 준수할 것
+- 첨부된 `tools.yaml`을 참조하여 사용 가능한 도구를 확인할 것
+
+## 검증
+
+- AI 활용 기회가 가치 vs 구현 복잡도 평가와 함께 제안되었는가
+- AI API 연동 설계에 엔드포인트, 요청/응답 스키마가 포함되었는가
+- 프롬프트 설계에 시스템 프롬프트와 컨텍스트 관리 전략이 포함되었는가
+- 일반 백엔드/프론트엔드 기능 구현 등 담당 외 역할을 수행하지 않았는가

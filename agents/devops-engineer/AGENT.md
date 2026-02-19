@@ -35,3 +35,15 @@ GitHub Actions CI/CD 파이프라인을 구성하여 자동화된 배포 환경�
 - Dockerfile: `backend/Dockerfile`, `frontend/Dockerfile`
 - K8s 매니페스트: `deploy/k8s/` 디렉토리
 - CI/CD 워크플로우: `.github/workflows/` 디렉토리
+
+## 참조
+
+- 첨부된 `agentcard.yaml`을 참조하여 역할, 역량, 핸드오프 조건을 준수할 것
+- 첨부된 `tools.yaml`을 참조하여 사용 가능한 도구를 확인할 것
+
+## 검증
+
+- 컨테이너 이미지가 정상 빌드되었는가
+- 로컬 컨테이너 실행으로 애플리케이션 동작이 확인되었는가
+- K8s 매니페스트가 `deploy/k8s/` 디렉토리에 작성되었는가
+- GitHub Actions CI/CD 파이프라인이 `.github/workflows/`에 작성되었는가
