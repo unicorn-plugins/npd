@@ -48,6 +48,34 @@ uname -s
 각 항목을 순서대로 확인하고, 미설치 시 OS에 맞는 명령으로 자동 설치함.
 설치 전 반드시 사용자에게 "설치를 진행하겠습니다" 안내 후 실행.
 
+#### 2-0. Homebrew 설치 (Mac 전용)
+
+**설치 확인:**
+```bash
+brew --version 2>/dev/null
+```
+
+미설치 시 자동 설치:
+```bash
+/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+```
+
+설치 후 PATH 설정 (Apple Silicon Mac인 경우):
+```bash
+if [[ $(uname -m) == "arm64" ]]; then
+  grep -q '/opt/homebrew/bin/brew' ~/.zshrc || echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+  eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+```
+
+설치 후 PATH 설정 (Intel Mac인 경우):
+```bash
+if [[ $(uname -m) == "x86_64" ]]; then
+  grep -q '/usr/local/bin/brew' ~/.zshrc || echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zshrc
+  eval "$(/usr/local/bin/brew shellenv)"
+fi
+```
+
 #### 2-1. 작업 디렉토리 생성
 
 ```bash
@@ -64,7 +92,22 @@ git --version
 미설치 시 자동 설치:
 - **Mac:** `brew install git`
 - **Linux(Ubuntu):** `sudo apt-get update && sudo apt-get install -y git`
-- **Windows:** 수동 설치 필요 → [Git Client 설치](https://git-scm.com/downloads) 안내 후 설치 완료 확인
+- **Windows:**
+  1. 사용자에게 아래 메시지 출력:
+     ```
+     Git이 설치되지 않았습니다.
+     아래 링크에서 Git for Windows를 다운로드하여 설치해주세요.
+
+     다운로드: https://git-scm.com/downloads
+
+     ⚠️ 중요: 설치 시 "Git Bash" 옵션을 반드시 체크하세요.
+     Git Bash는 이후 단계(kubectl, helm, bun 등)에서 필수로 사용됩니다.
+
+     설치가 완료되면 Git Bash를 열고 이 스킬을 다시 실행해주세요.
+     ```
+  2. 설치 완료 대기: 30초마다 `git --version` 재확인
+  3. 최대 10회(5분) 재확인 후에도 미설치 시 스킬 중단하고 안내 메시지 출력
+  4. Git 설치 확인되면 다음 단계 진행
 
 **Git 기본 설정** (설치 후 또는 이미 설치된 경우, user.name/email 미설정 시):
 ```bash
@@ -89,7 +132,21 @@ python --version 2>/dev/null || python3 --version 2>/dev/null
 - **Linux(Ubuntu):** `sudo apt-get update && sudo apt-get install -y python3 python3-pip`
   - 설치 후 `.bashrc`에 alias 추가: `echo 'alias python=python3' >> ~/.bashrc`
   - 적용: `source ~/.bashrc`
-- **Windows:** 수동 설치 필요 → [Python 설치](https://www.python.org/downloads/) 안내
+- **Windows:**
+  1. 사용자에게 아래 메시지 출력:
+     ```
+     Python이 설치되지 않았습니다.
+     아래 링크에서 Python을 다운로드하여 설치해주세요.
+
+     다운로드: https://www.python.org/downloads/
+
+     ⚠️ 중요: 설치 시 "Add Python to PATH" 옵션을 반드시 체크하세요.
+
+     설치가 완료되면 새 터미널(Git Bash)을 열고 이 스킬을 다시 실행해주세요.
+     ```
+  2. 설치 완료 대기: 30초마다 `python --version` 재확인
+  3. 최대 10회(5분) 재확인 후에도 미설치 시 스킬 중단하고 안내 메시지 출력
+  4. Python 설치 확인되면 다음 단계 진행
 
 #### 2-4. Node.js 설치 및 npm-global 경로 설정
 
@@ -105,7 +162,21 @@ node --version
   curl -fsSL https://deb.nodesource.com/setup_lts.x | sudo -E bash -
   sudo apt-get install -y nodejs
   ```
-- **Windows:** 수동 설치 필요 → [Node.js 설치](https://nodejs.org/en/) 안내
+- **Windows:**
+  1. 사용자에게 아래 메시지 출력:
+     ```
+     Node.js가 설치되지 않았습니다.
+     아래 링크에서 Node.js LTS 버전을 다운로드하여 설치해주세요.
+
+     다운로드: https://nodejs.org/en/
+
+     ⚠️ 중요: 설치 시 모든 기본 옵션을 그대로 사용하세요.
+
+     설치가 완료되면 새 터미널(Git Bash)을 열고 이 스킬을 다시 실행해주세요.
+     ```
+  2. 설치 완료 대기: 30초마다 `node --version` 재확인
+  3. 최대 10회(5분) 재확인 후에도 미설치 시 스킬 중단하고 안내 메시지 출력
+  4. Node.js 설치 확인되면 다음 단계 진행
 
 **npm-global 경로 설정** (OS 공통, 설치 후 수행):
 ```bash
@@ -178,7 +249,23 @@ docker --version 2>/dev/null
   sudo usermod -aG docker $USER
   newgrp docker
   ```
-- **Windows:** 수동 설치 필요 → [Docker Desktop 설치](https://docs.docker.com/desktop/install/windows-install/) 안내
+- **Windows:**
+  1. 사용자에게 아래 메시지 출력:
+     ```
+     Docker가 설치되지 않았습니다.
+     아래 링크에서 Docker Desktop for Windows를 다운로드하여 설치해주세요.
+
+     다운로드: https://docs.docker.com/desktop/install/windows-install/
+
+     ⚠️ 중요:
+     - WSL 2 백엔드를 사용하도록 설정하세요.
+     - 설치 후 시스템 재시작이 필요할 수 있습니다.
+
+     설치가 완료되고 Docker Desktop이 실행되면 이 스킬을 다시 실행해주세요.
+     ```
+  2. 설치 완료 대기: 30초마다 `docker --version` 재확인
+  3. 최대 10회(5분) 재확인 후에도 미설치 시 스킬 중단하고 안내 메시지 출력
+  4. Docker 설치 확인되면 다음 단계 진행
 
 #### 2-7. kubectl 설치
 
@@ -314,17 +401,25 @@ Claude Code 프롬프트창에서 아래 명령 실행 하도록 안내. 단 MCP
 
 편의 명령어(`cc-yolo`, `cc-safe`, `cy`) alias를 자동으로 등록합니다.
 
-**Linux/Mac:**
+**Mac:**
 ```bash
-SHELL_RC="$HOME/.zshrc" # Mac
-# Linux: SHELL_RC="$HOME/.bashrc"
+if ! grep -q 'alias cc-yolo' ~/.zshrc 2>/dev/null; then
+  echo '' >> ~/.zshrc
+  echo "alias cc-yolo='claude --dangerously-skip-permissions --verbose'" >> ~/.zshrc
+  echo "alias cc-safe='claude'" >> ~/.zshrc
+  echo "alias cy='cc-yolo'" >> ~/.zshrc
+  source ~/.zshrc
+fi
+```
 
-if ! grep -q 'alias cc-yolo' "$SHELL_RC" 2>/dev/null; then
-  echo '' >> "$SHELL_RC"
-  echo "alias cc-yolo='claude --dangerously-skip-permissions --verbose'" >> "$SHELL_RC"
-  echo "alias cc-safe='claude'" >> "$SHELL_RC"
-  echo "alias cy='cc-yolo'" >> "$SHELL_RC"
-  source "$SHELL_RC"
+**Linux:**
+```bash
+if ! grep -q 'alias cc-yolo' ~/.bashrc 2>/dev/null; then
+  echo '' >> ~/.bashrc
+  echo "alias cc-yolo='claude --dangerously-skip-permissions --verbose'" >> ~/.bashrc
+  echo "alias cc-safe='claude'" >> ~/.bashrc
+  echo "alias cy='cc-yolo'" >> ~/.bashrc
+  source ~/.bashrc
 fi
 ```
 
@@ -461,6 +556,7 @@ claude mcp list
 ## 사전준비 결과
 
 ### 기본 프로그램
+- Homebrew (Mac만): ✅ 4.x.x  /  ⚠️ 미설치 → 설치 명령 참조
 - Python:  ✅ 3.x.x  /  ⚠️ 미설치 → [설치 가이드](링크)
 - Git:     ✅ 2.x.x  /  ⚠️ 미설치 → [설치 가이드](링크)
 - Node.js: ✅ v20.x  /  ⚠️ 미설치 → [설치 가이드](링크)
@@ -494,16 +590,18 @@ claude mcp list
 | 2 | '기획만 수행' 선택 시 Step 3(Claude Code) ~ Step 8(결과보고)만 실행할 것 |
 | 3 | '모든 단계 수행' 선택 시 Step 1 ~ Step 8 전체를 실행할 것 |
 | 4 | OS를 먼저 감지하여 OS별 설치 명령을 분기할 것 |
-| 5 | 각 항목 설치 여부를 실제 명령 실행으로 확인한 후 미설치 시에만 설치 진행할 것 |
-| 6 | 설치 전 반드시 사용자에게 "설치를 진행하겠습니다" 안내 후 실행할 것 |
-| 7 | Git user.name/email 미설정 시 사용자에게 값을 입력받아 설정할 것 |
-| 8 | PATH 추가 시 중복 여부를 확인(`grep -q`)하여 중복 추가하지 않을 것 |
-| 9 | Windows에서 수동 설치가 필요한 항목(Python, Git, Node.js, Docker)은 설치 링크를 안내하고 완료 확인을 요청할 것 |
-| 10 | bun 설치 후 OS에 맞는 shell rc 파일에 PATH를 추가하고 source를 수행할 것 |
-| 11 | 편의 명령어(cc-yolo, cc-safe, cy) alias는 중복 여부를 확인 후 등록하고 source를 수행할 것 |
-| 12 | Windows에서 편의 명령어는 Git Bash(`~/.bashrc`)와 PowerShell(`$PROFILE`) 양쪽에 등록할 것 |
-| 13 | MCP 등록 시 기존 `mcpServers` 항목을 유지하고 미등록 서버만 추가할 것 |
-| 14 | 결과 보고 후 반드시 다음 단계(`/npd:setup`) 안내를 포함할 것 |
+| 5 | Mac 사용자는 Homebrew를 제일 먼저 확인하고 미설치 시 설치할 것 |
+| 6 | 각 항목 설치 여부를 실제 명령 실행으로 확인한 후 미설치 시에만 설치 진행할 것 |
+| 7 | 설치 전 반드시 사용자에게 "설치를 진행하겠습니다" 안내 후 실행할 것 |
+| 8 | Git user.name/email 미설정 시 사용자에게 값을 입력받아 설정할 것 |
+| 9 | PATH 추가 시 중복 여부를 확인(`grep -q`)하여 중복 추가하지 않을 것 |
+| 10 | Windows에서 수동 설치가 필요한 항목(Git, Python, Node.js, Docker)은 설치 링크를 안내하고 30초마다 설치 완료를 확인하며 최대 5분(10회) 대기할 것 |
+| 11 | Windows 설치 대기 중 5분 초과 시 스킬을 중단하고 사용자에게 재실행 안내를 출력할 것 |
+| 12 | bun 설치 후 OS에 맞는 shell rc 파일에 PATH를 추가하고 source를 수행할 것 |
+| 13 | 편의 명령어(cc-yolo, cc-safe, cy) alias는 중복 여부를 확인 후 등록하고 source를 수행할 것 |
+| 14 | Windows에서 편의 명령어는 Git Bash(`~/.bashrc`)와 PowerShell(`$PROFILE`) 양쪽에 등록할 것 |
+| 15 | MCP 등록 시 기존 `mcpServers` 항목을 유지하고 미등록 서버만 추가할 것 |
+| 16 | 결과 보고 후 반드시 다음 단계(`/npd:setup`) 안내를 포함할 것 |
 
 ## MUST NOT 규칙
 
@@ -521,8 +619,14 @@ claude mcp list
 - [ ] '기획만 수행' 선택 시 Step 3~8만 실행되는가 (기본 프로그램 설치 생략)
 - [ ] '모든 단계 수행' 선택 시 Step 1~8 전체가 실행되는가
 - [ ] OS 감지 후 OS별 설치 명령이 분기되는가
+- [ ] Mac 사용자는 Homebrew가 제일 먼저 확인되고 미설치 시 설치되는가
+- [ ] Homebrew 설치 후 Apple Silicon/Intel 아키텍처에 맞게 PATH가 설정되는가
 - [ ] 각 프로그램 설치 여부가 실제 명령 실행으로 확인되는가
 - [ ] 미설치 항목만 선별적으로 설치되는가
+- [ ] Windows에서 Git 설치 안내 시 "Git Bash 포함" 체크를 강조하는가
+- [ ] Windows에서 수동 설치가 필요한 항목(Git, Python, Node.js, Docker)에 대해 설치 완료 대기 로직이 작동하는가
+- [ ] Windows 설치 대기 시 30초마다 재확인하며 최대 10회(5분) 대기하는가
+- [ ] 5분 초과 시 스킺이 중단되고 재실행 안내 메시지가 출력되는가
 - [ ] Git user.name/email 설정이 완료되는가
 - [ ] npm-global PATH가 중복 없이 추가되는가
 - [ ] bun 설치 여부가 확인되고 PATH가 설정되는가

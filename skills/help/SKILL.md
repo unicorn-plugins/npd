@@ -42,6 +42,7 @@ NPD 플러그인의 사용 가능한 명령어와 사용법을 즉시 출력함.
 | `/npd:deploy` | 배포 단계 AI 협업 (DevOps 엔지니어) |
 | `/npd:add-ext-skill` | 외부 플러그인 연동 스킬 추가 |
 | `/npd:remove-ext-skill` | 외부 플러그인 연동 스킬 제거 |
+| `/npd:ext-github-release-manager` | GitHub Release 문서 자동 생성·수정·삭제 및 구성 추천 |
 
 ### 권장 사용 순서
 
