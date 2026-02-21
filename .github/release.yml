@@ -1,0 +1,30 @@
+changelog:
+  exclude:
+    labels:
+      - ignore-for-release
+      - skip-changelog
+    authors:
+      - github-actions
+      - dependabot
+  categories:
+    - title: '🚀 새로운 기능'
+      labels:
+        - feature
+        - enhancement
+    - title: '🐛 버그 수정'
+      labels:
+        - bug
+        - fix
+    - title: '📝 문서'
+      labels:
+        - documentation
+        - docs
+    - title: '⚠️ Breaking Changes'
+      labels:
+        - breaking-change
+        - breaking
+    - title: '🔧 유지보수'
+      labels:
+        - chore
+        - maintenance
+        - dependencies

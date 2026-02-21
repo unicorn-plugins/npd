@@ -1,35 +1,52 @@
 # NPD 플러그인 런타임 매핑 테이블
 # 추상 선언(tier, 추상 도구) → 구체 구현(모델, 실제 도구) 매핑
 
-version: "1.0"
+# ─────────────────────────────────────────────
+# 티어 → LLM 모델 매핑
+#   agentcard.yaml의 tier 값을 실제 모델에 매핑
+#   전역 기본값(default) + 에이전트별 예외
+# ─────────────────────────────────────────────
+tier_mapping:
+  default:
+    HEAVY:
+      model: "claude-opus-4-6"
+    HIGH:
+      model: "claude-opus-4-6"
+    MEDIUM:
+      model: "claude-sonnet-4-6"
+    LOW:
+      model: "claude-haiku-4-5"
 
-# ── 티어 매핑 ──────────────────────────────────────────
-tiers:
-  LOW:    claude-haiku-4-5
-  MEDIUM: claude-sonnet-4-5
-  HIGH:   claude-opus-4-5
-  HEAVY:  claude-opus-4-5
+# ─────────────────────────────────────────────
+# 추상 도구명 → 실제 도구 매핑
+#   tools.yaml의 도구 선언을 실제 도구에 매핑
+#   builtin 도구(Read, Write, Bash 등)는 런타임이 내장 처리하므로 생략
+#   여기에는 mcp, custom 도구만 매핑
+# ─────────────────────────────────────────────
+tool_mapping:
+  mcp_context7:
+    - type: mcp
+      server: "context7"
+      tools: ["mcp__context7__query-docs", "mcp__context7__resolve-library-id"]
 
-# ── 추상 도구 → 구체 도구 매핑 ────────────────────────
-tools:
-  file_read:    Read
-  file_write:   Write
-  file_edit:    Edit
-  file_glob:    Glob
-  file_grep:    Grep
-  shell:        Bash
-  web_search:   WebSearch
-  web_fetch:    WebFetch
-  task:         Task
-  mcp_context7: mcp__context7__query-docs
-  mcp_context7_resolve: mcp__context7__resolve-library-id
-  github_create_repo: mcp__filesystem__write_file
+  github_create_repo:
+    - type: custom
+      source: "resources/tools/create_repo/"
+      tools: ["create_repo"]
 
-# ── forbidden_actions 매핑 ─────────────────────────────
-# 에이전트 agentcard.yaml의 forbidden_actions 추상 선언 → 실제 도구 차단
-forbidden_actions:
-  file_write:   [Write, Edit, MultiEdit]
-  file_delete:  [Bash]
-  web_access:   [WebSearch, WebFetch]
-  shell_exec:   [Bash]
-  task_spawn:   [Task]
+  mermaid_check:
+    - type: custom
+      source: "resources/tools/check_mermaid/"
+      tools: ["check_mermaid"]
+
+# ─────────────────────────────────────────────
+# 액션 카테고리 → 실제 도구 매핑
+#   agentcard.yaml의 forbidden_actions를 실제 도구에 매핑
+# ─────────────────────────────────────────────
+action_mapping:
+  file_write: ["Write", "Edit"]
+  file_delete: ["Bash"]
+  code_execute: ["Bash"]
+  network_access: ["WebFetch", "WebSearch"]
+  user_interact: ["AskUserQuestion"]
+  agent_delegate: ["Task"]

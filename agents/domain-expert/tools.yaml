@@ -1,0 +1,17 @@
+tools:
+  - name: file_read
+    description: "기획 문서, 시장 데이터, 규제 자료 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
+  - name: file_write
+    description: "도메인 요구사항, 시장 조사, 규제 검토 문서 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
+  - name: web_search
+    description: "시장 데이터, 규제 정보, 경쟁사 정보 검색"
+    input: { 검색쿼리 }
+    output: { 검색결과목록 }
+  - name: web_fetch
+    description: "시장 보고서, 규제 문서 등 외부 자료 조회"
+    input: { URL }
+    output: { 페이지내용 }

@@ -1,9 +1,17 @@
 tools:
   - name: file_read
     description: "기획 문서, 설계 문서, 코드 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
     description: "AI 기회 문서, AI 연동 설계서, AI 구현 코드 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
   - name: web_search
     description: "최신 AI 모델, API 문서, 프롬프트 엔지니어링 기법 조회"
+    input: { 검색쿼리 }
+    output: { 검색결과목록 }
   - name: mcp_context7
     description: "AI SDK 공식 문서 및 코드 예시 조회"
+    input: { 라이브러리ID, 질문 }
+    output: { 문서내용, 코드예시 }

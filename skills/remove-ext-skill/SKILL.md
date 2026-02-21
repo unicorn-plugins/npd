@@ -12,6 +12,10 @@ allowed-tools: Read, Edit, Bash
 
 사용자가 `/npd:remove-ext-skill`로 호출하여 기존 외부호출 스킬(ext-{대상플러그인})을 제거할 수 있게 함.
 
+## 활성화 조건
+
+사용자가 `/npd:remove-ext-skill` 호출 시 또는 "외부 스킬 제거", "ext-skill 제거" 키워드 감지 시.
+
 ## 워크플로우
 
 ### Step 1: 기존 ext-{} 스킬 목록 조회

@@ -1,54 +1,73 @@
 # 로컬 리소스 카탈로그
 
-npd 플러그인에 포함된 공유자원 목록. clauding-guide에서 복사하여 npd 도메인에 맞게 관리.
+npd 플러그인에 포함된 공유자원 목록.
+
+[Top](#로컬-리소스-카탈로그)
+
+---
+
+## 리소스 분류 체계
+
+| 유형 | 설명 | 디렉토리 |
+|------|------|---------|
+| 가이드 | 각 스킬 단계에서 참조하는 문서 | `resources/guides/` |
+| 도구 | 커스텀 도구의 소스 및 사용법 카탈로그 | `resources/tools/` |
+
+[Top](#로컬-리소스-카탈로그)
 
 ---
 
 ## 가이드 목록
 
-### plan 스킬 참조 가이드
+| 2차 분류 | 가이드명 | 설명 | 상세 |
+|---------|---------|------|------|
+| setup | prepare | 로컬 개발 환경 구성 (기본/추가 설치 프로그램 안내) | [상세](guides/setup/prepare.md) |
+| plan | think-prompt | 기획 단계 사고방식 및 접근법 가이드 | [상세](guides/plan/think-prompt.md) |
+| design | architecture-patterns | 클라우드 아키텍처 패턴 (MSA, 레이어드 등) | [상세](guides/design/architecture-patterns.md) |
+| design | architecture-highlevel | 상위수준 아키텍처 설계 | [상세](guides/design/architecture-highlevel.md) |
+| design | logical-architecture-design | 논리 아키텍처 설계 | [상세](guides/design/logical-architecture-design.md) |
+| design | sequence-outer-design | 외부 시퀀스 다이어그램 설계 | [상세](guides/design/sequence-outer-design.md) |
+| design | sequence-inner-design | 내부 시퀀스 다이어그램 설계 | [상세](guides/design/sequence-inner-design.md) |
+| design | api-design | REST API 설계 가이드 | [상세](guides/design/api-design.md) |
+| design | class-design | 클래스 다이어그램 설계 | [상세](guides/design/class-design.md) |
+| design | data-design | 데이터 모델 설계 | [상세](guides/design/data-design.md) |
+| design | uiux-design | UI/UX 설계 가이드 | [상세](guides/design/uiux-design.md) |
+| design | uiux-prototype | UI/UX 프로토타입 설계 | [상세](guides/design/uiux-prototype.md) |
+| develop | dev-backend | Spring Boot 백엔드 개발 가이드 | [상세](guides/develop/dev-backend.md) |
+| develop | dev-backend-testcode | 백엔드 테스트코드 작성 가이드 | [상세](guides/develop/dev-backend-testcode.md) |
+| develop | dev-frontend | 프론트엔드 개발 가이드 | [상세](guides/develop/dev-frontend.md) |
+| develop | test-backend | 백엔드 테스트 실행 가이드 | [상세](guides/develop/test-backend.md) |
+| develop | database-plan | 데이터베이스 설계 및 계획 | [상세](guides/develop/database-plan.md) |
+| develop | database-install | 데이터베이스 설치 가이드 | [상세](guides/develop/database-install.md) |
+| deploy | build-image-back | 백엔드 Docker 이미지 빌드 | [상세](guides/deploy/build-image-back.md) |
+| deploy | build-image-front | 프론트엔드 Docker 이미지 빌드 | [상세](guides/deploy/build-image-front.md) |
+| deploy | run-container-guide-back | 백엔드 컨테이너 실행 가이드 | [상세](guides/deploy/run-container-guide-back.md) |
+| deploy | run-container-guide-front | 프론트엔드 컨테이너 실행 가이드 | [상세](guides/deploy/run-container-guide-front.md) |
+| deploy | deploy-k8s-back | 백엔드 Kubernetes 배포 | [상세](guides/deploy/deploy-k8s-back.md) |
+| deploy | deploy-k8s-front | 프론트엔드 Kubernetes 배포 | [상세](guides/deploy/deploy-k8s-front.md) |
+| deploy | deploy-actions-cicd-back | 백엔드 GitHub Actions CI/CD | [상세](guides/deploy/deploy-actions-cicd-back.md) |
+| deploy | deploy-actions-cicd-front | 프론트엔드 GitHub Actions CI/CD | [상세](guides/deploy/deploy-actions-cicd-front.md) |
+| tools | mermaid-guide | Mermaid 다이어그램 작성 가이드 | [상세](guides/tools/mermaid-guide.md) |
+| tools | plantuml-guide | PlantUML 다이어그램 작성 가이드 | [상세](guides/tools/plantuml-guide.md) |
 
-| 가이드명 | 경로 | 설명 | 사용 에이전트 |
-|---------|------|------|-------------|
-| think-prompt | `guides/plan/think-prompt.md` | 기획 단계 사고방식 및 접근법 가이드 | product-owner, service-planner |
+[Top](#로컬-리소스-카탈로그)
 
-### design 스킬 참조 가이드
+---
 
-| 가이드명 | 경로 | 설명 | 사용 에이전트 |
-|---------|------|------|-------------|
-| architecture-patterns | `guides/design/architecture-patterns.md` | 클라우드 아키텍처 패턴 (MSA, 레이어드 등) | architect |
-| architecture-highlevel | `guides/design/architecture-highlevel.md` | 상위수준 아키텍처 설계 | architect |
-| logical-architecture-design | `guides/design/logical-architecture-design.md` | 논리 아키텍처 설계 | architect |
-| sequence-outer-design | `guides/design/sequence-outer-design.md` | 외부 시퀀스 다이어그램 설계 | architect |
-| sequence-inner-design | `guides/design/sequence-inner-design.md` | 내부 시퀀스 다이어그램 설계 | architect |
-| api-design | `guides/design/api-design.md` | REST API 설계 가이드 | architect |
-| class-design | `guides/design/class-design.md` | 클래스 다이어그램 설계 | architect |
-| data-design | `guides/design/data-design.md` | 데이터 모델 설계 | architect |
-| uiux-design | `guides/design/uiux-design.md` | UI/UX 설계 가이드 | service-planner |
-| uiux-prototype | `guides/design/uiux-prototype.md` | UI/UX 프로토타입 설계 | service-planner |
+## 도구 목록
 
-### develop 스킬 참조 가이드
+| 카테고리 | 도구명 | 설명 | 상세 |
+|---------|--------|------|------|
+| 커스텀 앱 | create_repo | GitHub REST API 기반 원격 저장소 생성 및 초기 푸시 (gh CLI 불요) | [상세](tools/create-repo.md) |
 
-| 가이드명 | 경로 | 설명 | 사용 에이전트 |
-|---------|------|------|-------------|
-| dev-backend | `guides/develop/dev-backend.md` | Spring Boot 백엔드 개발 가이드 | backend-developer |
-| dev-backend-testcode | `guides/develop/dev-backend-testcode.md` | 백엔드 테스트코드 작성 가이드 | backend-developer, qa-engineer |
-| dev-frontend | `guides/develop/dev-frontend.md` | 프론트엔드 개발 가이드 | frontend-developer |
-| test-backend | `guides/develop/test-backend.md` | 백엔드 테스트 실행 가이드 | qa-engineer |
-| database-plan | `guides/develop/database-plan.md` | 데이터베이스 설계 및 계획 | backend-developer |
-| database-install | `guides/develop/database-install.md` | 데이터베이스 설치 가이드 | backend-developer |
-| mermaid-guide | `guides/tools/mermaid-guide.md` | Mermaid 다이어그램 작성 가이드 | architect, ai-engineer |
-| plantuml-guide | `guides/tools/plantuml-guide.md` | PlantUML 다이어그램 작성 가이드 | architect |
+[Top](#로컬-리소스-카탈로그)
 
-### deploy 스킬 참조 가이드
+---
 
-| 가이드명 | 경로 | 설명 | 사용 에이전트 |
-|---------|------|------|-------------|
-| build-image-back | `guides/deploy/build-image-back.md` | 백엔드 Docker 이미지 빌드 | devops-engineer |
-| build-image-front | `guides/deploy/build-image-front.md` | 프론트엔드 Docker 이미지 빌드 | devops-engineer |
-| run-container-guide-back | `guides/deploy/run-container-guide-back.md` | 백엔드 컨테이너 실행 가이드 | devops-engineer |
-| run-container-guide-front | `guides/deploy/run-container-guide-front.md` | 프론트엔드 컨테이너 실행 가이드 | devops-engineer |
-| deploy-k8s-back | `guides/deploy/deploy-k8s-back.md` | 백엔드 Kubernetes 배포 | devops-engineer |
-| deploy-k8s-front | `guides/deploy/deploy-k8s-front.md` | 프론트엔드 Kubernetes 배포 | devops-engineer |
-| deploy-actions-cicd-back | `guides/deploy/deploy-actions-cicd-back.md` | 백엔드 GitHub Actions CI/CD | devops-engineer |
-| deploy-actions-cicd-front | `guides/deploy/deploy-actions-cicd-front.md` | 프론트엔드 GitHub Actions CI/CD | devops-engineer |
+## 도구 분류 체계
+
+| 카테고리 | 설명 | 설치 주체 |
+|---------|------|----------|
+| 커스텀 앱 | 플러그인 자체 구현 프로그램 (Python 등) | 소스 포함 + 의존성 설치 |
+
+[Top](#로컬-리소스-카탈로그)

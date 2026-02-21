@@ -1,11 +1,21 @@
 tools:
   - name: file_read
-    description: "소스코드, 설계 문서, 가이드 읽기"
+    description: "소스코드, 설계 문서, 가이드, 설정 파일, 실행 프로파일 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
-    description: "백엔드 소스코드, 테스트코드, 설정 파일 작성"
+    description: "백엔드 소스코드, 테스트코드, 설정 파일, build.gradle, 실행 프로파일(.run.xml), 계획서 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
   - name: file_edit
-    description: "기존 소스코드 수정"
+    description: "기존 소스코드, 설정 파일, build.gradle 수정"
+    input: { 파일경로, 수정내용 }
+    output: { 수정결과 }
   - name: shell
-    description: "빌드, 테스트 실행"
+    description: "빌드, 테스트 실행, Gradle Wrapper 생성, Java 버전 확인, MQ 연결 검증, kubectl 명령"
+    input: { 명령어 }
+    output: { 실행결과 }
   - name: mcp_context7
-    description: "Spring Boot, JPA 등 공식 문서 조회"
+    description: "Spring Boot, JPA, Gradle, RabbitMQ, Kafka 등 공식 문서 조회"
+    input: { 라이브러리ID, 질문 }
+    output: { 문서내용, 코드예시 }

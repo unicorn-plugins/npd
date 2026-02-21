@@ -1,5 +1,13 @@
 tools:
   - name: file_read
-    description: "기획 문서, 가이드 읽기"
+    description: "기획 문서, 고객 데이터, 가이드 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
-    description: "유저스토리, 사용자 여정 지도, 프로토타입 기획서 작성"
+    description: "고객분석, 경험조사, 여정맵, 유저스토리, UI/UX 설계, 프로토타입 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
+  - name: web_search
+    description: "고객 트렌드, UX 사례, 디자인 패턴 검색"
+    input: { 검색쿼리 }
+    output: { 검색결과목록 }

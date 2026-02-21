@@ -1,7 +1,17 @@
 tools:
   - name: file_read
-    description: "설계 가이드, 요구사항 문서 읽기"
+    description: "설계 가이드, 요구사항 문서, 기획 산출물 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
-    description: "설계 산출물(아키텍처, 시퀀스, API, 클래스, 데이터) 작성"
+    description: "설계 산출물(아키텍처, 시퀀스, API, 클래스, 데이터, 프론트엔드, 물리, HighLevel) 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
   - name: web_search
-    description: "최신 아키텍처 패턴, 기술 레퍼런스 조회"
+    description: "최신 아키텍처 패턴, 기술 레퍼런스, 클라우드 서비스 가격 조회"
+    input: { 검색쿼리 }
+    output: { 검색결과목록 }
+  - name: mermaid_check
+    description: "Mermaid 다이어그램 문법 검사"
+    input: { 파일경로 }
+    output: { 검사결과 }

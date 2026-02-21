@@ -38,10 +38,50 @@ GitHub 토큰 등 필수 설정을 완료함.
 
 ### Step 3. GitHub 토큰 설정
 
-`resources/guides/github/` 가이드 참조 안내:
-1. `create_repo` 도구 사용을 위한 GitHub Personal Access Token(PAT) 필요 여부 확인
-2. 토큰이 없으면 설정 방법 안내 (설정 방법: 환경변수 `GITHUB_TOKEN`)
-3. `.dmap/secrets/` 디렉토리에 저장하지 않도록 주의
+`create_repo` 도구 사용을 위한 GitHub Personal Access Token(PAT)을 환경변수로 등록합니다.
+
+#### 3-1. 기존 토큰 확인
+
+```bash
+echo $GITHUB_TOKEN
+```
+
+- 값이 출력되면 → ✅ 이미 설정됨, Step 4로 이동
+- 비어 있으면 → 3-2로 진행
+
+#### 3-2. PAT 입력 요청
+
+<!--ASK_USER-->
+{"title":"GitHub Personal Access Token","questions":[
+  {"question":"GitHub PAT를 입력해주세요. (토큰 생성: GitHub → Settings → Developer settings → Personal access tokens → Tokens(classic) → Generate new token, 권한: repo, workflow 체크)","type":"text"}
+]}
+<!--/ASK_USER-->
+
+#### 3-3. 환경변수 등록
+
+입력받은 PAT를 `GITHUB_TOKEN` 환경변수로 영구 등록합니다.
+
+**Mac:**
+```bash
+grep -q 'GITHUB_TOKEN' ~/.zshrc || echo 'export GITHUB_TOKEN="{입력받은 PAT}"' >> ~/.zshrc
+source ~/.zshrc
+```
+
+**Linux / Windows Git Bash:**
+```bash
+grep -q 'GITHUB_TOKEN' ~/.bashrc || echo 'export GITHUB_TOKEN="{입력받은 PAT}"' >> ~/.bashrc
+source ~/.bashrc
+```
+
+등록 확인:
+```bash
+echo $GITHUB_TOKEN
+```
+
+- 값이 출력되면 → ✅ 등록 완료
+- 비어 있으면 → ⚠️ 등록 실패, 수동 설정 안내
+
+**주의:** 토큰을 파일(`.dmap/secrets/` 등)에 직접 저장하지 않습니다.
 
 ### Step 4. 설정 완료 보고
 
@@ -52,8 +92,8 @@ GitHub 토큰 등 필수 설정을 완료함.
 ### 설치된 도구
 - context7 MCP: ✅ / ⚠️ (선택)
 
-### 필요한 환경변수
-- GITHUB_TOKEN: 설정 필요 (create 스킬에서 GitHub 레포 자동 생성 시 필요)
+### GitHub 토큰
+- GITHUB_TOKEN: ✅ 등록됨  /  ⚠️ 미등록 → PAT 설정 참조
 
 ### 다음 단계
 `/npd:create` 로 새 프로젝트를 시작하세요.
@@ -71,12 +111,15 @@ GitHub 토큰 등 필수 설정을 완료함.
 
 | # | 금지 사항 |
 |---|----------|
-| 1 | GitHub 토큰을 파일에 직접 저장하지 않을 것 |
+| 1 | GitHub 토큰을 파일(`.dmap/secrets/` 등)에 직접 저장하지 않을 것 (shell rc 환경변수만 사용) |
 | 2 | 필수(required: true) 도구 설치 실패 시 완료 처리하지 않을 것 |
 
 ## 검증 체크리스트
 
 - [ ] `gateway/install.yaml` 읽기 성공
 - [ ] context7 MCP 설치 또는 이미 설치됨 확인
-- [ ] GITHUB_TOKEN 설정 안내 포함
+- [ ] GITHUB_TOKEN 기존 설정 여부가 확인되는가
+- [ ] 미설정 시 사용자에게 PAT 입력을 요청하는가
+- [ ] 입력받은 PAT가 shell rc 파일에 환경변수로 등록되는가
+- [ ] 등록 후 `echo $GITHUB_TOKEN`으로 확인되는가
 - [ ] 다음 단계 안내 포함

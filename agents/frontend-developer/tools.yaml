@@ -1,11 +1,25 @@
 tools:
   - name: file_read
-    description: "소스코드, UI/UX 설계서, 가이드 읽기"
+    description: "소스코드, UI/UX 설계서, 스타일가이드, 정보아키텍처, API매핑설계서, API명세서, 가이드 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
-    description: "프론트엔드 소스코드, 컴포넌트 작성"
+    description: "프론트엔드 소스코드, 컴포넌트, API 서비스, 타입 정의, 설정 파일 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
   - name: file_edit
-    description: "기존 컴포넌트 수정"
+    description: "기존 컴포넌트, 설정 파일 수정"
+    input: { 파일경로, 수정내용 }
+    output: { 수정결과 }
   - name: shell
-    description: "개발 서버 실행, 빌드"
+    description: "개발 서버 실행, 빌드, 의존성 설치, 린트 검사"
+    input: { 명령어 }
+    output: { 실행결과 }
   - name: mcp_context7
-    description: "React, Vue, Next.js 등 공식 문서 조회"
+    description: "React, Vue, Next.js, Vite, Tailwind CSS, React Query 등 공식 문서 조회"
+    input: { 라이브러리ID, 질문 }
+    output: { 문서내용, 코드예시 }
+  - name: mcp_playwright
+    description: "프로토타입 화면 분석, 모바일 사이즈 확인, UI 검증"
+    input: { URL, 화면크기 }
+    output: { 스크린샷, 접근성스냅샷 }

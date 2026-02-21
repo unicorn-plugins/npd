@@ -1,7 +1,17 @@
 tools:
   - name: file_read
-    description: "테스트 케이스, 설계 문서 읽기"
+    description: "테스트 케이스, 설계 문서, 소스코드, 설정 Manifest, 실행 프로파일(.run.xml), 가이드 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
-    description: "테스트 결과, 버그 리포트 작성"
+    description: "테스트 결과, 버그 리포트, 테스트 코드 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
+  - name: file_edit
+    description: "설정 Manifest, 실행 프로파일 수정"
+    input: { 파일경로, 수정내용 }
+    output: { 수정결과 }
   - name: shell
-    description: "테스트 실행"
+    description: "테스트 실행, curl API 테스트, 컴파일, 서비스 시작/중지, kubectl 명령"
+    input: { 명령어 }
+    output: { 실행결과 }

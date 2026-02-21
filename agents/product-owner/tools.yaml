@@ -1,5 +1,13 @@
 tools:
   - name: file_read
-    description: "기획 문서 및 요구사항 읽기"
+    description: "기획 문서, 요구사항, 비즈니스 데이터 읽기"
+    input: { 파일경로 }
+    output: { 파일내용 }
   - name: file_write
-    description: "제품 비전 문서, MVP 범위 문서 작성"
+    description: "MVP 정의, 킹핀문제, 솔루션 선정, 비즈니스 모델, 발표자료 작성"
+    input: { 파일경로, 내용 }
+    output: { 작성결과 }
+  - name: web_search
+    description: "시장 트렌드, 경쟁사, 비즈니스 모델 사례 검색"
+    input: { 검색쿼리 }
+    output: { 검색결과목록 }

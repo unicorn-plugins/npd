@@ -12,6 +12,10 @@ allowed-tools: Read, Write, Edit, Bash
 
 사용자가 `/npd:add-ext-skill`로 호출하여 외부 플러그인 연동 스킬(ext-{대상플러그인})을 추가할 수 있게 함.
 
+## 활성화 조건
+
+사용자가 `/npd:add-ext-skill` 호출 시 또는 "외부 스킬 추가", "ext-skill 추가" 키워드 감지 시.
+
 ## 워크플로우
 
 ### Step 1: 대상 플러그인 탐색

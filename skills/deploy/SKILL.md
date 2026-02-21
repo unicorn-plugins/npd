@@ -19,9 +19,54 @@ Kubernetes 배포 → CI/CD 파이프라인 구성 순서로 배포 환경을 �
 
 - `/npd:develop` 완료 (소스코드 존재)
 
+## 에이전트 호출 규칙
+
+| 에이전트 | FQN |
+|----------|-----|
+| devops-engineer | `npd:devops-engineer:devops-engineer` |
+
+### 프롬프트 조립
+
+1. `agents/{agent-name}/`에서 3파일 로드 (AGENT.md + agentcard.yaml + tools.yaml)
+2. `gateway/runtime-mapping.yaml` 참조하여 구체화:
+   - **모델 구체화**: agentcard.yaml의 `tier` → `tier_mapping`에서 모델 결정
+   - **툴 구체화**: tools.yaml의 추상 도구 → `tool_mapping`에서 실제 도구 결정
+   - **금지액션 구체화**: agentcard.yaml의 `forbidden_actions` → `action_mapping`에서 제외할 실제 도구 결정
+   - **최종 도구** = (구체화된 도구) - (제외 도구)
+3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
+4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
+
+## 배포 환경 선택
+
+사용자에게 배포 환경을 확인하여 적절한 가이드를 참조함.
+
+### 배포 대상 클러스터
+
+| 옵션 | 설명 | 참조 가이드 (K8s 배포) |
+|------|------|----------------------|
+| AKS (Azure) | Azure Kubernetes Service 클러스터 배포 | `deploy-k8s-back.md`, `deploy-k8s-front.md` |
+| Minikube | Minikube/Generic K8s 클러스터 배포 (SSH 터널링) | `deploy-k8s-back-minikube.md`, `deploy-k8s-front-minikube.md` |
+
+### CI/CD 파이프라인 유형
+
+| 옵션 | 설명 | 참조 가이드 |
+|------|------|------------|
+| GitHub Actions (AKS) | Azure 기반 GitHub Actions CI/CD | `deploy-actions-cicd-back.md`, `deploy-actions-cicd-front.md` |
+| GitHub Actions (Minikube) | Minikube/Generic K8s 대상 GitHub Actions CI/CD (SSH 터널링, Docker Hub) | `deploy-actions-cicd-back-minikube.md`, `deploy-actions-cicd-front-minikube.md` |
+| Jenkins | Jenkins + Podman 기반 CI/CD 파이프라인 | `deploy-jenkins-cicd-back.md`, `deploy-jenkins-cicd-front.md` |
+| ArgoCD | GitOps 방식 CI/CD 분리 (매니페스트 레포지토리 활용) | `deploy-argocd-cicd.md` |
+
+### 환경 선택 분기 규칙
+
+1. `[실행정보]`에 `ACR_NAME` 또는 `AKS_CLUSTER`가 있으면 **AKS** 경로 선택
+2. `[실행정보]`에 `VM_IP` 또는 `MINIKUBE_IP`가 있으면 **Minikube** 경로 선택
+3. `[실행정보]`에 `JENKINS_GIT_CREDENTIALS`가 있으면 **Jenkins** CI/CD 추가 구성
+4. `[실행정보]`에 `MANIFEST_REPO_URL`이 있으면 **ArgoCD** CI/CD 추가 구성
+5. 명시적 지정이 없으면 사용자에게 확인 후 진행
+
 ## 워크플로우
 
-### Step 1. 컨테이너 이미지 빌드 → Agent: devops-engineer
+### Step 1. 컨테이너 이미지 빌드 → Agent: devops-engineer (`/oh-my-claudecode:ralph` 활용)
 
 - **TASK**: 백엔드와 프론트엔드 Dockerfile을 작성하고 컨테이너 이미지를 빌드
 - **EXPECTED OUTCOME**: `backend/Dockerfile`, `frontend/Dockerfile` 생성 및 빌드 성공
@@ -29,7 +74,7 @@ Kubernetes 배포 → CI/CD 파이프라인 구성 순서로 배포 환경을 �
 - **MUST NOT DO**: 빌드 실패 상태로 다음 단계 진행하지 않을 것
 - **CONTEXT**: CLAUDE.md 기술스택, 프로젝트 디렉토리 구조
 
-### Step 2. 컨테이너 실행 검증 → Agent: devops-engineer
+### Step 2. 컨테이너 실행 검증 → Agent: devops-engineer (`/oh-my-claudecode:ultraqa` 활용)
 
 - **TASK**: 빌드된 이미지로 컨테이너를 실행하여 정상 동작 확인
 - **EXPECTED OUTCOME**: 백엔드·프론트엔드 컨테이너 정상 실행 확인
@@ -37,37 +82,89 @@ Kubernetes 배포 → CI/CD 파이프라인 구성 순서로 배포 환경을 �
 - **MUST NOT DO**: 로컬 검증 없이 K8s 배포를 진행하지 않을 것
 - **CONTEXT**: 빌드된 Docker 이미지명
 
-### Step 3. Kubernetes 배포 → Agent: devops-engineer
+### Step 3. Kubernetes 배포 → Agent: devops-engineer (`/oh-my-claudecode:ralph` 활용)
 
 - **TASK**: K8s Deployment, Service, Ingress 매니페스트를 작성하고 배포
 - **EXPECTED OUTCOME**: `deploy/k8s/` 디렉토리에 매니페스트 파일 생성 및 배포 성공
-- **MUST DO**: `resources/guides/deploy/deploy-k8s-back.md`, `deploy-k8s-front.md` 참조
+- **MUST DO**: 배포 대상 클러스터에 따라 적절한 가이드 참조
+  - AKS: `resources/guides/deploy/deploy-k8s-back.md`, `deploy-k8s-front.md`
+  - Minikube: `resources/guides/deploy/deploy-k8s-back-minikube.md`, `deploy-k8s-front-minikube.md`
 - **MUST NOT DO**: 컨테이너 실행 검증 없이 K8s 배포를 진행하지 않을 것
-- **CONTEXT**: Docker 이미지명, 서비스 포트 정보
+- **CONTEXT**: Docker 이미지명, 서비스 포트 정보, 배포 대상 클러스터 유형
 
-### Step 4. CI/CD 파이프라인 구성 → Agent: devops-engineer
+### Step 4. CI/CD 파이프라인 구성 → Agent: devops-engineer (`/oh-my-claudecode:ralph` 활용)
 
-- **TASK**: GitHub Actions 워크플로우를 작성하여 자동 빌드·테스트·배포 파이프라인 구성
-- **EXPECTED OUTCOME**: `.github/workflows/backend.yml`, `.github/workflows/frontend.yml` 생성
-- **MUST DO**: `resources/guides/deploy/deploy-actions-cicd-back.md`, `deploy-actions-cicd-front.md` 참조. main 브랜치 push 시 자동 배포 트리거
+- **TASK**: 선택된 CI/CD 유형에 따라 파이프라인을 구성
+- **EXPECTED OUTCOME**: CI/CD 파이프라인 설정 파일 생성
+- **MUST DO**: CI/CD 유형에 따라 적절한 가이드 참조
+  - GitHub Actions (AKS): `resources/guides/deploy/deploy-actions-cicd-back.md`, `deploy-actions-cicd-front.md`
+  - GitHub Actions (Minikube): `resources/guides/deploy/deploy-actions-cicd-back-minikube.md`, `deploy-actions-cicd-front-minikube.md`
+  - Jenkins: `resources/guides/deploy/deploy-jenkins-cicd-back.md`, `deploy-jenkins-cicd-front.md`
+  - ArgoCD: `resources/guides/deploy/deploy-argocd-cicd.md` (기존 CI 파이프라인의 Deploy 단계를 매니페스트 레포지토리 업데이트로 교체)
 - **MUST NOT DO**: 시크릿(GITHUB_TOKEN 등)을 워크플로우 파일에 하드코딩하지 않을 것
-- **CONTEXT**: K8s 클러스터 정보, 컨테이너 레지스트리 정보
+- **CONTEXT**: K8s 클러스터 정보, 컨테이너 레지스트리 정보, CI/CD 유형
+
+#### Step 4 산출물 (CI/CD 유형별)
+
+| CI/CD 유형 | 산출물 |
+|-----------|--------|
+| GitHub Actions (AKS) | `.github/workflows/backend-cicd.yaml`, `.github/workflows/frontend-cicd.yaml`, `.github/kustomize/*`, `.github/config/*` |
+| GitHub Actions (Minikube) | `.github/workflows/backend-cicd.yaml`, `.github/workflows/frontend-cicd.yaml`, `.github/kustomize/*` |
+| Jenkins | `deployment/cicd/Jenkinsfile` (백엔드/프론트엔드), `deployment/cicd/kustomize/*`, `deployment/cicd/config/*` |
+| ArgoCD | `deployment/cicd/Jenkinsfile_ArgoCD` 또는 `.github/workflows/*_ArgoCD.yaml`, 매니페스트 레포지토리 구성 |
 
 ### Step 5. 배포 완료 보고
 
 ```
 ## 배포 완료
 
+### 배포 환경
+- 클러스터 유형: {AKS / Minikube}
+- CI/CD 유형: {GitHub Actions / Jenkins / ArgoCD}
+
 ### 배포 결과
-- 백엔드 컨테이너: ✅ 빌드 및 배포 완료
-- 프론트엔드 컨테이너: ✅ 빌드 및 배포 완료
-- K8s 배포: ✅ 완료
-- CI/CD 파이프라인: ✅ 구성 완료
+- 백엔드 컨테이너: 빌드 및 배포 완료
+- 프론트엔드 컨테이너: 빌드 및 배포 완료
+- K8s 배포: 완료
+- CI/CD 파이프라인: 구성 완료
 
 ### 접속 정보
 - 백엔드 API: {URL}
 - 프론트엔드: {URL}
+
+### 구성된 파이프라인 정보
+- 파이프라인 유형: {유형}
+- 환경별 배포: dev / staging / prod
+- SonarQube 연동: {연동 여부}
 ```
+
+## 완료 조건
+
+- [ ] 모든 워크플로우 단계가 정상 완료됨
+- [ ] Dockerfile(백엔드/프론트엔드)이 생성되고 빌드 성공
+- [ ] K8s 매니페스트(`deploy/k8s/`)가 생성되고 배포 성공
+- [ ] CI/CD 파이프라인이 선택된 유형에 맞게 구성됨
+- [ ] 검증 프로토콜을 통과함
+- [ ] 에러 0건
+
+## 검증 프로토콜
+
+1. 산출물 파일 존재 확인 (Dockerfile, K8s 매니페스트, CI/CD 설정 파일)
+2. 산출물 내용 품질 검증 (컨테이너 빌드 성공, 로컬 실행 정상, 배포 정상)
+3. 이전 Phase 산출물과의 일관성 확인 (개발 산출물 → 배포 산출물 연계)
+4. CI/CD 파이프라인 설정 검증 (환경별 Kustomize overlay 구성, 시크릿 관리 방식)
+
+## 상태 정리
+
+완료 시 임시 상태 파일 정리. 산출물은 유지.
+
+## 취소
+
+사용자가 "cancelomc" 또는 "stopomc" 요청 시 현재 단계를 안전하게 중단하고 진행 상태를 보고함.
+
+## 재개
+
+마지막 완료된 Step부터 재시작. 이전 산출물이 존재하면 해당 단계는 건너뜀.
 
 ## MUST 규칙
 
@@ -76,6 +173,9 @@ Kubernetes 배포 → CI/CD 파이프라인 구성 순서로 배포 환경을 �
 | 1 | 컨테이너 빌드 → 로컬 실행 검증 → K8s 배포 → CI/CD 순서를 반드시 준수할 것 |
 | 2 | 각 단계 실패 시 다음 단계로 진행하지 않고 오류를 보고할 것 |
 | 3 | 모든 시크릿은 환경변수 또는 K8s Secret으로 관리할 것 |
+| 4 | 배포 대상 클러스터와 CI/CD 유형에 맞는 가이드를 참조할 것 |
+| 5 | Minikube 배포 시 SSH 터널링 설정을 반드시 포함할 것 |
+| 6 | ArgoCD 구성 시 CI/CD 분리 원칙(CI는 빌드·푸시, CD는 ArgoCD 자동 배포)을 준수할 것 |
 
 ## MUST NOT 규칙
 
@@ -83,6 +183,7 @@ Kubernetes 배포 → CI/CD 파이프라인 구성 순서로 배포 환경을 �
 |---|----------|
 | 1 | 로컬 검증 없이 K8s 배포를 진행하지 않을 것 |
 | 2 | 시크릿을 파일에 하드코딩하지 않을 것 |
+| 3 | 배포 대상 클러스터 유형을 확인하지 않고 기본값으로 진행하지 않을 것 |
 
 ## 검증 체크리스트
 
@@ -90,6 +191,7 @@ Kubernetes 배포 → CI/CD 파이프라인 구성 순서로 배포 환경을 �
 - [ ] 프론트엔드 Dockerfile 생성 및 빌드 성공
 - [ ] 컨테이너 로컬 실행 검증 완료
 - [ ] K8s 매니페스트 생성 및 배포 완료
-- [ ] GitHub Actions 워크플로우 생성 완료
+- [ ] CI/CD 파이프라인 생성 완료 (선택된 유형에 맞게)
+- [ ] 환경별(dev/staging/prod) Kustomize overlay 구성 완료
 - [ ] 시크릿 하드코딩 없음
 - [ ] 배포 완료 보고 생성
