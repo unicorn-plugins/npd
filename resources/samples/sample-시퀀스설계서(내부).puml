@@ -1,0 +1,248 @@
+@startuml
+!theme mono
+title 일정 서비스 - 경로 및 시간 계산 내부 시퀀스
+
+actor User as "여행자"
+participant RouteController as "RouteController"
+participant RouteService as "RouteService"
+participant RouteCalculator as "RouteCalculator"
+participant CacheManager as "CacheManager\n(Redis)"
+participant RouteRepository as "RouteRepository"
+participant MCPProvider as "MCP Provider\n(Location Service)"
+participant ProfileCache as "Profile Cache\n(Transport Settings)"
+
+note over User, ProfileCache
+    사용자가 여행 일정의 장소들 간 이동 경로와 시간을 계산하고
+    최적화하여 현실적인 일정을 수립하는 과정
+end note
+
+== 경로 계산 및 최적화 요청 ==
+
+User -> RouteController : POST /api/itinerary/trips/{tripId}/routes/calculate
+note right : RouteCalculateRequest\n- date: 2024-07-02\n- places: [placeId1, placeId2, ...]\n- transportType: PRIVATE_CAR\n- optimization: {optimize: true}
+
+RouteController -> RouteController : 요청 데이터 검증
+note right
+    - 최소 2개 이상의 장소 필요
+    - 날짜 형식 및 유효성 검증
+    - transportType 유효성 확인
+end note
+
+RouteController -> RouteService : calculateRoutes(tripId, request)
+
+== 캐시 및 설정 정보 조회 ==
+
+RouteService -> ProfileCache : getTransportSettings(tripId)
+note right : 여행의 기본 이동 수단 설정 조회
+ProfileCache --> RouteService : TransportSettings\n(기본 이동 수단, 선호도)
+
+RouteService -> RouteService : 이동 수단 결정
+note right
+    요청에 transportType이 있으면 사용
+    없으면 프로파일의 기본 설정 사용
+end note
+
+RouteService -> CacheManager : getCachedRoute(routeKey)
+note right
+    routeKey = hash(places, transportType, date, options)
+    기존 계산된 경로가 있는지 확인
+end note
+
+alt 캐시된 경로 존재
+    CacheManager --> RouteService : CachedRouteResult
+    RouteService -> RouteService : 캐시 유효성 검증
+    note right
+        - TTL 확인 (교통 정보 기준)
+        - 실시간 교통 요청 여부 확인
+    end note
+    
+    alt 캐시 유효함
+        RouteService --> RouteController : RouteCalculateResponse\n(캐시된 결과)
+        RouteController --> User : 200 OK with cached routes
+    else 캐시 만료 또는 실시간 요청
+        RouteService -> RouteService : 새로운 계산 필요
+    end
+end
+
+== 실제 경로 계산 프로세스 ==
+
+RouteService -> RouteCalculator : calculateOptimalRoutes(places, transportType, options)
+
+RouteCalculator -> RouteCalculator : MCP 제공자 선택
+note right
+    국내 여행: Kakao Map MCP
+    해외 여행: Google Maps MCP
+    장소의 국가 정보로 판단
+end note
+
+== 순차 경로 계산 ==
+
+loop 각 구간별 경로 계산 (i번째 -> i+1번째 장소)
+    RouteCalculator -> MCPProvider : getDirections(fromPlace, toPlace, transportType)
+    note right
+        - origin: lat, lng
+        - destination: lat, lng  
+        - mode: driving/transit/walking
+        - departure_time: 출발 예정 시간
+        - traffic_model: real_time
+    end note
+    
+    MCPProvider -> MCPProvider : 외부 API 호출
+    note right
+        국내: Kakao Direction API
+        해외: Google Maps Direction API
+    end note
+    
+    MCPProvider --> RouteCalculator : DirectionResult\n- distance, duration\n- polyline, steps\n- traffic_info
+    
+    RouteCalculator -> RouteCalculator : 결과 표준화 및 검증
+    note right
+        - 거리/시간 단위 통일
+        - 불가능한 경로 필터링
+        - 대체 경로 확인
+    end note
+end
+
+== 경로 최적화 (옵션) ==
+
+alt optimization.optimize = true
+    RouteCalculator -> RouteCalculator : 경로 최적화 알고리즘
+    note right
+        TSP(Traveling Salesman Problem) 기반
+        - 시작점/끝점 고정
+        - 중간 장소 순서 최적화
+        - 총 이동 시간 최소화
+    end note
+    
+    RouteCalculator -> MCPProvider : getOptimizedWaypoints(places, constraints)
+    MCPProvider --> RouteCalculator : OptimizedRouteOrder
+    
+    RouteCalculator -> RouteCalculator : 최적화된 순서로 재계산
+end
+
+== 대체 경로 계산 ==
+
+RouteCalculator -> MCPProvider : getAlternativeRoutes(primaryRoute, options)
+note right
+    - avoid_tolls: 유료도로 회피
+    - avoid_highways: 고속도로 회피
+    - scenic_route: 경관 도로 우선
+end note
+
+MCPProvider --> RouteCalculator : AlternativeRoutes[]
+
+== 결과 생성 및 캐싱 ==
+
+RouteCalculator -> RouteCalculator : 결과 종합 및 검증
+note right
+    - 총 거리/시간 계산
+    - 구간별 상세 정보 정리
+    - polyline 데이터 압축
+    - 실시간 교통 정보 반영
+end note
+
+RouteCalculator --> RouteService : RouteCalculationResult
+
+RouteService -> RouteRepository : saveRouteCalculation(result)
+note right : 계산 결과를 DB에 저장 (이력 관리)
+
+RouteService -> CacheManager : cacheRoute(routeKey, result, TTL)
+note right
+    TTL 설정 전략:
+    - 실시간 교통 포함: 15분
+    - 정적 경로: 24시간
+    - 교통 혼잡 시간대: 5분
+end note
+
+RouteService -> RouteService : 응답 데이터 구성
+note right
+    RouteCalculateResponse {
+        totalDistance, totalDuration,
+        routes[], alternativeRoutes[],
+        optimization_applied,
+        traffic_considered
+    }
+end note
+
+RouteService --> RouteController : RouteCalculateResponse
+RouteController --> User : 200 OK with calculation results
+
+== 경로 상세 정보 조회 ==
+
+User -> RouteController : GET /api/itinerary/routes/{routeId}?realtime=true
+
+RouteController -> RouteService : getRouteDetail(routeId, realtime)
+
+alt realtime = true
+    RouteService -> MCPProvider : getRealTimeTrafficInfo(routeId)
+    MCPProvider --> RouteService : RealTimeTrafficInfo
+    note right
+        - 현재 교통 혼잡도
+        - 예상 지연 시간  
+        - 사고/공사 정보
+    end note
+    
+    RouteService -> RouteService : 실시간 정보 적용
+else realtime = false
+    RouteService -> CacheManager : getCachedRouteDetail(routeId)
+    alt 캐시 존재
+        CacheManager --> RouteService : CachedRouteDetail
+    else 캐시 없음
+        RouteService -> RouteRepository : findRouteById(routeId)
+        RouteRepository --> RouteService : RouteEntity
+    end
+end
+
+RouteService -> RouteService : RouteDetail 구성
+note right
+    상세 정보:
+    - 구간별 step-by-step directions
+    - polyline 경로 데이터
+    - 실시간 교통 정보
+    - 예상 소요 시간
+    - 대체 경로 옵션
+end note
+
+RouteService --> RouteController : RouteDetail
+RouteController --> User : 200 OK with detailed route info
+
+== 오류 처리 ==
+
+alt MCP API 오류 발생
+    MCPProvider --> RouteCalculator : API Error (rate limit, network, etc.)
+    RouteCalculator -> RouteCalculator : 폴백 전략 실행
+    note right
+        1. 캐시된 과거 데이터 사용
+        2. 다른 MCP 제공자 시도
+        3. 정적 거리 계산으로 대체
+        4. 오류 응답 반환
+    end note
+    
+    RouteCalculator --> RouteService : Fallback Result or Error
+    RouteService --> RouteController : 부분 성공 또는 오류 응답
+    RouteController --> User : 206 Partial Content or 500 Error
+end
+
+alt 장소 정보 오류
+    RouteCalculator -> RouteCalculator : 장소 검증 실패
+    note right
+        - 좌표 정보 없음
+        - 접근 불가능한 장소
+        - 존재하지 않는 장소
+    end note
+    
+    RouteCalculator --> RouteService : ValidationError
+    RouteService --> RouteController : BadRequestError
+    RouteController --> User : 400 Bad Request
+end
+
+note over User, ProfileCache
+    핵심 비즈니스 로직:
+    1. 캐시 우선 전략으로 성능 최적화
+    2. 국가별 최적 MCP 제공자 자동 선택
+    3. 실시간 교통 정보 반영으로 정확성 향상
+    4. 경로 최적화로 효율적인 여행 일정 지원
+    5. 대체 경로 제공으로 선택의 다양성 보장
+end note
+
+@enduml

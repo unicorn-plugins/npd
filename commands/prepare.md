@@ -3,4 +3,4 @@ description: Claude Code 사용을 위한 로컬 개발 환경 사전준비 (기
 allowed-tools: Read, Bash
 ---
 
-skills/prepare/SKILL.md 파일을 읽고 그 지시를 따라 실행하세요.
+~/.claude/plugins/cache/**/{plugin-name}/ 하위 최신 버전 디렉토리의 skills/prepare/SKILL.md 파일을 읽고 실행하세요.

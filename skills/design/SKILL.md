@@ -36,6 +36,8 @@ allowed-tools: Read, Write, Task, Bash
 |----------|-----|
 | architect | `npd:architect:architect` |
 | ai-engineer | `npd:ai-engineer:ai-engineer` |
+| product-owner | `npd:product-owner:product-owner` |
+| backend-developer | `npd:backend-developer:backend-developer` |
 
 ### 프롬프트 조립
 
@@ -48,9 +50,32 @@ allowed-tools: Read, Write, Task, Bash
 3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
 4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
 
+## 리소스 경로 규칙
+
+본 스킬의 가이드·참조·샘플·도구 파일은 NPD 플러그인 디렉토리에 위치합니다.
+프로젝트 작업 디렉토리와 플러그인 디렉토리가 다르므로, 아래 변수를 사용합니다.
+
+**`{PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
+
+### 경로 해석 규칙
+
+오케스트레이터는 실행 시작 시 다음 순서로 `{PLUGIN_DIR}`를 결정합니다:
+
+1. `~/.claude/plugins/cache/npd/npd/` 하위에서 최신 버전 디렉토리를 탐색
+2. 해당 디렉토리의 절대 경로를 `{PLUGIN_DIR}`에 바인딩
+3. 이후 모든 `{PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
+
+**예시**: `{PLUGIN_DIR}/resources/guides/design/common-principles.md`
+→ `~/.claude/plugins/cache/npd/npd/0.2.0/resources/guides/design/common-principles.md`
+
+### 에이전트에 전달 시
+
+1. 가이드 파일(`{PLUGIN_DIR}/resources/guides/...`)은 Read로 읽어 프롬프트에 포함
+2. 가이드 내에서 참조하는 플러그인 리소스(`{PLUGIN_DIR}/resources/references/...`, `{PLUGIN_DIR}/resources/samples/...` 등)는 `{PLUGIN_DIR}`를 절대 경로로 치환하여 에이전트에게 전달하여 에이전트가 직접 읽을 수 있도록 함
+
 ## 공통 설계 원칙
 
-모든 Step에서 `resources/guides/design/common-principles.md`를 준수:
+모든 Step에서 `{PLUGIN_DIR}/resources/guides/design/common-principles.md`를 준수:
 
 ## Step 0. 진행 모드 선택
 
@@ -80,49 +105,131 @@ allowed-tools: Read, Write, Task, Bash
 
 ### Step 1. 아키텍처 패턴 선정 → Agent: architect (`/oh-my-claudecode:ralplan` 활용)
 
-- **GUIDE**: `resources/guides/design/architecture-patterns.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/architecture-patterns.md` 참조
 - **TASK**: 기획 산출물과 기술스택을 기반으로 패턴 후보를 정량 평가하고 MVP→확장→고도화 로드맵을 수립
 - **EXPECTED OUTCOME**: `architecture.md` (패턴 평가 매트릭스, Mermaid 다이어그램, Phase별 로드맵)
 
+### Step 1-R. 아키텍처 패턴 리뷰 → Agent: product-owner + backend-developer (병렬)
+
+> **리뷰 수행 조건**: 단계별 승인 모드일 때만 사용자에게 리뷰 수행 여부를 묻고, 사용자가 희망하는 경우에만 리뷰를 수행한다. 자동 진행 모드에서는 리뷰를 건너뛴다.
+
+- **단계별 승인** 모드인 경우 → 아래 질문을 표시:
+
+<!--ASK_USER-->
+{"title":"아키텍처 패턴 리뷰","questions":[
+  {"question":"아키텍처 패턴 선정 결과(docs/design/architecture.md)에 대해 리뷰를 수행할까요?","type":"radio","options":["리뷰 수행","건너뛰기"]}
+]}
+<!--/ASK_USER-->
+
+  - **리뷰 수행** → 아래 리뷰 절차를 진행
+  - **건너뛰기** → Step 2로 진행
+
+- **자동 진행** 모드인 경우 → 리뷰를 건너뛰고 Step 2로 진행
+
+- **리뷰어 1 — product-owner (피오)**:
+  - 관점: 비즈니스 가치 정렬
+  - 검토 항목: MVP/스타트업 프로파일 가중치 적절성, Phase별 로드맵과 비즈니스 우선순위(S05→S04→S06) 일치 여부, 비용 효율성 판단의 합리성
+  - 입력: `docs/design/architecture.md`, `docs/plan/think/핵심솔루션.md`
+
+- **리뷰어 2 — backend-developer (데브-백)**:
+  - 관점: 구현 현실성
+  - 검토 항목: 11개 패턴의 실제 구현 난이도, Sprint 0~4 일정의 현실성, 기술 선택(resilience4j, Redis, Spring Scheduler 등)의 팀 역량 부합 여부
+  - 입력: `docs/design/architecture.md`, `docs/plan/design/userstory.md`
+
+- **수행 방식**: 두 리뷰어를 **병렬**로 호출하여 리뷰 의견을 수집
+- **리뷰 결과 형식**: 각 리뷰어는 아래 형식으로 의견을 제출
+  ```
+  ## 리뷰 의견 ({리뷰어 닉네임})
+  ### 승인/조건부 승인/재작업 요청
+  ### 긍정적 평가
+  - {항목}
+  ### 개선 필요 사항
+  - [{심각도: 높음/중간/낮음}] {항목}: {구체적 사유와 대안}
+  ### 질문 사항
+  - {항목}
+  ```
+- **반영 절차**:
+  1. 두 리뷰어의 의견을 종합하여 사용자에게 보고
+  2. 심각도 '높음' 항목이 있으면 → architect 에이전트가 `architecture.md`를 수정 후 재리뷰
+  3. 심각도 '중간' 이하만 있으면 → architect 에이전트가 반영 후 다음 단계 진행
+  4. 모두 승인이면 → 다음 단계 진행
+- **EXPECTED OUTCOME**: 리뷰 반영 완료된 `architecture.md`
+
 ### Step 2. 논리 아키텍처 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/logical-architecture-design.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/logical-architecture-design.md` 참조
 - **TASK**: 선정된 아키텍처 패턴 기반으로 서비스 간 관계·통신 전략·데이터 흐름을 설계하고 Context Map 스타일 Mermaid 다이어그램 작성
 - **EXPECTED OUTCOME**: `logical-architecture.md`, `logical-architecture.mmd`
 
 ### Step 3. 시퀀스 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/sequence-outer-design.md`, `resources/guides/design/sequence-inner-design.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/sequence-outer-design.md`, `{PLUGIN_DIR}/resources/guides/design/sequence-inner-design.md` 참조
 - **TASK**: 핵심 유저스토리의 외부(서비스 간) 및 내부(서비스 내) 시퀀스 다이어그램을 PlantUML로 작성하고 문법 검사 수행
 - **EXPECTED OUTCOME**: `sequence/outer/{플로우명}.puml` (플로우별), `sequence/inner/{서비스명}-{시나리오}.puml` (서비스-시나리오별)
 
 ### Step 4. API 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/api-design.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/api-design.md` 참조
 - **TASK**: 유저스토리와 시퀀스 설계 기반으로 서비스별 REST API를 OpenAPI 3.0으로 설계하고 swagger-cli 검증 수행
 - **EXPECTED OUTCOME**: `api/{service-name}-api.yaml` (서비스별)
 
 ### Step 5. 클래스 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/class-design.md` 참조
-- **TASK**: 공통 컴포넌트 순차 설계 → 서비스별 병렬 클래스 다이어그램 설계(상세+요약) → 통합 검증 3단계로 수행하고 PlantUML 문법 검사 실행
+#### 5-0. 마이크로서비스별 설계 아키텍처 패턴 선택
+
+Step 5 시작 시 `docs/design/logical-architecture.md`에서 마이크로서비스 목록을 추출한 뒤, 각 마이크로서비스별로 적용할 설계 아키텍처 패턴을 사용자에게 확인합니다.
+
+1. `docs/design/logical-architecture.md`를 읽어 마이크로서비스 목록을 파악
+2. 아래 형식으로 마이크로서비스별 패턴을 질문 (서비스 수만큼 반복):
+
+<!--ASK_USER-->
+{"title":"설계 아키텍처 패턴 선택","questions":[
+  {"question":"{서비스명1}에 적용할 설계 아키텍처 패턴을 선택해 주세요.","type":"radio","options":["Layered Architecture","Clean Architecture"]},
+  {"question":"{서비스명2}에 적용할 설계 아키텍처 패턴을 선택해 주세요.","type":"radio","options":["Layered Architecture","Clean Architecture"]},
+  {"question":"{서비스명N}에 적용할 설계 아키텍처 패턴을 선택해 주세요.","type":"radio","options":["Layered Architecture","Clean Architecture"]}
+]}
+<!--/ASK_USER-->
+
+> `{서비스명1}` ~ `{서비스명N}`은 `logical-architecture.md`에서 추출한 실제 마이크로서비스 이름으로 치환합니다.
+
+3. 각 서비스별 선택 결과를 `{설계 아키텍처 패턴}` 변수에 **서비스명→패턴** 매핑으로 바인딩
+4. 이후 Step 5~Step 6의 에이전트 프롬프트에 서비스별 `{설계 아키텍처 패턴}` 매핑을 전달
+
+#### 5-1. 클래스 설계 수행
+
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/class-design.md` 참조
+- **TASK**: **{설계 아키텍처 패턴}** 기반으로 공통 컴포넌트 순차 설계 → 서비스별 병렬 클래스 다이어그램 설계(상세+요약) → 통합 검증 3단계로 수행하고 PlantUML 문법 검사 실행
 - **EXPECTED OUTCOME**: `class/common-base.puml`, `class/{service-name}.puml`, `class/{service-name}-simple.puml`, `class/package-structure.md`
 
 ### Step 6. 데이터 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/data-design.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/data-design.md` 참조
 - **TASK**: 클래스 설계 기반으로 서비스별 DB 스키마·ERD·Redis 캐시 설계를 병렬 수행하고 PlantUML 문법 검사 실행
 - **EXPECTED OUTCOME**: `database/{service-name}.md`, `database/{service-name}-erd.puml`, `database/{service-name}-schema.psql`, `database/cache-db-design.md`
 
-### Step 7. 프론트엔드 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
+### Step 7. HighLevel 아키텍처 정의 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/frontend-design.md` 참조
-- **TASK**: UI/UX 설계서와 프로토타입 기반으로 UI 프레임워크 선정, 화면별 상세 설계, 스타일가이드, 정보 아키텍처, API 매핑 설계서 작성
-- **EXPECTED OUTCOME**: `frontend/uiux-design.md`, `frontend/style-guide.md`, `frontend/ia.md`, `frontend/api-mapping.md`
+#### 7-0. Cloud 서비스 선택
+
+Step 7 시작 시 사용자에게 배포 대상 Cloud 서비스를 확인합니다.
+
+<!--ASK_USER-->
+{"title":"Cloud 서비스 선택","questions":[
+  {"question":"사용할 Cloud 서비스를 선택해 주세요.","type":"radio","options":["AWS","Azure","GCP"]}
+]}
+<!--/ASK_USER-->
+
+선택된 값을 `{CLOUD}` 변수에 바인딩하고, 이후 Step 7~Step 10의 에이전트 프롬프트에 `{CLOUD}` 값을 전달합니다.
+
+#### 7-1. HighLevel 아키텍처 정의 수행
+
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/architecture-highlevel.md` 참조
+- **TASK**: 전체 설계 산출물을 종합하여 Executive Summary부터 ADR까지 HighLevel 아키텍처 정의서 작성. Cloud 환경은 **{CLOUD}** 기준으로 설계
+- **EXPECTED OUTCOME**: `high-level-architecture.md` (전체 아키텍처 종합, 각 산출물 참조 경로, ADR)
 
 ### Step 8. 물리 아키텍처 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/physical-architecture-design.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/physical-architecture-design.md` 참조
 - **TASK**: 개발·운영 환경별 K8s 인프라·네트워크·배포 구조를 Mermaid 다이어그램과 함께 설계하고 문법 검증 수행
 - **EXPECTED OUTCOME**: `physical/physical-architecture.md`, `physical/physical-architecture-dev.md`, `physical/physical-architecture-prod.md`, `physical/physical-architecture-dev.mmd`, `physical/physical-architecture-prod.mmd`, `physical/network-dev.mmd`, `physical/network-prod.mmd`
 
@@ -131,11 +238,11 @@ allowed-tools: Read, Write, Task, Bash
 - **TASK**: 핵심 솔루션의 AI 활용 기회를 우선순위화하고 API 연동·프롬프트·모델 선정·AI 기능 아키텍처를 설계
 - **EXPECTED OUTCOME**: `ai-integration.md` (AI 활용 기회 목록, 엔드포인트·프롬프트 설계, 모델 선정 근거, 아키텍처 다이어그램)
 
-### Step 10. HighLevel 아키텍처 정의 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
+### Step 10. 프론트엔드 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/architecture-highlevel.md` 참조
-- **TASK**: 전체 설계 산출물을 종합하여 Executive Summary부터 ADR까지 HighLevel 아키텍처 정의서 작성
-- **EXPECTED OUTCOME**: `high-level-architecture.md` (전체 아키텍처 종합, 각 산출물 참조 경로, ADR)
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/frontend-design.md` 참조
+- **TASK**: UI/UX 설계서와 프로토타입 기반으로 UI 프레임워크 선정, 화면별 상세 설계, 스타일가이드, 정보 아키텍처, API 매핑 설계서 작성
+- **EXPECTED OUTCOME**: `frontend/uiux-design.md`, `frontend/style-guide.md`, `frontend/ia.md`, `frontend/api-mapping.md`
 
 ### Step 11. 설계 완료 보고
 
@@ -193,7 +300,7 @@ allowed-tools: Read, Write, Task, Bash
 
 ## 완료 조건
 
-- [ ] 모든 워크플로우 단계(Step 1~11)가 정상 완료됨
+- [ ] 모든 워크플로우 단계(Step 1~1R~11)가 정상 완료됨
 - [ ] 산출물이 `docs/design/` 하위 디렉토리에 생성됨
 - [ ] 검증 프로토콜을 통과함
 - [ ] 에러 0건

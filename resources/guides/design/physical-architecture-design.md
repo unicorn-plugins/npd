@@ -10,9 +10,16 @@
 | 아키텍처 패턴 설계서 | `docs/design/architecture.md` | 패턴 기반 인프라 |
 | 논리 아키텍처 | `docs/design/logical-architecture.md` | 서비스 구성 확인 |
 | 데이터 설계서 | `docs/design/database/` | DB 인프라 구성 |
+| HighLevel아키텍처정의서 | `docs/design/high-level-architecture.md` | 참조 |
+| 개발환경 물리아키텍처 설계서 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-dev.md` | 참조 |
+| 운영환경 물리아키텍처 설계서 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-prod.md` | 참조 |
+| 마스터 물리아키텍처 설계서 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture.md` | 참조 |
+| 개발환경 물리아키텍처 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-dev.mmd` | 참조 |
+| 운영환경 물리아키텍처 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-prod.mmd` | 참조 |
+| 개발환경 네트워크 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-network-dev.mmd` | 참조 |
+| 운영환경 네트워크 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-network-prod.mmd` | 참조 |
 
 ## 출력 (이 단계 산출물)
-
 | 산출물 | 파일 경로 |
 |--------|----------|
 | 마스터 설계서 | `docs/design/physical/physical-architecture.md` |
@@ -25,7 +32,7 @@
 
 ## 방법론
 
-<작성순서>
+### 작성순서
 - 준비:
   - 아키텍처패턴, 논리아키텍처, 외부시퀀스설계서, 데이터설계서, HighLevel아키텍처정의서 분석 및 이해
 
@@ -35,14 +42,14 @@
     - Mermaid 형식으로 작성
     - Mermaid 스크립트 파일 검사 실행
     - 개발환경 물리아키텍처 다이어그램
-      - '<예시>의 '개발환경 물리아키텍처 다이어그램'의 내용을 읽어 참조
+      - '개발환경 물리아키텍처 다이어그램 예시'의 내용을 읽어 참조
       - 사용자 → API G/W → 서비스 → 데이터베이스 플로우만 표시
       - 클라우드 서비스는 최소한으로만 포함
       - 부가 설명은 문서에만 기록, 다이어그램에서 제거
       - 네트워크, 보안, 운영 관련 아키텍처는 생략
       - 모니터링/로깅/보안과 관련된 제품/서비스 생략함
     - 운영환경 물리아키텍처 다이어그램
-      - '<예시>의 '운영환경 물리아키텍처 다이어그램'의 내용을 읽어 참조
+      - '운영환경 물리아키텍처 다이어그램 예시'의 내용을 읽어 참조
     - 결과:
       - 개발환경: physical-architecture-dev.mmd
       - 운영환경: physical-architecture-prod.mmd
@@ -50,14 +57,14 @@
     - 서브에이전트로 병렬 수행
     - Mermaid 형식으로 작성
     - Mermaid 스크립트 파일 검사 실행
-    - 개발환경 네트워크 다이어그램: '<예시>의 '개발환경 네트워크 다이어그램'의 내용을 읽어 참조
-    - 운영환경 네트워크 다이어그램: '<예시>의 '운영환경 네트워크 다이어그램'의 내용을 읽어 참조
+    - 개발환경 네트워크 다이어그램: '개발환경 네트워크 다이어그램 예시'의 내용을 읽어 참조
+    - 운영환경 네트워크 다이어그램: '운영환경 네트워크 다이어그램 예시'의 내용을 읽어 참조
     - 결과:
       - 개발환경: network-dev.mmd
       - 운영환경: network-prod.mmd
   - 개발환경 물리아키텍처 설계서 작성
-    - <개발환경가이드>의 항목별 작성
-    - '<예시>의 '개발환경 물리아키텍처 설계서'의 내용을 읽어 참조
+    - '개발환경가이드'의 항목별 작성
+    - '개발환경 물리아키텍처 설계서 예시'의 내용을 읽어 참조
     - 비용 최적화 중심의 개발 친화적 환경 구성
     - 빠른 배포와 테스트를 위한 단순화된 아키텍처
     - Pod 기반 백킹서비스와 기본 보안 설정
@@ -65,30 +72,30 @@
     - 제품/서비스 구성: HighLevel아키텍처정의서에 선정한 제품으로 구성
     - 결과: physical-architecture-dev.md
   - 운영환경 물리아키텍처 설계서 작성
-    - <운영환경가이드>의 항목별 작성
-    - '<예시>의 '운영환경 물리아키텍처 설계서'의 내용을 읽어 참조
+    - '운영환경가이드'의 항목별 작성
+    - '운영환경 물리아키텍처 설계서 예시'의 내용을 읽어 참조
     - 고가용성과 확장성을 고려한 프로덕션 환경
     - 관리형 서비스 중심의 안정적인 구성
     - 엔터프라이즈급 보안과 모니터링 체계
     - 실사용자 규모에 따른 성능 최적화
     - 결과: physical-architecture-prod.md
   - 물리 아키텍처 설계서 작성
-    - <마스터가이드>의 항목별 작성
-    - '<예시>의 '마스터 물리아키텍처 설계서'의 내용을 읽어 참조
+    - '마스터가이드'의 항목별 작성
+    - '마스터 물리아키텍처 설계서 예시'의 내용을 읽어 참조
     - 환경별 아키텍처 비교 및 통합 관리
     - 단계별 전환 전략과 확장 로드맵
     - 비용 분석과 운영 가이드라인
     - 전체 시스템 거버넌스 체계
     - 결과: physical-architecture.md
 - 검토:
-  - <작성원칙> 준수 검토
+  - '작성원칙' 준수 검토
   - 선정 아키텍처 패턴 적용 확인
   - 환경별 비용 효율성 검증
   - 확장성 및 성능 요구사항 충족 확인
   - 프로젝트 팀원 리뷰 및 피드백 반영
   - 수정 사항 선택 및 최종 반영
 
-<개발환경가이드>
+### 개발환경가이드
 ```
 대분류|중분류|소분류|작성가이드
 ---|---|---|---
@@ -126,7 +133,7 @@
 32. 개발환경 특성 요약|||개발환경의 핵심 설계 원칙, 주요 제약사항, 최적화 목표를 요약하여 기술
 ```
 
-<운영환경가이드>
+### 운영환경가이드
 ```
 대분류|중분류|소분류|작성가이드
 ---|---|---|---
@@ -178,7 +185,7 @@
 14. 운영환경 특성 요약|||운영환경의 핵심 설계 원칙, 주요 성과 목표, 최적화 목표를 요약하여 기술
 ```
 
-<마스터가이드>
+### 마스터가이드
 ```
 대분류|중분류|소분류|작성가이드
 ---|---|---|---
@@ -208,15 +215,6 @@
 9. 핵심 SLA 지표|9.1 환경별 서비스 수준 목표||가용성, 응답시간, 배포시간, 복구시간, 동시사용자, 월간비용을 환경별로 비교한 표 작성
 ```
 
-<예시>
-- 개발환경 물리아키텍처 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture-dev.md
-- 운영환경 물리아키텍처 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture-prod.md
-- 마스터 물리아키텍처 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture.md
-- 개발환경 물리아키텍처 다이어그램: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture-dev.mmd
-- 운영환경 물리아키텍처 다이어그램: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture-prod.mmd
-- 개발환경 네트워크 다이어그램: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-network-dev.mmd
-- 운영환경 네트워크 다이어그램: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-network-prod.mmd
-
 ## 출력 형식
 
 - 다이어그램: Mermaid 형식 (`.mmd` 파일)
@@ -242,4 +240,4 @@
 - 환경별 특성에 맞는 차별화 전략 적용
 - 비용 효율성과 운영 안정성의 균형 고려
 - 선정된 아키텍처 패턴 반영 및 최적화
-- 공통 원칙은 `resources/guides/common-principles.md` 참조
+- 공통 원칙은 `{PLUGIN_DIR}/resources/guides/common-principles.md` 참조

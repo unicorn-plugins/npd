@@ -10,6 +10,8 @@
 |--------|----------|----------|
 | 전체 설계 산출물 | `docs/design/` | 종합 분석 |
 | 유저스토리 | `docs/plan/design/userstory.md` | 아키텍처 범위 확인 |
+| HighLevel아키텍처정의서템플릿 | `{PLUGIN_DIR}/resources/templates/highlevel-architecture-template.md` | 작성 템플릿 |
+| High Level 아키텍처 정의서 예제 | `{PLUGIN_DIR}/resources/samples/sample-highlevel아키텍처정의서.md` | 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -78,62 +80,10 @@
 ### 3. 검토
 
 - 작성원칙 준수 검토
-- 스쿼드 팀원 리뷰: 누락 및 개선 사항 검토
 - 수정 사항 선택 및 반영
 
 ## 출력 형식
-
-```markdown
-# HighLevel 아키텍처 정의서
-
-## 1. 개요 (Executive Summary)
-### 1.1 시스템 개요
-{시스템 설명}
-
-### 1.2 아키텍처 범위 및 경계
-{유저스토리, 논리아키텍처, 외부시퀀스설계서와 일치하게 작성}
-
-## 4. 논리 아키텍처 (Logical View)
-### 4.1 시스템 컨텍스트 다이어그램
-{논리아키텍처 파일 경로 참조}
-
-### 4.2.2 바운디드 컨텍스트
-{mermaid 다이어그램}
-
-## 5. 프로세스 아키텍처 (Process View)
-### 5.1.1 핵심 사용자 여정
-{mermaid 다이어그램}
-
-### 5.1.2 시스템 간 통합 프로세스
-{외부시퀀스설계 경로 참조}
-
-## 6. 개발 아키텍처 (Development View)
-### 6.1.1 백엔드 기술스택
-{기술스택 목록}
-
-### 6.1.2 프론트엔드 기술스택
-{기술스택 목록}
-
-## 7. 물리 아키텍처 (Physical View)
-### 7.1 클라우드 아키텍처 패턴
-{패턴 설명}
-
-### 7.2 인프라스트럭처 구성
-{인프라 구성}
-
-## 13. 아키텍처 의사결정 기록 (ADR)
-### ADR-001: {결정 제목}
-- 상태: {Accepted/Deprecated/Superseded}
-- 컨텍스트: {결정 배경}
-- 결정: {선택한 방안}
-- 결과: {예상 결과}
-
-## 16. 부록
-### 16.3 관련 문서
-| 산출물 | 파일 경로 |
-|--------|----------|
-| {산출물명} | `{경로}` |
-```
+'HighLevel아키텍처정의서템플릿' 참조 
 
 ## 품질 기준
 
@@ -145,9 +95,8 @@
 - [ ] 개발언어/프레임워크/AI모델은 GA된 최신 버전 사용
 
 ## 주의사항
-
+- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
 - {CLOUD}플랫폼에 최적화된 제품/서비스로 구성
-- 개발언어, 개발 프레임워크, AI모델은 '제품별버전가이드'를 참조하여 GA된 최신 버전 사용
-- 유저스토리, 논리아키텍처, 외부시퀀스설계서 간 일치성 유지
-- 예제 참조: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/sample-highlevel%EC%95%84%ED%82%A4%ED%85%8D%EC%B2%98%EC%A0%95%EC%9D%98%EC%84%9C.md
-- 설계 공통 원칙: `resources/guides/design/common-principles.md` 참조
+- 개발언어, 개발 프레임워크, AI모델은 `{PLUGIN_DIR}/resources/references/제품버전참조.md`를 참조하여 GA된 최신 버전 사용
+- 유저스토리, 논리아키텍처, 외부시퀀스설계서 간 일관성 유지
+

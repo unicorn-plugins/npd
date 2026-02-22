@@ -37,8 +37,6 @@
     - mq-plan-{설치대상환경}.md
 - 검토:
   - 작성원칙 준수 검토
-  - 스쿼드 팀원 리뷰: 누락 및 개선 사항 검토
-  - 수정 사항 선택 및 반영
 
 **예제 참고**
 https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/sample-MQ%EC%84%A4%EC%B9%98%EA%B3%84%ED%9A%8D%EC%84%9C.md

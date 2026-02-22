@@ -10,6 +10,8 @@
 |--------|----------|----------|
 | 유저스토리 | `docs/plan/design/userstory.md` | API 선정 기준 |
 | 시퀀스 설계서 | `docs/design/sequence/` | API 일관성 확인 |
+| Swagger YAML 예제 | `{PLUGIN_DIR}/resources/samples/sample-swagger-api.yaml` | 참조 |
+| API 설계서 예제 | `{PLUGIN_DIR}/resources/samples/sample-API 설계서.md` | 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -30,6 +32,7 @@
 
 - 준비:
   - 유저스토리, 외부 시퀀스 설계서, 내부 시퀀스 설계서 분석 및 이해
+  - Swagger YAML 예제, API 설계서 예제 참조 
 - 실행:
   - 병렬 처리 안내에 따라 동시 수행
   - API 선정 원칙에 따라 API 선정
@@ -37,7 +40,6 @@
   - 검증 방법에 따라 작성된 YAML의 문법 및 구조 검증 수행
 - 검토:
   - 작성 원칙 준수 검토
-  - 스쿼드 팀원 리뷰: 누락 및 개선 사항 검토
   - 수정 사항 선택 및 반영
 
 ### API 선정 원칙
@@ -52,11 +54,9 @@
 - **servers 섹션 필수화**
   - 모든 OpenAPI 명세에 servers 섹션 포함
   - SwaggerHub Mock URL을 첫 번째 옵션으로 배치
+  - '{org}'는 프로젝트 디렉토리 경로의 마지막 디렉토리명 사용 
 - **example 데이터 권장**
   - 스키마에 example을 추가하여 Swagger UI에서 테스트할 수 있게 함
-- **테스트 시나리오 포함**
-  - 각 API 엔드포인트별 테스트 케이스 정의
-  - 성공/실패 케이스 모두 포함
 - 작성 형식
   - YAML 형식의 OpenAPI 3.0 명세
   - 각 API별 필수 항목:
@@ -75,7 +75,7 @@
 ### 파일 구조
 
 ```
-design/backend/api/
+docs/design/backend/api/
 ├── {service-name}-api.yaml      # 각 마이크로서비스별 API 명세
 └── ...                          # 추가 서비스들
 
@@ -107,7 +107,7 @@ design/backend/api/
 command -v swagger-cli >/dev/null 2>&1 || npm install -g @apidevtools/swagger-cli
 
 # 검증 실행
-swagger-cli validate design/backend/api/*.yaml
+swagger-cli validate docs/design/api/{service-name}-api.yaml
 ```
 
 - 검증 항목:
@@ -117,7 +117,6 @@ swagger-cli validate design/backend/api/*.yaml
   - 필수 필드 존재 여부
 
 ## 출력 형식
-
 ```yaml
 openapi: 3.0.0
 info:
@@ -172,10 +171,8 @@ components:
 - [ ] example 데이터 포함
 
 ## 주의사항
-
+- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
 - 유저스토리와 매칭되지 않는 API 추가 금지
 - 시퀀스 설계서와 API 명세 간 일관성 유지
 - 최종 완료 후 Swagger Editor(https://editor.swagger.io/)에서 생성된 YAML 파일을 붙여 확인 및 테스트
-- 참고 예시:
-  - Swagger YAML: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/sample-swagger-api.yaml
-  - API 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/sample-API%20설계서.md
+

@@ -49,15 +49,6 @@
   - 변경 이력
 - 검토:
   - <작성원칙> 준수 검토
-  - 스쿼드 팀원 리뷰: 누락 및 개선 사항 검토
-  - 수정 사항 선택 및 반영
-
-## 출력 형식
-
-- UI/UX 설계서: Markdown 형식 (`design/uiux/uiux.md`)
-- 스타일 가이드: Markdown 형식 (`design/uiux/style-guide.md`)
-- 화면명은 한글로 작성
-  예시) 01-대시보드.svg
 
 ## 품질 기준
 
@@ -71,4 +62,4 @@
 ## 주의사항
 
 - **유저스토리와 매칭**되어야 함. **불필요한 추가 설계 금지**
-- 공통 원칙은 `resources/guides/common-principles.md` 참조
+- 공통 원칙은 `{PLUGIN_DIR}/resources/guides/common-principles.md` 참조
