@@ -1,4 +1,5 @@
 .dmap/
+.npd/
 .omc/sessions/
 .omc/state/
 __pycache__/

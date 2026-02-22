@@ -77,7 +77,7 @@ allowed-tools: Read, Write, Task, Bash
   - 예상 성과 지표
 - **MUST DO**: `resources/guides/design/architecture-patterns.md` 반드시 참조. 정량적 평가 매트릭스 포함. Mermaid 다이어그램으로 시각화
 - **MUST NOT DO**: 패턴 선택 근거 없이 결정하지 않을 것. 과도한 엔지니어링 지양
-- **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/think/es/*.puml`, `docs/plan/think/핵심솔루션.md`, `docs/plan/design/uiux/uiux.md`, CLAUDE.md 기술스택, `resources/guides/design/common-principles.md`
+- **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/think/es/*.puml`, `docs/plan/think/핵심솔루션.md`, `docs/plan/design/uiux/uiux.md`, `resources/guides/design/common-principles.md`
 
 ### Step 2. 논리 아키텍처 설계 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
 

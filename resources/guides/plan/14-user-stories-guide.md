@@ -5,6 +5,15 @@
 이벤트 스토밍 결과를 기반으로 체계적인 유저스토리를 작성함.
 표준화된 형식을 통해 일관성 있고 완전한 요구사항을 정의함.
 
+## 입력 (이전 단계 산출물)
+
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| 이벤트 스토밍 | `docs/plan/think/es/*.puml` | 유저플로우 → Epic, 이벤트 → Story, 커맨드 → Task, 정책 → AC 변환 |
+| 핵심 솔루션 | `docs/plan/think/핵심솔루션.md` | 솔루션 범위에 맞는 유저스토리 도출 |
+| 고객 분석 | `docs/plan/define/고객분석.md` | 사용자 역할(Persona) 정의에 활용 |
+| 유저 저니 맵 | `docs/plan/define/유저저니맵.md` | Pain Points → 유저스토리 추적성 연결 |
+
 ## 이벤트스토밍 → 유저스토리 연결
 
 | Event Storming 요소 | User Story 요소 | 설명 |
@@ -17,6 +26,23 @@
 | **참여자 (Actor)** | Persona (As a...) | 스토리의 주체 |
 
 > **핵심 원칙**: 사용자는 "버튼을 클릭하고 싶은 것"이 아니라 "결과를 달성하고 싶은 것"임.
+
+## Pain Point 추적성
+
+### UFR-Pain Point 연결
+각 UFR 작성 시 관련 Pain Point를 태그로 연결하여 "왜 이 기능이 필요한가?"에 대한 근거를 명시함.
+
+- UFR 작성 형식에 `Pain Point` 필드 추가: `Pain Point: {여정맵 Pain Point ID}`
+
+### Pain Point 추적 매트릭스
+
+```markdown
+| Pain Point (여정맵) | 관련 UFR | 해결 방식 |
+|--------------------|---------|---------|
+| {Pain Point ID}: {Pain Point 내용} | {UFR-XXX-NNN} | {이 UFR이 해당 Pain Point를 어떻게 해결하는지} |
+```
+
+> **원칙**: 여정맵의 모든 Pain Point는 최소 1개 이상의 UFR과 연결되어야 함. 연결되지 않은 Pain Point가 있다면 UFR 추가를 검토할 것.
 
 ## 작성 구성 요소
 
@@ -124,7 +150,7 @@ UFR-{서비스}-{번호}: [{제목}] {사용자유형}으로서 | 나는, {목�
 - {M/S/C/W}/{Score}
 ```
 
-## 결과 형식
+## 출력 형식
 
 코드블록 내에 아래 구조로 작성합니다.
 ```
@@ -223,6 +249,30 @@ Core Service
 작성 시 아래 샘플을 참고하세요.
 
 - `resources/samples/sample-유저스토리.md`
+
+## 품질 기준
+
+### 완료 체크리스트
+- [ ] UFR 20개 이상 작성
+- [ ] UFR/AFR/NFR 포맷 준수 (`{유형코드}-{서비스약어}-{일련번호}`)
+- [ ] 모든 UFR에 시나리오(Given-When-Then) 포함
+- [ ] MoSCoW 분류(M/S/C/W) 전체 UFR에 적용
+- [ ] Story Points(피보나치) 전체 UFR에 적용
+- [ ] INVEST 원칙 준수 확인
+- [ ] Feature Story Map 작성
+- [ ] 우선순위 매트릭스 (Must/Should/Could/Won't) 작성
+- [ ] 스프린트 계획 (MVP 기준) 작성
+- [ ] 비기능적 요구사항 (성능/보안/사용성/확장성) 포함
+- [ ] Definition of Done 체크리스트 포함
+- [ ] Pain Point 추적 매트릭스 작성 (여정맵 Pain Point ↔ UFR 매핑)
+- [ ] 이벤트 스토밍 결과와 체계적 연계 확인 (유저플로우→Epic, 이벤트→Story)
+- [ ] 이전 단계 산출물(핵심솔루션, 고객분석, 유저저니맵)과 일관성 확인
+
+### 정량 기준
+- UFR: 20개 이상
+- 마이크로서비스: 2개 이상
+- 스프린트: MVP 기준 계획 포함
+- Pain Point 추적률: 여정맵 Pain Point의 100% UFR 연결
 
 ## 주의사항
 

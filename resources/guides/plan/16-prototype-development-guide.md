@@ -4,19 +4,14 @@
 
 UI/UX 설계서를 기반으로 기본 HTML/JavaScript로 동작하는 프로토타입을 개발함.
 
-## 참고자료
+## 입력 (이전 단계 산출물)
 
-- UI/UX 디자인 명세: `docs/plan/design/uiux/uiux.md`
-- 스타일 가이드: `docs/plan/design/uiux/style-guide.md`
-- 유저스토리: `docs/plan/design/userstory.md`
-- 디자인 레퍼런스 (있는 경우): `docs/plan/design/uiux/references/`
-
-## 결과파일
-
-- `docs/plan/design/uiux/prototype/common.js` — 공통 JavaScript
-- `docs/plan/design/uiux/prototype/common.css` — 공통 CSS
-- `docs/plan/design/uiux/prototype/{2자리번호}-{한글화면명}.html` — 각 화면 파일
-- `docs/plan/design/uiux/prototype/테스트결과.md` — 통합 테스트 결과
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| UI/UX 디자인 명세 | `docs/plan/design/uiux/uiux.md` | 사용자 플로우 → 화면 개발 순서, 와이어프레임 → HTML 매핑, 컴포넌트 → Web Components |
+| 스타일 가이드 | `docs/plan/design/uiux/style-guide.md` | 컬러·타이포그래피·간격을 CSS 변수로 정의, 반응형 브레이크포인트 참조 |
+| 유저스토리 | `docs/plan/design/userstory.md` | 샘플 데이터 구성, 화면별 기능 요구사항 참조 |
+| 디자인 레퍼런스 | `docs/plan/design/uiux/references/` | 디자인 톤·레이아웃 참고 (있는 경우) |
 
 ## 개발 프로세스
 
@@ -27,6 +22,7 @@ UI/UX 설계서를 기반으로 기본 HTML/JavaScript로 동작하는 프로토
 2. 스타일 가이드에서 컬러 팔레트, 타이포그래피, 간격 시스템 확인
 3. 디자인 레퍼런스(있는 경우) 확인하여 디자인 톤·레이아웃 참고
 4. `docs/plan/design/uiux/prototype/` 디렉토리 생성
+5. Gemini API Key가 제공된 경우: `.npd/.env` 파일에 `GEMINI_API_KEY={키값}` 저장
 
 ### 2단계: 공통 파일 개발
 1. `common.css` — 스타일가이드의 CSS 변수화 (컬러, 타이포그래피, 간격, 브레이크포인트)
@@ -113,6 +109,8 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 
 ### common.js 포함 기능
 
+#### 유틸리티 함수
+
 | 기능 | 설명 | 비고 |
 |------|------|------|
 | 샘플 데이터 | 유저스토리 기반 가상 데이터 객체 | 유저스토리의 사용자/데이터와 일치시킬 것 |
@@ -120,15 +118,52 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 | 데이터 수신 | `getPageData()` / `clearPageData()` — 전달된 데이터 조회/삭제 | |
 | 폼 자동 저장 | `saveFormData(formId)` / `restoreFormData(formId)` | 폼이 있는 화면에서 사용 |
 
+#### Web Components (공통 UI 컴포넌트)
+
+> **핵심**: 헤더, 푸터, 네비게이션 등 **반복되는 UI 요소는 Web Components로 정의**하여 중복을 제거하고 화면 간 일관성을 보장함. Web Components는 웹 표준(브라우저 내장 API)이므로 프레임워크가 아님.
+
+`common.js`에 `customElements.define()`으로 공통 컴포넌트를 등록함:
+
+| 컴포넌트 | 태그명 (예시) | 설명 |
+|----------|-------------|------|
+| 헤더 | `<app-header>` | 로고, 네비게이션 메뉴, 현재 페이지 하이라이트 |
+| 푸터 | `<app-footer>` | 저작권, 링크 등 |
+| 네비게이션 | `<app-nav>` | 탭바, 사이드바 등 (모바일/데스크톱 분기) |
+| 기타 | 설계서 기반 | 카드, 모달, 알림 등 반복 사용되는 UI 요소 |
+
+**장점**:
+- 한 곳(`common.js`) 수정으로 모든 화면에 즉시 반영
+- 각 화면은 고유 콘텐츠(`<main>`)에만 집중
+- `file://` 프로토콜에서 동작 (별도 import 없이 `common.js`에 모두 정의)
+
 ### 화면 HTML 필수 구조
 
 | 항목 | 필수 요소 |
 |------|----------|
 | 문서 선언 | `<!DOCTYPE html>`, `lang="ko"`, `charset="UTF-8"`, `viewport` 메타태그 |
 | 스타일 연결 | `common.css` 링크 + 화면별 `<style>` 블록 |
-| 시맨틱 구조 | `<header role="banner">`, `<nav>`, `<main role="main">`, `<footer role="contentinfo">` |
+| 공통 컴포넌트 | `<app-header>`, `<app-footer>` 등 Web Components 사용 (직접 HTML 작성 금지) |
+| 화면 콘텐츠 | `<main role="main">` 안에 해당 화면 고유 콘텐츠만 작성 |
 | 스크립트 연결 | `common.js` + 화면별 `<script>` (`DOMContentLoaded` 이벤트 내 초기화) |
 | 접근성 | ARIA 레이블, 폼 `<label>` 연결, 이미지 `alt` 속성 |
+
+## 이미지 생성 (Gemini API Key 제공 시)
+
+프로토타입에 이미지가 필요한 경우 AI 이미지 생성 도구를 활용함.
+
+- **도구 경로**: `resources/tools/customs/general/generate_image.py`
+- **API Key 위치**: `.npd/.env` (`GEMINI_API_KEY={키값}`)
+- **사용법**:
+  ```bash
+  python resources/tools/customs/general/generate_image.py \
+    --prompt "이미지 설명" \
+    --output-dir docs/plan/design/uiux/prototype/images \
+    --output-name {파일명} \
+    --api-key $(grep GEMINI_API_KEY .npd/.env | cut -d= -f2)
+  ```
+- **API Key 미제공 시**: 이미지 대신 placeholder 텍스트(`[이미지: {설명}]`) 사용
+
+> **주의**: `.npd/` 디렉토리는 `.gitignore`에 포함되어야 함. API Key가 git에 업로드되지 않도록 할 것.
 
 ## 접근성 필수 사항
 
@@ -142,7 +177,33 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 | 키보드 접근 | Tab 순서 논리적 배치, Enter/Space로 동작 |
 | 색상 대비 | 텍스트 4.5:1 이상, UI 컴포넌트 3:1 이상 |
 
-## 체크리스트
+## 출력 형식
+
+- `docs/plan/design/uiux/prototype/common.js` — 공통 JavaScript
+- `docs/plan/design/uiux/prototype/common.css` — 공통 CSS
+- `docs/plan/design/uiux/prototype/{2자리번호}-{한글화면명}.html` — 각 화면 파일
+- `docs/plan/design/uiux/prototype/테스트결과.md` — 통합 테스트 결과
+
+## 품질 기준
+
+### 완료 체크리스트
+- [ ] common.css에 스타일가이드 CSS 변수 정의 완료
+- [ ] common.js에 Web Components 공통 UI 정의 완료
+- [ ] 모든 화면 HTML 파일 생성 완료
+- [ ] 화면별 Playwright 테스트 통과 (콘솔 에러 0건)
+- [ ] 반응형 확인 (모바일 375x812 / 태블릿 768x1024 / 데스크톱 1280x800)
+- [ ] 화면간 연결성 테스트 통과
+- [ ] 화면간 데이터 일관성 확인
+- [ ] 접근성 필수 사항 준수 (시맨틱 HTML, ARIA, 폼 레이블, 포커스 인디케이터)
+- [ ] UI/UX 설계서 와이어프레임과 일대일 매핑 확인
+- [ ] 설계서에 없는 화면이 추가되지 않았는지 확인
+- [ ] 통합 테스트 결과 `테스트결과.md` 작성 완료
+
+### 정량 기준
+- 콘솔 에러: 0건
+- 반응형 뷰포트: 3종 (모바일/태블릿/데스크톱)
+- 화면간 연결성: 전체 링크/버튼 테스트 통과
+- 접근성: WCAG 2.1 AA 준수
 
 ### 화면별 기능 동작
 | 기능 | 예상 결과 | 실제 결과 | 상태 |

@@ -1,6 +1,6 @@
 ---
 name: plan
-description: 기획 단계 AI 협업 — 17단계 서비스 기획 워크플로우 (MVP정의 → 고객분석 → 시장조사 → 고객경험 → 문제가설 → 솔루션 → 비즈니스모델 → 이벤트스토밍 → 유저스토리 → UI/UX → 프로토타입)
+description: 기획 단계 AI 협업 — 18단계 서비스 기획 워크플로우 (MVP정의 → 고객분석 → 시장조사 → 고객경험 → 문제가설 → 솔루션 → 비즈니스모델 → 이벤트스토밍 → 유저스토리 → UI/UX → 프로토타입 → 플로우 스크립트)
 type: orchestrator
 user-invocable: true
 allowed-tools: Read, Write, Task, Bash, WebSearch
@@ -13,7 +13,7 @@ allowed-tools: Read, Write, Task, Bash, WebSearch
 ## 목표
 
 PO·서비스기획자·도메인전문가·아키텍트·AI엔지니어가 협업하여
-6단계 17스텝의 완전한 서비스 기획을 수행함.
+6단계 18스텝의 완전한 서비스 기획을 수행함.
 MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며,
 각 단계의 산출물이 다음 단계의 컨텍스트로 누적 연결됨.
 
@@ -85,7 +85,7 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
    ↓
 5단계: 제품 설계 (이벤트스토밍 + 유저스토리 + UI/UX설계)
    ↓
-6단계: 프로토타입
+6단계: 프로토타입 + 플로우 스크립트
 ```
 
 ---
@@ -442,7 +442,7 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 
 ### Step 12. 발표자료 스크립트 → Agent: service-planner (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/plan/11b-presentation-guide.md` 참조
+- **GUIDE**: `resources/guides/plan/12-presentation-guide.md` 참조
 - **TASK**: 비즈니스 모델을 기반으로 서비스 기획서 발표자료 스크립트 작성. 린캔버스 9영역 + 경쟁 분석 + GTM 전략 + 재무 계획을 10-15장으로 구성. 각 장표별 핵심 메시지 3개 이하
 - **EXPECTED OUTCOME**: `docs/plan/think/서비스기획서스크립트.md` 생성
   - 10-15장 슬라이드 스크립트
@@ -459,7 +459,7 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 
 ### Step 13. 이벤트 스토밍 → Agent: architect(리드), product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/plan/12-event-storming-guide.md` 참조
+- **GUIDE**: `resources/guides/plan/13-event-storming-guide.md` 참조
 - **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
 
 #### Step 13-1. 초안 작성 (순차) → Agent: architect
@@ -474,7 +474,7 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
   - `docs/plan/think/es/{순번}-{유저플로우명}.puml` — 각 유저플로우 시퀀스 다이어그램
 - **MUST DO**: `!theme mono` 사용. 한국어로 작성. 참여자는 Actor/내부서비스/외부시스템으로 구성. 외부시스템은 `(E){시스템명}` 표시. 이벤트는 과거형, 커맨드는 명령형. **각 `.puml` 파일 생성 즉시 `bash tools/diagram/check-plantuml.sh {파일경로}`로 PlantUML 문법 검사 수행** (`resources/tools/check-plantuml.md` 참조)
 - **MUST NOT DO**: 내부서비스·외부시스템 내부 플로우는 표시하지 않을 것. 문법 검사 미통과 파일을 남기지 않을 것
-- **CONTEXT**: `docs/plan/think/핵심솔루션.md`, `docs/plan/define/고객분석.md`
+- **CONTEXT**: `docs/plan/think/핵심솔루션.md`, `docs/plan/define/고객분석.md`, `docs/plan/define/시장조사.md`, `docs/plan/define/유저저니맵.md`
 
 #### Step 13-2. 팀 리뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer
 
@@ -501,7 +501,7 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 
 ### Step 14. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/plan/13-user-stories-guide.md` 참조
+- **GUIDE**: `resources/guides/plan/14-user-stories-guide.md` 참조
 - **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
 
 #### Step 14-1. 초안 작성 (순차) → Agent: service-planner
@@ -551,7 +551,7 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 
 <!--ASK_USER-->
 {"title":"디자인 레퍼런스 입력 (선택)","questions":[
-  {"question":"참고할 디자인 레퍼런스가 있으시면 제공해 주세요. URL, 이미지 경로, 이미지 붙여넣기 모두 가능합니다. 없으면 '없음'을 입력해 주세요.","type":"text","placeholder":"없음"}
+  {"question":"참고할 디자인 레퍼런스(추천: https://wwit.design)가 있으시면 제공해 주세요. URL, 이미지 경로, 이미지 붙여넣기 모두 가능합니다. 없으면 '없음'을 입력해 주세요.","type":"text","placeholder":"없음"}
 ]}
 <!--/ASK_USER-->
 
@@ -574,7 +574,7 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
    - `docs/plan/design/uiux/references/레퍼런스분석.md`에 분석 결과 저장
    - 이 파일을 후속 UI/UX 설계의 CONTEXT에 포함
 
-- **GUIDE**: `resources/guides/plan/14-uiux-design-guide.md` 참조
+- **GUIDE**: `resources/guides/plan/15-uiux-design-guide.md` 참조
 - **TASK**: 유저스토리를 기반으로 상세한 UI/UX 디자인 명세 작성 (레퍼런스 분석 결과가 있는 경우 디자인 톤·레이아웃·컴포넌트 스타일을 참고하여 반영)
   - 디자인 원칙 (핵심 원칙 5개, 디자인 언어)
   - 정보 아키텍처 (사이트맵, 네비게이션 구조)
@@ -597,20 +597,29 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 
 ### Step 16. 프로토타입 개발 → Agent: frontend-developer (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/plan/15-prototype-development-guide.md` 참조
+<!--ASK_USER-->
+{"title":"이미지 생성용 Gemini API Key (선택)","questions":[
+  {"question":"프로토타입에 이미지가 필요한 경우 AI로 생성할 수 있습니다. Gemini API Key를 입력해 주세요. 없으면 '없음'을 입력하세요. (https://aistudio.google.com/apikey 에서 발급)","type":"text","placeholder":"없음"}
+]}
+<!--/ASK_USER-->
+
+- 사용자가 API Key를 제공한 경우: `.npd/.env` 파일에 `GEMINI_API_KEY={입력값}` 저장 (`.npd/`는 `.gitignore`에 포함되어 git에 업로드되지 않음)
+- 사용자가 '없음' 또는 미응답 시: 이미지 없이 진행 (placeholder 텍스트 사용)
+
+- **GUIDE**: `resources/guides/plan/16-prototype-development-guide.md` 참조
 - **CONTEXT**: `docs/plan/design/uiux/uiux.md`, `docs/plan/design/uiux/style-guide.md`, `docs/plan/design/userstory.md`
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/` 디렉토리에 파일 생성
-  - `common.js` — 공통 JavaScript (샘플 데이터, 화면 전환, localStorage 유틸리티)
+  - `common.js` — 공통 JavaScript (Web Components 공통 UI, 샘플 데이터, 화면 전환, localStorage 유틸리티)
   - `common.css` — 공통 CSS (스타일가이드 CSS 변수화, Mobile First)
-  - `{2자리번호}-{한글화면명}.html` — 각 화면 파일
-- **MUST DO**: HTML/JS만 사용 (프레임워크 금지). 서버 없이 동작. 스타일가이드 준수. Mobile First. Playwright로 화면별 즉시 테스트
+  - `{2자리번호}-{한글화면명}.html` — 각 화면 파일 (공통 UI는 Web Components 사용, `<main>` 안에 고유 콘텐츠만 작성)
+- **MUST DO**: HTML/JS만 사용 (프레임워크 금지, Web Components는 웹 표준으로 허용). 서버 없이 동작. 스타일가이드 준수. Mobile First. Playwright로 화면별 즉시 테스트
 - **MUST NOT DO**: SPA 방식 구현 금지. 설계서에 없는 화면 추가 금지
 
 #### Step 16-1. 공통 파일 개발 (순차)
 
 - **TASK**: 스타일가이드를 기반으로 공통 파일 개발
   1. `common.css` — 스타일가이드의 컬러·타이포그래피·간격을 CSS 변수로 정의, Mobile First 레이아웃, 접근성 유틸리티
-  2. `common.js` — 샘플 데이터 (모든 화면에서 일관된 데이터), 화면 전환, localStorage 기반 데이터 전달, 폼 자동 저장/복원
+  2. `common.js` — Web Components로 공통 UI 컴포넌트 정의 (헤더, 푸터, 네비게이션 등), 샘플 데이터, 화면 전환, localStorage 기반 데이터 전달, 폼 자동 저장/복원
 
 #### Step 16-2. 화면별 개발-테스트 루프 (ralph 활용)
 
@@ -637,8 +646,8 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
    - `browser_navigate`로 해당 HTML 파일 열기
    - `browser_console_messages`로 콘솔 에러 확인 → 에러 있으면 즉시 수정
    - `browser_snapshot`으로 접근성 구조 확인
-   - `browser_take_screenshot`으로 UI 렌더링 상태 확인
-   - 모바일 뷰포트(`browser_resize` 375x812)로 반응형 확인
+   - `browser_take_screenshot`으로 UI 렌더링 상태 확인 (캡처 이미지는 `.temp` 디렉토리에 저장)
+   - 모바일 뷰포트(`browser_resize` 375x812)로 반응형 확인 (캡처 이미지는 `.temp` 디렉토리에 저장)
 3. **수정**: 에러/UI 이슈 발견 시 수정 후 재테스트
 4. **완료**: 테스트 통과 후 해당 화면 완료 처리
 
@@ -646,10 +655,12 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 
 모든 화면 개발 완료 후, Playwright로 전체 프로토타입을 자동 검증함.
 
+> **캡처 이미지 저장 경로**: 통합 테스트 중 촬영하는 모든 스크린샷은 `.temp` 디렉토리에 저장합니다.
+
 1. **화면간 연결성 테스트**: 각 화면의 모든 링크/버튼을 `browser_click`으로 클릭 → 올바른 페이지로 이동하는지 확인
 2. **화면별 기능 동작 테스트**: 폼 입력(`browser_type`), 버튼 클릭, 모달/드롭다운 동작 확인
 3. **데이터 일관성 테스트**: 화면 간 전달되는 샘플 데이터가 일치하는지 확인
-4. **반응형 테스트**: 데스크톱(1280x800) → 태블릿(768x1024) → 모바일(375x812)로 뷰포트 변경하며 레이아웃 확인
+4. **반응형 테스트**: 데스크톱(1280x800) → 태블릿(768x1024) → 모바일(375x812)로 뷰포트 변경하며 레이아웃 확인 (각 뷰포트 스크린샷은 `.temp` 디렉토리에 저장)
 5. **콘솔 에러 전수 검사**: 모든 화면에서 `browser_console_messages` 에러 레벨 확인
 
 테스트 결과를 `docs/plan/design/uiux/prototype/테스트결과.md`에 기록:
@@ -671,7 +682,28 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 3. Playwright로 수정된 항목만 재테스트
 4. 모든 항목 통과 시 완료, 미통과 시 1번으로 복귀
 
-### Step 17. 기획 완료 보고
+### Step 17. 사용자 플로우 프리젠테이션 → Agent: frontend-developer (`/oh-my-claudecode:ralph` 활용)
+
+- **GUIDE**: `resources/guides/plan/17-flow-presentation-guide.md` 참조
+- **TASK**: 프로토타입 화면 스크린샷을 캡처하고, 사용자 플로우 순서대로 화면을 보여주는 인터랙티브 HTML 프리젠테이션을 개발
+  1. **화면 캡처**: Playwright로 각 프로토타입 화면에 접속하여 스크린샷 촬영. 각 이미지에 일련번호와 한글 자막 오버레이를 주입 (하단 고정, 빨간 구분선 + 다크 그라디언트 배경 + 흰색 제목 + 회색 설명)
+  2. **플로우 구성**: 테스트결과.md의 화면간 연결성 데이터를 분석하여 주요 사용자 플로우를 도출 (예: 신규 온보딩, 일정 모니터링, 브리핑 확인, 장소 추가, 설정/구독 등 3-5개 플로우)
+  3. **프리젠테이션 개발**: 3단 레이아웃(좌측 스텝 리스트 / 중앙 폰 프레임 스크린샷 / 우측 나레이션 패널)의 인터랙티브 HTML 파일 작성
+     - 플로우 탭으로 플로우 간 전환
+     - 키보드(←/→) 및 클릭으로 스텝 이동
+     - 각 스텝별 사용자 액션 설명 + 나레이션 텍스트 포함
+     - 진행 추적 (방문 스텝 체크마크, 프로그레스 바)
+     - 프로토타입과 동일한 다크 테마
+     - 반응형 대응 (데스크톱 3단 / 태블릿 2단 / 모바일 1단)
+  4. **Playwright 검증**: 프리젠테이션 파일을 브라우저에서 열어 정상 로드, 네비게이션 동작, 스크린샷 표시를 확인
+- **EXPECTED OUTCOME**: 2가지 산출물 생성
+  - `docs/plan/design/uiux/prototype/screenshots/{번호}-{화면명}.png` — 자막 포함 화면별 스크린샷
+  - `docs/plan/design/uiux/prototype/flow-script.html` — 사용자 플로우 인터랙티브 프리젠테이션
+- **MUST DO**: 프로토타입의 모든 화면(14개)을 스크린샷으로 포함. 화면간 연결성 데이터 기반으로 플로우 구성. 각 스텝마다 나레이션 텍스트 포함. Playwright로 최종 검증
+- **MUST NOT DO**: 프로토타입에 없는 화면을 포함하지 않을 것. 화면간 연결성 데이터에 없는 플로우를 임의로 만들지 않을 것
+- **CONTEXT**: `docs/plan/design/uiux/prototype/테스트결과.md`, `docs/plan/design/uiux/uiux.md`, `docs/plan/design/uiux/prototype/*.html`
+
+### Step 18. 기획 완료 보고
 
 ```
 ## 기획 완료
@@ -712,6 +744,8 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 - docs/plan/design/uiux/uiux.md — UI/UX 설계
 - docs/plan/design/uiux/style-guide.md — 스타일 가이드
 - docs/plan/design/uiux/prototype/*.html — 프로토타입
+- docs/plan/design/uiux/prototype/screenshots/*.png — 화면 캡처 (자막 포함)
+- docs/plan/design/uiux/prototype/flow-script.html — 사용자 플로우 프리젠테이션
 
 ### 다음 단계
 `/npd:design` 으로 기술 설계를 시작하세요.
@@ -749,7 +783,7 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 
 ## 완료 조건
 
-- [ ] 모든 워크플로우 단계(6단계 17스텝)가 정상 완료됨
+- [ ] 모든 워크플로우 단계(6단계 18스텝)가 정상 완료됨
 - [ ] 산출물이 `docs/plan/` 하위 디렉토리(define/think/design/)에 생성됨
 - [ ] 프로토타입이 `docs/plan/design/uiux/prototype/`에 생성됨
 - [ ] 검증 프로토콜을 통과함
@@ -787,6 +821,7 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 | 7 | 유저스토리는 최소 20개 이상 UFR로 작성할 것 |
 | 8 | 이벤트 스토밍은 PlantUML 시퀀스 다이어그램으로 작성할 것 |
 | 9 | 프로토타입은 HTML/JS로 화면별 파일 분리하여 작성할 것 |
+| 10 | 프로토타입 완료 후 화면 캡처 + 사용자 플로우 프리젠테이션을 생성할 것 |
 
 ## MUST NOT 규칙
 
@@ -823,6 +858,8 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 - [ ] userstory.md 생성 완료 (UFR 20개 이상)
 - [ ] uiux.md + style-guide.md 생성 완료
 
-### 6단계: 프로토타입
+### 6단계: 프로토타입 + 플로우 스크립트
 - [ ] prototype/ 디렉토리에 HTML 파일 생성 완료
+- [ ] prototype/screenshots/ 에 자막 포함 스크린샷 생성 완료
+- [ ] prototype/flow-script.html 사용자 플로우 프리젠테이션 생성 완료
 - [ ] 완료 보고에 다음 단계(/npd:design) 안내 포함
