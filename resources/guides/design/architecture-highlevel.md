@@ -8,8 +8,16 @@
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 전체 설계 산출물 | `docs/design/` | 종합 분석 |
+| 아키텍처 패턴 선정 설계서 | `docs/design/architecture.md` | 참조 |
+| 논리 아키텍처 설계서 | `docs/design/logical-architecture.md` | 참조 |
+| 외부 시퀀스 다이어그램 | `docs/design/sequence/outer/{유저 플로우명}.puml` | 참조 | 
+| 내부 시퀀스 다이어그램 | `docs/design/sequence/inner/{서비스명}-{시나리오}.puml` | 참조 |
+| 클래스설계서 | `docs/design/class/{service-name}-simple.puml` | 참조 |
+| 패키지 구조도 | `docs/design/class/package-structure.md` | 참조 |
+| 데이터설계서 | `docs/design/database/{service-name}.md` (시작 부분에 '데이터설계 요약' 포함) |
+| 캐시 DB 설계서 | `docs/design/database/cache-db-design.md` (Redis database 할당표 포함) |
 | 유저스토리 | `docs/plan/design/userstory.md` | 아키텍처 범위 확인 |
+| UI/UX 설계서(기획 산출물) | `docs/plan/design/uiux/uiux.md` | 참조 | 
 | HighLevel아키텍처정의서템플릿 | `{PLUGIN_DIR}/resources/templates/highlevel-architecture-template.md` | 작성 템플릿 |
 | High Level 아키텍처 정의서 예제 | `{PLUGIN_DIR}/resources/samples/sample-highlevel아키텍처정의서.md` | 참조 |
 
@@ -23,7 +31,7 @@
 
 ### 1. 준비
 
-유저스토리, 아키텍처패턴, 논리아키텍처, API설계서, 외부시퀀스설계서, 내부시퀀스설계서, 클래스설계서, 데이터설계서를 분석 및 이해합니다.
+- 입력 산출물을 분석 및 이해합니다.
 
 ### 2. 실행
 
@@ -39,13 +47,13 @@
 - 4.2.2 바운디드 컨텍스트: mermaid 형식으로 작성
 
 **5. 프로세스 아키텍처 (Process View)**
-- 5.1.1 핵심 사용자 여정: '유저스토리'와 'UI/UX설계서' 참조하여 mermaid 형식으로 작성
+- 5.1.1 핵심 사용자 여정: '유저스토리'와 'UI/UX 설계서(기획 산출물)' 참조하여 mermaid 형식으로 작성
 - 5.1.2 시스템 간 통합 프로세스: '외부시퀀스설계'의 경로 지정
 
 **6. 개발 아키텍처 (Development View)**
 - 6.1.1 백엔드 기술스택: 핵심서비스는 Spring Boot를 우선 고려, AI 구현 서비스는 파이썬 우선 고려
-- 6.1.2 프론트엔드 기술스택: 유저스토리와 UI/UX설계서 참조하여 최적안 추천
-- 6.2 서비스별 개발 아키텍처 패턴: 클래스설계서(class.md)의 '설계 아키텍처 패턴'과 일치
+- 6.1.2 프론트엔드 기술스택: 유저스토리와 UI/UX 설계서(기획 산출물) 참조하여 최적안 추천
+- 6.2 서비스별 개발 아키텍처 패턴: 클래스설계서에 적용된 '설계 아키텍처 패턴'과 일치(Layered 또는 Clean Architecture)
 - 6.3 개발 가이드라인:
   - 코딩표준: '개발주석표준' 주소 링크
   - 테스트 전략: '테스트코드표준' 주소 링크

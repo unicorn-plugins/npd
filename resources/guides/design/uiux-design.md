@@ -8,20 +8,25 @@
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
 | 유저스토리 | `docs/plan/design/userstory.md` | 화면 요구사항 도출 |
+| UI/UX 설계서(기획 산출물) | `docs/plan/design/uiux/uiux.md` | 참조 | 
+| 스타일 가이드(기획 산출물) | `docs/plan/design/uiux/style-guide.md` | 참조 | 
+| 사용자 플로우 프리젠테이션 | `docs/plan/design/uiux/prototype/flow-script.html` | 사용자 인터랙션 파악 |
 
 ## 출력 (이 단계 산출물)
 
 | 산출물 | 파일 경로 |
 |--------|----------|
-| UI/UX 설계서 | `design/uiux/uiux.md` |
-| 스타일 가이드 | `design/uiux/style-guide.md` |
+| UI/UX 설계서 | `docs/design/uiux/uiux.md` |
+| 스타일 가이드 | `docs/design/uiux/style-guide.md` |
 
 ## 방법론
 
-<작성순서>
+### 작성순서
 아래 순서에 따라 순차적으로 작성
 - 준비
   - 유저스토리의 분석 및 이해
+  - UI/UX 설계서(기획 산출물), 스타일 가이드(기획 산출물) 파악
+  - Playwright MCP로 사용자 플로우 프리젠테이션을 웹브라우저에서 파악 
   - 설계 계획
 - UI/UX 설계서 작성: 아래 항목을 반드시 포함하고 필요 시 항목 추가
   - 프로토타입 화면 목록 정의
@@ -47,8 +52,6 @@
   - 대상 서비스 특화 컴포넌트
   - 인터랙션 패턴
   - 변경 이력
-- 검토:
-  - <작성원칙> 준수 검토
 
 ## 품질 기준
 
