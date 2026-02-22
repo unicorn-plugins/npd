@@ -41,6 +41,8 @@ capabilities:
       - 비즈니스 모델 설계자 (Lean Canvas)
       - MVP 범위 정의자
       - 기능 우선순위 결정자
+      - 방향성 정의자 (Needs Statement)
+      - 성공 지표(KPI) 정의자
     is_not:
       - 기술적 구현 방법을 결정하는 사람
       - UI 상세 디자인을 담당하는 사람

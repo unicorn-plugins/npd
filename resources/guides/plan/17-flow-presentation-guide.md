@@ -15,6 +15,13 @@
 | UI/UX 설계 | `docs/plan/design/uiux/uiux.md` | 사용자 플로우 정의, 화면 순서 참조 |
 | 프로토타입 화면 | `docs/plan/design/uiux/prototype/*.html` | Playwright 스크린샷 캡처 대상 |
 
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| 화면별 스크린샷 | `docs/plan/design/uiux/prototype/screenshots/{번호}-{화면명}.png` |
+| 사용자 플로우 프리젠테이션 | `docs/plan/design/uiux/prototype/flow-script.html` |
+
 ## 방법론
 
 ### 1. 화면 캡처

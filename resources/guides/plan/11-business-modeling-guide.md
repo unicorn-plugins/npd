@@ -15,6 +15,12 @@ Lean Canvas 프레임워크를 사용하여 체계적인 비즈니스 모델을 
 | 문제해결 방향성 | `docs/plan/think/문제해결방향성.md` | Needs Statement → UVP 기반으로 활용 |
 | 비즈니스 가치 | `docs/plan/define/비즈니스가치.md` | 측정 지표 → Key Metrics에 활용 |
 
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| 비즈니스 모델 | `docs/plan/think/비즈니스모델.md` |
+
 ## 방법론
 
 ### 이전 산출물 매핑

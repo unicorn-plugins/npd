@@ -14,6 +14,12 @@
 | 고객 분석 | `docs/plan/define/고객분석.md` | 사용자 역할(Persona) 정의에 활용 |
 | 유저 저니 맵 | `docs/plan/define/유저저니맵.md` | Pain Points → 유저스토리 추적성 연결 |
 
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| 유저스토리 | `docs/plan/design/userstory.md` |
+
 ## 이벤트스토밍 → 유저스토리 연결
 
 | Event Storming 요소 | User Story 요소 | 설명 |

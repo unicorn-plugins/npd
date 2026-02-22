@@ -90,8 +90,8 @@
   "hotPaths": [
     {
       "path": "skills\\plan\\SKILL.md",
-      "accessCount": 26,
-      "lastAccessed": 1771753823617,
+      "accessCount": 66,
+      "lastAccessed": 1771756790222,
       "type": "file"
     },
     {
@@ -101,15 +101,63 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\13-user-stories-guide.md",
-      "accessCount": 12,
-      "lastAccessed": 1771753505216,
+      "path": "resources\\guides\\plan\\05-customer-experience-guide.md",
+      "accessCount": 17,
+      "lastAccessed": 1771756411918,
       "type": "file"
     },
     {
       "path": "resources\\guides\\plan\\06-journey-mapping-guide.md",
-      "accessCount": 11,
-      "lastAccessed": 1771753018682,
+      "accessCount": 15,
+      "lastAccessed": 1771756397668,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\09-ideation-guide.md",
+      "accessCount": 15,
+      "lastAccessed": 1771756439425,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\01-mvp-definition-guide.md",
+      "accessCount": 14,
+      "lastAccessed": 1771756366942,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\03-market-research-guide.md",
+      "accessCount": 14,
+      "lastAccessed": 1771756383058,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\08-direction-setting-guide.md",
+      "accessCount": 14,
+      "lastAccessed": 1771756412518,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan",
+      "accessCount": 14,
+      "lastAccessed": 1771756788113,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\plan\\07-problem-hypothesis-guide.md",
+      "accessCount": 13,
+      "lastAccessed": 1771756397999,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\16-prototype-development-guide.md",
+      "accessCount": 13,
+      "lastAccessed": 1771756434205,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\13-user-stories-guide.md",
+      "accessCount": 12,
+      "lastAccessed": 1771753505216,
       "type": "file"
     },
     {
@@ -125,69 +173,45 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\03-market-research-guide.md",
-      "accessCount": 10,
-      "lastAccessed": 1771753018390,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\08-direction-setting-guide.md",
-      "accessCount": 9,
-      "lastAccessed": 1771753025464,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\01-mvp-definition-guide.md",
-      "accessCount": 8,
-      "lastAccessed": 1771753018322,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\16-prototype-development-guide.md",
-      "accessCount": 8,
-      "lastAccessed": 1771753929336,
-      "type": "file"
-    },
-    {
       "path": "resources\\guides\\plan\\04-customer-journey-stages-guide.md",
-      "accessCount": 7,
-      "lastAccessed": 1771753018442,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\05-customer-experience-guide.md",
-      "accessCount": 7,
-      "lastAccessed": 1771753018478,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\07-problem-hypothesis-guide.md",
-      "accessCount": 7,
-      "lastAccessed": 1771753019257,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\11-business-modeling-guide.md",
-      "accessCount": 7,
-      "lastAccessed": 1771753026860,
+      "accessCount": 11,
+      "lastAccessed": 1771756393750,
       "type": "file"
     },
     {
       "path": "",
-      "accessCount": 7,
-      "lastAccessed": 1771753940393,
+      "accessCount": 10,
+      "lastAccessed": 1771755350908,
       "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\plan\\02-customer-analysis-guide.md",
+      "accessCount": 10,
+      "lastAccessed": 1771756375777,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\10-solution-selection-guide.md",
+      "accessCount": 10,
+      "lastAccessed": 1771756407759,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\11-business-modeling-guide.md",
+      "accessCount": 10,
+      "lastAccessed": 1771756409884,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\15-uiux-design-guide.md",
+      "accessCount": 7,
+      "lastAccessed": 1771756433631,
+      "type": "file"
     },
     {
       "path": ".dmap\\enhance-planning.md",
       "accessCount": 6,
       "lastAccessed": 1771751871629,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\plan\\02-customer-analysis-guide.md",
-      "accessCount": 6,
-      "lastAccessed": 1771752580772,
       "type": "file"
     },
     {
@@ -197,15 +221,21 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\10-solution-selection-guide.md",
+      "path": "resources\\guides\\plan\\13-event-storming-guide.md",
       "accessCount": 6,
-      "lastAccessed": 1771753827745,
+      "lastAccessed": 1771756416427,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\09-ideation-guide.md",
-      "accessCount": 5,
-      "lastAccessed": 1771753025864,
+      "path": "resources\\guides\\plan\\14-user-stories-guide.md",
+      "accessCount": 6,
+      "lastAccessed": 1771756418922,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\plan\\17-flow-presentation-guide.md",
+      "accessCount": 6,
+      "lastAccessed": 1771756427806,
       "type": "file"
     },
     {
@@ -215,27 +245,99 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan",
-      "accessCount": 3,
-      "lastAccessed": 1771751755677,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\plan\\17-flow-presentation-guide.md",
-      "accessCount": 2,
-      "lastAccessed": 1771753830447,
+      "path": "resources\\guides\\plan\\12-presentation-guide.md",
+      "accessCount": 4,
+      "lastAccessed": 1771756412873,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\15-uiux-design-guide.md",
-      "accessCount": 2,
-      "lastAccessed": 1771753888623,
+      "path": "agents\\architect\\AGENT.md",
+      "accessCount": 4,
+      "lastAccessed": 1771758937746,
       "type": "file"
     },
     {
       "path": "agents\\frontend-developer\\AGENT.md",
-      "accessCount": 1,
-      "lastAccessed": 1771752289037,
+      "accessCount": 4,
+      "lastAccessed": 1771758949152,
+      "type": "file"
+    },
+    {
+      "path": "agents\\architect\\agentcard.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1771758974342,
+      "type": "file"
+    },
+    {
+      "path": "agents\\service-planner\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758928421,
+      "type": "file"
+    },
+    {
+      "path": "agents\\product-owner\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758932984,
+      "type": "file"
+    },
+    {
+      "path": "agents\\domain-expert\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758941423,
+      "type": "file"
+    },
+    {
+      "path": "agents\\ai-engineer\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758945470,
+      "type": "file"
+    },
+    {
+      "path": "agents\\backend-developer\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758953036,
+      "type": "file"
+    },
+    {
+      "path": "agents\\qa-engineer\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758956983,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\AGENT.md",
+      "accessCount": 3,
+      "lastAccessed": 1771758959879,
+      "type": "file"
+    },
+    {
+      "path": "agents\\product-owner\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1771758969367,
+      "type": "file"
+    },
+    {
+      "path": "agents\\domain-expert\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1771758975751,
+      "type": "file"
+    },
+    {
+      "path": "agents\\frontend-developer\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1771758977940,
+      "type": "file"
+    },
+    {
+      "path": "agents\\qa-engineer\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1771758979829,
+      "type": "file"
+    },
+    {
+      "path": "agents\\ai-engineer\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1771758860694,
       "type": "file"
     },
     {
@@ -257,21 +359,33 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\12-presentation-guide.md",
+      "path": "skills",
       "accessCount": 1,
-      "lastAccessed": 1771753828186,
+      "lastAccessed": 1771755341341,
+      "type": "directory"
+    },
+    {
+      "path": "agents\\service-planner\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1771758390940,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\13-event-storming-guide.md",
+      "path": "agents\\service-planner\\tools.yaml",
       "accessCount": 1,
-      "lastAccessed": 1771753828671,
+      "lastAccessed": 1771758391482,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\plan\\14-user-stories-guide.md",
+      "path": "agents\\architect\\tools.yaml",
       "accessCount": 1,
-      "lastAccessed": 1771753829097,
+      "lastAccessed": 1771758393986,
+      "type": "file"
+    },
+    {
+      "path": "agents\\backend-developer\\tools.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1771758394257,
       "type": "file"
     }
   ],

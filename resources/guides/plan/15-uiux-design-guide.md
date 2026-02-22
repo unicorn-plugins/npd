@@ -12,6 +12,13 @@
 | 유저 저니 맵 | `docs/plan/define/유저저니맵.md` | 감정 저점 UX 대응, 터치포인트-화면 매핑 |
 | 디자인 레퍼런스 | `docs/plan/design/uiux/references/레퍼런스분석.md` | 디자인 톤·레이아웃·컴포넌트 스타일 참고 (있는 경우) |
 
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| UI/UX 디자인 명세 | `docs/plan/design/uiux/uiux.md` |
+| 스타일 가이드 | `docs/plan/design/uiux/style-guide.md` |
+
 ## 유저스토리 연결 가이드
 
 ### Epic → 주요 화면

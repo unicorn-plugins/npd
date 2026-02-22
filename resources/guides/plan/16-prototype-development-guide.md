@@ -13,6 +13,15 @@ UI/UX 설계서를 기반으로 기본 HTML/JavaScript로 동작하는 프로토
 | 유저스토리 | `docs/plan/design/userstory.md` | 샘플 데이터 구성, 화면별 기능 요구사항 참조 |
 | 디자인 레퍼런스 | `docs/plan/design/uiux/references/` | 디자인 톤·레이아웃 참고 (있는 경우) |
 
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| 공통 CSS | `docs/plan/design/uiux/prototype/common.css` |
+| 공통 JavaScript | `docs/plan/design/uiux/prototype/common.js` |
+| 화면별 HTML | `docs/plan/design/uiux/prototype/{번호}-{화면명}.html` |
+| 통합 테스트 결과 | `docs/plan/design/uiux/prototype/테스트결과.md` |
+
 ## 개발 프로세스
 
 > **핵심 원칙**: "개발 후 테스트"가 아니라 **"개발하면서 테스트"**. 화면 1개 개발 → Playwright로 즉시 테스트 → 통과 후 다음 화면.
