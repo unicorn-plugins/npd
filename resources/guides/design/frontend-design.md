@@ -1,11 +1,28 @@
 # 프론트엔드설계가이드
 
-[요청사항]
-- <설계원칙>을 준용하여 설계
-- <설계순서>에 따라 설계
-- [결과파일] 안내에 따라 파일 작성
+## 목적
+프로토타입과 백엔드 API 명세서를 기반으로 기술 관점의 프론트엔드 설계서(UI/UX, 스타일가이드, 정보 아키텍처, API 매핑)를 작성한다.
 
-[가이드]
+## 입력 (이전 단계 산출물)
+
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| UI/UX 설계서 | `docs/plan/design/uiux/uiux.md` | 화면 요구사항 분석 |
+| 스타일 가이드 | `docs/plan/design/uiux/style-guide.md` | 디자인 시스템 기반 |
+| 프로토타입 | `docs/plan/design/uiux/prototype/` | 화면 분석 |
+| API 설계서 | `docs/design/api/` | API 매핑 |
+
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| UI/UX 설계서 (기술 관점) | `docs/design/frontend/uiux-design.md` |
+| 스타일 가이드 | `docs/design/frontend/style-guide.md` |
+| 정보 아키텍처 | `docs/design/frontend/ia.md` |
+| API 매핑 설계서 | `docs/design/frontend/api-mapping.md` |
+
+## 방법론
+
 <설계원칙>
 - 기술스택: TypeScript 5.5 + React 18.3 + Vite 5.4
 - 프로토타입과 동일하게 설계
@@ -64,12 +81,24 @@
       - 화면, 기능, 백엔드 서비스, API경로, 요청데이터 구조, 응답데이터 구조 명시
       - API 요청데이타와 API 응답데이터 예시
 
-[참고자료]
-- 프로토타입: design/prototype/*
-- API명세서: design/api/*.json
+## 출력 형식
 
-[결과파일]
-- UI/UX설계서: design/frontend/uiux-design.md
-- 스타일가이드: design/frontend/style-guide.md
-- 정보아키텍처: design/frontend/ia.md
-- API매핑설계서: design/frontend/api-mapping.md
+- UI/UX 설계서: `design/frontend/uiux-design.md`
+- 스타일 가이드: `design/frontend/style-guide.md`
+- 정보 아키텍처: `design/frontend/ia.md` (사이트맵 + 프로젝트 구조 트리 포함)
+- API 매핑 설계서: `design/frontend/api-mapping.md` (runtime-env.js 설정 + 화면-API 매핑표 포함)
+
+## 품질 기준
+
+- [ ] 프로토타입과 동일하게 설계
+- [ ] 백엔드 API 명세서와 일치
+- [ ] 반응형 디자인 (모바일, 태블릿, 웹)
+- [ ] 구현 코드 미포함
+
+## 주의사항
+
+- 공통 원칙: `common-principles.md` 참조
+- 설계서에 구현 코드(컴포넌트 소스 등) 포함 금지 — 설계 명세만 기술
+- 프로토타입 화면과 다르게 설계하지 않을 것
+- API 매핑 시 백엔드 API 경로, 요청/응답 데이터 구조를 정확히 반영
+- UI 프레임워크 선택 후 스타일 가이드와 일관성 유지

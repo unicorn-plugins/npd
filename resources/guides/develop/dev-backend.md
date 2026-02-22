@@ -1,57 +1,71 @@
-# 백엔드 개발 가이드 
+# 백엔드 개발 가이드
 
-[요청사항]  
-- <개발원칙>을 준용하여 개발
-- <개발순서>에 따라 아래 3단계로 개발
-  - '0. 준비'를 수행하고 완료 후 다음 단계 진행여부를 사용자에게 확인  
-  - '1. common 모듈 개발'을 수행하고 완료 후 다음 단계 진행여부를 사용자에게 확인   
-  - '2. 각 서비스별 구현'은 사용자와 함께 각 서비스를 개발  
-    
-[가이드]     
+## 목적
+Spring Boot 기반 멀티 모듈 백엔드를 개발 원칙에 따라 단계적으로 구현합니다. 공통 모듈과 서비스별 구현을 분리하여 일관된 품질의 백엔드를 완성합니다.
+
+## 입력 (이전 단계 산출물)
+
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| 기술스택 정보 | `CLAUDE.md` | Spring Boot 버전 등 |
+| 아키텍처 설계서 | `docs/design/architecture.md` | 공통 모듈 구조 |
+| API 설계서 | `docs/design/api/{service-name}-api.yaml` | 엔드포인트 구현 |
+| 시퀀스 설계서 | `docs/design/sequence/` | 레이어 구현 |
+| 클래스 설계서 | `docs/design/class/{service-name}.puml` | 클래스 구현 |
+
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| 백엔드 공통 모듈 | `backend/src/main/java/.../common/` |
+| 서비스별 API 코드 | `backend/{service-name}/src/` |
+
+## 방법론
+
 <개발원칙>
 - '개발주석표준'에 맞게 주석 작성
 - API설계서와 일관성 있게 개발. Controller에 API를 누락하지 말고 모두 개발
-- '외부시퀀스설계서'와 '내부시퀀스설계서'와 일치되도록 개발 
+- '외부시퀀스설계서'와 '내부시퀀스설계서'와 일치되도록 개발
 - '백엔드패키지구조도'와 '클래스설계서'와 일관성 있게 개발
 - 각 서비스별 지정된 {설계 아키텍처 패턴}을 적용하여 개발
-  - Layered 아키텍처 적용 시 Service레이어에 Interface 사용 
-  - Clean아키텍처 적용 시 Port/Adapter라는 용어 대신 Clean 아키텍처에 맞는 용어 사용  
-- 빌드도구는 Gradle 사용   
-- 설정 Manifest(src/main/resources/application*.yml) 작성 시 '[설정 Manifest 표준]' 준용  
-  
+  - Layered 아키텍처 적용 시 Service레이어에 Interface 사용
+  - Clean아키텍처 적용 시 Port/Adapter라는 용어 대신 Clean 아키텍처에 맞는 용어 사용
+- 빌드도구는 Gradle 사용
+- 설정 Manifest(src/main/resources/application*.yml) 작성 시 '[설정 Manifest 표준]' 준용
+
 <개발순서>
 - 0. 준비:
-  - 참고자료 분석 및 이해 
-  - '백엔드패키지구조도'와 일치하게 모든 클래스와 파일이 포함된 패키지 구조도를 작성 
+  - 참고자료 분석 및 이해
+  - '백엔드패키지구조도'와 일치하게 모든 클래스와 파일이 포함된 패키지 구조도를 작성
     - plantuml 스크립트가 아니라 트리구조 텍스트로 작성
-    - 결과파일: develop/dev/package-structure.md   
+    - 결과파일: develop/dev/package-structure.md
   - settings.gralde 파일 작성
   - build.gradle 작성
-    - '<Build.gradle 구성 최적화>' 가이드대로 최상위와 각 서비스별 build.gradle 작성 
+    - '<Build.gradle 구성 최적화>' 가이드대로 최상위와 각 서비스별 build.gradle 작성
     - '[루트 build.gradle 표준]'대로 최상위 build.gradle 작성
-      - SpringBoot 3.3.0, Java 21 사용 
-      - common을 제외한 각 서비스에서 공통으로 사용되는 설정과 Dependency는 루트 build.gradle에 지정   
+      - SpringBoot 3.3.0, Java 21 사용
+      - common을 제외한 각 서비스에서 공통으로 사용되는 설정과 Dependency는 루트 build.gradle에 지정
     - 서비스별 build.gradle 작성
-      - 최상위 build.gradle에 정의한 설정은 각 마이크로서비스의 build.gradle에 중복하여 정의하지 않도록 함   
-      - 각 서비스의 실행 jar 파일명은 서비스명과 동일하게 함 
-  - 각 서비스별 설정 파일 작성 
-    - 설정 Manifest(application.yml) 작성: '[설정 Manifest 표준]' 준용   
-  
-- 1. common 모듈 개발 
+      - 최상위 build.gradle에 정의한 설정은 각 마이크로서비스의 build.gradle에 중복하여 정의하지 않도록 함
+      - 각 서비스의 실행 jar 파일명은 서비스명과 동일하게 함
+  - 각 서비스별 설정 파일 작성
+    - 설정 Manifest(application.yml) 작성: '[설정 Manifest 표준]' 준용
+
+- 1. common 모듈 개발
   - 각 서비스에서 공통으로 사용되는 클래스를 개발
-  - 외부(웹브라우저, 데이터베이스, Message Queue, 외부시스템)와의 인터페이스를 위한 클래스는 포함하지 않음  
+  - 외부(웹브라우저, 데이터베이스, Message Queue, 외부시스템)와의 인터페이스를 위한 클래스는 포함하지 않음
   - 개발 완료 후 컴파일 및 에러 해결: {프로젝트 루트}/gradlew common:compileJava
-  
-- 2. 각 서비스별 개발  
-  - 사용자가 제공한 서비스의 유저스토리, 외부시퀀스설계서, 내부시퀀스설계서, API설계서, 백엔드패키지구조도, 클래스설계서 파악 
-  - 기존 개발 결과 파악 
-  - 클래스설계서의 각 클래스를 순차적으로 개발 
-    - Controller -> Service -> Data 레이어순으로 순차적으로 개발   
-    - 모든 클래스 개발 후 컴파일 및 에러 해결: {프로젝트 루트}/gradlew {service-name}:compileJava 
-    - SecurityConfig 클래스 작성: '<SecurityConfig 예제>' 참조 
-    - JWT 인증 처리 클래스 작성: '<JWT 인증처리 예제>' 참조 
-    - Swagger Config 클래스 작성: '<SwaggerConfig 예제>' 참조 
-  - 테스트 코드 작성은 하지 않음     
+
+- 2. 각 서비스별 개발
+  - 사용자가 제공한 서비스의 유저스토리, 외부시퀀스설계서, 내부시퀀스설계서, API설계서, 백엔드패키지구조도, 클래스설계서 파악
+  - 기존 개발 결과 파악
+  - 클래스설계서의 각 클래스를 순차적으로 개발
+    - Controller -> Service -> Data 레이어순으로 순차적으로 개발
+    - 모든 클래스 개발 후 컴파일 및 에러 해결: {프로젝트 루트}/gradlew {service-name}:compileJava
+    - SecurityConfig 클래스 작성: '<SecurityConfig 예제>' 참조
+    - JWT 인증 처리 클래스 작성: '<JWT 인증처리 예제>' 참조
+    - Swagger Config 클래스 작성: '<SwaggerConfig 예제>' 참조
+  - 테스트 코드 작성은 하지 않음
 
 <Build.gradle 구성 최적화>
 - **중앙 버전 관리**: 루트 build.gradle의 `ext` 블록에서 모든 외부 라이브러리 버전 통일 관리
@@ -60,35 +74,27 @@
 - **서비스별 최적화**: 공통 의존성(API 문서화, 테스트 등)은 루트에서 일괄 적용
 - **JWT 버전 통일**: 라이브러리 버전 변경시 API 호환성 확인 필수 (`parserBuilder()` → `parser()`)
 - **dependency-management 적용**: 모든 서브프로젝트에 Spring BOM 적용으로 버전 충돌 방지
-  
-[참고자료]
-- 유저스토리
-- 외부시퀀스설계서
-- 내부시퀀스설계서
-- API설계서
-- 백엔드패키지구조도
-- 클래스설계서
- 
+
 ---
-  
+
 [설정 Manifest 표준]
-- common모듈은 작성하지 않음 
-- application.yml에 작성 
+- common모듈은 작성하지 않음
+- application.yml에 작성
 - 하드코딩하지 않고 환경변수 사용
-  특히, 데이터베이스, MQ 등의 연결 정보는 반드시 환경변수로 변환해야 함: '<DB/Redis 설정 예제>' 참조   
+  특히, 데이터베이스, MQ 등의 연결 정보는 반드시 환경변수로 변환해야 함: '<DB/Redis 설정 예제>' 참조
 - spring.application.name은 서비스명과 동일하게 함
-- Redis Database는 각 서비스마다 다르게 설정  
+- Redis Database는 각 서비스마다 다르게 설정
 - 민감한 정보의 디폴트값은 생략하거나 간략한 값으로 지정
-- JWT Secret Key는 모든 서비스가 동일해야 함 
+- JWT Secret Key는 모든 서비스가 동일해야 함
 - '[JWT,CORS,Actuator,OpenAPI Documentation,Loggings 표준]'을 준수하여 설정
-   
+
 [JWT, CORS, Actuator,OpenAPI Documentation,Loggings 표준]
 ```
-# JWT 
+# JWT
 jwt:
   secret: ${JWT_SECRET:}
-  access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:1800}  
-  refresh-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:86400} 
+  access-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:1800}
+  refresh-token-validity: ${JWT_ACCESS_TOKEN_VALIDITY:86400}
 
 # CORS Configuration
 cors:
@@ -135,7 +141,7 @@ logging:
     name: ${LOG_FILE_PATH:logs/{서비스명}.log}
 
 ```
-  
+
 [루트 build.gradle 표준]
 ```
 plugins {
@@ -173,7 +179,7 @@ subprojects {
     tasks.named('test') {
         useJUnitPlatform()
     }
-    
+
     // Common versions for all subprojects
     ext {
         jjwtVersion = '0.12.5'
@@ -205,19 +211,19 @@ configure(subprojects.findAll { it.name != 'common' }) {
     dependencies {
         // Common module dependency
         implementation project(':common')
-        
+
         // Actuator for health checks and monitoring
         implementation 'org.springframework.boot:spring-boot-starter-actuator'
-        
+
         // API Documentation (common across all services)
         implementation "org.springdoc:springdoc-openapi-starter-webmvc-ui:${springdocVersion}"
-        
+
         // Testing
         testImplementation 'org.springframework.boot:spring-boot-starter-test'
         testImplementation 'org.springframework.security:spring-security-test'
         testImplementation 'org.testcontainers:junit-jupiter'
         testImplementation 'org.mockito:mockito-junit-jupiter'
-        
+
         // Configuration Processor
         annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
     }
@@ -243,7 +249,7 @@ tasks.register('buildAll') {
     description = 'Build all subprojects'
 }
 ```
-  
+
 <DB/Redis 설정 예제>
 ```
 spring:
@@ -258,7 +264,7 @@ spring:
       connection-timeout: 30000
       idle-timeout: 600000
       max-lifetime: 1800000
-      leak-detection-threshold: 60000      
+      leak-detection-threshold: 60000
   # JPA 설정
   jpa:
     show-sql: ${SHOW_SQL:true}
@@ -268,7 +274,7 @@ spring:
         use_sql_comments: true
     hibernate:
       ddl-auto: ${DDL_AUTO:update}
-      
+
   # Redis 설정
   data:
     redis:
@@ -283,9 +289,9 @@ spring:
           min-idle: 0
           max-wait: -1ms
       database: ${REDIS_DATABASE:}
-  
+
 ```
-  
+
 <SecurityConfig 예제>
 ```
 /**
@@ -298,7 +304,7 @@ spring:
 public class SecurityConfig {
 
     private final JwtTokenProvider jwtTokenProvider;
-    
+
     @Value("${cors.allowed-origins:http://localhost:3000,http://localhost:8080,http://localhost:8081,http://localhost:8082,http://localhost:8083,http://localhost:8084}")
     private String allowedOrigins;
 
@@ -318,7 +324,7 @@ public class SecurityConfig {
                         // All other requests require authentication
                         .anyRequest().authenticated()
                 )
-                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider), 
+                .addFilterBefore(new JwtAuthenticationFilter(jwtTokenProvider),
                                 UsernamePasswordAuthenticationFilter.class)
                 .build();
     }
@@ -326,23 +332,23 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        
+
         // 환경변수에서 허용할 Origin 패턴 설정
         String[] origins = allowedOrigins.split(",");
         configuration.setAllowedOriginPatterns(Arrays.asList(origins));
-        
+
         // 허용할 HTTP 메소드
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-        
+
         // 허용할 헤더
         configuration.setAllowedHeaders(Arrays.asList(
-            "Authorization", "Content-Type", "X-Requested-With", "Accept", 
+            "Authorization", "Content-Type", "X-Requested-With", "Accept",
             "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"
         ));
-        
+
         // 자격 증명 허용
         configuration.setAllowCredentials(true);
-        
+
         // Pre-flight 요청 캐시 시간
         configuration.setMaxAge(3600L);
 
@@ -352,10 +358,10 @@ public class SecurityConfig {
     }
 }
 ```
-  
+
 <JWT 인증처리 예제>
 
-1) JwtAuthenticationFilter     
+1) JwtAuthenticationFilter
 ```
 /**
  * JWT 인증 필터
@@ -368,29 +374,29 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final JwtTokenProvider jwtTokenProvider;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, 
-                                  HttpServletResponse response, 
+    protected void doFilterInternal(HttpServletRequest request,
+                                  HttpServletResponse response,
                                   FilterChain filterChain) throws ServletException, IOException {
-        
+
         String token = jwtTokenProvider.resolveToken(request);
-        
+
         if (StringUtils.hasText(token) && jwtTokenProvider.validateToken(token)) {
             String userId = jwtTokenProvider.getUserId(token);
             String username = null;
             String authority = null;
-            
+
             try {
                 username = jwtTokenProvider.getUsername(token);
             } catch (Exception e) {
                 log.debug("JWT에 username 클레임이 없음: {}", e.getMessage());
             }
-            
+
             try {
                 authority = jwtTokenProvider.getAuthority(token);
             } catch (Exception e) {
                 log.debug("JWT에 authority 클레임이 없음: {}", e.getMessage());
             }
-            
+
             if (StringUtils.hasText(userId)) {
                 // UserPrincipal 객체 생성 (username과 authority가 없어도 동작)
                 UserPrincipal userPrincipal = UserPrincipal.builder()
@@ -398,35 +404,35 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     .username(username != null ? username : "unknown")
                     .authority(authority != null ? authority : "USER")
                     .build();
-                
-                UsernamePasswordAuthenticationToken authentication = 
+
+                UsernamePasswordAuthenticationToken authentication =
                     new UsernamePasswordAuthenticationToken(
-                        userPrincipal, 
-                        null, 
+                        userPrincipal,
+                        null,
                         Collections.singletonList(new SimpleGrantedAuthority(authority != null ? authority : "USER"))
                     );
-                
+
                 authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
                 SecurityContextHolder.getContext().setAuthentication(authentication);
-                
+
                 log.debug("인증된 사용자: {} ({})", userPrincipal.getUsername(), userId);
             }
         }
-        
+
         filterChain.doFilter(request, response);
     }
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) {
         String path = request.getRequestURI();
-        return path.startsWith("/actuator") || 
-               path.startsWith("/swagger-ui") || 
-               path.startsWith("/v3/api-docs") || 
+        return path.startsWith("/actuator") ||
+               path.startsWith("/swagger-ui") ||
+               path.startsWith("/v3/api-docs") ||
                path.equals("/health");
     }
 }
 ```
-  
+
 1) JwtTokenProvider
 ```
 /**
@@ -488,7 +494,7 @@ public class JwtTokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
-        
+
         return claims.getSubject();
     }
 
@@ -501,7 +507,7 @@ public class JwtTokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
-        
+
         return claims.get("username", String.class);
     }
 
@@ -514,7 +520,7 @@ public class JwtTokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
-        
+
         return claims.get("authority", String.class);
     }
 
@@ -528,7 +534,7 @@ public class JwtTokenProvider {
                 .build()
                 .parseClaimsJws(token)
                 .getBody();
-            
+
             return claims.getExpiration().before(new Date());
         } catch (Exception e) {
             return true;
@@ -544,7 +550,7 @@ public class JwtTokenProvider {
             .build()
             .parseClaimsJws(token)
             .getBody();
-        
+
         return claims.getExpiration();
     }
 }
@@ -560,36 +566,36 @@ public class JwtTokenProvider {
 @Builder
 @RequiredArgsConstructor
 public class UserPrincipal {
-    
+
     /**
      * 사용자 고유 ID
      */
     private final String userId;
-    
+
     /**
      * 사용자명
      */
     private final String username;
-    
+
     /**
      * 사용자 권한
      */
     private final String authority;
-    
+
     /**
      * 사용자 ID 반환 (별칭)
      */
     public String getName() {
         return userId;
     }
-    
+
     /**
      * 관리자 권한 여부 확인
      */
     public boolean isAdmin() {
         return "ADMIN".equals(authority);
     }
-    
+
     /**
      * 일반 사용자 권한 여부 확인
      */
@@ -653,4 +659,27 @@ public class SwaggerConfig {
     }
 }
 ```
-  
+
+## 출력 형식
+
+- `develop/dev/package-structure.md`: 트리구조 텍스트 패키지 구조도
+- `settings.gradle`: 멀티 모듈 프로젝트 설정
+- `build.gradle`: 루트 빌드 스크립트
+- `{service-name}/build.gradle`: 서비스별 빌드 스크립트
+- `{service-name}/src/main/resources/application.yml`: 서비스별 설정 파일
+- `backend/src/main/java/.../common/`: 공통 모듈 소스
+- `backend/{service-name}/src/`: 서비스별 소스
+
+## 품질 기준
+
+- [ ] Spring Boot 기준 공통 모듈 구조 적용
+- [ ] settings.gradle, 루트 build.gradle, 서비스별 build.gradle 포함
+- [ ] SecurityConfig, JWT 인증처리, SwaggerConfig 포함
+- [ ] 모든 API에 단위 테스트 작성
+- [ ] 비즈니스 로직을 공통 모듈에 미포함
+
+## 주의사항
+- 준비 단계 완료 후 사용자에게 다음 단계 진행 여부 확인
+- common 모듈 개발 완료 후 사용자에게 다음 단계 진행 여부 확인
+- 각 서비스별 개발은 사용자와 함께 진행
+- 참고자료(유저스토리, 외부/내부시퀀스설계서, API설계서, 백엔드패키지구조도, 클래스설계서)를 반드시 사전 분석

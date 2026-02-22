@@ -1,20 +1,29 @@
 # 물리아키텍처설계가이드
 
-[요청사항]
-- <작성원칙>을 준용하여 설계
-- <작성순서>에 따라 설계
-- [결과파일] 안내에 따라 파일 작성
-- 완료 후 mermaid 스크립트 테스트 방법 안내
-  - https://mermaid.live/edit 에 접근
-  - 스크립트 내용을 붙여넣어 확인
+## 목적
+클라우드 기반의 물리 아키텍처를 설계하고, 개발환경과 운영환경별 차별화 전략을 적용하여 비용 효율성과 운영 안정성이 균형잡힌 인프라 설계서를 작성한다.
 
-[가이드]
-<작성원칙>
-- 클라우드 기반의 물리 아키텍처 설계
-- **HighLevel아키텍처정의서와 일치**해야 함
-- 환경별 특성에 맞는 차별화 전략 적용
-- 비용 효율성과 운영 안정성의 균형 고려
-- 선정된 아키텍처 패턴 반영 및 최적화
+## 입력 (이전 단계 산출물)
+
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| 아키텍처 패턴 설계서 | `docs/design/architecture.md` | 패턴 기반 인프라 |
+| 논리 아키텍처 | `docs/design/logical-architecture.md` | 서비스 구성 확인 |
+| 데이터 설계서 | `docs/design/database/` | DB 인프라 구성 |
+
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| 마스터 설계서 | `docs/design/physical/physical-architecture.md` |
+| 개발환경 설계서 | `docs/design/physical/physical-architecture-dev.md` |
+| 운영환경 설계서 | `docs/design/physical/physical-architecture-prod.md` |
+| 개발환경 다이어그램 | `docs/design/physical/physical-architecture-dev.mmd` |
+| 운영환경 다이어그램 | `docs/design/physical/physical-architecture-prod.mmd` |
+| 네트워크 다이어그램 (개발) | `docs/design/physical/network-dev.mmd` |
+| 네트워크 다이어그램 (운영) | `docs/design/physical/network-prod.mmd` |
+
+## 방법론
 
 <작성순서>
 - 준비:
@@ -199,14 +208,7 @@
 9. 핵심 SLA 지표|9.1 환경별 서비스 수준 목표||가용성, 응답시간, 배포시간, 복구시간, 동시사용자, 월간비용을 환경별로 비교한 표 작성
 ```
 
-[참고자료]
-- 아키텍처패턴
-- 논리아키텍처
-- 외부시퀀스설계서
-- 데이터설계서
-- HighLevel아키텍처정의서
-
-[예시]
+<예시>
 - 개발환경 물리아키텍처 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture-dev.md
 - 운영환경 물리아키텍처 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture-prod.md
 - 마스터 물리아키텍처 설계서: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-physical-architecture.md
@@ -215,11 +217,29 @@
 - 개발환경 네트워크 다이어그램: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-network-dev.mmd
 - 운영환경 네트워크 다이어그램: https://raw.githubusercontent.com/cna-bootcamp/clauding-guide/refs/heads/main/samples/physical/sample-network-prod.mmd
 
-[결과파일]
-- design/backend/physical/physical-architecture.md
-- design/backend/physical/physical-architecture-dev.md
-- design/backend/physical/physical-architecture-prod.md
-- design/backend/physical/physical-architecture-dev.mmd
-- design/backend/physical/physical-architecture-prod.mmd
-- design/backend/physical/network-dev.mmd
-- design/backend/physical/network-prod.mmd
+## 출력 형식
+
+- 다이어그램: Mermaid 형식 (`.mmd` 파일)
+- 설계서: Markdown 형식 (`.md` 파일)
+- 완료 후 Mermaid 스크립트 검증 방법 안내
+  - https://mermaid.live/edit 에 접근
+  - 스크립트 내용을 붙여넣어 확인
+
+## 품질 기준
+
+- [ ] 환경별 차별화 전략 포함
+- [ ] Mermaid 문법 검증 통과
+- [ ] 구현 코드 미포함
+- [ ] HighLevel아키텍처정의서와 일치
+- [ ] 선정된 아키텍처 패턴 반영
+- [ ] 환경별 비용 효율성 검증 완료
+- [ ] 확장성 및 성능 요구사항 충족 확인
+
+## 주의사항
+
+- 클라우드 기반의 물리 아키텍처 설계
+- **HighLevel아키텍처정의서와 일치**해야 함
+- 환경별 특성에 맞는 차별화 전략 적용
+- 비용 효율성과 운영 안정성의 균형 고려
+- 선정된 아키텍처 패턴 반영 및 최적화
+- 공통 원칙은 `resources/guides/common-principles.md` 참조

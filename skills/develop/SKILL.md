@@ -39,80 +39,85 @@ allowed-tools: Read, Write, Bash, Task
 3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
 4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
 
+## Step 0. 진행 모드 선택
+
+개발 워크플로우 시작 전, 각 단계별 승인 여부를 선택합니다.
+
+<!--ASK_USER-->
+{"title":"진행 모드 선택","questions":[
+  {"question":"각 단계 완료 후 승인을 받고 진행할까요, 자동으로 진행할까요?","type":"radio","options":["단계별 승인","자동 진행"]}
+]}
+<!--/ASK_USER-->
+
+- **단계별 승인** 선택 시 → 각 스텝 완료 후 아래 형식의 승인 요청을 표시하고 사용자 승인 후 다음 스텝 진행:
+
+<!--ASK_USER-->
+{"title":"단계 승인","questions":[
+  {"question":"{완료된 스텝명} 단계가 완료되었습니다. 결과 파일({생성된 파일 경로})을 검토하고 {다음 스텝명} 단계로 계속 진행할 지 승인해 주십시오.","type":"radio","options":["승인","재작업 요청","중단"]}
+]}
+<!--/ASK_USER-->
+
+  - **승인** → 다음 스텝 진행
+  - **재작업 요청** → 사용자 피드백을 받아 현재 스텝 재수행
+  - **중단** → 현재까지 산출물 보존 후 스킬 종료
+
+- **자동 진행** 선택 시 → 승인 없이 연속 실행
+
 ## 워크플로우
 
 ### Step 1. Gradle Wrapper 생성 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
+- **GUIDE**: `resources/guides/develop/gradle-wrapper.md` 참조
 - **TASK**: Java 버전을 확인하고 호환되는 Gradle Wrapper를 자동 생성
-- **EXPECTED OUTCOME**: `gradlew`, `gradlew.bat`, `gradle/wrapper/` 파일 생성 및 검증 완료
-- **MUST DO**: `resources/guides/develop/gradle-wrapper.md` 참조. Java 버전에 맞는 Gradle 버전 자동 결정
-- **MUST NOT DO**: 프로젝트 루트가 아닌 위치에 Gradle Wrapper를 생성하지 않을 것
-- **CONTEXT**: CLAUDE.md 기술스택, 프로젝트 루트 디렉토리
+- **EXPECTED OUTCOME**: `gradlew`, `gradlew.bat`, `gradle/wrapper/` 생성
 
 ### Step 2. 공통 모듈 개발 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
-- **TASK**: 모노레포 구조에 맞게 백엔드 공통 모듈(예외처리, 응답 포맷, 공통 설정)을 개발
-- **EXPECTED OUTCOME**: `backend/src/main/java/.../common/` 디렉토리에 공통 모듈 코드 생성
-- **MUST DO**: `resources/guides/develop/dev-backend.md` 참조. Spring Boot 기준 공통 모듈 구조 적용. settings.gradle, 루트 build.gradle, 서비스별 build.gradle 작성 포함
-- **MUST NOT DO**: 비즈니스 로직을 공통 모듈에 포함하지 않을 것
-- **CONTEXT**: CLAUDE.md 기술스택, `docs/design/architecture.md`
+- **GUIDE**: `resources/guides/develop/dev-backend.md` 참조
+- **TASK**: 모노레포 구조에 맞게 백엔드 공통 모듈(예외처리, 응답 포맷, 공통 설정)을 개발. settings.gradle, 루트 build.gradle, 서비스별 build.gradle 작성 포함
+- **EXPECTED OUTCOME**: `backend/src/main/java/.../common/` 공통 모듈 코드 생성
 
 ### Step 3. 데이터베이스 설정 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
+- **GUIDE**: `resources/guides/develop/database-plan.md`, `resources/guides/develop/database-install.md` 참조
 - **TASK**: 데이터베이스 설치 계획서를 작성하고, 데이터 설계서 기반으로 JPA 엔티티와 레포지토리를 구현하며 데이터베이스 설정을 완료
 - **EXPECTED OUTCOME**: DB 설치 계획서, 엔티티 클래스, 레포지토리 인터페이스, application.yml DB 설정 생성
-- **MUST DO**: `resources/guides/develop/database-plan.md`, `database-install.md` 참조. `docs/design/data-design.md` 기준으로 구현. 환경변수 기반 설정 Manifest 작성
-- **MUST NOT DO**: 설계서에 없는 컬럼을 임의로 추가하지 않을 것. 민감 정보를 하드코딩하지 않을 것
-- **CONTEXT**: `docs/design/data-design.md`, `docs/design/class-design.md`, 물리아키텍처(존재 시)
 
 ### Step 4. MQ 설정 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
+- **GUIDE**: `resources/guides/develop/mq-plan.md`, `resources/guides/develop/mq-install.md` 참조
 - **TASK**: 외부시퀀스설계서에서 비동기 통신이 필요한 곳을 파악하고, MQ 설치 계획서를 작성한 후 MQ를 설치
 - **EXPECTED OUTCOME**: MQ 설치 계획서, MQ 설치 결과서, MQ 연결 문자열 파일 생성
-- **MUST DO**: `resources/guides/develop/mq-plan.md`, `mq-install.md` 참조. 물리아키텍처의 메시징 아키텍처와 일치하도록 작성
-- **MUST NOT DO**: 외부시퀀스설계서에 없는 불필요한 비동기 통신을 설계하지 않을 것
-- **CONTEXT**: `docs/design/sequence.md`(외부시퀀스설계서), 물리아키텍처(존재 시)
 - **SKIP 조건**: 외부시퀀스설계서에 비동기 통신(MQ)이 없으면 이 단계를 건너뜀
 
 ### Step 5. 백엔드 API 개발 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
-- **TASK**: API 설계서 기반으로 컨트롤러·서비스·레포지토리 레이어를 구현하고 단위 테스트 작성
+- **GUIDE**: `resources/guides/develop/dev-backend.md`, `resources/guides/develop/dev-backend-testcode.md` 참조
+- **TASK**: API 설계서 기반으로 컨트롤러·서비스·레포지토리 레이어를 구현하고 단위 테스트 작성. SecurityConfig, JWT 인증처리, SwaggerConfig 클래스 포함
 - **EXPECTED OUTCOME**: API 엔드포인트 구현 코드 및 단위 테스트 코드 생성
-- **MUST DO**: `resources/guides/develop/dev-backend.md`, `dev-backend-testcode.md` 참조. 모든 API에 단위 테스트 작성. SecurityConfig, JWT 인증처리, SwaggerConfig 클래스 포함
-- **MUST NOT DO**: 테스트 없는 코드 제출 금지
-- **CONTEXT**: `docs/design/api-design.md`, `docs/design/sequence.md`, `docs/design/class-design.md`
 
 ### Step 6. 서비스 실행 프로파일 작성 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
+- **GUIDE**: `resources/guides/develop/make-run-profile.md` 참조
 - **TASK**: 각 서비스별 IntelliJ 실행 프로파일(.run.xml)을 작성하고 설정 Manifest와의 일치 여부를 검증
-- **EXPECTED OUTCOME**: 각 서비스별 `{service-name}/.run/{service-name}.run.xml` 파일 생성
-- **MUST DO**: `resources/guides/develop/make-run-profile.md` 참조. 백킹서비스 설치 결과서의 연결 정보와 일치하도록 작성. Gradle 실행 프로파일로 작성 (Spring Boot 프로파일이 아님)
-- **MUST NOT DO**: application.yml의 민감 정보를 하드코딩하지 않을 것. 환경변수와 실행 프로파일 간 불일치가 없어야 함
-- **CONTEXT**: 백킹서비스 설치 결과서, 각 서비스의 application.yml
+- **EXPECTED OUTCOME**: `{service-name}/.run/{service-name}.run.xml` 생성
 
 ### Step 7. 프론트엔드 개발 → Agent: frontend-developer (`/oh-my-claudecode:ralph` 활용)
 
-- **TASK**: UI/UX 설계서 기반으로 프론트엔드 컴포넌트를 구현하고 백엔드 API와 연동
+- **GUIDE**: `resources/guides/develop/dev-frontend.md` 참조
+- **TASK**: UI/UX 설계서 기반으로 프론트엔드 컴포넌트를 구현하고 백엔드 API와 연동. 기술스택 결정 → 초기 설정 → 기반 시스템 → API 연동 → 공통 컴포넌트 → 페이지별 구현 순서로 진행
 - **EXPECTED OUTCOME**: 프론트엔드 컴포넌트 코드 및 API 연동 코드 생성
-- **MUST DO**: `resources/guides/develop/dev-frontend.md` 참조. 기술스택 결정 → 프로젝트 초기 설정 → 기반 시스템 구축 → API 연동 시스템 구축 → 공통 컴포넌트 개발 → 페이지별 구현 순서로 진행. 반응형 UI 구현
-- **MUST NOT DO**: 백엔드 API 없이 프론트엔드를 완성 처리하지 않을 것
-- **CONTEXT**: `docs/design/uiux-design.md`(존재 시), `docs/design/api-design.md`
 
 ### Step 8. AI 기능 구현 → Agent: ai-engineer (`/oh-my-claudecode:ralph` 활용)
 
 - **TASK**: AI 연동 설계서 기반으로 AI API 연동 코드와 프롬프트를 구현
-- **EXPECTED OUTCOME**: `src/ai/` 디렉토리에 AI 연동 코드 생성
-- **MUST DO**: `docs/design/ai-integration.md` 기준으로 구현. 프롬프트 최적화 포함
-- **MUST NOT DO**: 설계에 없는 AI 기능을 임의로 추가하지 않을 것
-- **CONTEXT**: `docs/design/ai-integration.md`
+- **EXPECTED OUTCOME**: `src/ai/` AI 연동 코드 생성
 
 ### Step 9. 테스트 및 버그 수정 → Agent: qa-engineer (`/oh-my-claudecode:ultraqa` 활용)
 
-- **TASK**: 구현된 백엔드 API와 프론트엔드 UI를 테스트하고 버그를 리포트
-- **EXPECTED OUTCOME**: `docs/test/test-report.md` 생성. 테스트 통과 여부 및 버그 목록 포함
-- **MUST DO**: `resources/guides/develop/test-backend.md` 참조. 실행 프로파일과 설정 Manifest 일치 여부 사전 검증 후 테스트 수행. MVP Must Have 기능 전체 테스트
-- **MUST NOT DO**: 버그 발견 시 무시하지 않을 것 — 반드시 리포트 작성
-- **CONTEXT**: 구현된 전체 코드, `docs/plan/user-stories.md`, 서비스 실행 프로파일(.run.xml)
+- **GUIDE**: `resources/guides/develop/test-backend.md` 참조
+- **TASK**: 구현된 백엔드 API와 프론트엔드 UI를 테스트하고 버그를 리포트. 실행 프로파일과 설정 Manifest 일치 여부 사전 검증 후 테스트 수행
+- **EXPECTED OUTCOME**: `test-report.md` 생성 (테스트 통과 여부 및 버그 목록 포함)
 
 ### Step 10. 개발 완료 보고
 
@@ -166,34 +171,3 @@ allowed-tools: Read, Write, Bash, Task
 ## 재개
 
 마지막 완료된 Step부터 재시작. 이전 산출물이 존재하면 해당 단계는 건너뜀.
-
-## MUST 규칙
-
-| # | 규칙 |
-|---|------|
-| 1 | Gradle Wrapper 생성 → 공통모듈 → DB설정 → MQ설정 → 백엔드 → 실행프로파일 → 프론트엔드 → AI → 테스트 순서를 반드시 준수할 것 |
-| 2 | 모든 백엔드 코드에 단위 테스트를 포함할 것 |
-| 3 | 설계 산출물(`docs/design/`)을 반드시 CONTEXT로 활용할 것 |
-| 4 | 설정 Manifest의 모든 연결 정보는 환경변수로 처리할 것 |
-| 5 | 서비스 실행 프로파일은 Gradle 실행 프로파일 형식으로 작성할 것 |
-
-## MUST NOT 규칙
-
-| # | 금지 사항 |
-|---|----------|
-| 1 | 설계 없이 개발을 시작하지 않을 것 |
-| 2 | 테스트 없이 개발 완료를 선언하지 않을 것 |
-| 3 | 민감 정보(DB 비밀번호, JWT Secret 등)를 application.yml에 하드코딩하지 않을 것 |
-
-## 검증 체크리스트
-
-- [ ] Gradle Wrapper 생성 및 검증 완료
-- [ ] 공통 모듈 개발 완료
-- [ ] 데이터베이스 설정 완료 (설치 계획서 + 엔티티 + 설정)
-- [ ] MQ 설정 완료 (해당 시)
-- [ ] 백엔드 API 구현 및 단위 테스트 완료
-- [ ] 서비스 실행 프로파일 작성 및 검증 완료
-- [ ] 프론트엔드 컴포넌트 구현 완료
-- [ ] AI 기능 구현 완료
-- [ ] QA 테스트 완료 및 test-report.md 생성
-- [ ] 완료 보고에 다음 단계 안내 포함

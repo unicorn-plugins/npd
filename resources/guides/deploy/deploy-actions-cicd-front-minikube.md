@@ -1,23 +1,25 @@
 # 프론트엔드 GitHub Actions 파이프라인 작성 가이드 (Minikube/Generic K8s)
-  
-[요청사항]
-- GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성
-- Docker Hub를 이미지 레지스트리로 사용
-- SSH 터널링을 통한 Minikube 클러스터 배포
-- 환경별(dev/staging/prod) 매니페스트 관리 및 자동 배포 구현
-- SonarQube 코드 품질 분석과 Quality Gate 포함
-- Node.js 기반 빌드 및 컨테이너 이미지 생성
-- '[결과파일]'에 구축 방법 및 파이프라인 작성 가이드 생성
-- 아래 작업은 실제 수행하여 파일 생성
-  - ESLint 설정 파일 작성
-  - GitHub Actions 전용 Kustomize 디렉토리 구조 생성
-  - Base Kustomization 작성
-  - 환경별 Overlay 작성
-  - 환경별 Patch 파일 생성
-  - GitHub Actions 워크플로우 파일 작성
-  - 수동 배포 스크립트 작성
-  
-[작업순서]
+
+## 목적
+GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성. Docker Hub를 이미지 레지스트리로 사용. SSH 터널링을 통한 Minikube 클러스터 배포. 환경별(dev/staging/prod) 매니페스트 관리 및 자동 배포 구현. SonarQube 코드 품질 분석과 Quality Gate 포함. Node.js 기반 빌드 및 컨테이너 이미지 생성.
+
+## 입력 (이전 단계 산출물)
+
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| K8s/Minikube 클러스터 | `(런타임 결정)` | SSH 터널링 배포 대상 |
+| Docker Hub 정보 | `(런타임 결정)` | 이미지 푸시 대상 |
+
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| CI/CD 파이프라인 가이드 | `deployment/cicd/actions-pipeline-guide.md` |
+| GitHub Actions 워크플로우 | `.github/workflows/frontend-cicd.yaml` |
+| GitHub Actions 전용 Kustomize 매니페스트 | `.github/kustomize/*` |
+
+## 방법론
+
 - 사전 준비사항 확인
   프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
   - {SYSTEM_NAME}: 시스템명 (phonebill)
@@ -38,7 +40,7 @@
   - VM_USER: azureuser
   - MINIKUBE_IP: 192.168.49.2
   ```
-  
+
 - 서비스명 확인
   package.json에서 확인.
   - {SERVICE_NAME}: package.json의 "name" 필드
@@ -50,10 +52,10 @@
     ...
   }
   ```
-  
-- Node.js 버전 확인   
-  package.json에서 Node.js 버전 확인.  
-  {NODE_VERSION}: "engines" 섹션에서 Node.js 버전 확인. 없으면 20 버전 사용.  
+
+- Node.js 버전 확인
+  package.json에서 Node.js 버전 확인.
+  {NODE_VERSION}: "engines" 섹션에서 Node.js 버전 확인. 없으면 20 버전 사용.
   ```json
   {
     "engines": {
@@ -61,15 +63,15 @@
     }
   }
   ```
-  
+
 - GitHub 저장소 환경 구성 안내
   - GitHub Repository Secrets 설정
     ```
     Repository Settings > Secrets and variables > Actions > Repository secrets에 등록
     ```
 
-    - Docker Hub 인증정보  
-      Docker Hub 패스워드 작성 방법 안내   
+    - Docker Hub 인증정보
+      Docker Hub 패스워드 작성 방법 안내
       - DockerHub(https://hub.docker.com)에 로그인
       - 우측 상단 프로필 아이콘 클릭 후 Account Settings를 선택
       - 좌측메뉴에서 'Personal Access Tokens' 클릭하여 생성
@@ -84,7 +86,7 @@
       VM_USER: {VM 접속 사용자명}
       VM_SSH_KEY: {VM 접속용 SSH 개인키 내용 전체}
       ```
-      **VM_SSH_KEY 작성 방법:**  
+      **VM_SSH_KEY 작성 방법:**
       ```bash
       # 로컬에서 SSH 개인키 내용 확인
       cat ~/.ssh/id_rsa
@@ -96,12 +98,12 @@
       # -----END OPENSSH PRIVATE KEY----- 까지 전체
       ```
 
-    - KUBECONFIG 설정   
-      Minikube 클러스터의 kubeconfig 파일 내용을 등록   
+    - KUBECONFIG 설정
+      Minikube 클러스터의 kubeconfig 파일 내용을 등록
       ```
       KUBECONFIG: {kubeconfig 파일 내용 전체}
       ```
-      **KUBECONFIG 작성 방법:**  
+      **KUBECONFIG 작성 방법:**
       ```bash
       # Local에서 kubeconfig 내용 확인
       kubectl config view --minify --flatten
@@ -109,14 +111,14 @@
       # 출력된 내용 전체를 복사하여 Secret에 등록
       # (base64 인코딩 없이 원본 그대로 등록)
       ```
-  
-    - SonarQube URL과 인증 토큰 (선택사항)   
-      SONAR_HOST_URL 구하는 방법과 SONAR_TOKEN 작성법 안내.     
-      SONAR_HOST_URL: 아래 명령 수행 후 http://{External IP}를 지정.    
-      k get svc -n sonarqube    
-      예) http://20.249.187.69     
 
-      SONAR_TOKEN 값은 아래와 같이 작성   
+    - SonarQube URL과 인증 토큰 (선택사항)
+      SONAR_HOST_URL 구하는 방법과 SONAR_TOKEN 작성법 안내.
+      SONAR_HOST_URL: 아래 명령 수행 후 http://{External IP}를 지정.
+      k get svc -n sonarqube
+      예) http://20.249.187.69
+
+      SONAR_TOKEN 값은 아래와 같이 작성
       - SonarQube 로그인 후 우측 상단 'Administrator' > My Account 클릭
       - Security 탭 선택 후 토큰 생성
 
@@ -134,15 +136,15 @@
     SKIP_SONARQUBE: true (기본값: true/false)
     ```
 
-    **사용 방법:**  
+    **사용 방법:**
     - **자동 실행**: Push/PR 시 Variables에 설정된 값 사용
     - **수동 실행**: Actions 탭 > "Frontend CI/CD (Generic K8s)" > "Run workflow" 버튼 클릭
     - **변수 변경**: Repository Settings에서 Variables 값 수정
-  
-- ESLint 설정 파일 작성   
-  TypeScript React 프로젝트를 위한 `.eslintrc.cjs` 파일을 프로젝트 루트에 생성합니다.   
-  
-  **⚠️ 중요**: ES 모듈 프로젝트에서는 `.eslintrc.cjs` 확장자 사용 필수   
+
+- ESLint 설정 파일 작성
+  TypeScript React 프로젝트를 위한 `.eslintrc.cjs` 파일을 프로젝트 루트에 생성합니다.
+
+  **⚠️ 중요**: ES 모듈 프로젝트에서는 `.eslintrc.cjs` 확장자 사용 필수
 
   ```javascript
   module.exports = {
@@ -208,12 +210,12 @@
   }
   ```
 
-  **필수 ESLint 관련 devDependencies 설치**:  
+  **필수 ESLint 관련 devDependencies 설치**:
   ```bash
   npm install --save-dev eslint-plugin-react
   ```
 
-  **package.json lint 스크립트 수정** (max-warnings 20으로 설정):  
+  **package.json lint 스크립트 수정** (max-warnings 20으로 설정):
   ```json
   {
     "scripts": {
@@ -237,11 +239,11 @@
     # 네임스페이스 하드코딩 제거
     find .github/kustomize/base -name "*.yaml" -exec sed -i 's/namespace: .*//' {} \;
     ```
-  
-- Base Kustomization 작성  
-  `.github/kustomize/base/kustomization.yaml` 파일 생성  
-  
-  **⚠️ 중요: 리소스 누락 방지 가이드**  
+
+- Base Kustomization 작성
+  `.github/kustomize/base/kustomization.yaml` 파일 생성
+
+  **⚠️ 중요: 리소스 누락 방지 가이드**
   1. **디렉토리별 파일 확인**: base 디렉토리의 모든 yaml 파일을 확인
   2. **일관성 체크**: 모든 리소스가 동일한 파일 구조를 가지는지 확인
   3. **누락 검증**: `ls .github/kustomize/base/` 명령으로 실제 파일과 kustomization.yaml 리스트 비교
@@ -265,8 +267,8 @@
     - name: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}
       newTag: latest
   ```
-  
-  **검증 명령어**:  
+
+  **검증 명령어**:
   ```bash
   # base 디렉토리의 파일 확인
   ls .github/kustomize/base/
@@ -274,37 +276,37 @@
   # kustomization.yaml 유효성 검사
   kubectl kustomize .github/kustomize/base/
   ```
-  
-- 환경별 Patch 파일 생성  
-  각 환경별로 필요한 patch 파일들을 생성합니다.  
-  **중요원칙**:  
+
+- 환경별 Patch 파일 생성
+  각 환경별로 필요한 patch 파일들을 생성합니다.
+  **중요원칙**:
   - **base 매니페스트에 없는 항목은 추가 안함**
   - **base 매니페스트와 항목이 일치해야 함**
-  
-  **1. ConfigMap Patch 파일 생성**  
-  `.github/kustomize/overlays/{ENVIRONMENT}/configmap-patch.yaml`  
-  
+
+  **1. ConfigMap Patch 파일 생성**
+  `.github/kustomize/overlays/{ENVIRONMENT}/configmap-patch.yaml`
+
   - base 매니페스트를 환경별로 복사
     ```
     cp .github/kustomize/base/configmap.yaml .github/kustomize/overlays/{ENVIRONMENT}/configmap-patch.yaml
     ```
-  
+
   - 환경별 API 엔드포인트 설정
   - dev: 개발 API 서버 주소, staging/prod: 운영 API 서버 주소
-  
-  **2. Ingress Patch 파일 생성**  
-  `.github/kustomize/overlays/{ENVIRONMENT}/ingress-patch.yaml`  
+
+  **2. Ingress Patch 파일 생성**
+  `.github/kustomize/overlays/{ENVIRONMENT}/ingress-patch.yaml`
   - base의 ingress.yaml을 환경별로 오버라이드
   - **⚠️ 중요**: 개발환경 Ingress Host의 기본값은 base의 ingress.yaml과 **정확히 동일하게** 함
     - base에서 `host: {SERVICE_NAME}.{VM_IP}.nip.io` 이면
     - dev에서도 `host: {SERVICE_NAME}.{VM_IP}.nip.io` 로 동일하게 설정
     - **절대** `{SERVICE_NAME}-dev.xxx` 처럼 변경하지 말 것
   - Staging/Prod 환경별 도메인 설정: {SERVICE_NAME}-{환경}.도메인 형식
-  
-  **3. Deployment Patch 파일 생성** ⚠️ **중요**  
-  `.github/kustomize/overlays/{ENVIRONMENT}/deployment-patch.yaml`   
-  
-  **필수 포함 사항:**  
+
+  **3. Deployment Patch 파일 생성** ⚠️ **중요**
+  `.github/kustomize/overlays/{ENVIRONMENT}/deployment-patch.yaml`
+
+  **필수 포함 사항:**
   - ✅ **replicas 설정**: Deployment의 replica 수를 환경별로 설정
     - dev: 1 replica (리소스 절약)
     - staging: 2 replicas
@@ -313,13 +315,13 @@
     - dev: requests(256m CPU, 256Mi Memory), limits(1024m CPU, 1024Mi Memory)
     - staging: requests(512m CPU, 512Mi Memory), limits(2048m CPU, 2048Mi Memory)
     - prod: requests(1024m CPU, 1024Mi Memory), limits(4096m CPU, 4096Mi Memory)
-  
-  **작성 형식:**  
+
+  **작성 형식:**
   - **Strategic Merge Patch 형식** 사용 (JSON Patch 아님)
   - replicas와 resources를 **반드시 모두** 포함
-  
-- 환경별 Overlay 작성  
-  각 환경별로 `overlays/{환경}/kustomization.yaml` 생성  
+
+- 환경별 Overlay 작성
+  각 환경별로 `overlays/{환경}/kustomization.yaml` 생성
   ```yaml
   apiVersion: kustomize.config.k8s.io/v1beta1
   kind: Kustomization
@@ -348,16 +350,16 @@
       newTag: latest
 
   ```
-  
-- GitHub Actions 워크플로우 작성  
-  `.github/workflows/frontend-cicd.yaml` 파일 생성 방법을 안내합니다.  
-  
-  주요 구성 요소:  
+
+- GitHub Actions 워크플로우 작성
+  `.github/workflows/frontend-cicd.yaml` 파일 생성 방법을 안내합니다.
+
+  주요 구성 요소:
   - **Build & Test**: Node.js 기반 빌드 및 단위 테스트, ESLint 검사
   - **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate (vars.SKIP_SONARQUBE로 제어)
   - **Container Build & Push**: Docker Hub에 이미지 빌드 및 푸시
   - **SSH Tunnel & Deploy**: SSH 터널링을 통한 Minikube 클러스터 배포
-  
+
   ```yaml
   name: Frontend CI/CD (Generic K8s)
 
@@ -583,7 +585,7 @@
             pkill -f "ssh.*8443" || true
 
   ```
-  
+
 - SonarQube 프로젝트 설정 방법 작성
   - SonarQube에서 프론트엔드 프로젝트 생성
   - 프로젝트 키: `{SERVICE_NAME}-{환경}`
@@ -599,7 +601,7 @@
     Bugs: = 0
     Vulnerabilities: = 0
     ```
-  
+
 - 롤백 방법 작성
   - GitHub Actions에서 이전 버전으로 롤백:
     ```bash
@@ -620,15 +622,27 @@
     # 이전 안정 버전 이미지 태그로 배포
     ./.github/scripts/deploy-actions-frontend.sh {환경} {이전태그}
     ```
-  
-[체크리스트]
+
+## 출력 형식
+
+- 가이드: `deployment/cicd/actions-pipeline-guide.md`
+- GitHub Actions 워크플로우: `.github/workflows/frontend-cicd.yaml`
+- GitHub Actions 전용 Kustomize 매니페스트: `.github/kustomize/*`
+
+## 품질 기준
+
+- [ ] SSH 터널링 설정 포함
+- [ ] 시크릿 하드코딩 금지
+
+## 주의사항
+
 GitHub Actions CI/CD 파이프라인 구축 작업을 누락 없이 진행하기 위한 체크리스트입니다.
-  
-## 📋 사전 준비 체크리스트
+
+### 사전 준비 체크리스트
 - [ ] package.json에서 시스템명과 서비스명 확인 완료
 - [ ] 실행정보 섹션에서 Docker Hub 사용자명, VM IP, Namespace 확인 완료
 
-## 🔐 GitHub Secrets 설정 체크리스트
+### GitHub Secrets 설정 체크리스트
 - [ ] DOCKERHUB_USERNAME: Docker Hub 사용자명
 - [ ] DOCKERHUB_PASSWORD: Docker Hub Access Token
 - [ ] VM_IP: VM Public IP 주소
@@ -638,11 +652,11 @@ GitHub Actions CI/CD 파이프라인 구축 작업을 누락 없이 진행하기
 - [ ] SONAR_TOKEN: SonarQube 토큰 (선택사항)
 - [ ] SONAR_HOST_URL: SonarQube 서버 URL (선택사항)
 
-## 🔧 GitHub Variables 설정 체크리스트
+### GitHub Variables 설정 체크리스트
 - [ ] ENVIRONMENT: dev (기본값)
 - [ ] SKIP_SONARQUBE: true (기본값)
 
-## 📂 GitHub Actions 전용 Kustomize 구조 생성 체크리스트
+### GitHub Actions 전용 Kustomize 구조 생성 체크리스트
 - [ ] 디렉토리 구조 생성: `.github/kustomize/{base,overlays/{dev,staging,prod}}`
 - [ ] 기존 k8s 매니페스트를 base로 복사 완료
 - [ ] **리소스 누락 방지 검증 완료**:
@@ -655,31 +669,31 @@ GitHub Actions CI/CD 파이프라인 구축 작업을 누락 없이 진행하기
   - [ ] `kubectl kustomize .github/kustomize/base/` 정상 실행 확인
   - [ ] 에러 메시지 없이 모든 리소스 출력 확인
 
-## 🔧 GitHub Actions 전용 환경별 Overlay 구성 체크리스트
-### 공통 체크 사항
+### GitHub Actions 전용 환경별 Overlay 구성 체크리스트
+#### 공통 체크 사항
 - **base 매니페스트에 없는 항목을 추가하지 않았는지 체크**
 - **base 매니페스트와 항목이 일치 하는지 체크**
 - **⚠️ Kustomize patch 방법 변경**: `patchesStrategicMerge` → `patches` (target 명시)
 
-### DEV 환경
+#### DEV 환경
 - [ ] `.github/kustomize/overlays/dev/kustomization.yaml` 생성 완료
 - [ ] `.github/kustomize/overlays/dev/configmap-patch.yaml` 생성 완료 (개발 API 엔드포인트)
 - [ ] `.github/kustomize/overlays/dev/ingress-patch.yaml` 생성 완료 (**Host 기본값은 base의 ingress.yaml과 동일**)
 - [ ] `.github/kustomize/overlays/dev/deployment-patch.yaml` 생성 완료 (replicas=1, dev 리소스)
 
-### STAGING 환경
+#### STAGING 환경
 - [ ] `.github/kustomize/overlays/staging/kustomization.yaml` 생성 완료
 - [ ] `.github/kustomize/overlays/staging/configmap-patch.yaml` 생성 완료 (스테이징 API 엔드포인트)
 - [ ] `.github/kustomize/overlays/staging/ingress-patch.yaml` 생성 완료 (staging 도메인)
 - [ ] `.github/kustomize/overlays/staging/deployment-patch.yaml` 생성 완료 (replicas=2, staging 리소스)
 
-### PROD 환경
+#### PROD 환경
 - [ ] `.github/kustomize/overlays/prod/kustomization.yaml` 생성 완료
 - [ ] `.github/kustomize/overlays/prod/configmap-patch.yaml` 생성 완료 (운영 API 엔드포인트)
 - [ ] `.github/kustomize/overlays/prod/ingress-patch.yaml` 생성 완료 (prod 도메인)
 - [ ] `.github/kustomize/overlays/prod/deployment-patch.yaml` 생성 완료 (replicas=3, prod 리소스)
 
-## ⚙️ GitHub Actions 설정 및 스크립트 체크리스트
+### GitHub Actions 설정 및 스크립트 체크리스트
 - [ ] GitHub Actions 워크플로우 파일 `.github/workflows/frontend-cicd.yaml` 생성 완료
 - [ ] 워크플로우 주요 내용 확인
   - Build, SonarQube, Docker Build & Push, SSH Tunnel, Deploy 단계 포함
@@ -692,8 +706,3 @@ GitHub Actions CI/CD 파이프라인 구축 작업을 누락 없이 진행하기
 
 - [ ] 수동 배포 스크립트 `.github/scripts/deploy-actions-frontend.sh` 생성 완료
 - [ ] 스크립트 실행 권한 설정 완료 (`chmod +x .github/scripts/*.sh`)
-  
-[결과파일]
-- 가이드: deployment/cicd/actions-pipeline-guide.md
-- GitHub Actions 워크플로우: .github/workflows/frontend-cicd.yaml
-- GitHub Actions 전용 Kustomize 매니페스트: .github/kustomize/*

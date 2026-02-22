@@ -1,8 +1,22 @@
-# GradleWrapper생성가이드
+# GradleWrapper 생성 가이드
 
-Java 버전을 확인하고 호환되는 Gradle Wrapper를 자동으로 생성해주세요.
+## 목적
+Java 버전을 확인하고 호환되는 Gradle Wrapper를 자동으로 생성합니다.
 
-## 작업 단계
+## 입력 (이전 단계 산출물)
+
+| 산출물 | 파일 경로 | 활용 방법 |
+|--------|----------|----------|
+| 기술스택 정보 | `CLAUDE.md` | Java 버전 확인 |
+| 프로젝트 루트 | `(런타임 결정)` | Wrapper 생성 위치 |
+
+## 출력 (이 단계 산출물)
+
+| 산출물 | 파일 경로 |
+|--------|----------|
+| Gradle Wrapper | `gradlew`, `gradlew.bat`, `gradle/wrapper/` |
+
+## 방법론
 
 ### 1단계: Java 버전 확인
 - `java -version` 명령으로 현재 Java 버전 확인
@@ -67,7 +81,20 @@ curl -L -o gradlew.bat https://raw.githubusercontent.com/gradle/gradle/v{VERSION
 - Java 버전과 호환성 확인
 - 테스트 빌드 수행 (`./gradlew clean build`)
 
+## 출력 형식
+
+- `gradle/wrapper/gradle-wrapper.properties`: 배포 URL 및 경로 설정
+- `gradle/wrapper/gradle-wrapper.jar`: Wrapper 실행 바이너리
+- `gradlew`: Unix/Linux/Mac 실행 스크립트
+- `gradlew.bat`: Windows 실행 스크립트
+
+## 품질 기준
+
+- [ ] Java 버전에 맞는 Gradle 버전 자동 결정
+- [ ] gradlew 실행 권한 부여
+- [ ] `./gradlew --version` 검증 통과
+
 ## 주의사항
-- {VERSION}을 실제 버전 번호로 교체 (예: 8.10.2)
+- `{VERSION}`을 실제 버전 번호로 교체 (예: 8.10.2)
 - 네트워크 연결 필요
 - Windows에서는 `./gradlew` 대신 `.\gradlew.bat` 사용
