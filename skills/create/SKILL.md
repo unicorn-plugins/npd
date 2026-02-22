@@ -1,6 +1,6 @@
 ---
 name: create
-description: 새 프로젝트 생성 — 프로젝트 디렉토리 초기화, NPD에 domain-expert 동적 등록, GitHub 레포 자동 생성
+description: 새 프로젝트 생성 — 프로젝트 디렉토리 초기화, 도메인 컨텍스트 생성, GitHub 레포 자동 생성
 type: orchestrator
 user-invocable: true
 allowed-tools: Read, Write, Bash, Task
@@ -14,28 +14,12 @@ allowed-tools: Read, Write, Bash, Task
 
 사용자로부터 MVP 주제와 프로젝트 디렉토리를 입력받아
 프로젝트 디렉토리를 초기화하고, MVP 주제로 도메인을 자동 추론하여
-NPD 플러그인에 domain-expert-{project} 에이전트를 동적 등록하며, GitHub 레포를 자동 생성함.
+프로젝트에 도메인 컨텍스트 파일(`.npd/domain-context.yaml`)을 생성하며, GitHub 레포를 자동 생성함.
+이후 단계(plan/design/develop)에서는 기존 `domain-expert` 에이전트가 이 컨텍스트 파일을 참조하여 도메인 특화 자문을 수행함.
 
 ## 활성화 조건
 
 사용자가 `/npd:create` 호출 시 또는 "새 프로젝트 생성", "프로젝트 만들어줘" 키워드 감지 시.
-
-## 에이전트 호출 규칙
-
-| 에이전트 | FQN |
-|----------|-----|
-| domain-expert | `npd:domain-expert:domain-expert` |
-
-### 프롬프트 조립
-
-1. `agents/{agent-name}/`에서 3파일 로드 (AGENT.md + agentcard.yaml + tools.yaml)
-2. `gateway/runtime-mapping.yaml` 참조하여 구체화:
-   - **모델 구체화**: agentcard.yaml의 `tier` → `tier_mapping`에서 모델 결정
-   - **툴 구체화**: tools.yaml의 추상 도구 → `tool_mapping`에서 실제 도구 결정
-   - **금지액션 구체화**: agentcard.yaml의 `forbidden_actions` → `action_mapping`에서 제외할 실제 도구 결정
-   - **최종 도구** = (구체화된 도구) - (제외 도구)
-3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
-4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
 
 ## 워크플로우
 
@@ -66,9 +50,10 @@ MVP 주제를 기반으로 적절한 프로젝트 디렉토리명을 영문 keba
 - 사용자가 입력하지 않으면 추천 디렉토리를 기본값으로 사용
 - 이미 존재하는 디렉토리인 경우 사용자에게 확인 후 진행
 
-### Step 3. 도메인 추론 및 domain-expert 생성 → Agent: domain-expert (`ulw` 매직 키워드 활용)
+### Step 3. 도메인 추론 및 도메인 컨텍스트 생성
 
-MVP 주제를 분석하여 도메인을 추론하고, domain-expert 에이전트 파일을 생성합니다.
+MVP 주제를 분석하여 도메인을 추론하고, 프로젝트에 도메인 컨텍스트 파일을 생성합니다.
+기존 NPD `domain-expert` 에이전트를 그대로 활용하되, 프로젝트별 도메인 특화 정보를 컨텍스트 파일로 제공합니다.
 
 **3-1. 도메인 추론**
 
@@ -87,19 +72,43 @@ MVP 주제에서 핵심 도메인을 한 단어로 추론합니다.
 - 예: `~/workspace/diabetes-diet-app` → `{project}` = `diabetes-diet-app`
 - 예: `~/workspace/used-book-market` → `{project}` = `used-book-market`
 
-**3-3. domain-expert 에이전트 파일 생성**
+**3-3. 도메인 컨텍스트 파일 생성**
 
-NPD 플러그인 디렉토리의 `agents/domain-expert-{project}/`에 3개 파일을 생성합니다:
+프로젝트 디렉토리의 `.npd/domain-context.yaml`에 도메인 특화 정보를 생성합니다.
+이후 단계에서 `domain-expert` 에이전트 호출 시 이 파일을 프롬프트에 주입하여 도메인 특화 자문을 수행합니다.
 
-| 파일 | 내용 |
-|------|------|
-| `AGENT.md` | 도메인 특화 지식, 워크플로우, 판단 기준 |
-| `agentcard.yaml` | 도메인 전문가 페르소나, 티어, 허용 도구 |
-| `tools.yaml` | 필요 추상 도구 정의 |
+**domain-context.yaml 구조:**
+```yaml
+# 프로젝트 도메인 컨텍스트
+# 이 파일은 NPD의 domain-expert 에이전트가 참조하는 도메인 특화 정보입니다.
+
+project: "{project}"
+mvp_topic: "{MVP 주제}"
+domain:
+  name: "{도메인명}"           # 예: healthcare, commerce, fintech, education
+  description: "{도메인 설명}"  # 예: 만성질환 환자 건강관리 서비스 도메인
+
+background: |
+  {도메인 특화 경력 및 전문성}
+  # 예(healthcare): 서울대학교병원 내분비내과 임상연구 코디네이터 경력. 디지털 헬스케어 스타트업 3곳 자문.
+  #   만성질환 관리 프로그램 설계 경험. 식약처 디지털 치료기기 인허가 프로세스 숙지.
+
+expertise:
+  - "{전문 지식 1}"
+  - "{전문 지식 2}"
+  - "{전문 지식 3}"
+
+regulations:
+  - name: "{규제/표준명}"
+    description: "{설명}"
+  - name: "{규제/표준명}"
+    description: "{설명}"
+```
 
 **규칙:**
 - 도메인을 너무 광범위하게 정의하지 않을 것 (예: "IT" 같은 범용 도메인 금지)
-- agentcard.yaml에 모델명·도구명 하드코딩 금지 (추상 선언만 사용)
+- 규제/표준은 해당 도메인에서 실제로 적용되는 것만 포함
+- 이 파일은 프로젝트에 속하므로 플러그인 소스를 수정하지 않음
 
 ### Step 4. 프로젝트 디렉토리 생성
 
@@ -109,17 +118,10 @@ NPD 플러그인 디렉토리의 `agents/domain-expert-{project}/`에 3개 파�
 **4-1. 프로젝트 디렉토리 구조:**
 ```
 {프로젝트 디렉토리}/
+├── .npd/
+│   └── domain-context.yaml
 ├── .gitignore
 └── CLAUDE.md
-```
-
-**4-2. NPD 플러그인에 domain-expert 등록:**
-```
-~/workspace/npd/agents/
-└── domain-expert-{project}/
-    ├── AGENT.md
-    ├── agentcard.yaml
-    └── tools.yaml
 ```
 
 **.gitignore 기본 내용** (Spring Boot, Node.js, Python 공통):
@@ -168,7 +170,7 @@ Thumbs.db
 ### Step 5. CLAUDE.md 생성
 
 프로젝트 디렉토리에 CLAUDE.md를 생성합니다.
-NPD 플러그인의 `agents/*/agentcard.yaml`과 `agents/domain-expert-{project}/agentcard.yaml`을 읽어 멤버 정보를 구성합니다.
+NPD 플러그인의 `agents/*/agentcard.yaml`을 읽어 멤버 정보를 구성합니다.
 
 **CLAUDE.md 구조:**
 
@@ -224,7 +226,6 @@ NPD 플러그인의 `agents/*/agentcard.yaml`과 `agents/domain-expert-{project}
 
 **멤버 구성 규칙:**
 - NPD 플러그인의 `agents/*/agentcard.yaml`에서 `persona.profile`과 `persona.style`, `persona.background`를 읽어 구성
-- `agents/domain-expert-{project}/agentcard.yaml`도 포함
 - `{역할}` = `persona.profile.role`
 - `{이름}` = `persona.profile.name`
 - `{별명}` = `persona.profile.nickname`
@@ -257,7 +258,7 @@ NPD 플러그인의 `agents/*/agentcard.yaml`과 `agents/domain-expert-{project}
 - 프로젝트 디렉토리: {프로젝트 디렉토리}
 - MVP 주제: {MVP 주제}
 - 도메인: {추론된 도메인}
-- domain-expert: npd/agents/domain-expert-{project}/
+- 도메인 컨텍스트: {프로젝트 디렉토리}/.npd/domain-context.yaml
 - GitHub 레포: {URL 또는 "미생성"}
 
 ### 다음 단계
@@ -268,14 +269,14 @@ NPD 플러그인의 `agents/*/agentcard.yaml`과 `agents/domain-expert-{project}
 
 - [ ] 모든 워크플로우 단계가 정상 완료됨
 - [ ] 프로젝트 디렉토리 및 .gitignore, CLAUDE.md가 생성됨
-- [ ] `npd/agents/domain-expert-{project}/` 3파일(AGENT.md, agentcard.yaml, tools.yaml)이 생성됨
+- [ ] `.npd/domain-context.yaml` 도메인 컨텍스트 파일이 생성됨
 - [ ] 검증 프로토콜을 통과함
 - [ ] 에러 0건
 
 ## 검증 프로토콜
 
-1. 산출물 파일 존재 확인 (프로젝트 디렉토리, .gitignore, CLAUDE.md, domain-expert 3파일)
-2. 산출물 내용 품질 검증 (CLAUDE.md 멤버 정보, domain-expert 도메인 특화 지식)
+1. 산출물 파일 존재 확인 (프로젝트 디렉토리, .gitignore, CLAUDE.md, .npd/domain-context.yaml)
+2. 산출물 내용 품질 검증 (CLAUDE.md 멤버 정보, domain-context.yaml 도메인 특화 정보)
 3. 이전 Phase 산출물과의 일관성 확인
 
 ## 상태 정리
@@ -297,7 +298,7 @@ NPD 플러그인의 `agents/*/agentcard.yaml`과 `agents/domain-expert-{project}
 | 1 | MVP 주제를 가장 먼저 입력받을 것 |
 | 2 | MVP 주제를 기반으로 프로젝트 디렉토리명을 영문 kebab-case로 추천할 것 |
 | 3 | 기술스택은 create 단계에서 수집하지 않을 것 (plan/design 단계에서 결정) |
-| 4 | MVP 주제로 도메인을 반드시 추론하여 NPD 플러그인에 domain-expert-{project} 에이전트를 동적 생성할 것 |
+| 4 | MVP 주제로 도메인을 반드시 추론하여 프로젝트에 `.npd/domain-context.yaml`을 생성할 것 |
 | 5 | 프로젝트 디렉토리, .gitignore, CLAUDE.md를 반드시 생성할 것 |
 | 6 | CLAUDE.md를 프로젝트 루트에 반드시 생성할 것 |
 
@@ -314,9 +315,9 @@ NPD 플러그인의 `agents/*/agentcard.yaml`과 `agents/domain-expert-{project}
 - [ ] MVP 주제가 가장 먼저 수집되는가
 - [ ] MVP 주제 기반으로 프로젝트 디렉토리명이 추천되는가
 - [ ] 프로젝트 디렉토리 기본값이 ~/workspace/{추천명} 인가
-- [ ] 도메인 추론과 domain-expert 생성이 하나의 Step에서 수행되는가
+- [ ] 도메인 추론과 domain-context.yaml 생성이 하나의 Step에서 수행되는가
 - [ ] 프로젝트 디렉토리 및 .gitignore 생성 완료
 - [ ] CLAUDE.md 생성 완료
-- [ ] `npd/agents/domain-expert-{project}/` 3파일 생성 완료
+- [ ] `.npd/domain-context.yaml` 생성 완료
 - [ ] 기술스택을 질문하지 않는가
 - [ ] 완료 보고에 다음 단계 안내 포함

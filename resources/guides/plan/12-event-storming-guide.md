@@ -102,7 +102,7 @@ rectangle "주요 기능" as main {
 ### 병합 기준 (해당 시 통합 고려)
 | 기준 | 지표 |
 |-----|------|
-| 트랜잭션 경계 | 강한 일관성 필요 |
+| 트랜잭션 경계 | 한 트랙잭션 완료를 위해 복수의 Bounded Context의 데이터를 Write해야 한다면 통합 |
 | 서비스 크기 | 코드 5,000줄 미만 |
 | 호출 빈도 | 동기 호출 90% 이상 |
 | 운영 복잡도 | 팀당 3-5개 서비스 적정 |
@@ -111,11 +111,33 @@ rectangle "주요 기능" as main {
 초기에는 운영 복잡도를 낮추기 위해 관련 컨텍스트를 병합하고,
 트래픽/복잡도 증가 시 분리함.
 
+## PlantUML 문법 검사
+
+각 `.puml` 파일 생성 즉시 `check-plantuml` 도구로 문법 검증을 수행합니다.
+상세 사용법은 `resources/tools/check-plantuml.md`를 참조하세요.
+
+```bash
+# 개별 파일 검증
+bash tools/diagram/check-plantuml.sh docs/plan/think/es/userflow.puml
+
+# 전체 이벤트 스토밍 파일 일괄 검증
+for f in docs/plan/think/es/*.puml; do
+  bash tools/diagram/check-plantuml.sh "$f"
+done
+```
+
+**검증 기준:**
+- 종료 코드 `0`: 문법 검증 통과
+- 종료 코드 `1`: 문법 오류 → 오류 내용 확인 후 수정
+
+**필수**: 모든 `.puml` 파일이 문법 검증을 통과해야 다음 단계로 진행합니다.
+
 ## 주의사항
 
 - `!theme mono` 사용
 - 한국어로 작성
-- 내부서비스·외부시스템 내부 플로우는 표시하지 않음
+- 외부시스템의 내부 플로우는 표시하지 않음
 - 이벤트는 과거형, 커맨드는 명령형
 - 이벤트 스토밍 요소 태그 반드시 표시
 - 파일명: `{2자리순번}-{유저플로우명}.puml`
+- **각 `.puml` 파일 생성 즉시 PlantUML 문법 검사 수행**

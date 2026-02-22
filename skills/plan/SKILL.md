@@ -242,10 +242,10 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
 │  Step 7 시작                                                  │
 │                                                                │
 │  ── 7-1. 문제가설 정의 (발산-수렴-선택) ──                     │
-│  ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐     │
-│  │ PO ││ SP ││ DE ││ AR ││ AI ││ BE ││ FE ││ QA ││ DO │ ← 5WHY 병렬 (9명) │
-│  └─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘     │
-│    └──────┼──────┼──────┼──────┼──────┼──────┼──────┼──┘       │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                          │
+│  │ PO │ │ SP │ │ DE │ │ AR │ │ AI │  ← 5WHY 병렬 (5명)        │
+│  └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘                          │
+│    └───────┼──────┼──────┼──────┘                              │
 │              ▼                                                 │
 │     ┌─────────────────┐                                       │
 │     │ SP: 수렴 (합치기)│                                       │
@@ -256,10 +256,10 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
 │     └────────┬────────┘                                       │
 │              ▼                                                 │
 │  ── 7-2. 문제 검증 인터뷰 (병렬) ──                            │
-│  ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐     │
-│  │ PO ││ SP ││ DE ││ AR ││ AI ││ BE ││ FE ││ QA ││ DO │ ← 인터뷰 병렬 (9명) │
-│  └─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘     │
-│    └──────┼──────┼──────┼──────┼──────┼──────┼──────┼──┘       │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                          │
+│  │ PO │ │ SP │ │ DE │ │ AR │ │ AI │  ← 인터뷰 병렬 (5명)      │
+│  └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘                          │
+│    └───────┼──────┼──────┼──────┘                              │
 │              ▼                                                 │
 │  ── 7-3. 인터뷰 결과 취합 ──                                   │
 │     ┌─────────────────┐                                       │
@@ -272,10 +272,10 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
 │     └────────┬────────┘                                       │
 │              ▼                                                 │
 │  ── 7-5. 비즈니스 가치 도출 (발산-수렴-선택) ──                 │
-│  ┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐┌────┐     │
-│  │ PO ││ SP ││ DE ││ AR ││ AI ││ BE ││ FE ││ QA ││ DO │ ← 발산 병렬 (9명) │
-│  └─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘└─┬──┘     │
-│    └──────┼──────┼──────┼──────┼──────┼──────┼──────┼──┘       │
+│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                          │
+│  │ PO │ │ SP │ │ DE │ │ AR │ │ AI │  ← 발산 병렬 (5명)        │
+│  └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘                          │
+│    └───────┼──────┼──────┼──────┘                              │
 │              ▼                                                 │
 │     ┌─────────────────┐                                       │
 │     │ SP: 수렴 (합치기)│                                       │
@@ -287,26 +287,25 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
 └──────────────────────────────────────────────────────────────┘
 
 PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engineer
-BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 ```
 
 #### Step 7-1. 문제가설 정의 (발산-수렴-선택)
 
-**7-1a. 발산 — 5WHY 수행 (병렬)** → Agent: 전체 팀원 (product-owner, service-planner, domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer)
+**7-1a. 발산 — 5WHY 수행 (병렬)** → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
 
 - **TASK**: 각 팀원이 자신의 전문 관점에서 가장 큰 현상문제 3개를 도출하고 각각 5WHY로 근본원인을 분석. 사용자 심리적·제도/시스템적·맥락적·커뮤니케이션 측면에서 검토
 - **EXPECTED OUTCOME**: 팀원별 5WHY 분석 결과 (팀원당 문제 3개 × 5WHY)
 - **MUST DO**: 5WHY는 각 단계에서 "질문 + 응답" 형식으로 작성. 각 팀원의 전문성을 반영한 관점 차별화. 문제는 고객 관점에서 작성
 - **MUST NOT DO**: 솔루션을 포함하지 않을 것
 - **CONTEXT**: `docs/plan/define/고객분석.md`, `docs/plan/define/유저저니맵.md`, 고객 경험 조사 데이터 전체
-- **실행**: 9개 에이전트를 `Task(run_in_background=true)`로 동시 실행
+- **실행**: 5개 에이전트를 `Task(run_in_background=true)`로 동시 실행
 
 **7-1b. 수렴 — 유사 항목 합치기 (순차)** → Agent: service-planner
 
-- **TASK**: 7-1a에서 도출된 전체 팀원의 5WHY 결과를 취합하고, 유사한 문제와 근본원인을 그룹핑하여 정리. 다층적 근본원인(심리적·제도/시스템적·맥락적·커뮤니케이션) 관점으로 재구조화
+- **TASK**: 7-1a에서 도출된 5명의 5WHY 결과를 취합하고, 유사한 문제와 근본원인을 그룹핑하여 정리. 다층적 근본원인(심리적·제도/시스템적·맥락적·커뮤니케이션) 관점으로 재구조화
 - **EXPECTED OUTCOME**: 수렴된 문제가설 후보 목록 (그룹핑된 문제 + 근본원인 + 출처 팀원 표기)
 - **MUST DO**: 모든 팀원의 결과를 누락 없이 반영. 유사도 기준 명시
-- **CONTEXT**: 7-1a 전체 팀원 결과
+- **CONTEXT**: 7-1a 결과
 
 **7-1c. 선택 — 최종 문제가설 확정 (순차)** → Agent: product-owner
 
@@ -315,7 +314,7 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 - **MUST DO**: 선정 근거를 명확히 기술. 영향력·빈도·심각도 관점에서 평가
 - **CONTEXT**: 7-1b 수렴 결과
 
-#### Step 7-2. 문제 검증 인터뷰 (병렬) → Agent: 전체 팀원
+#### Step 7-2. 문제 검증 인터뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
 
 **인터뷰 규모 설정**: Step 7-2 시작 전, 문제검증 인터뷰 대상자 수를 사용자로부터 입력받습니다.
 
@@ -327,12 +326,12 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 
 > 사용자가 입력한 값을 `{문제검증인터뷰수}`로 사용합니다. 미입력 시 기본값 10을 적용합니다.
 
-- **TASK**: 7-1c에서 확정된 문제가설을 기반으로 {문제검증인터뷰수}명 대상 문제검증 인터뷰를 전체 팀원이 분담하여 병렬 수행. 각 문제의 중요도/불편도 5점 만점 평가, 근본원인 동의 여부 조사
+- **TASK**: 7-1c에서 확정된 문제가설을 기반으로 {문제검증인터뷰수}명 대상 문제검증 인터뷰를 5명이 분담하여 병렬 수행. 각 문제의 중요도/불편도 5점 만점 평가, 근본원인 동의 여부 조사
 - **EXPECTED OUTCOME**: `docs/plan/define/문제검증인터뷰결과.md` — {문제검증인터뷰수}명 개별 인터뷰 결과 (중요도/불편도/근본원인 동의여부)
-- **MUST DO**: {문제검증인터뷰수}명 인터뷰 결과를 개별 제공. 인터뷰 대상자를 팀원 수로 균등 분배
+- **MUST DO**: {문제검증인터뷰수}명 인터뷰 결과를 개별 제공. 인터뷰 대상자를 5명으로 균등 분배
 - **MUST NOT DO**: 인터뷰 결과를 종합 요약만 하지 않을 것
 - **CONTEXT**: `docs/plan/define/문제가설.md`, `docs/plan/define/고객분석.md`
-- **실행**: 전체 팀원을 `Task(run_in_background=true)`로 동시 실행, 각 팀원이 분담된 인터뷰 수만큼 수행 후 결과를 하나의 파일로 병합
+- **실행**: 5개 에이전트를 `Task(run_in_background=true)`로 동시 실행, 각 에이전트가 분담된 인터뷰 수만큼 수행 후 결과를 하나의 파일로 병합
 
 #### Step 7-3. 인터뷰 결과 취합 (순차) → Agent: service-planner
 
@@ -351,20 +350,20 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 
 #### Step 7-5. 비즈니스 가치 도출 (발산-수렴-선택)
 
-**7-5a. 발산 — 가치 도출 (병렬)** → Agent: 전체 팀원 (product-owner, service-planner, domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer)
+**7-5a. 발산 — 가치 도출 (병렬)** → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
 
 - **TASK**: 피보팅된 문제가설의 근본원인 해소 시 고객·회사 각각의 비즈니스 가치를 자신의 전문 관점에서 도출
 - **EXPECTED OUTCOME**: 팀원별 비즈니스 가치 후보 (고객 측면 + 회사 측면)
 - **MUST DO**: 각 팀원의 전문성을 반영한 관점 차별화. 정량적 가치와 정성적 가치 모두 포함
 - **CONTEXT**: `docs/plan/define/문제가설.md` (피보팅 버전), `docs/plan/define/문제검증인터뷰결과취합.md`
-- **실행**: 9개 에이전트를 `Task(run_in_background=true)`로 동시 실행
+- **실행**: 5개 에이전트를 `Task(run_in_background=true)`로 동시 실행
 
 **7-5b. 수렴 — 유사 항목 합치기 (순차)** → Agent: service-planner
 
-- **TASK**: 전체 팀원의 비즈니스 가치 후보를 취합하고 유사한 가치를 그룹핑하여 정리
+- **TASK**: 5명의 비즈니스 가치 후보를 취합하고 유사한 가치를 그룹핑하여 정리
 - **EXPECTED OUTCOME**: 수렴된 비즈니스 가치 후보 목록 (고객 측면 + 회사 측면, 출처 팀원 표기)
 - **MUST DO**: 모든 팀원의 결과를 누락 없이 반영
-- **CONTEXT**: 7-5a 전체 팀원 결과
+- **CONTEXT**: 7-5a 결과
 
 **7-5c. 선택 — 최종 비즈니스 가치 확정 (순차)** → Agent: product-owner
 
@@ -392,25 +391,26 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 
 ## 3단계: 솔루션 (Solution)
 
-### Step 9. 아이디어 발상 → Agent: all team (서비스기획자 리드) (`/oh-my-claudecode:ralph` 활용)
+### Step 9. 아이디어 발상 → Agent: product-owner, service-planner(리드), domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/oh-my-claudecode:ralph` 활용)
 
 - **GUIDE**: `resources/guides/plan/09-ideation-guide.md` 참조
 - **TASK**: 2단계 작업을 수행
-  1. **솔루션 탐색**: 모든 팀원이 SCAMPER 기법과 Steal & Synthesize 기법을 활용하여 각자 Big Idea 3개, Little Win Idea 2개, Crazy Idea 1개를 도출. 각자의 전문성을 내려놓고 사용자 입장에서 아이디어 발상
-  2. **솔루션 수렴**: 아이디어 유사도 평가표(기능 유사도 70%, 경험 유사도 30%)를 작성하고 유사도 0.7 이상인 아이디어를 합쳐 솔루션 후보 정리
+  1. **솔루션 탐색 (병렬)**: 모든 팀원(9명)이 SCAMPER 기법과 Steal & Synthesize 기법을 활용하여 각자 Big Idea 3개, Little Win Idea 2개, Crazy Idea 1개를 도출. 각자의 전문성을 내려놓고 사용자 입장에서 아이디어 발상
+  2. **솔루션 수렴 (순차, service-planner)**: 아이디어 유사도 평가표(기능 유사도 70%, 경험 유사도 30%)를 작성하고 유사도 0.7 이상인 아이디어를 합쳐 솔루션 후보 정리
 - **EXPECTED OUTCOME**: 2개 파일 생성
   - `docs/plan/think/솔루션탐색.md` — 팀원별 아이디어 표 (Big Idea/Little Win Idea/Crazy Idea)
   - `docs/plan/think/솔루션후보.md` — 유사도 평가 후 수렴된 솔루션 후보 (각 후보 상세 설명)
 - **MUST DO**: SCAMPER 7가지 관점 체계적 적용. Steal & Synthesize로 타 산업 사례 최소 3개 분석. 아이디어 설명은 최대한 자세하게
 - **MUST NOT DO**: 초기 생성 시 자기 검열 금지. 유사도 0.7 미만 아이디어를 강제 합치지 않을 것
 - **CONTEXT**: `docs/plan/define/문제가설.md`, `docs/plan/think/킹핀문제.md`, `docs/plan/think/문제해결방향성.md`, 고객 경험 조사 데이터
+- **실행**: 솔루션 탐색은 9개 에이전트를 `Task(run_in_background=true)`로 동시 실행, 솔루션 수렴은 service-planner가 순차 수행
 
-### Step 10. 솔루션 선정 → Agent: product-owner (`/oh-my-claudecode:plan` 활용)
+### Step 10. 솔루션 선정 → Agent: product-owner(리드), service-planner, domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/oh-my-claudecode:plan` 활용)
 
 - **GUIDE**: `resources/guides/plan/10-solution-selection-guide.md` 참조
 - **TASK**: 2단계 작업을 수행
-  1. **우선순위 평가 (투표)**: 각 팀원이 비즈니스 가치(B) 3표, 실현 가능성(F) 3표를 투표하고 집계
-  2. **솔루션 선정 (우선순위 매트릭스)**: X축=실현가능성, Y축=비즈니스 영향도의 2x2 매트릭스(No Brainers/Bit Bets/Utilities/Unwise)로 시각화하고 핵심 솔루션 3개 이하 선정
+  1. **우선순위 평가 — 투표 (병렬)**: 모든 팀원(9명)이 각각 비즈니스 가치(B) 3표, 실현 가능성(F) 3표를 투표
+  2. **솔루션 선정 — 우선순위 매트릭스 (순차, product-owner)**: 투표 결과를 집계하고 X축=실현가능성, Y축=비즈니스 영향도의 2x2 매트릭스(No Brainers/Bit Bets/Utilities/Unwise)로 시각화하고 핵심 솔루션 3개 이하 선정
 - **EXPECTED OUTCOME**: 3개 파일 생성
   - `docs/plan/think/솔루션평가.md` — 투표 결과 집계표
   - `docs/plan/think/솔루션우선순위평가.svg` — 우선순위 매트릭스 SVG
@@ -418,6 +418,7 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 - **MUST DO**: No Brainers 영역 아이디어 우선 선정. 핵심 솔루션 3개 이하. SVG 파일로 매트릭스 생성
 - **MUST NOT DO**: 투표 없이 직감으로 선정 금지
 - **CONTEXT**: `docs/plan/think/솔루션후보.md`
+- **실행**: 투표는 9개 에이전트를 `Task(run_in_background=true)`로 동시 실행, 집계 및 선정은 product-owner가 순차 수행
 
 ---
 
@@ -441,23 +442,28 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 
 ### Step 12. 발표자료 스크립트 → Agent: service-planner (`/oh-my-claudecode:ralph` 활용)
 
-- **GUIDE**: `resources/guides/plan/11-business-modeling-guide.md` 참조 (발표자료 관련 섹션)
+- **GUIDE**: `resources/guides/plan/11b-presentation-guide.md` 참조
 - **TASK**: 비즈니스 모델을 기반으로 서비스 기획서 발표자료 스크립트 작성. 린캔버스 9영역 + 경쟁 분석 + GTM 전략 + 재무 계획을 10-15장으로 구성. 각 장표별 핵심 메시지 3개 이하
 - **EXPECTED OUTCOME**: `docs/plan/think/서비스기획서스크립트.md` 생성
   - 10-15장 슬라이드 스크립트
   - 각 장표 핵심 메시지 3개 이하
   - 장표 간 `---` 구분
-- **MUST DO**: 문제 → 솔루션 → 가치의 스토리텔링 흐름. 데이터 기반 주장 뒷받침
-- **MUST NOT DO**: 텍스트 과다 금지. 슬라이드당 핵심 메시지 3개 초과 금지
+  - 장표별 비주얼 제안 (차트·그래프·다이어그램) 포함
+- **MUST DO**: 문제 → 솔루션 → 가치의 스토리텔링 흐름. 데이터 기반 주장 뒷받침. 비주얼 중심 — 텍스트 최소화하고 비주얼로 설명
+- **MUST NOT DO**: 텍스트 과다 금지. 슬라이드당 핵심 메시지 3개 초과 금지. 데이터 없는 추상적 주장 금지
 - **CONTEXT**: `docs/plan/think/비즈니스모델.md`
 
 ---
 
 ## 5단계: 제품 설계 (Product Design)
 
-### Step 13. 이벤트 스토밍 → Agent: architect (`/oh-my-claudecode:ralph` 활용)
+### Step 13. 이벤트 스토밍 → Agent: architect(리드), product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/oh-my-claudecode:ralph` 활용)
 
 - **GUIDE**: `resources/guides/plan/12-event-storming-guide.md` 참조
+- **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
+
+#### Step 13-1. 초안 작성 (순차) → Agent: architect
+
 - **TASK**: DDD(Domain-Driven Design)의 Event Storming 기법으로 핵심 솔루션의 시스템 이벤트 흐름을 분석하고 PlantUML 시퀀스 다이어그램으로 작성
   1. 주요 유저플로우 식별 (5-10개)
   2. 유저플로우 간 연결도 작성
@@ -466,13 +472,40 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 - **EXPECTED OUTCOME**: 다수 파일 생성
   - `docs/plan/think/es/userflow.puml` — 유저플로우 연결도
   - `docs/plan/think/es/{순번}-{유저플로우명}.puml` — 각 유저플로우 시퀀스 다이어그램
-- **MUST DO**: `!theme mono` 사용. 한국어로 작성. 참여자는 Actor/내부서비스/외부시스템으로 구성. 외부시스템은 `(E){시스템명}` 표시. 이벤트는 과거형, 커맨드는 명령형
-- **MUST NOT DO**: 내부서비스·외부시스템 내부 플로우는 표시하지 않을 것
+- **MUST DO**: `!theme mono` 사용. 한국어로 작성. 참여자는 Actor/내부서비스/외부시스템으로 구성. 외부시스템은 `(E){시스템명}` 표시. 이벤트는 과거형, 커맨드는 명령형. **각 `.puml` 파일 생성 즉시 `bash tools/diagram/check-plantuml.sh {파일경로}`로 PlantUML 문법 검사 수행** (`resources/tools/check-plantuml.md` 참조)
+- **MUST NOT DO**: 내부서비스·외부시스템 내부 플로우는 표시하지 않을 것. 문법 검사 미통과 파일을 남기지 않을 것
 - **CONTEXT**: `docs/plan/think/핵심솔루션.md`, `docs/plan/define/고객분석.md`
 
-### Step 14. 유저스토리 작성 → Agent: service-planner (`/oh-my-claudecode:ralph` 활용)
+#### Step 13-2. 팀 리뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer
+
+- **TASK**: 13-1에서 작성된 이벤트 스토밍 초안을 각자의 전문성 관점에서 리뷰하고 의견을 제시
+  - **product-owner**: 비즈니스 가치·MVP 범위 관점에서 누락된 유저플로우나 이벤트 확인
+  - **service-planner**: 사용자 경험·서비스 흐름 관점에서 유저플로우 완성도 검토
+  - **domain-expert**: 도메인 규칙·규제·업계 관행 관점에서 정책/규칙 검증
+  - **ai-engineer**: AI 기회 발굴 — AI/ML 적용 가능한 이벤트·데이터 흐름 식별, AI 자동화·지능화 기회 제안
+  - **backend-developer**: 백엔드 구현 가능성·API 설계·데이터 처리 관점에서 기술적 타당성 검토
+  - **frontend-developer**: 사용자 인터랙션·화면 흐름 관점에서 프론트엔드 구현 이슈 식별
+  - **qa-engineer**: 테스트 용이성·예외 시나리오·경계값 관점에서 누락된 케이스 식별
+  - **devops-engineer**: 배포·운영·확장성 관점에서 서비스 분할 및 인프라 이슈 검토
+- **EXPECTED OUTCOME**: `docs/plan/think/es/리뷰의견.md` — 팀원별 리뷰 의견 (관점, 의견, 수정 제안)
+- **MUST DO**: 각 팀원은 자신의 전문성 관점에서만 의견 제시. 구체적인 수정 제안 포함
+- **CONTEXT**: `docs/plan/think/es/userflow.puml`, `docs/plan/think/es/*.puml`
+- **실행**: 8개 에이전트를 `Task(run_in_background=true)`로 동시 실행
+
+#### Step 13-3. 의견 반영 및 업데이트 (순차) → Agent: architect
+
+- **TASK**: 13-2에서 수집된 팀 리뷰 의견을 검토하고, 타당한 의견을 반영하여 이벤트 스토밍 산출물 업데이트
+- **EXPECTED OUTCOME**: 기존 `docs/plan/think/es/*.puml` 파일 업데이트 (반영 사항 주석 추가)
+- **MUST DO**: 각 의견에 대한 반영/미반영 판단 근거를 `docs/plan/think/es/리뷰반영결과.md`에 기록. 특히 ai-engineer의 AI 기회 발굴 의견을 별도 섹션으로 정리
+- **CONTEXT**: `docs/plan/think/es/리뷰의견.md`, 기존 이벤트 스토밍 산출물
+
+### Step 14. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert (`/oh-my-claudecode:ralph` 활용)
 
 - **GUIDE**: `resources/guides/plan/13-user-stories-guide.md` 참조
+- **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
+
+#### Step 14-1. 초안 작성 (순차) → Agent: service-planner
+
 - **TASK**: 이벤트 스토밍 결과를 기반으로 체계적인 유저스토리 작성
   - 유저플로우 → Epic 변환
   - 이벤트 → User Story 변환 (`{사용자유형}으로서 | 나는, {목적}을 위해 | {이벤트/결과}를 원한다.`)
@@ -495,10 +528,54 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
 - **MUST NOT DO**: 이벤트 스토밍 결과 없이 유저스토리 작성 금지. Should Have를 Must Have로 격상 금지
 - **CONTEXT**: `docs/plan/think/es/*.puml`, `docs/plan/think/핵심솔루션.md`, `docs/plan/define/고객분석.md`
 
+#### Step 14-2. 검토 (병렬) → Agent: product-owner, architect, ai-engineer, domain-expert
+
+- **TASK**: 14-1에서 작성된 유저스토리 초안을 각자의 전문성 관점에서 검토하고 의견을 제시
+  - **product-owner**: MVP 범위·비즈니스 우선순위 관점에서 우선순위(M/S/C) 적절성 검토, 누락된 비즈니스 요구사항 식별
+  - **architect**: 기술 실현 가능성·시스템 아키텍처 관점에서 Story Points 적절성 검토, 기술적 의존성·제약 사항 식별
+  - **ai-engineer**: AI/ML 적용 가능한 유저스토리 식별, AI 기능 관련 UFR 누락 여부 확인, AI 연동 요구사항 보완 제안
+  - **domain-expert**: 도메인 규칙·규제·업계 관행 관점에서 Acceptance Criteria 검증, 도메인 특화 요구사항 누락 확인
+- **EXPECTED OUTCOME**: `docs/plan/design/userstory-리뷰의견.md` — 검토자별 의견 (관점, 의견, 수정 제안)
+- **MUST DO**: 각 검토자는 자신의 전문성 관점에서만 의견 제시. 구체적인 수정 제안 포함
+- **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/think/es/*.puml`
+- **실행**: 4개 에이전트를 `Task(run_in_background=true)`로 동시 실행
+
+#### Step 14-3. 의견 반영 및 업데이트 (순차) → Agent: service-planner
+
+- **TASK**: 14-2에서 수집된 검토 의견을 반영하여 유저스토리 업데이트
+- **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` 업데이트 (기존 파일 덮어쓰기)
+- **MUST DO**: 각 의견에 대한 반영/미반영 판단 근거를 `docs/plan/design/userstory-리뷰반영결과.md`에 기록. 최종 UFR 개수가 최소 20개 이상 유지되는지 확인
+- **CONTEXT**: `docs/plan/design/userstory-리뷰의견.md`, 기존 유저스토리
+
 ### Step 15. UI/UX 설계 → Agent: service-planner (`/oh-my-claudecode:ralph` 활용)
 
+<!--ASK_USER-->
+{"title":"디자인 레퍼런스 입력 (선택)","questions":[
+  {"question":"참고할 디자인 레퍼런스가 있으시면 제공해 주세요. URL, 이미지 경로, 이미지 붙여넣기 모두 가능합니다. 없으면 '없음'을 입력해 주세요.","type":"text","placeholder":"없음"}
+]}
+<!--/ASK_USER-->
+
+- 사용자가 **URL을 제공한 경우**: 아래 레퍼런스 분석 워크플로우 실행 후 UI/UX 설계 진행
+- 사용자가 **이미지를 제공한 경우**: `docs/plan/design/uiux/references/`에 저장하고 Vision 에이전트로 디자인 분석
+- 사용자가 '없음' 또는 미응답 시: 레퍼런스 없이 진행
+
+#### Step 15-R. 레퍼런스 사이트 디자인 분석 (URL 제공 시에만 실행)
+
+1. **Playwright로 사이트 접속 및 스크린샷 촬영**
+   - 데스크톱 뷰포트(1280x800)로 주요 페이지 스크린샷 촬영
+   - 모바일 뷰포트(375x812)로 동일 페이지 스크린샷 촬영
+   - 스크린샷을 `docs/plan/design/uiux/references/`에 저장
+2. **Playwright accessibility snapshot으로 페이지 구조 파악**
+   - 네비게이션 구조, 컴포넌트 계층, 폼 요소 등 구조 정보 수집
+3. **Vision 에이전트로 디자인 분석**
+   - 촬영된 스크린샷을 `oh-my-claudecode:vision` 에이전트에 전달
+   - 분석 항목: 컬러 팔레트, 레이아웃 패턴, 타이포그래피, 컴포넌트 스타일, 간격 시스템, 인터랙션 패턴
+4. **분석 결과 정리**
+   - `docs/plan/design/uiux/references/레퍼런스분석.md`에 분석 결과 저장
+   - 이 파일을 후속 UI/UX 설계의 CONTEXT에 포함
+
 - **GUIDE**: `resources/guides/plan/14-uiux-design-guide.md` 참조
-- **TASK**: 유저스토리를 기반으로 상세한 UI/UX 디자인 명세 작성
+- **TASK**: 유저스토리를 기반으로 상세한 UI/UX 디자인 명세 작성 (레퍼런스 분석 결과가 있는 경우 디자인 톤·레이아웃·컴포넌트 스타일을 참고하여 반영)
   - 디자인 원칙 (핵심 원칙 5개, 디자인 언어)
   - 정보 아키텍처 (사이트맵, 네비게이션 구조)
   - 사용자 플로우 (각 기능별 화면 흐름도)
@@ -512,28 +589,87 @@ BE=backend-developer, FE=frontend-developer, QA=qa-engineer, DO=devops-engineer
   - `docs/plan/design/uiux/style-guide.md` — 스타일 가이드
 - **MUST DO**: Mobile First 접근. 최소 5개 주요 화면 와이어프레임. 유저스토리와 일대일 매핑. 컴포넌트 일관성 보장
 - **MUST NOT DO**: 유저스토리에 없는 화면 디자인 금지. 스타일 가이드 없이 UI 설계 금지
-- **CONTEXT**: `docs/plan/design/userstory.md`
+- **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/design/uiux/references/레퍼런스분석.md` (있는 경우)
 
 ---
 
 ## 6단계: 프로토타입 (Prototype)
 
-### Step 16. 프로토타입 개발 → Agent: service-planner (`/oh-my-claudecode:ralph` 활용)
+### Step 16. 프로토타입 개발 → Agent: frontend-developer (`/oh-my-claudecode:ralph` 활용)
 
 - **GUIDE**: `resources/guides/plan/15-prototype-development-guide.md` 참조
-- **TASK**: UI/UX 설계서를 기반으로 기본 HTML/JavaScript 프로토타입 개발
-  1. 공통 파일 개발 (`common.js`, `common.css`)
-  2. 사용자 플로우 순서대로 화면 개발 (화면별 파일 분리, SPA 방식 금지)
-  3. 화면 간 전환 구현
-  4. 샘플 데이터 일관성 유지
-  5. 스타일가이드 준수 (Mobile First)
-- **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/` 디렉토리에 파일 생성
-  - `common.js` — 공통 JavaScript (샘플 데이터, 화면 전환)
-  - `common.css` — 공통 CSS (CSS 변수, Mobile First)
-  - `{2자리번호}-{한글화면명}.html` — 각 화면 파일
-- **MUST DO**: HTML/JS만 사용 (프레임워크 금지). 서버 없이 동작. 스타일가이드 준수. Mobile First
-- **MUST NOT DO**: SPA 방식 구현 금지. 설계서에 없는 화면 추가 금지
 - **CONTEXT**: `docs/plan/design/uiux/uiux.md`, `docs/plan/design/uiux/style-guide.md`, `docs/plan/design/userstory.md`
+- **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/` 디렉토리에 파일 생성
+  - `common.js` — 공통 JavaScript (샘플 데이터, 화면 전환, localStorage 유틸리티)
+  - `common.css` — 공통 CSS (스타일가이드 CSS 변수화, Mobile First)
+  - `{2자리번호}-{한글화면명}.html` — 각 화면 파일
+- **MUST DO**: HTML/JS만 사용 (프레임워크 금지). 서버 없이 동작. 스타일가이드 준수. Mobile First. Playwright로 화면별 즉시 테스트
+- **MUST NOT DO**: SPA 방식 구현 금지. 설계서에 없는 화면 추가 금지
+
+#### Step 16-1. 공통 파일 개발 (순차)
+
+- **TASK**: 스타일가이드를 기반으로 공통 파일 개발
+  1. `common.css` — 스타일가이드의 컬러·타이포그래피·간격을 CSS 변수로 정의, Mobile First 레이아웃, 접근성 유틸리티
+  2. `common.js` — 샘플 데이터 (모든 화면에서 일관된 데이터), 화면 전환, localStorage 기반 데이터 전달, 폼 자동 저장/복원
+
+#### Step 16-2. 화면별 개발-테스트 루프 (ralph 활용)
+
+##### 의존관계 분석 및 병렬 개발
+
+UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계를 파악하고, 독립적인 화면은 병렬로 개발함.
+
+1. **의존관계 분석**: 사용자 플로우에서 화면 간 의존관계를 도출
+   - 독립 화면: 다른 화면의 데이터/상태에 의존하지 않는 화면 (예: 로그인, 회원가입, 소개)
+   - 의존 화면: 이전 화면의 결과가 필요한 화면 (예: 목록→상세, 장바구니→결제)
+2. **개발 레벨 그룹핑**: 의존관계가 없는 화면끼리 같은 레벨로 그룹화
+   ```
+   Level 1: [로그인] [회원가입] [소개]     ← 병렬 개발
+   Level 2: [메인홈] [마이페이지]           ← Level 1 완료 후 병렬 개발
+   Level 3: [상세] [결제]                  ← Level 2 완료 후 병렬 개발
+   ```
+3. **병렬 개발**: 같은 레벨의 화면들을 병렬 에이전트로 동시 개발 → 각 에이전트가 개발-테스트 사이클 수행
+4. **레벨 순차 진행**: 현재 레벨의 모든 화면 완료 후 다음 레벨로 진행
+
+##### 화면 1개당 개발-테스트 사이클
+
+1. **개발**: UI/UX 설계서의 와이어프레임과 일대일 매핑하여 HTML 작성
+2. **Playwright 즉시 테스트**:
+   - `browser_navigate`로 해당 HTML 파일 열기
+   - `browser_console_messages`로 콘솔 에러 확인 → 에러 있으면 즉시 수정
+   - `browser_snapshot`으로 접근성 구조 확인
+   - `browser_take_screenshot`으로 UI 렌더링 상태 확인
+   - 모바일 뷰포트(`browser_resize` 375x812)로 반응형 확인
+3. **수정**: 에러/UI 이슈 발견 시 수정 후 재테스트
+4. **완료**: 테스트 통과 후 해당 화면 완료 처리
+
+#### Step 16-3. 통합 테스트 (Playwright 자동 검증)
+
+모든 화면 개발 완료 후, Playwright로 전체 프로토타입을 자동 검증함.
+
+1. **화면간 연결성 테스트**: 각 화면의 모든 링크/버튼을 `browser_click`으로 클릭 → 올바른 페이지로 이동하는지 확인
+2. **화면별 기능 동작 테스트**: 폼 입력(`browser_type`), 버튼 클릭, 모달/드롭다운 동작 확인
+3. **데이터 일관성 테스트**: 화면 간 전달되는 샘플 데이터가 일치하는지 확인
+4. **반응형 테스트**: 데스크톱(1280x800) → 태블릿(768x1024) → 모바일(375x812)로 뷰포트 변경하며 레이아웃 확인
+5. **콘솔 에러 전수 검사**: 모든 화면에서 `browser_console_messages` 에러 레벨 확인
+
+테스트 결과를 `docs/plan/design/uiux/prototype/테스트결과.md`에 기록:
+```
+### 화면별 기능 동작
+| 화면 | 기능/액션 | 예상 결과 | 실제 결과 | 상태 |
+### 화면간 연결성
+| 출발화면 | 연결방법 | 도착화면 | 상태 |
+### 화면간 데이터 일관성
+| 데이터 | 사용 화면 | 일관성 |
+```
+
+#### Step 16-4. 버그 수정 루프 (ralph 활용)
+
+Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통과할 때까지 반복함.
+
+1. 테스트결과.md의 실패/비정상 항목 확인
+2. 해당 HTML 파일 수정
+3. Playwright로 수정된 항목만 재테스트
+4. 모든 항목 통과 시 완료, 미통과 시 1번으로 복귀
 
 ### Step 17. 기획 완료 보고
 

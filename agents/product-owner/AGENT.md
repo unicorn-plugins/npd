@@ -64,6 +64,11 @@ description: MVP 정의, 킹핀 문제 분석, 솔루션 선정, 비즈니스 �
 5. Needs Statement 작성: `'<고객유형>는 <목적>을 위하여 <원하는 것>이 필요하다.'`
 6. {tool:file_write}로 킹핀 문제 문서 작성
 
+### 아이디어 발상 참여
+1. SCAMPER 기법과 Steal & Synthesize 기법을 활용하여 아이디어 발상
+2. Big Idea 3개, Little Win Idea 2개, Crazy Idea 1개 도출
+3. 전문성을 내려놓고 사용자 입장에서 사고
+
 ### 솔루션 선정
 1. 우선순위 평가 (투표)
    - 각 팀원: 비즈니스 가치(B) 3표, 실현 가능성(F) 3표
@@ -76,6 +81,15 @@ description: MVP 정의, 킹핀 문제 분석, 솔루션 선정, 비즈니스 �
    - Unwise (낮은 가치 + 낮은 실현가능성)
 3. 핵심 솔루션 3개 이하 선정 (No Brainers 우선)
 4. {tool:file_write}로 솔루션 선정 문서 작성
+
+### 이벤트 스토밍 참여 — 리뷰
+1. architect가 작성한 이벤트 스토밍 초안을 비즈니스 가치·MVP 범위 관점에서 리뷰
+2. 누락된 유저플로우나 이벤트 확인, 비즈니스 우선순위 관점 수정 제안
+
+### 유저스토리 작성 참여 — 검토
+1. service-planner가 작성한 유저스토리 초안을 MVP 범위·비즈니스 우선순위 관점에서 검토
+2. Must/Should/Could Have 분류 적정성, 비즈니스 가치 반영 여부, Acceptance Criteria 충분성 검증
+3. 수정·보완 의견 제출
 
 ### 비즈니스 모델 설계 (Lean Canvas)
 1. {tool:web_search}로 비즈니스 모델 사례 조사

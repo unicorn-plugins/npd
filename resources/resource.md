@@ -59,6 +59,9 @@ npd 플러그인에 포함된 공유자원 목록.
 | 카테고리 | 도구명 | 설명 | 상세 |
 |---------|--------|------|------|
 | 커스텀 앱 | create_repo | GitHub REST API 기반 원격 저장소 생성 및 초기 푸시 (gh CLI 불요) | [상세](tools/create-repo.md) |
+| 커스텀 CLI | check-mermaid | Docker 기반 Mermaid 다이어그램 문법 검증 | [상세](tools/check-mermaid.md) |
+| 커스텀 CLI | check-plantuml | Docker 기반 PlantUML 다이어그램 문법 검증 | [상세](tools/check-plantuml.md) |
+
 
 [Top](#로컬-리소스-카탈로그)
 

@@ -230,7 +230,71 @@ PATH 설정 (중복 방지):
   source ~/.bashrc
   ```
 
-### Step 7. MCP 설치
+### Step 7. GitHub CLI 설치
+
+GitHub와의 인터페이스를 지원하는 CLI를 자동으로 설치합니다.
+
+설치 여부 확인:
+```bash
+gh --version 2>/dev/null
+```
+
+- 버전 출력 → ✅ 설치됨, Step 8로 이동
+- 오류 발생 → ⚠️ 미설치, OS에 따라 자동 설치:
+
+**Mac:**
+```bash
+# Homebrew 설치 여부 확인
+if ! command -v brew &>/dev/null; then
+  echo "⚠️ Homebrew 미설치. 설치를 시작합니다..."
+  /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+  # Apple Silicon Mac PATH 설정
+  if [[ $(uname -m) == "arm64" ]]; then
+    echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zshrc
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+  fi
+fi
+
+brew install gh
+```
+
+**Windows (Git Bash):**
+```bash
+# winget PATH 확인 및 등록
+WINGET_PATH="$LOCALAPPDATA/Microsoft/WindowsApps"
+
+if ! echo "$PATH" | tr ':' '\n' | grep -qx "$WINGET_PATH"; then
+  echo "" >> ~/.bashrc
+  echo "# winget PATH" >> ~/.bashrc
+  echo "export PATH=\"\$PATH:$WINGET_PATH\"" >> ~/.bashrc
+  export PATH="$PATH:$WINGET_PATH"
+fi
+
+# GitHub CLI 설치
+winget install --id GitHub.cli --accept-source-agreements --accept-package-agreements
+```
+
+**Linux:**
+```bash
+(type -p wget >/dev/null || sudo apt-get install wget -y) \
+  && sudo mkdir -p -m 755 /etc/apt/keyrings \
+  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+  && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+  && sudo apt update \
+  && sudo apt install gh -y
+```
+
+설치 후 인증 상태 확인:
+```bash
+gh auth status 2>&1
+```
+
+- 인증됨 → ✅ 인증 완료
+- 미인증 → 사용자에게 `gh auth login` 실행을 안내하고 인증 완료 후 진행
+
+### Step 8. MCP 설치
 
 `sequential-thinking`과 `playwright` MCP를 `~/.claude.json`에 자동으로 등록합니다.
 
@@ -297,7 +361,7 @@ claude mcp list
 
 `sequential-thinking`, `playwright` 두 항목이 목록에 표시되면 완료입니다.
 
-### Step 8. 사전준비 결과 보고
+### Step 9. 사전준비 결과 보고
 
 ```
 ## 사전준비 결과
@@ -317,6 +381,10 @@ claude mcp list
 
 ### bun
 - bun: ✅ 1.x.x  /  ⚠️ 미설치 → 설치 명령 참조
+
+### GitHub CLI
+- gh: ✅ 2.x.x  /  ⚠️ 미설치 → 설치 명령 참조
+- 인증: ✅ 인증됨  /  ⚠️ 미인증 → `gh auth login` 실행 필요
 
 ### MCP 서버
 - sequential-thinking: ✅ 등록됨  /  ⚠️ 미등록 → MCP 설치 참조
@@ -343,7 +411,9 @@ claude mcp list
 | 11 | 편의 명령어(cc-yolo, cc-safe, cy) alias는 중복 여부를 확인 후 등록하고 source를 수행할 것 |
 | 12 | Windows에서 편의 명령어는 Git Bash(`~/.bashrc`)와 PowerShell(`$PROFILE`) 양쪽에 등록할 것 |
 | 13 | MCP 등록 시 기존 `mcpServers` 항목을 유지하고 미등록 서버만 추가할 것 |
-| 14 | 결과 보고 후 반드시 다음 단계(`/npd:setup`) 안내를 포함할 것 |
+| 14 | GitHub CLI(gh) 설치 여부를 확인하고 미설치 시 OS에 맞는 명령으로 자동 설치할 것 |
+| 15 | GitHub CLI 설치 후 인증 상태를 확인하고 미인증 시 `gh auth login` 안내할 것 |
+| 16 | 결과 보고 후 반드시 다음 단계(`/npd:setup`) 안내를 포함할 것 |
 
 ## MUST NOT 규칙
 
@@ -370,5 +440,7 @@ claude mcp list
 - [ ] 편의 명령어(cc-yolo, cc-safe, cy)가 중복 없이 등록되는가
 - [ ] Windows에서 편의 명령어가 Git Bash와 PowerShell 양쪽에 등록되는가
 - [ ] bun 설치 여부가 확인되고 PATH가 설정되는가
+- [ ] GitHub CLI(gh)가 설치 확인 후 미설치 시 자동 설치되는가
+- [ ] GitHub CLI 인증 상태가 확인되는가
 - [ ] MCP(sequential-thinking, playwright)가 기존 설정을 유지하며 등록되는가
 - [ ] 다음 단계(`/npd:setup`) 안내가 포함되는가
