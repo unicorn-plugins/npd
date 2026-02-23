@@ -12,6 +12,7 @@
 | 시퀀스 설계서 | `docs/design/sequence/` | API 일관성 확인 |
 | Swagger YAML 예제 | `{PLUGIN_DIR}/resources/samples/sample-swagger-api.yaml` | 참조 |
 | API 설계서 예제 | `{PLUGIN_DIR}/resources/samples/sample-API 설계서.md` | 참조 |
+| AI 서비스 설계서 | `docs/design/ai-service-design.md` | AI API 스키마 참조 (Step 9 완료 후 생성됨 — 설계 시점에는 논리 아키텍처의 AI 섹션을 참조) |
 
 ## 출력 (이 단계 산출물)
 
@@ -27,6 +28,16 @@
 - 공통 스키마는 각 서비스에서 필요에 따라 직접 정의
 - 서비스 간 의존성을 최소화하여 독립 배포 가능
 - 중복되는 스키마가 많아질 경우에만 공통 파일 도입 검토
+
+### AI Pipeline API 설계 원칙
+
+AI Pipeline 서비스의 API는 ai-engineer가 직접 설계하며, 다음 원칙을 준수한다:
+
+- **내부 서비스 간 API**: 백엔드 서비스 → AI Pipeline 호출용 내부 API (Gateway 미경유)
+- **요청/응답 스키마**: 논리 아키텍처의 AI 서비스 정의와 일치 (Step 9 완료 후 AI 서비스 설계서로 대체)
+- **메타데이터 필수 포함**: 응답에 `source`, `model_used`, `latency_ms`, `token_usage` 메타데이터 포함
+- **스트리밍 지원**: SSE(Server-Sent Events) 엔드포인트를 별도로 정의 (해당 시)
+- **폴백 응답**: LLM 장애 시 캐시/규칙 기반 폴백 응답 스키마 정의
 
 ### 작성 순서
 
@@ -83,6 +94,7 @@ docs/design/backend/api/
 ├── profile-service-api.yaml     # 프로파일 서비스 API
 ├── order-service-api.yaml       # 주문 서비스 API
 └── payment-service-api.yaml     # 결제 서비스 API
+├── ai-pipeline-api.yaml         # AI Pipeline 서비스 API (ai-engineer 설계)
 ```
 
 - 파일명 규칙
@@ -169,6 +181,8 @@ components:
 - [ ] servers 섹션 포함
 - [ ] 모든 API에 `x-user-story` 필드 명시
 - [ ] example 데이터 포함
+- [ ] AI Pipeline API에 메타데이터(source, model_used) 포함
+- [ ] AI API 스키마가 논리 아키텍처의 AI 서비스 정의와 일치
 
 ## 주의사항
 - 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용

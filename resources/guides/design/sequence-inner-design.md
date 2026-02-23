@@ -37,6 +37,10 @@
   - **비즈니스 레이어**: Controller → Service → Domain 내부 플로우
   - **데이터 레이어**: Repository, Cache, External API 접근
   - **인프라 레이어**: 메시지 큐, 이벤트, 로깅 등
+  - **AI 서비스 레이어** (AI Pipeline 서비스 해당 시 — ai-engineer가 직접 설계):
+    - Python/FastAPI 기반 내부 구조: Router → PromptBuilder → LLMClient → ResponseParser
+    - AI 특유 참여자: PromptBuilder, LLMClient(외부 LLM API), ResponseParser, Cache(AI 응답 캐시)
+    - 비동기 LLM 호출과 스트리밍 응답 처리 표현
 - 다이어그램 구성
   - **참여자(Actor)**: Controller, Service, Repository, Cache, External API
   - **생명선(Lifeline)**: 각 참여자의 활동 구간
@@ -108,6 +112,21 @@ ctrl --> : {응답 반환}
 deactivate ctrl
 ```
 
+AI Pipeline 서비스 내부 시퀀스 예시 (ai-engineer 설계):
+
+```plantuml
+!theme mono
+
+title AI Pipeline - {시나리오명}
+
+participant "Router" as router
+participant "PromptBuilder" as pb
+participant "LLMClient" as llm
+participant "ResponseParser" as parser
+database "Redis Cache(E)" as cache
+participant "LLM API(E)" as aoai
+```
+
 ## 품질 기준
 
 ### 완료 체크리스트
@@ -119,6 +138,7 @@ deactivate ctrl
 - [ ] 외부 참여자는 이름 끝에 "(E)" 표시
 - [ ] SQL 미사용 (Repository CRUD 한글 설명)
 - [ ] 서비스-시나리오별 독립 파일 작성
+- [ ] AI Pipeline 서비스의 내부 시퀀스가 Python/FastAPI 레이어에 맞게 작성됨 (ai-engineer 설계)
 
 ## 주의사항
 

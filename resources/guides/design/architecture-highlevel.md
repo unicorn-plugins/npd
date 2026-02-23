@@ -20,6 +20,7 @@
 | UI/UX 설계서(기획 산출물) | `docs/plan/design/uiux/uiux.md` | 참조 | 
 | HighLevel아키텍처정의서템플릿 | `{PLUGIN_DIR}/resources/templates/highlevel-architecture-template.md` | 작성 템플릿 |
 | High Level 아키텍처 정의서 예제 | `{PLUGIN_DIR}/resources/samples/sample-highlevel아키텍처정의서.md` | 참조 |
+| AI 서비스 설계서 | `docs/design/ai-service-design.md` | AI 아키텍처 섹션 참조 (Step 9 완료 후 생성됨) |
 
 ## 출력 (이 단계 산출물)
 
@@ -55,8 +56,8 @@
 - 6.1.2 프론트엔드 기술스택: 유저스토리와 UI/UX 설계서(기획 산출물) 참조하여 최적안 추천
 - 6.2 서비스별 개발 아키텍처 패턴: 클래스설계서에 적용된 '설계 아키텍처 패턴'과 일치(Layered 또는 Clean Architecture)
 - 6.3 개발 가이드라인:
-  - 코딩표준: '개발주석표준' 주소 링크
-  - 테스트 전략: '테스트코드표준' 주소 링크
+  - 코딩표준: '개발주석표준' 주소 링크 - https://github.com/unicorn-plugins/npd/blob/main/resources/standards/standard_comment.md
+  - 테스트 전략: '테스트코드표준' 주소 링크 - https://github.com/unicorn-plugins/npd/blob/main/resources/standards/standard_testcode.md
 
 **7. 물리 아키텍처 (Physical View)**
 - 7.1 클라우드 아키텍처 패턴: '아키텍처패턴'과 일치하게 작성
@@ -66,7 +67,10 @@
 - 작성원칙 참조하여 작성: {CLOUD}플랫폼에 최적화된 제품/서비스로 구성, GA된 최신 버전 사용
 
 **9. AI/ML 아키텍처**
-- 9.1.1 AI 서비스/모델 매핑: 논리아키텍처와 외부시퀀스설계와 일치하게 작성
+- 9.1.1 AI 서비스/모델 매핑: 논리아키텍처, 외부시퀀스설계, AI 서비스 설계서와 일치하게 작성
+- 9.1.2 AI 서비스 아키텍처 개요: AI 서비스 설계서의 아키텍처 다이어그램 참조
+- 9.2 프롬프트 관리 전략: AI 서비스 설계서의 프롬프트 설계 섹션 참조
+- 9.3 AI 비용/성능 최적화: AI 서비스 설계서의 비용·성능 최적화 섹션 참조
 
 **10. 개발 운영 (DevOps)**
 - 10.1.1 지속적 통합 (CI): Jenkins, GitHub Actions, {CLOUD} 관리형 서비스 중 적절한것 추천

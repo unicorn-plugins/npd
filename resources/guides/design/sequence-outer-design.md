@@ -30,6 +30,8 @@
 - 마이크로서비스 내부의 처리 흐름은 표시하지 않음
 - 동기/비동기 통신 구분 (실선/점선)
 - 캐시, 큐 등 인프라 컴포넌트와의 상호작용 포함
+- **AI 서비스가 관여하는 플로우**에서는 AI Pipeline 서비스를 참여자로 반드시 포함
+- AI 외부 API 호출(예: LLM API)은 비동기 통신(점선)으로 표현하고, 타임아웃/폴백 흐름을 alt 블록으로 표시
 
 ### 작성 순서
 
@@ -62,6 +64,8 @@ actor "사용자" as user
 participant "프론트엔드" as fe
 participant "{서비스명}" as svc
 participant "{인프라}" as infra
+participant "AI Pipeline" as ai
+participant "LLM API(E)" as llm
 
 user -> fe : {액션 설명}
 fe -> svc : {API 호출 설명}
@@ -80,6 +84,7 @@ fe --> user : {화면 표시 설명}
 - [ ] 마이크로서비스 내부 처리 흐름 미포함
 - [ ] 논리 아키텍처에 정의된 참여자와 일치
 - [ ] 동기/비동기 통신 구분 표기
+- [ ] AI 관련 유저스토리에 AI Pipeline 서비스가 참여자로 포함됨
 
 ## 주의사항
 
