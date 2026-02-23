@@ -110,53 +110,68 @@ cat frontend/.env.local
 
 <!-- IF PLATFORM == REACT -->
 
-#### 2.1 .env.local 파일 수정
+#### 2.1 runtime-env.js 값 교체
 
-`frontend/.env.local` 파일에서 `VITE_API_URL`을 실제 백엔드 URL로 변경한다.
+`frontend/public/runtime-env.js` 파일에서 서비스별 HOST를 실제 백엔드 URL로 변경한다.
 
-```dotenv
-# Mock 환경 (주석 처리하여 보존)
-# VITE_API_URL=http://localhost:4010
-
-# 실제 백엔드 환경
-VITE_API_URL=http://localhost:8080
+```javascript
+// public/runtime-env.js (실제 백엔드 연동)
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:8081",
+  ORDER_HOST: "http://localhost:8082",
+  RECOMMEND_HOST: "http://localhost:8083",
+  // ... 서비스별 실제 포트 (backing-service-result.md 참조)
+};
 ```
 
 URL은 `backing-service-result.md`에 기록된 실제 백엔드 주소를 사용한다.
 
-**환경 분기 관리 원칙**: `.env.local`만 변경하면 Mock ↔ 실제 전환이 완료된다.
-Mock 환경으로 복귀하려면 주석을 반대로 전환하면 된다.
+**환경 분기 관리 원칙**: `runtime-env.js`만 변경하면 Mock ↔ 실제 전환이 완료된다.
+Mock 환경으로 복귀하려면 HOST를 `http://localhost:4010`으로 되돌린다.
 
-```dotenv
-# Mock 환경으로 복귀 시
-VITE_API_URL=http://localhost:4010
-# VITE_API_URL=http://localhost:8080
+```javascript
+// Mock 환경으로 복귀 시
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... 모든 HOST를 Prism 서버로 복귀
+};
 ```
+
+> **브라우저 캐시 주의**: `runtime-env.js`가 캐싱되면 변경이 반영되지 않을 수 있다.
+> 개발 서버에서는 Vite가 자동으로 처리하지만, nginx 배포 시에는 `Cache-Control: no-cache` 설정이 필요하다.
 
 #### 2.2 전환 후 즉시 확인
 
-환경변수 변경 후 Vite 개발 서버를 재시작하고 Network 탭에서 요청 URL을 확인한다.
+`runtime-env.js` 변경 후 Vite 개발 서버를 재시작하고 Network 탭에서 요청 URL을 확인한다.
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-브라우저 개발자도구 Network 탭에서 API 요청이 실제 백엔드 URL(`localhost:8080`)로 전송되는지 확인한다.
+브라우저 개발자도구 Network 탭에서 API 요청이 실제 백엔드 URL로 전송되는지 확인한다.
 
 <!-- ELIF PLATFORM == VUE -->
 
-#### 2.1 .env.local 파일 수정
+#### 2.1 runtime-env.js 값 교체
 
-`frontend/.env.local` 파일에서 `VITE_API_URL`을 실제 백엔드 URL로 변경한다.
+`frontend/public/runtime-env.js` 파일에서 서비스별 HOST를 실제 백엔드 URL로 변경한다.
 
-```dotenv
-# Mock 환경 (주석 처리하여 보존)
-# VITE_API_URL=http://localhost:4010
-
-# 실제 백엔드 환경
-VITE_API_URL=http://localhost:8080
+```javascript
+// public/runtime-env.js (실제 백엔드 연동)
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:8081",
+  ORDER_HOST: "http://localhost:8082",
+  RECOMMEND_HOST: "http://localhost:8083",
+  // ... 서비스별 실제 포트 (backing-service-result.md 참조)
+};
 ```
+
+**환경 분기 관리 원칙**: `runtime-env.js`만 변경하면 Mock ↔ 실제 전환이 완료된다.
 
 #### 2.2 전환 후 즉시 확인
 
@@ -169,77 +184,48 @@ npm run dev
 
 <!-- ELIF PLATFORM == FLUTTER -->
 
-#### 2.1 `--dart-define` 방식으로 API URL 전환
+#### 2.1 런타임 설정 전환
 
-Flutter는 `.env` 파일 대신 빌드 시 `--dart-define` 플래그 또는 flavor를 사용하여
-환경별 URL을 주입한다.
+**Flutter Web**: `web/runtime-env.js` 파일에서 서비스별 HOST를 실제 백엔드 URL로 변경한다.
 
-**방법 A: `--dart-define` 직접 전달**
+```javascript
+// web/runtime-env.js (실제 백엔드 연동)
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:8081",
+  ORDER_HOST: "http://localhost:8082",
+  RECOMMEND_HOST: "http://localhost:8083",
+  // ... 서비스별 실제 포트 (backing-service-result.md 참조)
+};
+```
+
+**Flutter Mobile (네이티브)**: `--dart-define` 값을 변경한다.
 
 ```bash
 # Mock 환경 (Prism 서버)
-flutter run --dart-define=API_URL=http://localhost:4010
+flutter run --dart-define=API_BASE_URL=http://localhost:4010
 
 # 실제 백엔드 환경
-flutter run --dart-define=API_URL=http://localhost:8080
+flutter run --dart-define=API_BASE_URL=http://localhost:8080
 
 # 운영 환경
-flutter run --dart-define=API_URL=https://api.example.com
+flutter run --dart-define=API_BASE_URL=https://api.example.com
 ```
 
-앱 코드에서 값 읽기:
-
-```dart
-// lib/core/config/env.dart
-class Env {
-  static const apiUrl = String.fromEnvironment(
-    'API_URL',
-    defaultValue: 'http://localhost:8080',
-  );
-}
-```
-
-**방법 B: flavor 기반 환경 분리** (멀티 환경 장기 운영 시 권장)
-
-```bash
-# pubspec.yaml의 flutter > flavors 설정 또는 flutter_flavorizr 패키지 활용
-flutter run --flavor dev    # lib/main_dev.dart → devApiUrl
-flutter run --flavor prod   # lib/main_prod.dart → prodApiUrl
-```
-
-```dart
-// lib/main_dev.dart
-void main() {
-  runApp(
-    ProviderScope(
-      overrides: [apiUrlProvider.overrideWithValue('http://localhost:8080')],
-      child: const MyApp(),
-    ),
-  );
-}
-
-// lib/main_prod.dart
-void main() {
-  runApp(
-    ProviderScope(
-      overrides: [apiUrlProvider.overrideWithValue('https://api.example.com')],
-      child: const MyApp(),
-    ),
-  );
-}
-```
+`RuntimeConfig` 헬퍼(`frontend-env-setup.md`에서 생성)가 Flutter Web은 `runtime-env.js`에서, Flutter Mobile은 `--dart-define`에서 자동으로 값을 읽는다.
 
 > **[DEFERRED]** 멀티 Mock 포트(서비스별 Prism 인스턴스) → 실제 API 게이트웨이 단일 URL
 > 전환 시나리오는 `backing-service-setup.md`에 MOCK == MULTI 지원이 추가될 때
 > 이 섹션과 함께 업데이트된다.
-> (MOCK == MULTI support will be added when backing-service-setup.md is updated
-> to support per-service Prism instances.)
 
 #### 2.2 전환 후 즉시 확인
 
 ```bash
-# 실제 백엔드 URL로 앱 실행
-flutter run --dart-define=API_URL=http://localhost:8080
+# Flutter Web: runtime-env.js 변경 후 재시작
+flutter run -d chrome
+
+# Flutter Mobile: --dart-define으로 실행
+flutter run --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
 Flutter DevTools 또는 Dio 로그 인터셉터(5단계 참조)를 통해 요청 URL이
@@ -1565,43 +1551,54 @@ if (err.type == DioExceptionType.connectionTimeout ||
 
 <!-- IF PLATFORM == REACT -->
 
-```dotenv
-# frontend/.env.local
-# =====================================================
-# API URL 환경 분기
-# Mock 환경:    VITE_API_URL=http://localhost:4010
-# 실제 환경:    VITE_API_URL=http://localhost:8080
-# Vite 프록시:  VITE_API_URL=/api
-# =====================================================
-
-# 현재 활성 환경 (전환 시 주석 토글)
-# VITE_API_URL=http://localhost:4010
-VITE_API_URL=http://localhost:8080
+```javascript
+// frontend/public/runtime-env.js
+// =====================================================
+// API HOST 환경 분기
+// Mock 환경:  모든 HOST = http://localhost:4010
+// 실제 환경:  서비스별 HOST = http://localhost:{포트}
+// =====================================================
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:8081",
+  ORDER_HOST: "http://localhost:8082",
+  // ... 서비스별 실제 포트
+};
 ```
 
 <!-- ELIF PLATFORM == VUE -->
 
-```dotenv
-# frontend/.env.local
-# =====================================================
-# API URL 환경 분기
-# Mock 환경:    VITE_API_URL=http://localhost:4010
-# 실제 환경:    VITE_API_URL=http://localhost:8080
-# =====================================================
-
-# VITE_API_URL=http://localhost:4010
-VITE_API_URL=http://localhost:8080
+```javascript
+// frontend/public/runtime-env.js
+// =====================================================
+// API HOST 환경 분기 (React와 동일 구조)
+// =====================================================
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:8081",
+  ORDER_HOST: "http://localhost:8082",
+  // ... 서비스별 실제 포트
+};
 ```
 
 <!-- ELIF PLATFORM == FLUTTER -->
 
-```bash
-# 실행 스크립트 예시 (scripts/run_dev.sh)
-#!/bin/bash
-# Mock 환경: --dart-define=API_URL=http://localhost:4010
-# 실제 환경: --dart-define=API_URL=http://localhost:8080
+**Flutter Web**: `web/runtime-env.js`를 변경한다.
 
-flutter run --dart-define=API_URL=http://localhost:8080
+```javascript
+// web/runtime-env.js
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:8081",
+  ORDER_HOST: "http://localhost:8082",
+  // ... 서비스별 실제 포트
+};
+```
+
+**Flutter Mobile**: `--dart-define`을 사용한다.
+
+```bash
+flutter run --dart-define=API_BASE_URL=http://localhost:8080
 ```
 
 <!-- ENDIF -->
@@ -1744,7 +1741,7 @@ flutter run --dart-define=API_URL=http://localhost:8080
 - [ ] JWT 인증 흐름 정상 (로그인 → 토큰 저장 → API 호출 → 토큰 갱신)
 - [ ] CORS 에러 없음
 - [ ] 401/403/네트워크 에러 각각 적절한 사용자 안내 메시지 출력
-- [ ] `VITE_API_URL` 환경변수 전환만으로 Mock ↔ 실제 API 즉시 전환 가능
+- [ ] `public/runtime-env.js` 변경만으로 Mock ↔ 실제 API 즉시 전환 가능
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 
 <!-- ELIF PLATFORM == VUE -->
@@ -1753,7 +1750,7 @@ flutter run --dart-define=API_URL=http://localhost:8080
 - [ ] JWT 인증 흐름 정상 (로그인 → 토큰 저장 → API 호출 → 토큰 갱신)
 - [ ] CORS 에러 없음
 - [ ] 401/403/네트워크 에러 각각 적절한 사용자 안내 메시지 출력
-- [ ] `VITE_API_URL` 환경변수 전환만으로 Mock ↔ 실제 API 즉시 전환 가능
+- [ ] `public/runtime-env.js` 변경만으로 Mock ↔ 실제 API 즉시 전환 가능
 - [ ] Pinia 상태 관리 및 Vue Router 가드 정상 동작
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 
@@ -1763,7 +1760,7 @@ flutter run --dart-define=API_URL=http://localhost:8080
 - [ ] JWT 인증 흐름 정상 (로그인 → secure_storage 저장 → API 호출 → 토큰 갱신)
 - [ ] CORS 불필요 (네이티브 앱). Android/iOS 네트워크 보안 설정 적용 완료
 - [ ] 401/403/네트워크 에러 각각 적절한 사용자 안내 메시지 출력
-- [ ] `--dart-define=API_URL` 전환만으로 Mock ↔ 실제 API 즉시 전환 가능
+- [ ] `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile) 전환만으로 Mock ↔ 실제 API 즉시 전환 가능
 - [ ] Riverpod AuthNotifier + go_router redirect guard 정상 동작
 - [ ] `flutter build apk --debug` 및 `flutter build ios --debug` 성공 (컴파일 오류 없음)
 
@@ -1775,7 +1772,7 @@ flutter run --dart-define=API_URL=http://localhost:8080
 
 - **Mock 서버 코드와 설정은 삭제하지 않는다.** `docker compose --profile mock`으로 Mock 환경 복귀가 가능해야 한다.
 - **CORS 문제 발생 시 프론트엔드 코드를 수정하지 않는다.** 백엔드 SecurityConfig의 `allowedOrigins`에 프론트엔드 Origin을 추가하는 것이 올바른 해결 방법이다. 개발 편의상 Vite 프록시를 사용할 수 있으나 프로덕션 CORS 설정은 반드시 백엔드에서 처리한다.
-- **Mock → 실제 전환은 `VITE_API_URL` 환경변수 변경만으로 완료되어야 한다.** API 서비스 함수(`src/services/api/<domain>Service.ts`)나 React Query 훅을 수정할 필요가 없는 구조가 정상 상태다.
+- **Mock → 실제 전환은 `public/runtime-env.js` 변경만으로 완료되어야 한다.** API 서비스 함수(`src/services/api/<domain>Service.ts`)나 React Query 훅을 수정할 필요가 없는 구조가 정상 상태다.
 - 토큰 갱신 엔드포인트 경로(`/auth/refresh`)는 반드시 OpenAPI 명세와 일치해야 한다. 임의로 추정하지 않는다.
 - `isRefreshing` 플래그는 동시에 여러 요청이 401을 받았을 때 토큰 갱신이 중복 실행되지 않도록 한다. 이 로직을 단순화하면 갱신 경쟁 조건이 발생할 수 있다.
 - 기존 파일(`client.ts`)에 인터셉터를 추가할 때 `frontend-env-setup.md`에서 설정된 기존 로직을 덮어쓰지 않도록 주의한다.
@@ -1784,14 +1781,14 @@ flutter run --dart-define=API_URL=http://localhost:8080
 
 - **Mock 서버 코드와 설정은 삭제하지 않는다.**
 - **CORS 문제 발생 시 Vue 코드를 수정하지 않는다.** 백엔드 SecurityConfig에서 Origin을 허용한다.
-- **Mock → 실제 전환은 `VITE_API_URL` 환경변수 변경만으로 완료되어야 한다.**
+- **Mock → 실제 전환은 `public/runtime-env.js` 변경만으로 완료되어야 한다.**
 - 토큰 갱신 엔드포인트 경로는 반드시 OpenAPI 명세와 일치해야 한다.
 - Pinia 스토어의 `initialize()`는 앱 마운트 전 한 번만 호출해야 한다. 중복 호출 시 불필요한 `/auth/me` 요청이 발생한다.
 - Vue Router beforeEach 가드에서 Pinia 스토어에 접근할 때 `useAuthStore()`가 `createPinia()` 이후에 호출되는지 확인한다.
 
 <!-- ELIF PLATFORM == FLUTTER -->
 
-- **Mock 서버 코드와 설정은 삭제하지 않는다.** `--dart-define=API_URL=http://localhost:4010`으로 Mock 환경 복귀가 가능해야 한다.
+- **Mock 서버 코드와 설정은 삭제하지 않는다.** `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile) 변경으로 Mock 환경 복귀가 가능해야 한다.
 - **Flutter 네이티브 앱은 CORS 설정이 필요 없다.** 브라우저 Same-Origin Policy는 적용되지 않는다. 네트워크 오류 발생 시 Android cleartext / iOS ATS 설정을 먼저 확인한다.
 - **에뮬레이터에서 localhost 접근**: Android 에뮬레이터는 `10.0.2.2`를, iOS Simulator는 `127.0.0.1`을 사용하여 호스트 백엔드에 접근한다.
 - **`QueuedInterceptorsWrapper`는 동시 401 요청 시 갱신이 한 번만 실행되도록 보장한다.** 일반 `InterceptorsWrapper`로 교체하면 갱신 경쟁 조건이 발생할 수 있다.

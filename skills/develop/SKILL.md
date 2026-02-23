@@ -236,7 +236,7 @@ Step 3 진입 전, 오케스트레이터가 직접 인증 방식을 확인하고
 
 <!--ASK_USER-->
 {"title":"OAuth2 소셜 로그인 크리덴셜 요청","questions":[
-  {"question":"설계서에 OAuth2 소셜 로그인({식별된 Provider 목록})이 정의되어 있습니다.\n\n통합 테스트를 위해 각 Provider의 **Client ID**와 **Client Secret**이 필요합니다.\n아직 발급받지 않으셨다면, 아래 가이드를 참조하여 등록해 주세요:\n\n📄 **Provider별 앱 등록 가이드**: `{PLUGIN_DIR}/resources/references/oauth2-provider-setup-guide.md`\n\n{Provider별 필요 환경변수 목록 표시}\n\n크리덴셜을 입력해 주세요. (아직 미발급이면 '나중에 설정'을 선택하세요)","type":"text"}
+  {"question":"설계서에 OAuth2 소셜 로그인({식별된 Provider 목록})이 정의되어 있습니다.\n\n통합 테스트를 위해 각 Provider의 **Client ID**와 **Client Secret**이 필요합니다.\n아직 발급받지 않으셨다면, 아래 가이드를 참조하여 등록해 주세요:\n\n📄 **Provider별 앱 등록 가이드**: `https://github.com/unicorn-plugins/npd/blob/main/resources/references/oauth2-provider-setup-guide.md`\n\n{Provider별 필요 환경변수 목록 표시}\n\n크리덴셜을 입력해 주세요. (아직 미발급이면 '나중에 설정'을 선택하세요)","type":"text"}
 ]}
 <!--/ASK_USER-->
 
@@ -261,6 +261,35 @@ Step 3 진입 전, 오케스트레이터가 직접 인증 방식을 확인하고
 - **TASK**: docker-compose의 Prism Mock 서버 활용 → 페이지별 구현
 - **EXPECTED OUTCOME**: 프론트엔드 컴포넌트 + Prism Mock 연동 코드
 - **Prism 실행**: `docker compose --profile mock up` (Step 2-2에서 구성)
+
+#### Step 3-3 사전 확인: AI 서비스 크리덴셜 준비
+
+Step 3-3 진입 전, 오케스트레이터가 직접 AI 서비스에 필요한 크리덴셜을 확인하고 필요 시 사용자에게 요청한다.
+(위임된 에이전트는 사용자에게 질문할 수 없으므로, 이 확인은 반드시 오케스트레이터 레벨에서 수행)
+
+**SKIP 조건**: Step 1에서 AI SKIP으로 결정된 경우 건너뜀
+
+**확인 절차:**
+
+1. `docs/design/ai-service-design.md`를 읽어 다음을 식별한다:
+   - LLM 제공자 및 모델명 (예: OpenAI/gpt-4o, Anthropic/claude-3-5-sonnet 등)
+   - 웹검색 Tool 사용 여부 (Tavily 등)
+   - RAG 사용 여부 및 벡터 DB 종류 (ChromaDB, Qdrant 등)
+   - LangSmith 모니터링 사용 여부
+2. `ai-service/.env` 파일에 해당 키가 이미 설정되어 있는지 확인한다
+3. 누락된 크리덴셜이 있으면 사용자에게 요청한다:
+
+<!--ASK_USER-->
+{"title":"AI 서비스 크리덴셜 요청","questions":[
+  {"question":"설계서에 다음 AI 서비스 연동이 정의되어 있습니다:\n\n{식별된 LLM 제공자/모델, Tool, RAG 등 목록}\n\n아래 크리덴셜을 입력해 주세요 (미발급 항목은 비워두면 됩니다):\n\n**필수:**\n- {LLM 제공자} API Key (예: OPENAI_API_KEY)\n\n**선택 (해당 시):**\n- Tavily API Key (웹검색 Tool 사용 시)\n- LangSmith API Key (LLM 호출 모니터링)\n- Vector DB 접속 정보 (RAG 사용 시)\n\n크리덴셜을 입력하거나 '나중에 설정'을 선택하세요.","type":"text"}
+]}
+<!--/ASK_USER-->
+
+4. 사용자가 크리덴셜을 제공하면 `ai-service/.env` 파일에 반영한다
+5. '나중에 설정'을 선택한 경우:
+   - `.env.example`에 해당 환경변수 키를 빈 값으로 추가
+   - Step 3-3 에이전트에 "LLM 크리덴셜 미설정, 코드 구현만 진행하고 실제 LLM 호출 테스트는 생략" 지시를 포함
+   - Step 4(통합 연동) 진입 전에 다시 확인
 
 #### Step 3-3. AI 서비스 구현 → Agent: ai-engineer (`/oh-my-claudecode:ralph` 활용)
 

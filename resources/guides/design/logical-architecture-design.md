@@ -117,7 +117,7 @@
 
 #### 2.4 Mermaid 스크립트 검사 실행
 
-작성 완료 후 'Mermaid문법검사가이드'에 준용하여 스크립트를 검증합니다.
+작성 완료 후 'Mermaid문법검사가이드(`{PLUGIN_DIR}/resources/guides/tools/mermaid-guide.md`)'에 준용하여 스크립트를 검증합니다.
 
 ### 3. 검토
 

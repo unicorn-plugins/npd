@@ -46,7 +46,7 @@ service-name은 영어로 작성
     - 결과: {service-name}.md
   - ERD 작성
     - 결과: {service-name}-erd.puml
-    - **PlantUML 스크립트 파일 생성 즉시 검사 실행**: 'PlantUML 문법 검사  가이드' 준용
+    - **PlantUML 스크립트 파일 생성 즉시 검사 실행**: 'PlantUML 문법 검사  가이드(`{PLUGIN_DIR}/resources/guides/tools/plantuml-guide.md`)' 준용
   - 데이터베이스 스키마 스크립트 작성
     - 실행 가능한 SQL 스크립트 작성
     - 결과: {service-name}-schema.psql

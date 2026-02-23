@@ -158,7 +158,7 @@ flutter create --org {ORG} --project-name {PROJECT_NAME} frontend
 ```
 frontend/
 ├── public/
-│   └── runtime-env.js          # 런타임 환경변수 (선택)
+│   └── runtime-env.js          # 런타임 환경변수
 ├── src/
 │   ├── assets/                 # 이미지, 폰트 등 정적 자원
 │   ├── components/             # 공통 UI 컴포넌트 (이 단계에서는 골격만)
@@ -199,6 +199,7 @@ frontend/
 ```
 frontend/
 ├── public/
+│   └── runtime-env.js          # 런타임 환경변수
 ├── src/
 │   ├── assets/
 │   ├── components/
@@ -257,6 +258,8 @@ frontend/
 │   ├── routing/                # go_router 설정
 │   │   └── app_router.dart
 │   └── main.dart
+├── web/                        # Flutter Web 전용
+│   └── runtime-env.js          # 런타임 환경변수 (Web 빌드 전용)
 ├── pubspec.yaml
 ├── pubspec.lock
 ├── analysis_options.yaml
@@ -293,9 +296,9 @@ export default defineConfig({
 **.env.example**
 
 ```dotenv
-# API 서버 URL
-# 개발 중 Prism Mock 서버 사용 시: http://localhost:4010
-# 실제 백엔드 서버 사용 시: http://localhost:8080 (또는 해당 URL)
+# API 서버 URL (runtime-env.js의 fallback용)
+# 주 설정은 public/runtime-env.js에서 관리
+# 이 값은 runtime-env.js가 로드되지 않았을 때만 사용됨
 VITE_API_URL=http://localhost:4010
 
 # 앱 환경
@@ -332,7 +335,8 @@ export default defineConfig({
 **.env.example**
 
 ```dotenv
-# API 서버 URL
+# API 서버 URL (runtime-env.js의 fallback용)
+# 주 설정은 public/runtime-env.js에서 관리
 VITE_API_URL=http://localhost:4010
 
 # 앱 환경
@@ -1310,21 +1314,81 @@ class ExampleWidget extends ConsumerWidget {
 
 <!-- IF PLATFORM == REACT -->
 `docs/design/frontend/api-mapping.md`를 참조하여 서비스 레이어를 구성한다.
-Prism Mock 서버(http://localhost:4010)와 연동할 수 있도록 환경변수로 baseURL을 관리한다.
+런타임 환경변수(`runtime-env.js`)를 통해 서비스별 API 호스트를 관리한다.
 
-#### 7.1 API 공통 설정 (`src/services/api/config.ts`)
+#### 7.1 런타임 환경변수 설정
+
+**`public/runtime-env.js` 파일 생성** (기본값 — Mock 서버)
+
+```javascript
+// public/runtime-env.js
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  // 서비스별 HOST는 high-level-architecture.md의 서비스 목록에서 생성
+  // Mock 단계에서는 단일 Prism 서버: 모두 http://localhost:4010
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... 프로젝트의 서비스 목록에 맞게 추가
+};
+```
+
+**`index.html`에 script 태그 추가** (앱 번들보다 먼저 로드)
+
+```html
+<!-- index.html의 <head> 내부, 앱 스크립트보다 앞에 배치 -->
+<script src="/runtime-env.js"></script>
+```
+
+**`src/config/runtime.ts` 헬퍼 생성**
 
 ```typescript
+// src/config/runtime.ts
+interface RuntimeConfig {
+  API_GROUP: string;
+  [key: string]: string;  // 서비스별 HOST 동적 키
+}
+
+export function getRuntimeConfig(): RuntimeConfig {
+  return (window as any).__runtime_config__ ?? {
+    API_GROUP: '/api/v1',
+  };
+}
+
+export function getServiceHost(serviceName: string): string {
+  const config = getRuntimeConfig();
+  const key = `${serviceName.toUpperCase()}_HOST`;
+  return config[key] ?? '';
+}
+```
+
+> `runtime-env.js`는 빌드 결과물에 포함되지 않는 정적 파일이므로, 배포 환경에서 볼륨 마운트 또는 ConfigMap으로 교체할 수 있다.
+> 빌드 타임 환경변수(`VITE_API_URL`)는 개발 편의를 위한 fallback으로만 유지한다.
+
+#### 7.2 API 공통 설정 (`src/services/api/config.ts`)
+
+```typescript
+import { getRuntimeConfig } from '@/config/runtime'
+
+// runtime-env.js에서 읽은 값 기반. VITE_API_URL은 fallback으로만 유지
+const config = getRuntimeConfig()
+
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:4010',
   timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',
   },
 }
+
+/** 서비스별 API 기본 URL 생성 */
+export function getServiceBaseUrl(serviceName: string): string {
+  const host = config[`${serviceName.toUpperCase()}_HOST`]
+    ?? import.meta.env.VITE_API_URL
+    ?? 'http://localhost:4010'
+  return `${host}${config.API_GROUP}`
+}
 ```
 
-#### 7.2 Axios 클라이언트 (`src/services/api/client.ts`)
+#### 7.3 Axios 클라이언트 (`src/services/api/client.ts`)
 
 ```typescript
 import axios, { AxiosInstance, AxiosRequestConfig, AxiosResponse } from 'axios'
@@ -1366,7 +1430,7 @@ function createApiClient(config?: AxiosRequestConfig): AxiosInstance {
 export const apiClient = createApiClient()
 ```
 
-#### 7.3 API 타입 기본 정의 (`src/types/api.ts`)
+#### 7.4 API 타입 기본 정의 (`src/types/api.ts`)
 
 ```typescript
 /** 공통 API 응답 래퍼 — api-mapping.md 기준으로 실제 응답 구조에 맞게 조정 */
@@ -1392,7 +1456,7 @@ export interface ApiError {
 }
 ```
 
-#### 7.4 서비스 레이어 골격 예시 (`src/services/api/exampleService.ts`)
+#### 7.5 서비스 레이어 골격 예시 (`src/services/api/exampleService.ts`)
 
 api-mapping.md에 정의된 각 도메인별로 이 구조를 복제하여 생성한다.
 
@@ -1417,20 +1481,75 @@ export const exampleService = {
 ```
 <!-- ELIF PLATFORM == VUE -->
 `docs/design/frontend/api-mapping.md`를 참조하여 서비스 레이어를 구성한다.
+런타임 환경변수(`runtime-env.js`)를 통해 서비스별 API 호스트를 관리한다.
 
-#### 7.1 API 공통 설정 (`src/services/api/config.ts`)
+#### 7.1 런타임 환경변수 설정
+
+React와 동일한 구조로 `public/runtime-env.js` + 헬퍼를 생성한다.
+
+**`public/runtime-env.js` 파일 생성** (기본값 — Mock 서버)
+
+```javascript
+// public/runtime-env.js
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... 프로젝트의 서비스 목록에 맞게 추가
+};
+```
+
+**`index.html`에 script 태그 추가**
+
+```html
+<script src="/runtime-env.js"></script>
+```
+
+**`src/config/runtime.ts` 헬퍼 생성**
 
 ```typescript
+// src/config/runtime.ts
+interface RuntimeConfig {
+  API_GROUP: string;
+  [key: string]: string;
+}
+
+export function getRuntimeConfig(): RuntimeConfig {
+  return (window as any).__runtime_config__ ?? {
+    API_GROUP: '/api/v1',
+  };
+}
+
+export function getServiceHost(serviceName: string): string {
+  const config = getRuntimeConfig();
+  const key = `${serviceName.toUpperCase()}_HOST`;
+  return config[key] ?? '';
+}
+```
+
+#### 7.2 API 공통 설정 (`src/services/api/config.ts`)
+
+```typescript
+import { getRuntimeConfig } from '@/config/runtime'
+
+const config = getRuntimeConfig()
+
 export const API_CONFIG = {
-  baseURL: import.meta.env.VITE_API_URL ?? 'http://localhost:4010',
   timeout: 10_000,
   headers: {
     'Content-Type': 'application/json',
   },
 }
+
+export function getServiceBaseUrl(serviceName: string): string {
+  const host = config[`${serviceName.toUpperCase()}_HOST`]
+    ?? import.meta.env.VITE_API_URL
+    ?? 'http://localhost:4010'
+  return `${host}${config.API_GROUP}`
+}
 ```
 
-#### 7.2 Axios 클라이언트 (`src/services/api/client.ts`)
+#### 7.3 Axios 클라이언트 (`src/services/api/client.ts`)
 
 ```typescript
 import axios, { AxiosInstance } from 'axios'
@@ -1462,7 +1581,7 @@ function createApiClient(): AxiosInstance {
 export const apiClient = createApiClient()
 ```
 
-#### 7.3 API 타입 기본 정의 (`src/types/api.ts`)
+#### 7.4 API 타입 기본 정의 (`src/types/api.ts`)
 
 ```typescript
 export interface ApiResponse<T> {
@@ -1485,7 +1604,7 @@ export interface ApiError {
 }
 ```
 
-#### 7.4 서비스 레이어 골격 예시 (`src/services/api/exampleService.ts`)
+#### 7.5 서비스 레이어 골격 예시 (`src/services/api/exampleService.ts`)
 
 ```typescript
 import { apiClient } from './client'
@@ -1505,19 +1624,75 @@ export const exampleService = {
 `docs/design/frontend/api-mapping.md`를 참조하여 Dio 클라이언트와 서비스 레이어를 구성한다.
 Flutter에서는 `localStorage`를 사용할 수 없으므로 `flutter_secure_storage`로 토큰을 관리한다.
 
-#### 7.1 API 공통 설정 (`lib/core/network/api_config.dart`)
+#### 7.1 런타임 환경변수 설정 (Flutter Web 전용)
+
+Flutter Web 빌드인 경우 `web/runtime-env.js` + Dart JS interop 헬퍼를 사용한다.
+Flutter Mobile(네이티브) 빌드는 `runtime-env.js`를 사용할 수 없으므로 기존 `--dart-define` 방식을 유지한다.
+
+**`web/runtime-env.js` 파일 생성** (Flutter Web 전용, 기본값 — Mock 서버)
+
+```javascript
+// web/runtime-env.js
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... 프로젝트의 서비스 목록에 맞게 추가
+};
+```
+
+**`web/index.html`에 script 태그 추가**
+
+```html
+<!-- web/index.html의 <head> 내부, Flutter 부트스트랩보다 앞에 배치 -->
+<script src="runtime-env.js"></script>
+```
+
+**Dart JS interop 헬퍼** (`lib/core/config/runtime_config.dart`)
 
 ```dart
-class ApiConfig {
-  // 환경변수로 baseURL 관리 (flutter_dotenv 사용 시)
-  // import 'package:flutter_dotenv/flutter_dotenv.dart';
-  // static String get baseUrl => dotenv.env['API_BASE_URL'] ?? 'http://localhost:8080';
+import 'dart:js_interop';
 
-  // 또는 빌드 환경별 상수 정의
-  static const String baseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:8080',
-  );
+@JS('__runtime_config__')
+external JSObject? get _runtimeConfig;
+
+/// Flutter Web: window.__runtime_config__에서 값 읽기
+/// Flutter Mobile: --dart-define fallback
+class RuntimeConfig {
+  static String get apiGroup =>
+      _getProperty('API_GROUP') ??
+      const String.fromEnvironment('API_GROUP', defaultValue: '/api/v1');
+
+  static String getServiceHost(String serviceName) {
+    final key = '${serviceName.toUpperCase()}_HOST';
+    return _getProperty(key) ??
+        const String.fromEnvironment('API_BASE_URL', defaultValue: 'http://localhost:4010');
+  }
+
+  static String? _getProperty(String key) {
+    final config = _runtimeConfig;
+    if (config == null) return null;
+    final value = config.getProperty(key.toJS);
+    return value?.isA<JSString>() == true ? (value as JSString).toDart : null;
+  }
+}
+```
+
+> **플랫폼 분기**: Flutter Web 빌드는 `runtime-env.js`에서 값을 읽고, Flutter Mobile 빌드는 `--dart-define`으로 주입된 값을 사용한다. `RuntimeConfig` 헬퍼가 이 분기를 자동 처리한다.
+
+#### 7.2 API 공통 설정 (`lib/core/network/api_config.dart`)
+
+```dart
+import 'runtime_config.dart';
+
+class ApiConfig {
+  /// 서비스별 API 기본 URL 생성
+  /// Flutter Web: runtime-env.js에서 읽음
+  /// Flutter Mobile: --dart-define에서 읽음
+  static String getServiceBaseUrl(String serviceName) {
+    return '${RuntimeConfig.getServiceHost(serviceName)}${RuntimeConfig.apiGroup}';
+  }
+
   static const Duration timeout = Duration(seconds: 10);
   static const Map<String, String> defaultHeaders = {
     'Content-Type': 'application/json',
@@ -1526,7 +1701,7 @@ class ApiConfig {
 }
 ```
 
-#### 7.2 Dio 클라이언트 (`lib/core/network/dio_client.dart`)
+#### 7.4 Dio 클라이언트 (`lib/core/network/dio_client.dart`)
 
 ```dart
 import 'package:dio/dio.dart';
@@ -1540,7 +1715,6 @@ class DioClient {
   DioClient() {
     _dio = Dio(
       BaseOptions(
-        baseUrl: ApiConfig.baseUrl,
         connectTimeout: ApiConfig.timeout,
         receiveTimeout: ApiConfig.timeout,
         headers: ApiConfig.defaultHeaders,
@@ -1579,7 +1753,7 @@ class DioClient {
 final dioClient = DioClient();
 ```
 
-#### 7.3 API 타입 기본 정의 (`lib/core/network/api_response.dart`)
+#### 7.4 API 타입 기본 정의 (`lib/core/network/api_response.dart`)
 
 ```dart
 /// 공통 API 응답 래퍼 — api-mapping.md 기준으로 실제 응답 구조에 맞게 조정
@@ -1628,7 +1802,7 @@ class ApiError {
 }
 ```
 
-#### 7.4 서비스 레이어 골격 예시 (`lib/features/example/data/example_service.dart`)
+#### 7.5 서비스 레이어 골격 예시 (`lib/features/example/data/example_service.dart`)
 
 api-mapping.md에 정의된 각 도메인별로 이 구조를 복제하여 생성한다.
 
@@ -1796,7 +1970,9 @@ flutter test
 | 라우터 | `frontend/src/router/index.tsx` | ia.md 기반 라우트 정의 |
 | 상태 관리 스토어 | `frontend/src/store/` | auth, ui 슬라이스/스토어 포함 |
 | API 클라이언트 | `frontend/src/services/api/client.ts` | baseURL 환경변수 관리 |
-| API 설정 | `frontend/src/services/api/config.ts` | VITE_API_URL 기반 |
+| 런타임 환경변수 | `frontend/public/runtime-env.js` | 서비스별 HOST 설정 |
+| 런타임 설정 헬퍼 | `frontend/src/config/runtime.ts` | window.__runtime_config__ 읽기 |
+| API 설정 | `frontend/src/services/api/config.ts` | runtime-env.js 기반 |
 | 공통 타입 | `frontend/src/types/api.ts` | 응답 래퍼, 에러 타입 |
 | 환경변수 예시 | `frontend/.env.example` | VITE_API_URL 포함 |
 <!-- ELIF PLATFORM == VUE -->
@@ -1806,7 +1982,9 @@ flutter test
 | 라우터 | `frontend/src/router/index.ts` | ia.md 기반 라우트 정의 |
 | 상태 관리 스토어 | `frontend/src/stores/` | auth, ui Pinia 스토어 포함 |
 | API 클라이언트 | `frontend/src/services/api/client.ts` | baseURL 환경변수 관리 |
-| API 설정 | `frontend/src/services/api/config.ts` | VITE_API_URL 기반 |
+| 런타임 환경변수 | `frontend/public/runtime-env.js` | 서비스별 HOST 설정 |
+| 런타임 설정 헬퍼 | `frontend/src/config/runtime.ts` | window.__runtime_config__ 읽기 |
+| API 설정 | `frontend/src/services/api/config.ts` | runtime-env.js 기반 |
 | 공통 타입 | `frontend/src/types/api.ts` | 응답 래퍼, 에러 타입 |
 | 환경변수 예시 | `frontend/.env.example` | VITE_API_URL 포함 |
 <!-- ELIF PLATFORM == FLUTTER -->
@@ -1816,7 +1994,9 @@ flutter test
 | 라우터 | `frontend/lib/routing/app_router.dart` | ia.md 기반 GoRoute 정의 |
 | 인증 Provider | `frontend/lib/features/auth/presentation/auth_provider.dart` | Riverpod AsyncNotifier |
 | Dio 클라이언트 | `frontend/lib/core/network/dio_client.dart` | flutter_secure_storage 토큰 관리 |
-| API 설정 | `frontend/lib/core/network/api_config.dart` | baseURL 환경변수 관리 |
+| 런타임 환경변수 | `frontend/web/runtime-env.js` | 서비스별 HOST 설정 (Web 전용) |
+| 런타임 설정 헬퍼 | `frontend/lib/core/config/runtime_config.dart` | JS interop / dart-define 분기 |
+| API 설정 | `frontend/lib/core/network/api_config.dart` | runtime-env.js 기반 |
 | 공통 타입 | `frontend/lib/core/network/api_response.dart` | 응답 래퍼, 에러 타입 |
 | 의존성 명세 | `frontend/pubspec.yaml` | Riverpod, go_router, Dio 등 포함 |
 <!-- ENDIF -->
@@ -1826,7 +2006,7 @@ flutter test
 <!-- IF PLATFORM == REACT -->
 - [ ] 정보아키텍처(`ia.md`) 기반 폴더 구조와 라우트 정의
 - [ ] CSS 변수가 `style-guide.md`의 컬러·타이포그래피·간격 값과 일치
-- [ ] API 클라이언트 baseURL이 `VITE_API_URL` 환경변수로 관리됨 (하드코딩 없음)
+- [ ] API 서비스별 HOST가 `public/runtime-env.js`로 관리됨 (`VITE_API_URL`은 fallback)
 - [ ] `.env.example`에 `VITE_API_URL=http://localhost:4010` 포함
 - [ ] `npm run dev` 성공 및 브라우저 로딩 확인
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
@@ -1834,7 +2014,7 @@ flutter test
 <!-- ELIF PLATFORM == VUE -->
 - [ ] 정보아키텍처(`ia.md`) 기반 폴더 구조와 라우트 정의
 - [ ] CSS 변수가 `style-guide.md`의 컬러·타이포그래피·간격 값과 일치
-- [ ] API 클라이언트 baseURL이 `VITE_API_URL` 환경변수로 관리됨 (하드코딩 없음)
+- [ ] API 서비스별 HOST가 `public/runtime-env.js`로 관리됨 (`VITE_API_URL`은 fallback)
 - [ ] `.env.example`에 `VITE_API_URL=http://localhost:4010` 포함
 - [ ] `npm run dev` 성공 및 브라우저 로딩 확인
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
@@ -1842,7 +2022,7 @@ flutter test
 <!-- ELIF PLATFORM == FLUTTER -->
 - [ ] 정보아키텍처(`ia.md`) 기반 feature 폴더 구조와 GoRoute 정의
 - [ ] `ThemeData`가 `style-guide.md`의 컬러·타이포그래피 값과 일치
-- [ ] Dio baseURL이 환경변수(`API_BASE_URL`)로 관리됨 (하드코딩 없음)
+- [ ] Dio baseURL이 `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile)으로 관리됨 (하드코딩 없음)
 - [ ] `flutter_secure_storage`로 토큰 저장 (localStorage 미사용)
 - [ ] `flutter analyze` 오류 없음
 - [ ] `flutter run` 성공 및 기본 화면 표시 확인

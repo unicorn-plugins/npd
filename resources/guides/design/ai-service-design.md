@@ -51,7 +51,7 @@
 
 AI 서비스의 내부 아키텍처를 설계합니다.
 
-**기반 프레임워크**: LangChain (기본) — RAG·Function Calling·Agent 등 복합 패턴 적용 시 필수. 단순 LLM API 호출은 직접 구현 허용.
+**기반 프레임워크**: LangChain (기본) — `init_chat_model`로 LLM 제공자를 추상화하고, LCEL로 체인을 구성한다. RAG·Function Calling·Agent 등 복합 패턴도 LangChain 생태계 내에서 통합한다.
 
 | 구성요소 | 설명 |
 |---------|------|
@@ -66,11 +66,24 @@ AI 서비스의 내부 아키텍처를 설계합니다.
 ```
 [설계 항목]
 - LLM 제공자: OpenAI / Anthropic (Claude) / Google (Gemini) / Azure OpenAI / Groq 등
-- LangChain 연동: ChatOpenAI / ChatAnthropic / ChatGoogleGenerativeAI 등
+- LangChain 연동: init_chat_model (model_provider로 제공자 자동 선택) — ChatOpenAI / ChatAnthropic / ChatGoogleGenerativeAI 등 자동 매핑
 - API 엔드포인트: 베이스 URL, 배포 이름 (Azure의 경우)
 - 인증 방식: API Key / Managed Identity / OAuth
 - SDK: LangChain 통합 SDK (langchain-openai / langchain-anthropic / langchain-google-genai 등)
 - API 버전: 사용할 API 버전 명시
+
+[LLM Provider 비교 설계 항목]
+| 비교 항목 | OpenAI (GPT-4o) | Anthropic (Claude) | Google (Gemini) | Groq |
+|----------|:-:|:-:|:-:|:-:|
+| 입력 토큰 단가 ($/1M) | | | | |
+| 출력 토큰 단가 ($/1M) | | | | |
+| 컨텍스트 윈도우 | | | | |
+| Rate Limit (RPM/TPM) | | | | |
+| 응답 레이턴시 (체감) | | | | |
+| 특화 기능 | | | | |
+| 멀티모달 지원 | | | | |
+| Function Calling 방식 | tools | tools | function_declarations | tools |
+| 스트리밍 지원 | O | O | O | O |
 ```
 
 **2.2.2 프롬프트 엔지니어링 설계**
@@ -86,6 +99,20 @@ AI 서비스의 내부 아키텍처를 설계합니다.
 - 출력 형식: JSON / 자연어 / 구조화 텍스트
 - 파라미터: temperature, max_tokens, top_p 등
 - 변수 정의표: 각 변수의 소스, 타입, 예시
+
+[프롬프트 기법 선택 가이드라인]
+| 기법 | 적용 시점 | 장점 | 단점 |
+|------|---------|------|------|
+| Zero-shot | 범용 태스크, 대형 모델 사용 시 | 비용 최소, 프롬프트 간결 | 복잡한 추론에 약함 |
+| Few-shot | 특정 출력 형식 보장 필요 시 | 출력 일관성 높음 | 토큰 소비 증가 |
+| Chain-of-Thought | 다단계 추론, 수학/논리 문제 | 정확도 향상 | 레이턴시·토큰 증가 |
+| System prompt + 구조화 | JSON 출력 강제 필요 시 | 파싱 안정성 | 모델별 지원 차이 |
+
+[파라미터 튜닝 가이드라인]
+| 파라미터 | 낮은 값 (0~0.3) | 중간 값 (0.5~0.7) | 높은 값 (0.8~1.0) |
+|---------|:-:|:-:|:-:|
+| temperature | 분류, 추출, JSON 파싱 | 요약, Q&A | 창작, 브레인스토밍 |
+| top_p | 결정론적 출력 | 균형 | 다양한 표현 |
 ```
 
 **프롬프트 관리 전략**:
@@ -135,6 +162,19 @@ AI 서비스의 내부 아키텍처를 설계합니다.
   - 벡터 RAG vs GraphRAG 판단 기준: 단순 유사도 검색이면 벡터 RAG, 다단계 관계 추론이 필요하면 GraphRAG
 - 평가 지표: {RAGAS — Faithfulness, Answer Relevancy, Context Precision}
 - 인덱싱 주기: {실시간 / 배치 / 이벤트 기반}
+
+[RAG 품질 튜닝 전략]
+| 튜닝 영역 | 기법 | 적용 시점 |
+|----------|------|---------|
+| 청킹 | 고정 크기 (RecursiveCharacterTextSplitter) | 기본, 범용 |
+| 청킹 | 시맨틱 청킹 (SemanticChunker) | 문서 구조가 불규칙할 때 |
+| 임베딩 | 다국어 모델 (multilingual-e5) | 한국어 문서 처리 시 |
+| 검색 | Dense 검색 (벡터 유사도) | 기본 |
+| 검색 | 하이브리드 (Dense + BM25) | 키워드 정확도 필요 시 |
+| 검색 | 리랭킹 (Cross-encoder) | 검색 정밀도 향상 필요 시 |
+| 쿼리 | Multi-Query | 질문이 모호할 때 |
+| 쿼리 | HyDE (가설 문서 임베딩) | 질문-문서 간 의미 갭이 클 때 |
+| 평가 | RAGAS (Faithfulness, Answer Relevancy, Context Precision) | RAG 품질 정량 평가 |
 ```
 
 **2.2.5 Function Calling 설계** (해당 시)
@@ -150,6 +190,21 @@ LLM이 외부 도구를 호출해야 하는 기능에 대해 설계합니다.
   - Claude: tools 배열 + tool_use 응답
   - Gemini: function_declarations
 - 보안: 도구 실행 권한 범위 제한, 입력 검증
+
+[FC 호출 패턴 비교]
+| 패턴 | 설명 | 적용 시점 |
+|------|------|---------|
+| 순차 호출 | 도구 결과를 다음 호출의 입력으로 사용 | 의존적 도구 체인 |
+| 병렬 호출 | LLM이 다수 도구를 동시 호출 요청 | 독립적 도구 조합 |
+| 스트리밍 FC | 도구 호출 결과를 스트리밍으로 반환 | 실시간 UX |
+
+[Provider별 FC 차이점]
+| 항목 | OpenAI | Claude | Gemini |
+|------|--------|--------|--------|
+| 파라미터 | tools + tool_choice | tools 배열 | function_declarations |
+| 응답 형식 | tool_calls[] | tool_use content block | functionCall |
+| 병렬 호출 | parallel_tool_calls=true | 자동 병렬 | automatic_function_calling |
+| 고유 기능 | 커스텀 도구 스키마 | 서버 사이드 도구 | 자동 함수 호출 |
 ```
 
 **2.2.6 MCP (Model Context Protocol) 설계** (해당 시)
@@ -163,6 +218,13 @@ LLM이 외부 도구를 호출해야 하는 기능에 대해 설계합니다.
 - Primitives: Tools, Resources, Prompts 정의
 - MCP 서버 목록: {서버명, 제공 도구, 프로토콜}
 - 인증/인가: OAuth 2.1 적용 여부
+- 프로토콜: JSON-RPC 2.0
+- 고급 기능:
+  - Sampling: 서버가 클라이언트를 통해 LLM 호출 요청
+  - Elicitation: 서버가 사용자에게 추가 정보 요청
+  - Roots: 파일 시스템 루트 경로 제한
+- SDK: MCP Python SDK (mcp[cli])
+- 인증/인가 상세: OAuth 2.1 플로우 적용 방식
 ```
 
 **2.2.7 MAS (Multi-Agent System) 설계** (해당 시)
@@ -177,6 +239,105 @@ LLM이 외부 도구를 호출해야 하는 기능에 대해 설계합니다.
 - 내부 통신: {직접 호출 / 메시지 큐 / 이벤트}
 - 외부 통신: {API / MCP}
 - 프레임워크: {LangGraph / AutoGen / CrewAI / 직접 구현}
+
+[MAS 아키텍처 패턴 비교]
+| 패턴 | 설명 | 적용 시점 |
+|------|------|---------|
+| Orchestrator (중앙 관리) | 하나의 에이전트가 다른 에이전트를 지휘 | 명확한 단계별 워크플로우 |
+| Choreography (자율 협업) | 에이전트들이 메시지 기반으로 자율 협업 | 이벤트 기반, 느슨한 결합 |
+| Hierarchical (계층적) | 계층별 역할 분리 (관리자 → 실행자) | 복잡한 다단계 작업 |
+
+[LangGraph 워크플로우 설계 항목]
+- 상태(State) 정의: TypedDict 기반 그래프 상태
+- 노드(Node) 정의: 각 처리 단계
+- 엣지(Edge) 정의: 노드 간 전이 조건
+- 조건부 분기: should_continue 함수 정의
+- Checkpointer: MemorySaver / SqliteSaver / PostgresSaver
+- Human-in-the-Loop: interrupt_before / interrupt_after
+```
+
+**2.2.8 멀티턴 대화 설계** (해당 시)
+
+대화형 AI 기능에 대해 세션 관리 및 컨텍스트 유지 전략을 설계합니다.
+
+```
+[멀티턴 대화 설계 항목]
+- 대화 관리 방식: 클라이언트 사이드 / 서버 사이드
+  - 클라이언트: 프론트엔드가 전체 대화 이력을 전송 (Stateless 서버)
+  - 서버: 세션 ID로 서버가 대화 이력 관리 (Redis/DB 저장)
+- 컨텍스트 윈도우 전략:
+  - 슬라이딩 윈도우: 최근 N턴만 유지
+  - 요약 윈도우: 오래된 대화를 LLM으로 요약 후 컨텍스트에 포함
+  - 토큰 기반: 총 토큰 수 제한 내에서 관리
+- 세션 저장소: Redis / DB / In-memory
+- 세션 TTL: 비활성 세션 만료 시간
+```
+
+**2.2.9 멀티모달 AI 설계** (해당 시)
+
+이미지, 문서, 음성 등 다양한 입력을 처리하는 AI 기능을 설계합니다.
+
+```
+[멀티모달 AI 설계 항목]
+- VLM (Vision Language Model): (해당 시)
+  - 이미지 분석 대상: {이미지 유형, 분석 목적}
+  - 모델: GPT-4o / Gemini Vision / Qwen-VL 등
+  - 입력 형식: Base64 / URL / File upload
+  - 출력 형식: 구조화 JSON / 자연어 설명
+
+- PDF/문서 처리: (해당 시)
+  - 처리 방식: 규칙 기반(PyMuPDF) / AI 기반(IBM Docling)
+  - 추출 대상: 텍스트 / 테이블 / 이미지
+  - 출력 형식: Markdown / JSON
+  - RAG 인덱싱과의 통합: PDF → 청킹 → 임베딩 파이프라인
+
+- STT (Speech-to-Text): (해당 시)
+  - API: OpenAI Whisper / Google STT / 로컬 모델
+  - 화자 분리(Diarization): 필요 여부
+  - 지원 언어 및 파일 형식
+
+- TTS (Text-to-Speech): (해당 시)
+  - API: OpenAI TTS / Google TTS / 로컬 모델
+  - 음성 모델: 사용할 음성 선택
+  - 스트리밍 지원 여부
+```
+
+**2.2.10 외부 데이터 소스 통합 설계** (해당 시)
+
+웹검색, YouTube 등 외부 실시간 데이터 소스와의 통합을 설계합니다.
+
+```
+[외부 데이터 소스 설계 항목]
+- 웹검색: (해당 시)
+  - 검색 API: Tavily / DuckDuckGo / Google Custom Search
+  - Agent 통합: LangGraph 기반 멀티소스 Agent
+  - 캐싱: 검색 결과 캐싱 TTL
+  - 안정성: 재시도/폴백/Circuit Breaker
+
+- YouTube/동영상: (해당 시)
+  - 트랜스크립트 추출 / 요약
+  - 데이터 소스로 RAG 통합
+
+- 멀티소스 RAG:
+  - 복수 데이터 소스 조합 전략
+  - 소스별 가중치 / 우선순위
+```
+
+**2.2.11 Local LLM 설계** (해당 시)
+
+온프레미스 또는 프라이버시 요구사항이 있는 경우 Local LLM 옵션을 설계합니다.
+
+> **참고**: Local LLM은 설계 전용 섹션이며, 개발 가이드에서는 `init_chat_model(model_provider="ollama")`를 통한 연동만 간략히 안내한다 (별도 구현 단계 없음). 인프라 세팅이 프로젝트마다 크게 달라 범용 개발 가이드화가 어렵기 때문이다.
+
+```
+[Local LLM 설계 항목] (해당 시)
+- 적용 시점: 데이터 프라이버시 / 오프라인 / 비용 절감 요구 시
+- 런타임: Ollama / vLLM / llama.cpp
+- 모델 선택: 용도별 모델 (코드 생성, 한국어 특화 등)
+- 양자화: 4-bit / 8-bit GPTQ/GGUF
+- 하드웨어: GPU VRAM 요구사항
+- LangChain 연동: init_chat_model(model_provider="ollama")
+- 성능 최적화: GPU 레이어, 컨텍스트 크기 지정 등
 ```
 
 #### 2.3 AI API 설계
@@ -279,6 +440,11 @@ AI 서비스의 내부 디렉토리 구조와 컴포넌트를 설계합니다.
 │   └── embeddings.py
 ├── tools/                     # Function Calling 도구 정의 (해당 시)
 ├── agents/                    # MAS 에이전트 정의 (해당 시)
+├── workflows/                 # LangGraph 워크플로우 (해당 시)
+├── mcp_server/                # MCP 서버 (해당 시)
+├── multimodal/                # VLM/STT/TTS 처리 (해당 시)
+├── conversation/              # 멀티턴 대화 관리 (해당 시)
+├── external/                  # 외부 데이터 소스 (웹검색 등, 해당 시)
 └── config.py                  # 설정
 ```
 
@@ -341,22 +507,42 @@ AI 서비스 설계가 기존 산출물과 일치하는지 검증합니다.
 ### 6.2 검색 파이프라인
 ### 6.3 평가 및 튜닝
 
-## 7. Function Calling / MCP / MAS 설계 (해당 시)
+## 7. Function Calling 설계 (해당 시)
+### 7.1 도구 정의 및 호출 패턴
+### 7.2 Provider별 구현 방식
 
-## 8. 성능 및 비용 최적화
-### 8.1 토큰 사용량 예측
-### 8.2 캐싱 전략 상세
-### 8.3 배치 처리 가능 영역
+## 8. MCP 설계 (해당 시)
+### 8.1 MCP 서버 정의 (Tools, Resources, Prompts)
+### 8.2 전송 방식 및 인증
 
-## 9. 모니터링 및 품질 관리
-### 9.1 AI 응답 품질 모니터링 지표
-### 9.2 프롬프트 성능 추적
-### 9.3 A/B 테스트 전략
-### 9.4 장애 대응 시나리오
+## 9. MAS 설계 (해당 시)
+### 9.1 에이전트 정의 및 아키텍처 패턴
+### 9.2 LangGraph 워크플로우
 
-## 10. HighLevel 아키텍처 일치성 검증
+## 10. 멀티턴 대화 설계 (해당 시)
 
-## 11. 구현 우선순위 및 일정
+## 11. 멀티모달 AI 설계 (해당 시)
+### 11.1 VLM / PDF / STT / TTS
+
+## 12. 외부 데이터 소스 통합 설계 (해당 시)
+### 12.1 웹검색 / YouTube / 멀티소스 RAG
+
+## 13. Local LLM 설계 (해당 시)
+
+## 14. 성능 및 비용 최적화
+### 14.1 토큰 사용량 예측
+### 14.2 캐싱 전략 상세
+### 14.3 배치 처리 가능 영역
+
+## 15. 모니터링 및 품질 관리
+### 15.1 AI 응답 품질 모니터링 지표
+### 15.2 프롬프트 성능 추적
+### 15.3 A/B 테스트 전략
+### 15.4 장애 대응 시나리오
+
+## 16. HighLevel 아키텍처 일치성 검증
+
+## 17. 구현 우선순위 및 일정
 ```
 
 ## 품질 기준
@@ -373,6 +559,12 @@ AI 서비스 설계가 기존 산출물과 일치하는지 검증합니다.
 - [ ] 모니터링 지표와 Alert 기준이 정의됨
 - [ ] HighLevel 아키텍처 정의서와 일치성 검증 완료
 - [ ] RAG/FC/MCP/MAS 해당 시 설계 포함
+- [ ] 멀티턴 대화 설계 포함 (해당 시)
+- [ ] 멀티모달 AI 설계 포함 (VLM/PDF/STT/TTS — 해당 시)
+- [ ] 외부 데이터 소스 통합 설계 포함 (웹검색/YouTube — 해당 시)
+- [ ] Local LLM 설계 포함 (해당 시)
+- [ ] LLM Provider 비교표 작성 완료
+- [ ] 프롬프트 기법 선택 근거 명시
 
 ## 주의사항
 

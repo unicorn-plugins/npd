@@ -103,44 +103,56 @@ Prism은 `docs/design/api/*.yaml` 파일을 읽어 OpenAPI 명세에 정의된 `
 **프론트엔드 환경변수 확인 — MOCK == SINGLE (단일 Prism 인스턴스)**
 
 <!-- IF PLATFORM == REACT -->
-`frontend/.env.local`에 아래 설정이 있는지 확인한다.
+`frontend/public/runtime-env.js`에 아래 설정이 있는지 확인한다.
 
-```dotenv
-VITE_API_URL=http://localhost:4010
+```javascript
+// public/runtime-env.js (Mock 단계)
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... Prism이 모든 API를 대리하므로 동일 포트
+};
 ```
 
-없으면 생성한다. `frontend-env-setup.md`에서 이미 설정되었다면 그대로 사용한다.
+`frontend-env-setup.md`에서 이미 생성되었다면 그대로 사용한다.
+단일 Prism 서버(SINGLE)를 사용하므로 모든 서비스 HOST를 `http://localhost:4010`으로 설정한다.
 <!-- ELIF PLATFORM == VUE -->
-`frontend/.env.local`에 아래 설정이 있는지 확인한다.
+`frontend/public/runtime-env.js`에 아래 설정이 있는지 확인한다.
 
-```dotenv
-VITE_API_URL=http://localhost:4010
+```javascript
+// public/runtime-env.js (Mock 단계)
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... Prism이 모든 API를 대리하므로 동일 포트
+};
 ```
 
-없으면 생성한다. `frontend-env-setup.md`에서 이미 설정되었다면 그대로 사용한다.
+`frontend-env-setup.md`에서 이미 생성되었다면 그대로 사용한다.
 <!-- ELIF PLATFORM == FLUTTER -->
-Flutter는 `.env` 파일 대신 `--dart-define`으로 환경변수를 주입한다.
-`frontend-env-setup.md`에서 이미 설정된 launch 설정을 확인한다.
+**Flutter Web**: `web/runtime-env.js`에 아래 설정이 있는지 확인한다.
+
+```javascript
+// web/runtime-env.js (Mock 단계)
+window.__runtime_config__ = {
+  API_GROUP: "/api/v1",
+  MEMBER_HOST: "http://localhost:4010",
+  ORDER_HOST: "http://localhost:4010",
+  // ... Prism이 모든 API를 대리하므로 동일 포트
+};
+```
+
+`frontend-env-setup.md`에서 이미 생성되었다면 그대로 사용한다.
+
+**Flutter Mobile (네이티브)**: `runtime-env.js`를 사용할 수 없으므로 기존 `--dart-define` 방식을 유지한다.
 
 ```bash
-# 개발 실행 시 API_BASE_URL 주입
 flutter run --dart-define=API_BASE_URL=http://localhost:4010
-
-# VS Code launch.json에 등록하는 경우
-# "args": ["--dart-define=API_BASE_URL=http://localhost:4010"]
 ```
 
-코드에서는 아래와 같이 읽는다.
-
-```dart
-// lib/core/config/app_config.dart
-class AppConfig {
-  static const String apiBaseUrl = String.fromEnvironment(
-    'API_BASE_URL',
-    defaultValue: 'http://localhost:4010',
-  );
-}
-```
+코드에서는 `RuntimeConfig` 헬퍼(`frontend-env-setup.md`에서 생성)가 Web/Mobile 분기를 자동 처리한다.
 <!-- ENDIF -->
 
 > **[DEFERRED] MOCK == MULTI**: 서비스별 Prism 인스턴스를 개별 포트에서 실행하는 멀티 Prism 패턴은 이번 범위에서 제외한다.
@@ -478,8 +490,8 @@ export interface UserListParams {
 
 #### 3.2 서비스 함수 패턴
 
-**baseURL 환경변수 분기 구조**: `client.ts`의 `VITE_API_URL`만 변경하면 Mock → 실제 서버 전환이 완료된다.
-서비스 함수 자체는 변경하지 않아도 된다.
+**런타임 설정 분기 구조**: `public/runtime-env.js`의 서비스별 HOST만 변경하면 Mock → 실제 서버 전환이 완료된다.
+서비스 함수 자체는 변경하지 않아도 된다. API 클라이언트는 `getRuntimeConfig()`에서 서비스별 HOST를 읽는다.
 
 ```typescript
 // src/services/api/usersService.ts 예시
@@ -1301,7 +1313,7 @@ frontend/lib/
 <!-- IF PLATFORM == REACT -->
 - [ ] 모든 페이지가 Prism Mock API(localhost:4010) 기반으로 정상 동작
 - [ ] API 서비스 함수의 엔드포인트가 `api-mapping.md`와 정확히 일치
-- [ ] `VITE_API_URL` 환경변수 변경만으로 Mock → 실제 서버 전환 가능한 구조
+- [ ] `public/runtime-env.js` 변경만으로 Mock → 실제 서버 전환 가능한 구조
 - [ ] 반응형 UI 구현 (모바일/태블릿/데스크톱)
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 - [ ] CSS 변수가 `style-guide.md` 기준 값과 일치 (하드코딩 없음)
@@ -1310,7 +1322,7 @@ frontend/lib/
 <!-- ELIF PLATFORM == VUE -->
 - [ ] 모든 화면이 Prism Mock API(localhost:4010) 기반으로 정상 동작
 - [ ] API 서비스 함수의 엔드포인트가 `api-mapping.md`와 정확히 일치
-- [ ] `VITE_API_URL` 환경변수 변경만으로 Mock → 실제 서버 전환 가능한 구조
+- [ ] `public/runtime-env.js` 변경만으로 Mock → 실제 서버 전환 가능한 구조
 - [ ] 반응형 UI 구현 (모바일/태블릿/데스크톱)
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 - [ ] CSS 변수가 `style-guide.md` 기준 값과 일치 (하드코딩 없음)
@@ -1319,7 +1331,7 @@ frontend/lib/
 <!-- ELIF PLATFORM == FLUTTER -->
 - [ ] 모든 화면이 Prism Mock API(localhost:4010) 기반으로 정상 동작
 - [ ] DataSource의 엔드포인트가 `api-mapping.md`와 정확히 일치
-- [ ] `--dart-define=API_BASE_URL` 값 변경만으로 Mock → 실제 서버 전환 가능한 구조
+- [ ] `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile) 변경만으로 Mock → 실제 서버 전환 가능한 구조
 - [ ] `flutter analyze` 결과 오류(error) 0건, 경고(warning) 0건
 - [ ] `dart run build_runner build` 성공 (freezed/json_serializable 코드 최신 상태)
 - [ ] `flutter build apk` (또는 대상 플랫폼 빌드) 성공
@@ -1334,7 +1346,7 @@ frontend/lib/
 - **Prism Mock 서버는 `docker compose --profile mock up -d`로 기동한다.** 직접 Prism을 설치하거나 별도 실행하지 않는다.
 - **API 서비스 레이어(`src/services/api/`)를 페이지 컴포넌트에서 직접 import하지 않는다.** 반드시 React Query 훅을 통해 사용한다. 이 구조가 Mock → 실제 전환 시 변경 범위를 최소화한다.
 - Prism이 OpenAPI 명세의 `example` 값을 우선 반환하므로, 명세에 `example`이 없으면 타입 기반 자동 생성 값이 반환된다. 명세의 `example`을 보강하면 Mock 품질이 향상된다.
-- `frontend-env-setup.md`에서 생성한 `client.ts`, `config.ts`는 이 단계에서 수정하지 않는다. API URL 변경은 환경변수만으로 처리한다.
+- `frontend-env-setup.md`에서 생성한 `client.ts`, `config.ts`는 이 단계에서 수정하지 않는다. API URL 변경은 `public/runtime-env.js` 파일만으로 처리한다.
 - 프로토타입 화면 분석은 playwright MCP를 이용하여 모바일 사이즈(390×844)로 확인한다.
 - 기존 파일을 삭제하거나 덮어쓰기 전에 반드시 충돌 여부를 확인한다.
 - stub 데이터는 실제 API 전환 시 전량 제거 대상이다. stub 로직이 프로덕션 비즈니스 로직과 혼용되지 않도록 `stubs/` 폴더에 격리한다.
@@ -1342,7 +1354,7 @@ frontend/lib/
 - **Prism Mock 서버는 `docker compose --profile mock up -d`로 기동한다.** 직접 Prism을 설치하거나 별도 실행하지 않는다.
 - **API 서비스 레이어(`src/services/api/`)를 View 컴포넌트에서 직접 import하지 않는다.** 반드시 Pinia 스토어를 통해 사용한다. 이 구조가 Mock → 실제 전환 시 변경 범위를 최소화한다.
 - Prism이 OpenAPI 명세의 `example` 값을 우선 반환하므로, 명세에 `example`이 없으면 타입 기반 자동 생성 값이 반환된다.
-- `frontend-env-setup.md`에서 생성한 `client.ts`는 이 단계에서 수정하지 않는다. API URL 변경은 환경변수만으로 처리한다.
+- `frontend-env-setup.md`에서 생성한 `client.ts`는 이 단계에서 수정하지 않는다. API URL 변경은 `public/runtime-env.js` 파일만으로 처리한다.
 - 프로토타입 화면 분석은 playwright MCP를 이용하여 모바일 사이즈(390×844)로 확인한다.
 - stub 데이터는 실제 API 전환 시 전량 제거 대상이다. `stubs/` 폴더에 격리한다.
 <!-- ELIF PLATFORM == FLUTTER -->
@@ -1350,7 +1362,7 @@ frontend/lib/
 - **DataSource를 Screen/Widget에서 직접 호출하지 않는다.** 반드시 Riverpod Provider → Repository → DataSource 계층을 통해 사용한다. 이 구조가 Mock → 실제 전환 시 변경 범위를 최소화한다.
 - `freezed`/`json_serializable` 모델을 수정하면 반드시 `dart run build_runner build`를 재실행한다.
 - Prism이 OpenAPI 명세의 `example` 값을 우선 반환하므로, 명세의 `example`을 보강하면 Mock 품질이 향상된다.
-- `frontend-env-setup.md`에서 생성한 `dio_client.dart`는 이 단계에서 수정하지 않는다. API URL 변경은 `--dart-define`으로 처리한다.
+- `frontend-env-setup.md`에서 생성한 `dio_client.dart`는 이 단계에서 수정하지 않는다. API URL 변경은 `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile)으로 처리한다.
 - 프로토타입 화면 분석은 playwright MCP를 이용하여 모바일 사이즈(390×844)로 확인한다.
 - stub 데이터는 실제 API 전환 시 전량 제거 대상이다. `lib/core/stubs/` 폴더에 격리한다.
 <!-- ENDIF -->

@@ -68,13 +68,13 @@ package.json의 "name" 필드값이 서비스명임.
 ### 매니페스트 작성 (`deployment/k8s/` 디렉토리 하위)
 
 **ConfigMap 매니페스트 작성**
-- public/runtime-env.js의 내용을 읽음
+- public/runtime-env.js의 내용을 읽음 (개발 단계에서 `window.__runtime_config__` 형식으로 작성된 파일)
 - 파일명 runtime-env.js를 키로 하고 파일 내용을 값으로 하는 ConfigMap 매니페스트 작성
-  단, 내용에서 백엔드 API 주소의 'http://Host:Port'를 'http://{BACKEND_HOST}'로 변경
+  단, 내용에서 서비스별 HOST의 'http://Host:Port'를 'http://{BACKEND_HOST}'로 변경
   예시)
   ```
-  AUTH_API_URL: 'http://localhost:8081/api'
-  -> AUTH_API_URL: 'http://tripgen.20.214.196.128.nip.io/api'
+  AUTH_HOST: 'http://localhost:8081'
+  -> AUTH_HOST: 'http://tripgen.20.214.196.128.nip.io'
   ```
 
 **Ingress 매니페스트 작성**
@@ -139,7 +139,8 @@ package.json의 "name" 필드값이 서비스명임.
 - [ ] Image명이 '{IMG_REG}/{IMG_ORG}/{서비스명}:latest' 형식인지 재확인
 - [ ] ConfigMap 'cm-{서비스명}'의 data 내용 확인
   - key는 runtime-env.js인가?
-  - value에 각 백엔드 API 주소의 Host가 {BACKEND_HOST}인가?
+  - value에 `window.__runtime_config__` 형식이 포함되어 있는가?
+  - value에 각 서비스별 HOST가 {BACKEND_HOST}로 변경되었는가?
 
 ## 주의사항
 - Minikube 환경에서는 SSH 터널링 설정이 필요하므로 배포 가이드에 반드시 포함할 것.

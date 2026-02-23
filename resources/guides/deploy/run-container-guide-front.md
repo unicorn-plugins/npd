@@ -164,23 +164,14 @@ package.json의 "name" 필드값이 서비스명임.
 
   예제)
   ```
-  window.ENV = {
-    // API Configuration
-    API_BASE_URL: 'http://localhost:8080/api',
-    AUTH_API_URL: 'http://localhost:8081/api', 
-    LOCATION_API_URL: 'http://localhost:8082/api',
-    TRIP_API_URL: 'http://localhost:8083/api',
-    AI_API_URL: 'http://localhost:8084/api',
-    
-    // Environment
-    NODE_ENV: 'development',
-    
-    // App Configuration
-    APP_NAME: 'TripGen',
-    APP_VERSION: '1.0.0'
-
-    // API Timeout Configuration (ms)
-    API_TIMEOUT: 30000
+  window.__runtime_config__ = {
+    API_GROUP: "/api/v1",
+    // 서비스별 HOST — 개발 단계에서 작성한 public/runtime-env.js 참조
+    MEMBER_HOST: "http://localhost:8080",
+    AUTH_HOST: "http://localhost:8081",
+    LOCATION_HOST: "http://localhost:8082",
+    TRIP_HOST: "http://localhost:8083",
+    AI_HOST: "http://localhost:8084",
   };
   ```
 - 'localhost'를 {VM.IP}로 변경하여 `~/{서비스명}/public/runtime-env.js`파일로 생성하는 방법 안내
