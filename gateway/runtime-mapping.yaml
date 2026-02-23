@@ -9,14 +9,12 @@
 tier_mapping:
   default:
     HEAVY:
-      #model: "claude-opus-4-6"
-      model: "claude-haiku-4-5"
+      model: "claude-opus-4-6"
     HIGH:
       #model: "claude-opus-4-6"
-      model: "claude-haiku-4-5"
+      model: "claude-sonnet-4-6"
     MEDIUM:
-      #model: "claude-sonnet-4-6"
-      model: "claude-haiku-4-5"
+      model: "claude-sonnet-4-6"
     LOW:
       model: "claude-haiku-4-5"
 

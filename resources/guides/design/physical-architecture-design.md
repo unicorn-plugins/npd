@@ -7,7 +7,7 @@
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 아키텍처 패턴 설계서 | `docs/design/architecture.md` | 패턴 기반 인프라 |
+| 아키텍처 패턴 설계서 | `docs/design/pattern-definition.md` | 패턴 기반 인프라 |
 | 논리 아키텍처 | `docs/design/logical-architecture.md` | 서비스 구성 확인 |
 | 데이터 설계서 | `docs/design/database/` | DB 인프라 구성 |
 | HighLevel아키텍처정의서 | `docs/design/high-level-architecture.md` | 참조 |

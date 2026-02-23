@@ -75,14 +75,14 @@ include 'trip-service'
   - 공통 Secret: secret-common
   - 서비스별 ConfigMap: cm-{서비스명}
   - 서비스별 Secret: secret-{서비스명}
-  - Ingress: {시스템명}
+  - Ingress: {ROOT}
   - Service: {서비스명}
   - Deployment: {서비스명}
 
 ### 공통 매니페스트 작성 (`deployment/k8s/common/` 디렉토리 하위)
 
 **Image Pull Secret 매니페스트 작성: secret-imagepull.yaml**
-- name: {시스템명}
+- name: {ROOT}
 - USERNAME과 PASSWORD을 아래 명령으로 구하여 매니페스트 파일 작성
   ```
   USERNAME=$(IMG_ID)
@@ -150,7 +150,7 @@ include 'trip-service'
 - name: {서비스명}
 - replicas: {파드수}
 - ImagePullPolicy: Always
-- ImagePullSecrets: {시스템명}
+- ImagePullSecrets: {ROOT}
 - image: {IMG_REG}/{IMG_ORG}/{서비스명}:latest
 - ConfigMap과 Secret은 'env'대신에 'envFrom'을 사용하여 지정
 - envFrom:

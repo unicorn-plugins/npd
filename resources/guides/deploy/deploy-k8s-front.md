@@ -24,7 +24,7 @@
 
 ### 실행정보 확인
 프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-- {시스템명}: 대표 시스템 이름
+- {ROOT}: 대표 시스템명 (CLAUDE.md 참조)
 - {ACR명}: 컨테이너 레지스트리 이름
 - {k8s명}: Kubernetes 클러스터 이름
 - {네임스페이스}: 배포할 네임스페이스
@@ -83,7 +83,7 @@ package.json의 "name" 필드값이 서비스명임.
   ```
   출력 예시: EXTERNAL-IP 컬럼에서 실제 IP 확인 (예:20.214.196.128)
 - ingressClassName: nginx
-- host: {시스템명}.{실제확인한 External-IP}.nip.io
+- host: {ROOT}.{실제확인한 External-IP}.nip.io
   **잘못된 예**: tripgen.임의IP.nip.io ❌
   **올바른 예**: tripgen.20.214.196.128.nip.io ✅
 - path: '/'
@@ -101,8 +101,8 @@ package.json의 "name" 필드값이 서비스명임.
 - name: {서비스명}
 - replicas: {파드수}
 - ImagePullPolicy: Always
-- ImagePullSecrets: {시스템명}
-- image: {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+- ImagePullSecrets: {ROOT}
+- image: {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
 - resources:
   - {리소스(CPU)}: 요청값/최대값
   - {리소스(메모리)}: 요청값/최대값
@@ -152,7 +152,7 @@ package.json의 "name" 필드값이 서비스명임.
   EXTERNAL-IP 컬럼의 실제 값이 ingress.yaml의 host에 정확하게 설정되었는지 재확인할 것
 - [ ] Ingress 매니페스트의 서비스 backend.service.port.number와 Service 매니페스트의 port가 "8080"으로 동일한가?
 - [ ] Service 매니페스트의 targetPort가 8080인가?
-- [ ] Image명이 '{ACR명}.azurecr.io/{시스템명}/{서비스명}:latest' 형식인지 재확인
+- [ ] Image명이 '{ACR명}.azurecr.io/{ROOT}/{서비스명}:latest' 형식인지 재확인
 - [ ] ConfigMap 'cm-{서비스명}'의 data 내용 확인
   - key는 runtime-env.js인가?
   - value에 각 백엔드 API 주소의 Host가 {Gateway Host}인가?

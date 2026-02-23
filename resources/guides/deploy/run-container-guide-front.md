@@ -17,7 +17,7 @@
 
 ### 실행정보 확인
 프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-- {시스템명}: 대표 시스템명
+- {ROOT}: 대표 시스템명 (CLAUDE.md 참조)
 - {ACR명}: 컨테이너 레지스트리 이름
 - {IMG_REG}: 컨테이너 이미지 레지스트리 주소
 - {IMG_ORG}: 컨테이너 이미지 Organization 주소
@@ -142,11 +142,11 @@ package.json의 "name" 필드값이 서비스명임.
 
   Docker Tag 명령으로 이미지를 tag하는 명령을 작성합니다.
   ```
-  docker tag {서비스명}:latest {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest 
+  docker tag {서비스명}:latest {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest 
   ```
   이미지 푸시 명령을 작성합니다.
   ```
-  docker push {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+  docker push {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
   ```
 - 다른 컨테이너 이미지 레지스트리 이용시:
 
@@ -196,7 +196,7 @@ shell 파일을 만들지 말고 command로 수행하는 방법 안내.
 
   docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:8080 \
   -v ~/{서비스명}/public/runtime-env.js:/usr/share/nginx/html/runtime-env.js 
-  {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+  {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
   ```
 - 다른 컨테이너 이미지 레지스트리 이용시:
   ```
@@ -230,8 +230,8 @@ docker ps | grep {서비스명}
 - 컨테이너 이미지 푸시
   - ACR 이용 시:
     ```
-    docker tag {서비스명}:latest {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
-    docker push {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+    docker tag {서비스명}:latest {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
+    docker push {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
     ```
   - 다른 컨테이너 이미지 레지스트리 이용시:
     ```
@@ -246,7 +246,7 @@ docker ps | grep {서비스명}
 - 컨테이너 이미지 삭제
   - ACR 이용 시:
     ```
-    docker rmi {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+    docker rmi {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
     ```
   - 다른 컨테이너 이미지 레지스트리 이용시:
     ```

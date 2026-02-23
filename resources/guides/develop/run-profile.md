@@ -40,8 +40,7 @@
 
 2. **연결 정보 매핑**
    - `backing-service-result.md`에서 호스트, 포트, 인증정보 추출
-   - docker-compose 환경인 경우: `localhost` + 매핑된 포트
-   - K8s(minikube) 환경인 경우: LoadBalancer External IP + 서비스 포트
+   - docker-compose 환경: `localhost` + 매핑된 포트
    - `.env.example`의 기본값과 대조하여 불일치 확인
 
 3. **Gradle 실행 프로파일 XML 작성**
@@ -166,6 +165,6 @@
 - 개발 환경의 JPA DDL_AUTO는 반드시 `update`로 설정
 - application.yml의 민감 정보 기본값은 생략하거나 간략한 더미 값 사용
 - 실행 프로파일에서는 **실제 백킹서비스 연결 정보** 사용
-- docker-compose 환경에서는 호스트가 `localhost`, K8s 환경에서는 LoadBalancer External IP
+- docker-compose 환경에서는 호스트가 `localhost`
 - MQ 환경변수는 설계서에 비동기 통신이 명시된 서비스에만 포함
 - 기존 `.run/` 파일이 있으면 분석 후 항목 추가/수정/삭제 (덮어쓰기 금지)

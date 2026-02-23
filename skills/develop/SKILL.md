@@ -73,14 +73,75 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 - **패키지구조표준**: `{PLUGIN_DIR}/resources/standards/standard_package_structure.md`
 - **병렬 처리 전략**: `{PLUGIN_DIR}/resources/guides/design/common-principles.md`
 
-## Step 0. 진행 모드 선택
+## 가이드 문서 조건 분기 프로토콜
 
-개발 워크플로우 시작 전, 진행 모드와 백킹서비스 환경을 선택합니다.
+가이드 문서(.md)에는 프로젝트 컨텍스트에 따라 실행할 섹션을 분기하는 조건 지시문이 포함될 수 있다.
+에이전트는 아래 규칙에 따라 해석한다.
+
+### 문법
+
+```
+<!-- IF {VARIABLE} == {VALUE} -->
+... 이 값일 때만 실행할 내용 ...
+<!-- ELIF {VARIABLE} == {OTHER_VALUE} -->
+... 다른 값일 때만 실행할 내용 ...
+<!-- ENDIF -->
+```
+
+### 해석 규칙
+
+1. 에이전트는 가이드 실행 시작 시 변수 값을 결정한다 (예: PLATFORM은 high-level-architecture.md에서 판별)
+2. 결정된 변수 값과 일치하는 IF/ELIF 블록의 내용만 실행한다
+3. 일치하지 않는 블록은 완전히 건너뛴다 (읽지도 실행하지도 않음)
+4. 변수 값이 결정되지 않은 경우 사용자에게 질문하여 결정한다
+
+### 지원 변수
+
+| 변수 | 가능한 값 | 판별 소스 |
+|------|-----------|-----------|
+| PLATFORM | REACT, VUE, FLUTTER | `docs/design/high-level-architecture.md` 기술스택 섹션 |
+| MOCK | SINGLE | `docker-compose.yml` Prism 서비스 수 |
+
+### 플랫폼 판별 키워드 매핑
+
+에이전트는 `docs/design/high-level-architecture.md`의 기술스택 섹션에서 아래 키워드를 탐색하여 `PLATFORM` 값을 결정한다.
+
+| 키워드 in high-level-architecture.md | 판별 결과 |
+|--------------------------------------|-----------|
+| React, Next.js, Vite+React | `REACT` |
+| Vue, Nuxt, Vite+Vue | `VUE` |
+| Flutter, Dart, 모바일 앱 | `FLUTTER` |
+
+- 복수 매칭 또는 매칭 없음 시 사용자에게 질문하여 결정
+- 결정된 `{PLATFORM}` 값은 이후 모든 가이드에서 조건 분기에 사용
+
+## Step 0. 개발 범위 및 진행 모드 선택
+
+개발 워크플로우 시작 전, **개발 범위**·**진행 모드**·**백킹서비스 환경**을 결정합니다.
+
+### 0-1. 개발 범위 결정
+
+`docs/design/high-level-architecture.md`의 **"14. 구현 로드맵 > 14.1 개발 단계"** 섹션을 읽어 프로젝트별 개발 단계를 추출합니다.
+
+1. 해당 섹션의 테이블(단계, 기간, 주요 산출물, 마일스톤)을 파싱
+2. 추출된 단계 목록을 사용자에게 표시하고 이번에 구현할 범위를 선택받음
+
+<!--ASK_USER-->
+{"title":"개발 범위 선택","questions":[
+  {"question":"HighLevel 아키텍처 정의서(14.1 개발 단계)에서 이번에 구현할 단계를 선택해 주세요.\n\n{추출된 Phase 테이블 표시}\n\n(복수 선택 가능)","type":"checkbox","options":["{Phase 1: 주요산출물 — 마일스톤}","{Phase 2: 주요산출물 — 마일스톤}","{Phase N: ...}"]}
+]}
+<!--/ASK_USER-->
+
+> **범위 결정 효과**: 선택된 Phase의 **주요 산출물·마일스톤**이 이후 모든 Step의 개발 범위가 됩니다.
+> - Step 1(종합 개발 계획)은 선택된 Phase 범위 내의 기능만 계획에 포함
+> - Step 2~5의 각 작업도 선택 범위에 해당하는 기능만 구현
+> - 선택하지 않은 Phase의 기능은 모든 Step에서 제외
+
+### 0-2. 진행 모드 선택
 
 <!--ASK_USER-->
 {"title":"진행 모드 선택","questions":[
-  {"question":"각 단계 완료 후 승인을 받고 진행할까요, 자동으로 진행할까요?","type":"radio","options":["단계별 승인","자동 진행"]},
-  {"question":"백킹서비스 환경을 선택해 주세요.","type":"radio","options":["docker-compose (로컬, 권장)","minikube","K8s 클러스터"]}
+  {"question":"각 단계 완료 후 승인을 받고 진행할까요, 자동으로 진행할까요?","type":"radio","options":["단계별 승인","자동 진행"]}
 ]}
 <!--/ASK_USER-->
 
@@ -102,15 +163,16 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 
 ## 워크플로우
 
-### Step 1. 종합 개발 계획 수립 → Agent: backend-developer + frontend-developer + ai-engineer (병렬) + architect (리뷰)
+### Step 1. 종합 개발 계획 수립 → Agent: backend-developer + frontend-developer + ai-engineer (병렬) + architect (리뷰) (`/oh-my-claudecode:ralplan` 활용)
 
 - **GUIDE**: `{PLUGIN_DIR}/resources/guides/develop/dev-plan.md`
-- **TASK**: 설계 산출물 분석 → 3개 에이전트가 담당 영역 분담 작성 → architect 리뷰 → 종합 개발 계획서 통합
-  - **backend-developer**: 마이크로서비스 목록, 서비스 간 의존관계, 백킹서비스 요구사항, 백엔드 개발 순서
-  - **frontend-developer**: 프론트엔드 범위, 페이지 목록, API 매핑, 프론트엔드 개발 순서
-  - **ai-engineer**: AI 서비스 존재 여부·범위, AI 엔드포인트 목록, AI 개발 순서
-  - **architect (리뷰)**: 3개 영역 통합, Phase별 작업 할당 최적화, 의존관계 검증
-- **EXPECTED OUTCOME**: `docs/develop/dev-plan.md`
+- **INPUT**: Step 0-1에서 선택된 개발 단계(Phase) 범위
+- **TASK**: 설계 산출물 분석 → **선택된 Phase 범위 내** 기능만 추출 → 3개 에이전트가 담당 영역 분담 작성 → architect 리뷰 → 종합 개발 계획서 통합
+  - **backend-developer**: 선택 범위 내 마이크로서비스 목록, 서비스 간 의존관계, 백킹서비스 요구사항, 백엔드 개발 순서
+  - **frontend-developer**: 선택 범위 내 프론트엔드 범위, 페이지 목록, API 매핑, 프론트엔드 개발 순서
+  - **ai-engineer**: 선택 범위 내 AI 서비스 존재 여부·범위, AI 엔드포인트 목록, AI 개발 순서
+  - **architect (리뷰)**: 3개 영역 통합, Phase별 작업 할당 최적화, 의존관계 검증, **선택 범위 외 기능 혼입 방지**
+- **EXPECTED OUTCOME**: `dev-plan.md`
 - **SKIP 조건 결정**: AI 서비스 설계서(`docs/design/ai-service-design.md`) 미존재 또는 "AI 불필요" 결론 시, 이후 AI 관련 Step(2-4, 3-3, 4-2)을 SKIP으로 표시
 
 ### Step 2. Phase 1 — 환경 구성
@@ -118,7 +180,6 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 #### Step 2-1. 백엔드 환경 구성 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
 - **GUIDE**: `{PLUGIN_DIR}/resources/guides/develop/backend-env-setup.md`
-- **참조**: `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md`, `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md`
 - **TASK**: Gradle Wrapper 생성 + 멀티모듈 build.gradle 구성 + 공통 모듈 개발
 - **EXPECTED OUTCOME**: `gradlew`, `settings.gradle`, `build.gradle`(루트/서비스별), `application.yml`(서비스별), common 모듈 코드
 - **주의**: application.yml의 환경변수는 placeholder만 작성 (실제 값은 Step 2-2의 .env.example에서 정의)
@@ -127,7 +188,7 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 
 - **GUIDE**: `{PLUGIN_DIR}/resources/guides/develop/backing-service-setup.md`
 - **TASK**: 데이터설계서 기반 프로젝트 루트 단일 `docker-compose.yml` 작성 → DB/Cache/MQ + Prism Mock 서버 구성
-- **EXPECTED OUTCOME**: `./docker-compose.yml`, `.env.example`, `docs/develop/backing-service-result.md`
+- **EXPECTED OUTCOME**: `docker-compose.yml`, `env.example`, `backing-service-result.md`
 - **docker-compose 서비스 구성**:
   - 기본 서비스 (항상 기동): DB, Cache, MQ(설계서 명시 시만)
   - mock 프로파일: Prism Mock 서버 (`docker compose --profile mock up`)
@@ -158,10 +219,38 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 
 ### Step 3. Phase 2 — API 계약 기반 병렬 개발
 
+#### Step 3 사전 확인: 인증 방식 식별 및 OAuth2 크리덴셜 준비
+
+Step 3 진입 전, 오케스트레이터가 직접 인증 방식을 확인하고 필요 시 사용자에게 크리덴셜을 요청한다.
+(위임된 에이전트는 사용자에게 질문할 수 없으므로, 이 확인은 반드시 오케스트레이터 레벨에서 수행)
+
+**확인 절차:**
+
+1. `docs/design/high-level-architecture.md`의 `보안 요구사항 > 인증/인가` 항목을 읽는다
+2. 인증 방식을 판별한다:
+   - `JWT`, `토큰 기반`, `자체 인증` → **JWT 인증** → 추가 작업 없이 Step 3-1 진행
+   - `OAuth2`, `소셜 로그인`, `Google`, `카카오`, `네이버`, `OIDC`, `Federated` → **OAuth2 인증** → 아래 크리덴셜 요청 진행
+   - `JWT` + `OAuth2/소셜` 모두 언급 → **하이브리드** → 아래 크리덴셜 요청 진행
+3. OAuth2/하이브리드인 경우, `.env` 파일에 해당 Provider의 크리덴셜이 이미 설정되어 있는지 확인한다
+4. 크리덴셜이 없으면 사용자에게 요청한다:
+
+<!--ASK_USER-->
+{"title":"OAuth2 소셜 로그인 크리덴셜 요청","questions":[
+  {"question":"설계서에 OAuth2 소셜 로그인({식별된 Provider 목록})이 정의되어 있습니다.\n\n통합 테스트를 위해 각 Provider의 **Client ID**와 **Client Secret**이 필요합니다.\n아직 발급받지 않으셨다면, 아래 가이드를 참조하여 등록해 주세요:\n\n📄 **Provider별 앱 등록 가이드**: `{PLUGIN_DIR}/resources/references/oauth2-provider-setup-guide.md`\n\n{Provider별 필요 환경변수 목록 표시}\n\n크리덴셜을 입력해 주세요. (아직 미발급이면 '나중에 설정'을 선택하세요)","type":"text"}
+]}
+<!--/ASK_USER-->
+
+5. 사용자가 크리덴셜을 제공하면 `.env` 파일에 반영한다
+6. '나중에 설정'을 선택한 경우:
+   - `.env.example`에 해당 환경변수 키를 빈 값으로 추가
+   - Step 3-1 에이전트에 "OAuth2 크리덴셜 미설정, 코드 구현만 진행하고 통합 테스트는 생략" 지시를 포함
+   - Step 4(통합 연동) 진입 전에 다시 확인
+
+> **참조 문서**: `{PLUGIN_DIR}/resources/references/oauth2-provider-setup-guide.md` — Google, 카카오, 네이버 앱 등록 절차, 필요 환경변수, Redirect URI 패턴
+
 #### Step 3-1. 백엔드 API 구현 → Agent: backend-developer (`/oh-my-claudecode:ralph` 활용)
 
 - **GUIDE**: `{PLUGIN_DIR}/resources/guides/develop/backend-api-dev.md`
-- **참조**: `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md`, `{PLUGIN_DIR}/resources/references/java-test-guide.md`
 - **TASK**: API 설계서 기반 컨트롤러·서비스·레포지토리 구현 + 단위 테스트
 - **EXPECTED OUTCOME**: 서비스별 API 코드 + 테스트 코드
 - **병렬**: 서비스 간 의존성 분석 후 독립 서비스는 병렬 구현

@@ -8,7 +8,7 @@
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 아키텍처 패턴 선정 설계서 | `docs/design/architecture.md` | 참조 |
+| 아키텍처 패턴 선정 설계서 | `docs/design/pattern-definition.md` | 참조 |
 | 논리 아키텍처 설계서 | `docs/design/logical-architecture.md` | 참조 |
 | 외부 시퀀스 다이어그램 | `docs/design/sequence/outer/{유저 플로우명}.puml` | 참조 | 
 | 내부 시퀀스 다이어그램 | `docs/design/sequence/inner/{서비스명}-{시나리오}.puml` | 참조 |

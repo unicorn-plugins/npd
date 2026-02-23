@@ -23,7 +23,7 @@
 
 ### 실행정보 확인
 프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-- {시스템명}: 대표 시스템 이름
+- {ROOT}: 대표 시스템명 (CLAUDE.md 참조)
 - {IMG_REG}: 컨테이너 이미지 레지스트리 주소
 - {IMG_ORG}: 컨테이너 이미지 Organization 주소
 - {BACKEND_HOST}: Backend 게이트웨이의 Ingress Host 주소
@@ -95,7 +95,7 @@ package.json의 "name" 필드값이 서비스명임.
 - name: {서비스명}
 - replicas: {파드수}
 - ImagePullPolicy: Always
-- ImagePullSecrets: {시스템명}
+- ImagePullSecrets: {ROOT}
 - image: {IMG_REG}/{IMG_ORG}/{서비스명}:latest
 - resources:
   - {리소스(CPU)}: 요청값/최대값

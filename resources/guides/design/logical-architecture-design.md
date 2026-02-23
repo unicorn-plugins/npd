@@ -8,7 +8,7 @@
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 아키텍처 패턴 설계서 | `docs/design/architecture.md` | 선정된 패턴 기반 설계 |
+| 아키텍처 패턴 설계서 | `docs/design/pattern-definition.md` | 선정된 패턴 기반 설계 |
 | 유저스토리 | `docs/plan/design/userstory.md` | 서비스 책임 매칭 |
 | 핵심솔루션 | `docs/plan/think/핵심솔루션.md` | AI 활용 기회 식별 |
 | 논리아키텍처 다이어그램 예제 | `{PLUGIN_DIR}/resources/samples/sample-논리아키텍처.mmd` | 논리아키텍처 다이어그램 참조 |

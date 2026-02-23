@@ -9,7 +9,7 @@ plugins {
     id 'io.freefair.lombok' version '8.10' apply false
 }
 
-group = 'com.{회사/조직명}.{시스템명}'
+group = 'com.{ORG}.{ROOT}'  // CLAUDE.md의 ORG, ROOT 값 참조
 version = '1.0.0'
 
 allprojects {

@@ -95,7 +95,7 @@ include 'trip-service'
   ```
 - 프로젝트 디렉토리로 이동
   ```
-  cd {시스템명}
+  cd {ROOT}
   ```
 
 ### 어플리케이션 빌드 및 컨테이너 이미지 생성 방법 안내
@@ -142,11 +142,11 @@ include 'trip-service'
 
   Docker Tag 명령으로 이미지를 tag하는 명령을 작성합니다.
   ```
-  docker tag {서비스명}:latest {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest 
+  docker tag {서비스명}:latest {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest 
   ```
   이미지 푸시 명령을 작성합니다.
   ```
-  docker push {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+  docker push {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
   ```
 - 다른 컨테이너 이미지 레지스트리 이용시:
 
@@ -189,7 +189,7 @@ include 'trip-service'
 
     docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:${SERVER_PORT} \
     -e {환경변수 KEY}={환경변수 VALUE} 
-    {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+    {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
     ```
   - 다른 컨테이너 이미지 레지스트리 이용시:
     ```
@@ -211,7 +211,7 @@ docker ps | grep {서비스명}
 - VM 접속
 - 디렉토리 이동 및 소스 내려받기
   ```
-  cd ~/home/workspace/{시스템명}
+  cd ~/home/workspace/{ROOT}
   ```
   ```
   git pull
@@ -223,8 +223,8 @@ docker ps | grep {서비스명}
 - 컨테이너 이미지 푸시
   - ACR 이용 시:
     ```
-    docker tag {서비스명}:latest {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
-    docker push {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+    docker tag {서비스명}:latest {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
+    docker push {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
     ```
   - 다른 컨테이너 이미지 레지스트리 이용시:
     ```
@@ -239,7 +239,7 @@ docker ps | grep {서비스명}
 - 컨테이너 이미지 삭제
   - ACR 이용 시:
     ```
-    docker rmi {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+    docker rmi {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
     ```
   - 다른 컨테이너 이미지 레지스트리 이용시:
     ```

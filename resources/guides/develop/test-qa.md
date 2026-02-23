@@ -205,7 +205,7 @@ cd frontend && npm run dev
 | 항목 | 값 |
 |------|-----|
 | 테스트 일시 | {YYYY-MM-DD} |
-| 백킹서비스 환경 | docker-compose / minikube / K8s |
+| 백킹서비스 환경 | docker-compose |
 | 백엔드 서비스 수 | {N}개 |
 | 프론트엔드 프레임워크 | {React/Vue} |
 | AI 서비스 | {포함/미포함} |

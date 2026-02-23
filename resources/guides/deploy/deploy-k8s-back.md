@@ -69,14 +69,14 @@ include 'trip-service'
   - 공통 Secret: secret-common
   - 서비스별 ConfigMap: cm-{서비스명}
   - 서비스별 Secret: secret-{서비스명}
-  - Ingress: {시스템명}
+  - Ingress: {ROOT}
   - Service: {서비스명}
   - Deployment: {서비스명}
 
 ### 공통 매니페스트 작성 (`deployment/k8s/common/` 디렉토리 하위)
 
 **Image Pull Secret 매니페스트 작성: secret-imagepull.yaml**
-- name: {시스템명}
+- name: {ROOT}
 - USERNAME과 PASSWORD을 아래 명령으로 구하여 매니페스트 파일 작성
   ```
   USERNAME=$(az acr credential show -n ${ACR명} --query "username" -o tsv)
@@ -92,7 +92,7 @@ include 'trip-service'
   ```
   출력 예시: EXTERNAL-IP 컬럼에서 실제 IP 확인 (예:20.214.196.128)
 - ingressClassName: nginx
-- host: {시스템명}-api.{Ingress External IP}.nip.io
+- host: {ROOT}-api.{Ingress External IP}.nip.io
   **잘못된 예**: tripgen-api.임의IP.nip.io ❌
   **올바른 예**: tripgen-api.20.214.196.128.nip.io ✅
 - API Gateway 서비스가 없는 경우 Ingress에서 각 백엔드 서비스 연결
@@ -118,7 +118,7 @@ include 'trip-service'
   ```
 - REDIS_DATABASE는 각 서비스별 ConfigMap에 지정
 - 주의) Database는 공통 ConfigMap/Secret으로 작성 금지
-- 공통 ConfigMap에 CORS_ALLOWED_ORIGINS 설정: 'http://localhost:8081,http://localhost:8082,http://localhost:8083,http://localhost:8084,http://{시스템명}.{Ingress External IP}.nip.io'
+- 공통 ConfigMap에 CORS_ALLOWED_ORIGINS 설정: 'http://localhost:8081,http://localhost:8082,http://localhost:8083,http://localhost:8084,http://{ROOT}.{Ingress External IP}.nip.io'
 
 ### 서비스별 매니페스트 작성 (`deployment/k8s/{서비스명}/` 디렉토리 하위)
 
@@ -150,8 +150,8 @@ include 'trip-service'
 - name: {서비스명}
 - replicas: {파드수}
 - ImagePullPolicy: Always
-- ImagePullSecrets: {시스템명}
-- image: {ACR명}.azurecr.io/{시스템명}/{서비스명}:latest
+- ImagePullSecrets: {ROOT}
+- image: {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
 - ConfigMap과 Secret은 'env'대신에 'envFrom'을 사용하여 지정
 - envFrom:
   - configMapRef: 공통 ConfigMap 'cm-common'과 각 서비스 ConfigMap 'cm-{서비스명}'을 지정
@@ -207,7 +207,7 @@ include 'trip-service'
 - [ ] JWT_SECRET을 openssl 명령으로 생성해서 지정했는가?
 - [ ] 매니페스트 파일 안에 환경변수를 사용하지 않고 실제 값을 지정 했는가?
 - [ ] Image Pull Secret에 USERNAME과 PASSWORD의 실제 값을 매니페스트에 지정 했는가?
-- [ ] Image명이 '{ACR명}.azurecr.io/{시스템명}/{서비스명}:latest' 형식인지 재확인
+- [ ] Image명이 '{ACR명}.azurecr.io/{ROOT}/{서비스명}:latest' 형식인지 재확인
 - [ ] Ingress Controller External IP 확인 및 매니페스트에 반영 확인
   `kubectl get svc ingress-nginx-controller -n ingress-nginx`
   EXTERNAL-IP 컬럼의 실제 값이 ingress.yaml의 host에 정확하게 설정되었는지 재확인할 것

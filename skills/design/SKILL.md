@@ -108,7 +108,7 @@ allowed-tools: Read, Write, Task, Bash
 
 <!--ASK_USER-->
 {"title":"아키텍처 패턴 리뷰","questions":[
-  {"question":"아키텍처 패턴 선정 결과(docs/design/architecture.md)에 대해 리뷰를 수행할까요?","type":"radio","options":["리뷰 수행","건너뛰기"]}
+  {"question":"아키텍처 패턴 선정 결과(docs/design/pattern-definition.md)에 대해 리뷰를 수행할까요?","type":"radio","options":["리뷰 수행","건너뛰기"]}
 ]}
 <!--/ASK_USER-->
 
@@ -120,12 +120,12 @@ allowed-tools: Read, Write, Task, Bash
 - **리뷰어 1 — product-owner (피오)**:
   - 관점: 비즈니스 가치 정렬
   - 검토 항목: MVP/스타트업 프로파일 가중치 적절성, Phase별 로드맵과 비즈니스 우선순위(S05→S04→S06) 일치 여부, 비용 효율성 판단의 합리성
-  - 입력: `docs/design/architecture.md`, `docs/plan/think/핵심솔루션.md`
+  - 입력: `docs/design/pattern-definition.md`, `docs/plan/think/핵심솔루션.md`
 
 - **리뷰어 2 — backend-developer (데브-백)**:
   - 관점: 구현 현실성
   - 검토 항목: 11개 패턴의 실제 구현 난이도, Sprint 0~4 일정의 현실성, 기술 선택(resilience4j, Redis, Spring Scheduler 등)의 팀 역량 부합 여부
-  - 입력: `docs/design/architecture.md`, `docs/plan/design/userstory.md`
+  - 입력: `docs/design/pattern-definition.md`, `docs/plan/design/userstory.md`
 
 - **수행 방식**: 두 리뷰어를 **병렬**로 호출하여 리뷰 의견을 수집
 - **리뷰 결과 형식**: 각 리뷰어는 아래 형식으로 의견을 제출
@@ -171,9 +171,31 @@ allowed-tools: Read, Write, Task, Bash
 
 ### Step 5. 클래스 설계 → Agent: architect + ai-engineer (병렬) (`/oh-my-claudecode:ralph` 활용)
 
-#### 5-0. 마이크로서비스별 설계 아키텍처 패턴 선택
+#### 5-0. 패키지 네이밍 정보 확인
 
-Step 5 시작 시 `docs/design/logical-architecture.md`에서 마이크로서비스 목록을 추출한 뒤, 각 마이크로서비스별로 적용할 설계 아키텍처 패턴을 사용자에게 확인합니다.
+Step 5 시작 시 Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프로젝트 `CLAUDE.md`에 기록합니다.
+
+<!--ASK_USER-->
+{"title":"패키지 네이밍 정보","questions":[
+  {"question":"Java 패키지명에 사용할 회사/조직명(ORG)을 입력해 주세요.\n예) unicorn → com.unicorn.{ROOT}.{서비스명}","type":"text"},
+  {"question":"대표 시스템명(ROOT, Root Project명)을 입력해 주세요.\n예) lifesub → com.{ORG}.lifesub.{서비스명}","type":"text"}
+]}
+<!--/ASK_USER-->
+
+입력된 값을 프로젝트 루트의 `CLAUDE.md`에 아래 형식으로 기록합니다:
+
+```markdown
+## 프로젝트 네이밍
+- ORG (회사/조직명): {입력값}
+- ROOT (대표 시스템명): {입력값}
+- 기본 패키지: com.{ORG}.{ROOT}
+```
+
+> 이후 모든 설계·개발 가이드에서 `CLAUDE.md`의 `{ORG}`, `{ROOT}` 값을 참조합니다.
+
+#### 5-0b. 마이크로서비스별 설계 아키텍처 패턴 선택
+
+`docs/design/logical-architecture.md`에서 마이크로서비스 목록을 추출한 뒤, 각 마이크로서비스별로 적용할 설계 아키텍처 패턴을 사용자에게 확인합니다.
 
 1. `docs/design/logical-architecture.md`를 읽어 마이크로서비스 목록을 파악 (AI Pipeline 등 AI 서비스는 제외 — AI 서비스는 Python/FastAPI 고유 아키텍처를 따르므로 Layered/Clean 선택 불필요)
 2. 아래 형식으로 마이크로서비스별 패턴을 질문 (AI 서비스를 제외한 서비스 수만큼 반복):

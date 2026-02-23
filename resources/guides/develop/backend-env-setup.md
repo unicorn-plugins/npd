@@ -9,10 +9,12 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
 | 종합 개발 계획서 | `docs/develop/dev-plan.md` | 서비스 목록 |
-| 전체 아키텍처 | `docs/design/architecture.md` | 기술스택(Java/Spring 버전) |
+| 아키텍처 패턴 정의서 | `docs/design/pattern-definition.md` | 아키텍처 패턴, 구현 고려사항 |
 | 공통 베이스 클래스 | `docs/design/class/common-base.puml` | 공통 컴포넌트 |
 | 패키지 구조 | `docs/design/class/package-structure.md` | 패키지 구조 |
 | HighLevel 아키텍처 | `docs/design/high-level-architecture.md` | SpringBoot/Java 버전 |
+| Gradle 빌드 표준 | `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` | Gradle 멀티모듈 구성 표준 |
+| 설정 Manifest 표준 | `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` | application.yml 작성 표준 |
 
 ## 출력 (이 단계 산출물)
 
@@ -29,6 +31,12 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 
 ### 작성 원칙
 
+- **Java 패키지 그룹명 표준**: `com.{ORG}.{ROOT}` 형식을 강제 적용한다 (`{PLUGIN_DIR}/resources/standards/standard_package_structure.md` 참조)
+  - `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 `CLAUDE.md`에서 읽는다
+  - 설계서(클래스 설계서, 패키지 구조 등)에 다른 패키지명이 있더라도 이 표준으로 통일한다
+  - 루트 `build.gradle`의 `group` 값: `'com.{ORG}.{ROOT}'`
+  - 소스 코드 패키지 루트: `com/{ORG}/{ROOT}/{service-name}/`
+  - 예: CLAUDE.md에 `ORG=travelplanner`, `ROOT=travel` → `com.travelplanner.travel`
 - Java 버전 호환 Gradle Wrapper (`gradle-wrapper.md`의 매핑 테이블 적용)
 - 루트 build.gradle 표준 준수: `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 참조
 - 설정 Manifest 표준 준수: `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조
@@ -106,6 +114,13 @@ include '{service-name-2}'
 #### 3단계: 루트 build.gradle 작성
 
 `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 표준 형식에 따라 작성한다.
+
+**group 값 설정 (필수):**
+```groovy
+// CLAUDE.md에서 ORG, ROOT 값을 읽어 설정
+group = 'com.{ORG}.{ROOT}'
+```
+> 설계서에 다른 group 값이 명시되어 있어도 CLAUDE.md의 `{ORG}.{ROOT}` 기반으로 덮어쓴다.
 
 #### 4단계: 서비스별 build.gradle 작성
 

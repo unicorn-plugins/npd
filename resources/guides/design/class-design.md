@@ -73,7 +73,7 @@ AI Pipeline 서비스의 클래스는 ai-engineer가 직접 설계하며, 다음
       - 독립 서비스 C,D는 A,B와 병렬 실행
 
 - 3단계: 통합 및 검증 (순차적)
-  - '패키지구조표준'의 예시를 참조하여 모든 클래스와 파일이 포함된 패키지 구조도를 작성
+  - '패키지구조표준'(`{PLUGIN_DIR}/resources/standards/standard_package_structure.md`)의 예시를 참조하여 모든 클래스와 파일이 포함된 패키지 구조도를 작성
     (plantuml 스크립트가 아니라 트리구조 텍스트로 작성)
   - 인터페이스 일치성 검증
   - 명명 규칙 통일성 확인
