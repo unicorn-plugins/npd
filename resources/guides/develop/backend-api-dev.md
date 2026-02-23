@@ -17,6 +17,7 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 | 백킹서비스 연결 정보 | `.env.example` | DB/Redis/MQ 연결 설정 (backing-service-setup.md 산출물) |
 | 보안·JWT·Swagger 표준 | `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` | JWT 인증, Swagger 설정 표준 |
 | 테스트 코드 가이드 | `{PLUGIN_DIR}/resources/references/java-test-guide.md` | 단위 테스트 작성 표준 |
+| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 서비스 기동 검증 |
 
 ## 출력 (이 단계 산출물)
 
@@ -400,6 +401,42 @@ class {ServiceName}ControllerTest {
 - 단위 테스트 전체 통과 여부 확인
 - API 설계서 엔드포인트 누락 여부 확인
 
+#### 6단계: 서비스 기동 검증
+
+컴파일과 단위 테스트를 통과해도 런타임에 빈 주입 실패, 설정 누락 등의 오류가 발생할 수 있다. `run-intellij-service-profile.py`를 사용하여 실제 서비스 기동을 확인한다.
+
+이 도구는 IntelliJ `.run/*.run.xml` 실행 프로파일에서 환경변수(DB 접속 정보, 포트 등)를 추출하여 `gradlew bootRun`에 주입한다. `./gradlew bootRun`을 직접 실행하면 환경변수가 누락되므로 반드시 이 도구를 사용한다.
+
+**실행기 준비:**
+```bash
+mkdir -p tools
+cp {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py tools/
+```
+
+**서비스 기동:**
+```bash
+# 개별 서비스 기동
+python3 tools/run-intellij-service-profile.py {service-name}
+```
+
+**기동 확인:**
+```bash
+curl -s http://localhost:{port}/actuator/health
+# {"status":"UP"} 응답 확인
+```
+
+**기동 실패 시:** 로그(`logs/{service-name}.log`)에서 에러를 분석하여 코드 수정 후 재시도한다.
+
+**서비스 중지:**
+```bash
+# Linux/Mac
+pkill -f 'java.*{service-name}'
+
+# Windows
+netstat -ano | findstr :{port}
+powershell "Stop-Process -Id {PID} -Force"
+```
+
 ### 병렬 처리 가이드
 
 `dev-plan.md`의 서비스 목록을 분석하여 의존 관계를 파악한다.
@@ -426,6 +463,10 @@ class {ServiceName}ControllerTest {
 
 # 테스트 결과 리포트 확인
 # {service-name}/build/reports/tests/test/index.html
+
+# 서비스 기동 검증 (run-intellij-service-profile.py 사용)
+python3 tools/run-intellij-service-profile.py {service-name}
+curl -s http://localhost:{port}/actuator/health
 ```
 
 ## 출력 형식
@@ -541,12 +582,18 @@ class {ServiceName}ControllerTest {
 - [ ] 단위 테스트 작성 완료 (테스트코드표준 + R4 준수)
 - [ ] 모든 서비스 `compileJava` 성공
 - [ ] 단위 테스트 전체 통과
+- [ ] 서비스 기동 확인 (`actuator/health` UP 응답)
 - [ ] SecurityConfig, 인증 처리(설계서 기반 — JWT/OAuth2/하이브리드), SwaggerConfig 포함
 - [ ] 개발주석표준에 맞는 Javadoc 주석 작성
 - [ ] 서비스별 아키텍처 패턴(Layered/Clean) 일관성 유지
+- [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" {service-name}/src/` 결과가 0건이어야 한다
+- [ ] **핵심 API 실호출 검증**: 서비스 기동 후 최소 1개 핵심 API에 `curl` 호출하여 정상 응답(2xx) 확인
 
 ## 주의사항
 
+- **TODO/FIXME/HACK 금지**: 모든 코드는 완전하게 구현한다. "TODO: 나중에 구현", "FIXME: 임시 처리" 등의 미완성 마커를 남기지 않는다. 구현이 어려운 부분이 있으면 우회하지 말고 근본 원인을 해결한다
+- **런타임 에러 워크어라운드 금지**: 런타임 에러 발생 시 try-catch로 삼키거나, 기능을 비활성화하거나, 하드코딩 값으로 대체하는 등의 우회 해결을 금지한다. 반드시 근본 원인을 분석하고 정상 동작하도록 수정한다
+- **서비스 기동 검증 필수**: 컴파일과 단위 테스트 통과만으로는 완료가 아니다. `run-intellij-service-profile.py`로 실제 기동하여 `actuator/health`가 UP 응답을 반환해야 한다
 - 설계 아키텍처 패턴(Layered/Clean)은 서비스별로 다를 수 있으므로 `dev-plan.md`에서 서비스별 패턴을 반드시 확인
 - SecurityConfig의 공개 경로 설정은 API 설계서의 인증 요구 여부를 기준으로 조정
 - 테스트 설정 Manifest(`src/test/resources/application.yml`)의 값은 환경변수 처리 (하드코딩 금지)

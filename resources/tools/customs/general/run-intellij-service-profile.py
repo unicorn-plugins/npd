@@ -33,9 +33,8 @@ from pathlib import Path
 
 # Windows에서 한글 출력을 위한 UTF-8 설정
 if sys.platform == "win32":
-    import io
-    sys.stdout = io.TextIOWrapper(sys.stdout.buffer, encoding='utf-8')
-    sys.stderr = io.TextIOWrapper(sys.stderr.buffer, encoding='utf-8')
+    sys.stdout.reconfigure(encoding='utf-8')
+    sys.stderr.reconfigure(encoding='utf-8')
 
 
 # ─────────────────────────────────────────────
@@ -119,7 +118,12 @@ def resolve_env(raw_env: dict, config_dir: Path) -> dict:
         # ${VAR} 치환
         def replacer(m):
             var_name = m.group(1)
-            return base_env.get(var_name, '')
+            val = base_env.get(var_name)
+            if val is None:
+                print(f"  [WARN] ${{{var_name}}} is not set, defaulting to empty string",
+                      file=sys.stderr)
+                return ''
+            return val
 
         value = _VAR_PATTERN.sub(replacer, value)
         resolved[key] = value
@@ -149,13 +153,19 @@ def find_gradlew(config_dir: Path) -> list:
         gradlew_bat = config_dir / 'gradlew.bat'
         if gradlew_bat.exists():
             return ['cmd', '/c', str(gradlew_bat)]
-        return ['cmd', '/c', 'gradlew.bat']
+        raise FileNotFoundError(
+            f"gradlew.bat을 찾을 수 없습니다: {config_dir}\n"
+            f"프로젝트 루트에 Gradle wrapper가 존재하는지 확인하세요."
+        )
     else:
         gradlew = config_dir / 'gradlew'
         if gradlew.exists():
             gradlew.chmod(gradlew.stat().st_mode | 0o111)  # +x 보장
             return [str(gradlew)]
-        return ['./gradlew']
+        raise FileNotFoundError(
+            f"gradlew를 찾을 수 없습니다: {config_dir}\n"
+            f"프로젝트 루트에 Gradle wrapper가 존재하는지 확인하세요."
+        )
 
 
 # ─────────────────────────────────────────────
@@ -242,14 +252,15 @@ def start_service(service_info: dict, config_dir: Path, log_file: str = None) ->
     print(f"        cmd : {' '.join(cmd)}")
     print(f"        log : {log_path}")
 
-    with open(log_path, 'w', encoding='utf-8') as lf:
-        proc = subprocess.Popen(
-            cmd,
-            env=env,
-            cwd=str(config_dir),
-            stdout=lf,
-            stderr=subprocess.STDOUT,
-        )
+    lf = open(log_path, 'wb')
+    proc = subprocess.Popen(
+        cmd,
+        env=env,
+        cwd=str(config_dir),
+        stdout=lf,
+        stderr=subprocess.STDOUT,
+    )
+    lf.close()
 
     print(f"        pid : {proc.pid}")
     return proc
@@ -344,18 +355,25 @@ def main():
     print()
 
     started = []
-    for i, xml_file in enumerate(xml_files):
-        try:
-            service_info = parse_run_xml(xml_file)
-            proc = start_service(service_info, config_dir)
-            started.append((service_info['name'], proc))
-        except (ValueError, OSError) as e:
-            print(f"[SKIP] {xml_file.name}: {e}", file=sys.stderr)
+    try:
+        for i, xml_file in enumerate(xml_files):
+            try:
+                service_info = parse_run_xml(xml_file)
+                proc = start_service(service_info, config_dir)
+                started.append((service_info['name'], proc))
+            except (ValueError, OSError) as e:
+                print(f"[SKIP] {xml_file.name}: {e}", file=sys.stderr)
 
-        if args.delay > 0 and i < len(xml_files) - 1:
-            print(f"       {args.delay}초 대기 중...")
-            time.sleep(args.delay)
-        print()
+            if args.delay > 0 and i < len(xml_files) - 1:
+                print(f"       {args.delay}초 대기 중...")
+                time.sleep(args.delay)
+            print()
+    except KeyboardInterrupt:
+        print(f"\n[INTERRUPT] 시작된 서비스 {len(started)}개를 종료합니다...")
+        for name, proc in started:
+            proc.terminate()
+            print(f"  {name} (PID {proc.pid}) 종료")
+        sys.exit(130)
 
     print("─" * 50)
     print(f"시작 완료: {len(started)}/{len(xml_files)}개")

@@ -1319,6 +1319,8 @@ frontend/lib/
 - [ ] CSS 변수가 `style-guide.md` 기준 값과 일치 (하드코딩 없음)
 - [ ] Prism stub 데이터가 `src/services/api/stubs/`에 분리됨
 - [ ] 유저스토리 Must Have 항목 전체 구현
+- [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/src/` 결과가 0건
+- [ ] **런타임 동작 확인**: `npm run dev` 실행 후 브라우저에서 주요 페이지 접근 및 Mock API 호출 정상 동작
 <!-- ELIF PLATFORM == VUE -->
 - [ ] 모든 화면이 Prism Mock API(localhost:4010) 기반으로 정상 동작
 - [ ] API 서비스 함수의 엔드포인트가 `api-mapping.md`와 정확히 일치
@@ -1328,6 +1330,8 @@ frontend/lib/
 - [ ] CSS 변수가 `style-guide.md` 기준 값과 일치 (하드코딩 없음)
 - [ ] Prism stub 데이터가 `src/services/api/stubs/`에 분리됨
 - [ ] 유저스토리 Must Have 항목 전체 구현
+- [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/src/` 결과가 0건
+- [ ] **런타임 동작 확인**: `npm run dev` 실행 후 브라우저에서 주요 페이지 접근 및 Mock API 호출 정상 동작
 <!-- ELIF PLATFORM == FLUTTER -->
 - [ ] 모든 화면이 Prism Mock API(localhost:4010) 기반으로 정상 동작
 - [ ] DataSource의 엔드포인트가 `api-mapping.md`와 정확히 일치
@@ -1338,9 +1342,15 @@ frontend/lib/
 - [ ] ThemeData 기반 스타일링 (하드코딩된 색상·폰트 크기 없음)
 - [ ] Prism stub 데이터가 `lib/core/stubs/`에 분리됨
 - [ ] 유저스토리 Must Have 항목 전체 구현
+- [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/lib/` 결과가 0건
+- [ ] **런타임 동작 확인**: `flutter run -d chrome` 실행 후 주요 화면 접근 및 Mock API 호출 정상 동작
 <!-- ENDIF -->
 
 ## 주의사항
+
+- **TODO/FIXME/HACK 금지**: 모든 코드는 완전하게 구현한다. "TODO: 나중에 구현", "FIXME: 임시 처리" 등의 미완성 마커를 남기지 않는다. 구현이 어려운 부분이 있으면 우회하지 말고 근본 원인을 해결한다.
+- **런타임 에러 워크어라운드 금지**: 런타임 에러 발생 시 콘솔 에러를 무시하거나, 기능을 비활성화하거나, 하드코딩 값으로 대체하는 등의 우회 해결을 금지한다. 반드시 근본 원인을 분석하고 정상 동작하도록 수정한다.
+- **런타임 동작 검증 필수**: 빌드 성공만으로는 완료가 아니다. 개발 서버를 실행하여 브라우저에서 주요 페이지가 오류 없이 동작하고, Mock API 호출이 정상 반환되는지 확인해야 한다.
 
 <!-- IF PLATFORM == REACT -->
 - **Prism Mock 서버는 `docker compose --profile mock up -d`로 기동한다.** 직접 Prism을 설치하거나 별도 실행하지 않는다.

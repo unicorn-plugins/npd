@@ -14,6 +14,7 @@
 | 유저스토리 | `docs/plan/design/userstory.md` | 테스트 범위·시나리오 결정 |
 | API 설계서 | `docs/design/api/*.yaml` | API 명세 확인 |
 | 서비스 실행 프로파일 | `{service-name}/.run/{service-name}.run.xml` | 실행 환경 확인 |
+| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 백엔드 서비스 실행 |
 | 백킹서비스 설치 결과서 | `docs/develop/backing-service-result.md` | 연결 정보 확인 |
 | Docker Compose 파일 | `./docker-compose.yml` | 백킹서비스 기동 |
 
@@ -81,8 +82,8 @@
 - API 설계서(`*.yaml`)의 요청/응답 스키마와 실제 응답 비교
 - 오류 발견 시:
   1. 코드 수정
-  2. 컴파일: `./gradlew {service-name}:compileJava`
-  3. 서비스 재시작 (아래 서비스 중지 → 시작 참조)
+  2. 서비스 중지 (아래 서비스 중지 참조)
+  3. 서비스 재시작: `python3 tools/run-intellij-service-profile.py {service-name}`
   4. 재테스트
 
 **2단계. 프론트엔드 동작 테스트**
@@ -123,38 +124,70 @@
 
 ### 서비스 시작/중지 방법
 
-#### 서비스 시작
+백엔드(Spring Boot) 서비스는 반드시 `run-intellij-service-profile.py`를 사용하여 실행한다. 이 도구는 IntelliJ `.run/*.run.xml` 실행 프로파일을 파싱하여 환경변수(DB 접속 정보, 포트, 서비스 간 연동 URL 등)를 자동 주입한 후 `gradlew bootRun`을 실행한다. `./gradlew bootRun`을 직접 실행하면 환경변수가 누락되어 DB 연결 실패 등의 오류가 발생한다.
 
-1. IntelliJ 서비스 실행기를 `tools/` 디렉토리에 다운로드
-   ```bash
-   mkdir -p tools
-   # run-intellij-service-profile.py 다운로드
-   ```
+#### 서비스 실행기 준비
 
-2. 전체 서비스 시작 (서비스 간 지연 포함)
-   ```bash
-   nohup python3 tools/run-intellij-service-profile.py --config-dir . --delay 5 > /dev/null 2>&1 &
-   ```
+`{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py`를 프로젝트 루트의 `tools/` 디렉토리에 복사한다.
 
-3. 개별 서비스 시작
-   ```bash
-   nohup python3 tools/run-intellij-service-profile.py {service-name} > logs/{service-name}.log 2>&1 &
-   echo "Started {service-name} with PID: $!"
-   ```
+```bash
+mkdir -p tools
+cp {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py tools/
+```
 
-4. 서비스 시작 확인
-   ```bash
-   # 각 서비스의 actuator/health 엔드포인트 확인
-   curl -s http://localhost:{port}/actuator/health
-   ```
+#### 서비스 목록 확인
+
+```bash
+python3 tools/run-intellij-service-profile.py --list
+```
+
+출력 예시:
+```
+발견된 서비스 (3개) — /home/user/project
+  auth                 port=8081   task=auth:bootRun
+  member               port=8082   task=member:bootRun
+  schedule             port=8083   task=schedule:bootRun
+```
+
+#### 백엔드 서비스 시작
+
+**전체 서비스 시작** (서비스 간 5초 지연):
+```bash
+python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
+```
+
+백그라운드 실행이 필요한 경우:
+```bash
+nohup python3 tools/run-intellij-service-profile.py --config-dir . --delay 5 > /dev/null 2>&1 &
+```
+
+**개별 서비스 시작**:
+```bash
+python3 tools/run-intellij-service-profile.py {service-name}
+```
+
+백그라운드 실행이 필요한 경우:
+```bash
+nohup python3 tools/run-intellij-service-profile.py {service-name} > logs/{service-name}.log 2>&1 &
+```
+
+#### 서비스 시작 확인
+
+```bash
+# 각 서비스의 actuator/health 엔드포인트 확인
+curl -s http://localhost:{port}/actuator/health
+```
+
+로그 확인:
+```bash
+# 실시간 로그 확인
+tail -f logs/{service-name}.log
+```
 
 #### 서비스 중지
 
 **Linux/Mac:**
 ```bash
-# 실행기 프로세스 중지
-kill $(pgrep -f run-intellij-service-profile.py)
-
 # Java(Spring Boot) 프로세스 전체 중지
 pkill -f 'java.*spring'
 ```
@@ -259,11 +292,11 @@ cd frontend && npm run dev
 
 ## 주의사항
 
-- 서비스 시작은 반드시 **python 프로그램**(run-intellij-service-profile.py) 이용
+- 백엔드 서비스 시작은 반드시 `run-intellij-service-profile.py`를 사용한다. `./gradlew bootRun`을 직접 실행하면 `.run.xml`의 환경변수가 주입되지 않아 DB 연결 실패 등이 발생한다
 - 백킹서비스(`docker compose up -d`)가 실행 중이어야 함
 - 설정 Manifest(`application.yml`)의 민감 정보는 하드코딩하지 않고 환경변수 처리
-- 설정 Manifest 수정 시 실행 프로파일도 함께 업데이트 (run-profile.md 가이드 참조)
-- 실행 결과 로그는 `logs/` 디렉토리 하위에 생성
-- 소스 수정 후 반드시 컴파일(`./gradlew {service-name}:compileJava`) 후 서비스 재시작
+- 설정 Manifest 수정 시 실행 프로파일(`.run/*.run.xml`)도 함께 업데이트 (run-profile.md 가이드 참조)
+- 실행 결과 로그는 `logs/` 디렉토리 하위에 자동 생성됨 (`logs/{service-name}.log`)
+- 소스 수정 후 서비스 중지 → `run-intellij-service-profile.py`로 재시작 (Gradle이 자동으로 컴파일 후 실행)
 - AI 서비스 테스트 시 LLM API 호출 비용 주의 (가능하면 mock 활용)
 - 테스트 리포트 경로는 기존 `docs/test/test-report.md`가 아닌 `docs/develop/test-report.md`로 통일
