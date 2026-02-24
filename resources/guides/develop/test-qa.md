@@ -2,7 +2,7 @@
 
 ## 목적
 
-구현된 전체 시스템(백엔드, 프론트엔드, AI 서비스)을 종합 테스트하고 버그를 리포트한다. MVP Must Have 기능 전체가 정상 동작함을 확인하는 최종 검증 단계이다.
+구현된 전체 시스템(백엔드, 프론트엔드, AI 서비스)에 대해 **자동화된 테스트 코드**를 작성하고 실행하여, MVP Must Have 기능 전체가 정상 동작함을 검증한다. curl 수동 확인이 아닌, 재실행 가능한 테스트 코드 기반의 검증 체계를 구축한다.
 
 ## 입력 (이전 단계 산출물)
 
@@ -11,8 +11,9 @@
 | 구현된 백엔드 코드 | `{service-name}/src/` | 테스트 대상 |
 | 구현된 프론트엔드 코드 | `frontend/` | 테스트 대상 |
 | 구현된 AI 서비스 코드 | `ai-service/` | 테스트 대상 (존재 시) |
-| 유저스토리 | `docs/plan/design/userstory.md` | 테스트 범위·시나리오 결정 |
-| API 설계서 | `docs/design/api/*.yaml` | API 명세 확인 |
+| 유저스토리 | `docs/plan/design/userstory.md` | E2E 테스트 시나리오 결정 |
+| API 설계서 | `docs/design/api/*.yaml` | 통합 테스트 케이스 결정 |
+| 데이터 설계서 | `docs/design/data-design.md` | 샘플 데이터 설계 |
 | 서비스 실행 프로파일 | `{service-name}/.run/{service-name}.run.xml` | 실행 환경 확인 |
 | 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 백엔드 서비스 실행 |
 | 백킹서비스 설치 결과서 | `docs/develop/backing-service-result.md` | 연결 정보 확인 |
@@ -22,111 +23,430 @@
 
 | 산출물 | 파일 경로 |
 |--------|----------|
+| 통합 테스트 케이스 문서 | `docs/develop/integration-test-cases.md` |
+| 통합 테스트 샘플 데이터 | `{service}/src/test/resources/data/` |
+| 통합 테스트 코드 | `{service}/src/test/.../integration/*IntegrationTest.java` |
+| E2E 테스트 케이스 문서 | `docs/develop/e2e-test-cases.md` |
+| E2E 테스트 샘플 데이터 | `e2e/fixtures/` |
+| E2E 테스트 코드 | `e2e/tests/*.spec.ts` |
 | 종합 테스트 리포트 | `docs/develop/test-report.md` |
 
-## 방법론
+---
 
-### 테스트 원칙
+## Part 1. 통합 테스트 (Step 4-3에서 수행)
 
-- **MVP Must Have 전체 커버**: 유저스토리의 Must Have 기능 전체를 테스트
-- **유저스토리 기반 시나리오**: 단위 API 테스트가 아닌 사용자 시나리오 기반 통합 테스트
-- **환경변수 일치 검증**: 설정 Manifest ↔ 실행 프로파일 일치 사전 검증
-- **서비스 의존 순서 준수**: 의존관계를 고려한 순서대로 테스트
+서비스 간 API 호출이 정상적으로 동작하는지 자동화된 코드로 검증한다.
 
-### 테스트 순서
+### 1-1. 통합 테스트 케이스 설계
 
-#### 준비: 환경 검증
+**입력**: API 설계서(`docs/design/api/*.yaml`), 개발 계획서(`docs/develop/dev-plan.md`)
 
-1. **백킹서비스 실행 확인**
-   ```bash
-   docker compose up -d
-   docker compose ps    # 모든 서비스 running 확인
+**절차:**
+
+1. API 설계서에서 서비스 간 호출 관계를 분석한다
+2. 각 API 엔드포인트별로 테스트 케이스를 정의한다:
+   - 정상 요청 → 기대 응답 (Happy Path)
+   - 잘못된 입력 → 에러 응답 (Validation)
+   - 인증 필요 API → 토큰 없이 호출 → 401 (Auth)
+   - 서비스 간 의존 호출 → 연쇄 동작 확인 (Cross-Service)
+3. 테스트 케이스 문서를 작성한다
+
+**산출물**: `docs/develop/integration-test-cases.md`
+
+```markdown
+# 통합 테스트 케이스
+
+## 1. 테스트 범위
+
+| 서비스 | 엔드포인트 수 | 테스트 케이스 수 |
+|--------|-------------|----------------|
+| {service-name} | {N} | {M} |
+
+## 2. 테스트 케이스 목록
+
+### {Service Name}
+
+| ID | 엔드포인트 | 메서드 | 시나리오 | 입력 | 기대 결과 | 유형 |
+|----|-----------|--------|---------|------|----------|------|
+| IT-{NNN} | {path} | {GET/POST/...} | {시나리오 설명} | {요청 바디/파라미터} | {HTTP 상태코드 + 응답 구조} | {Happy/Validation/Auth/Cross-Service} |
+```
+
+### 1-2. 통합 테스트 샘플 데이터 작성
+
+**입력**: 데이터 설계서(`docs/design/data-design.md`), 테스트 케이스 문서
+
+**절차:**
+
+1. 테스트 케이스의 전제 조건(Precondition)에 필요한 데이터를 식별한다
+2. 서비스별 SQL seed 스크립트를 작성한다:
+   - `{service}/src/test/resources/data/seed.sql` — 기본 테스트 데이터
+   - 테이블 TRUNCATE → INSERT 순서로 작성 (멱등성 보장)
+3. API 요청에 사용할 JSON fixture를 작성한다:
+   - `{service}/src/test/resources/data/request/{endpoint-name}.json`
+4. 인증 토큰 생성을 위한 테스트용 사용자 데이터를 포함한다
+
+**샘플 데이터 구조:**
+```
+{service}/src/test/resources/data/
+├── seed.sql                          # DB 초기 데이터
+├── request/
+│   ├── create-{resource}.json        # POST 요청 바디
+│   └── update-{resource}.json        # PUT 요청 바디
+└── expected/
+    └── {resource}-response.json      # 기대 응답 구조
+```
+
+### 1-3. 통합 테스트 코드 작성
+
+**기술 스택**: Spring Boot Test + TestRestTemplate / WebTestClient
+
+**절차:**
+
+1. 서비스별 통합 테스트 베이스 클래스를 작성한다:
+   ```java
+   @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+   @ActiveProfiles("test")
+   @Sql(scripts = "/data/seed.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
+   public abstract class IntegrationTestBase {
+       @Autowired
+       protected TestRestTemplate restTemplate;
+
+       // 공통 헬퍼: 인증 토큰 생성, 헤더 빌드 등
+   }
    ```
 
-2. **설정 Manifest ↔ 실행 프로파일 일치 검증**
-   - 각 서비스의 `application.yml`에서 `${}` 환경변수 목록 추출
-   - 대응하는 `.run/{service-name}.run.xml`의 `<entry>` 목록과 비교
-   - 불일치 항목 발견 시 실행 프로파일 수정
+2. 테스트 케이스 문서의 각 케이스를 테스트 메서드로 구현한다:
+   ```java
+   class UserApiIntegrationTest extends IntegrationTestBase {
+       @Test
+       void 회원가입_정상요청_201응답() {
+           // Given: seed.sql 로드 완료
+           String requestBody = loadFixture("request/create-user.json");
 
-3. **서비스 시작** (아래 '서비스 시작/중지 방법' 참조)
+           // When
+           ResponseEntity<String> response = restTemplate.postForEntity(
+               "/api/users", createRequest(requestBody), String.class);
 
-4. **헬스체크 확인**
-   ```bash
-   # 백엔드 서비스별 헬스체크
-   curl -s http://localhost:{port}/actuator/health
+           // Then
+           assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+           assertThat(response.getBody()).contains("userId");
+       }
 
-   # AI 서비스 헬스체크 (존재 시)
-   curl -s http://localhost:8000/health
+       @Test
+       void 회원가입_중복이메일_409응답() { ... }
 
-   # 프론트엔드 개발 서버
-   curl -s http://localhost:5173/
+       @Test
+       void 회원조회_인증없음_401응답() { ... }
+   }
    ```
 
-#### 실행: 단계별 테스트
+3. 네이밍 규칙: `{Resource}ApiIntegrationTest.java`
+4. 테스트 클래스 위치: `{service}/src/test/java/.../integration/`
 
-**1단계. 백엔드 API 테스트**
+### 1-4. 통합 테스트 실행
 
-- 서비스 의존관계를 고려한 순서로 테스트
-- 각 서비스의 Controller에서 API 엔드포인트·DTO 확인
-- `curl` 명령으로 각 API 호출 및 응답 확인
-  ```bash
-  # 예시: POST API 테스트
-  curl -X POST http://localhost:{port}/{path} \
-    -H "Content-Type: application/json" \
-    -d '{"field": "value"}'
+```bash
+# 전체 통합 테스트 실행
+./gradlew test --tests '*IntegrationTest'
 
-  # 예시: 인증이 필요한 API (JWT 토큰 사용)
-  curl -X GET http://localhost:{port}/{path} \
-    -H "Authorization: Bearer {token}"
-  ```
-- API 설계서(`*.yaml`)의 요청/응답 스키마와 실제 응답 비교
-- 오류 발견 시:
-  1. 코드 수정
-  2. 서비스 중지 (아래 서비스 중지 참조)
-  3. 서비스 재시작: `python3 tools/run-intellij-service-profile.py {service-name}`
-  4. 재테스트
+# 서비스별 실행
+./gradlew :{service-name}:test --tests '*IntegrationTest'
+```
 
-**2단계. 프론트엔드 동작 테스트**
+- 전체 PASS 확인
+- 실패 시: 실패 원인 분석 → 테스트 코드 또는 구현 코드 수정 → 재실행
+- 모든 통합 테스트 PASS 될 때까지 반복
 
-- 브라우저에서 각 페이지 접근 및 동작 확인
-- 실제 API 연동 상태 확인 (Network 탭에서 요청/응답 검증)
-- 인증 흐름 확인 (로그인 → 토큰 저장 → API 호출 → 토큰 갱신)
-- 반응형 UI 확인 (다양한 뷰포트 크기)
+---
 
-**3단계. AI 서비스 테스트 (존재 시)**
+## Part 2. E2E 테스트 (Step 5-1에서 수행)
 
-- AI 서비스 API 직접 호출 테스트
-  ```bash
-  curl -X POST http://localhost:8000/{ai-endpoint} \
-    -H "Content-Type: application/json" \
-    -d '{"prompt": "test input"}'
-  ```
-- 백엔드 → AI 서비스 연동 테스트
-- Circuit Breaker / Fallback 동작 확인 (AI 서비스 중지 후 백엔드 호출)
+사용자 시나리오 기반으로 FE → BE → DB → (AI) 전체 흐름을 자동화 코드로 검증한다.
 
-**4단계. 통합 시나리오 테스트**
+### 2-1. E2E 테스트 케이스 설계
 
-- 유저스토리의 Must Have 기능별 E2E 시나리오 수행
-- 프론트엔드 → 백엔드 → DB → (AI 서비스) 전체 흐름 확인
-- 에러 케이스 시나리오 (잘못된 입력, 인증 만료, 네트워크 오류 등)
+**입력**: 유저스토리(`docs/plan/design/userstory.md`)
 
-**5단계. 버그 수정 및 재테스트**
+**절차:**
 
-- 발견된 버그 목록화
-- 우선순위별 수정 (Critical → Major → Minor)
-- 수정 후 영향받는 기능 재테스트
+1. 유저스토리의 Must Have 기능을 사용자 시나리오로 변환한다
+2. 각 시나리오의 단계별 동작·검증 포인트를 정의한다:
+   - 페이지 이동 경로
+   - 입력 데이터
+   - 기대하는 UI 변화
+   - 기대하는 API 호출 및 응답
+3. 에러 시나리오도 포함한다 (잘못된 입력, 인증 만료 등)
 
-#### 검토: 최종 확인
+**산출물**: `docs/develop/e2e-test-cases.md`
 
-- MVP Must Have 기능 전체 동작 확인
-- 테스트 리포트 작성 완료
-- 미해결 버그 목록 정리 (있는 경우)
+```markdown
+# E2E 테스트 케이스
 
-### 서비스 시작/중지 방법
+## 1. 테스트 범위
+
+| 유저스토리 | 시나리오 수 | 우선순위 |
+|-----------|-----------|---------|
+| {US-ID} {제목} | {N} | Must Have |
+
+## 2. 테스트 시나리오 목록
+
+### {US-ID}: {유저스토리 제목}
+
+| ID | 시나리오 | 사전 조건 | 단계 | 기대 결과 | 유형 |
+|----|---------|----------|------|----------|------|
+| E2E-{NNN} | {시나리오명} | {필요한 초기 상태} | 1. {페이지 이동}\n2. {입력}\n3. {클릭}\n4. {확인} | {기대하는 최종 상태} | {Happy/Error/Edge} |
+```
+
+### 2-2. E2E 샘플 데이터 작성
+
+**절차:**
+
+1. 시나리오의 사전 조건(Precondition)에 필요한 데이터를 식별한다
+2. DB seed 스크립트를 작성한다:
+   - `e2e/fixtures/seed.sql` — E2E 테스트용 초기 데이터
+3. 시나리오별 입력 데이터 fixture를 작성한다:
+   - `e2e/fixtures/{scenario-name}.json`
+4. 테스트용 계정 정보를 정의한다:
+   - `e2e/fixtures/accounts.json` — 테스트용 사용자 계정 목록
+
+**샘플 데이터 구조:**
+```
+e2e/fixtures/
+├── seed.sql                    # DB 초기 데이터
+├── accounts.json               # 테스트용 계정 정보
+├── signup-scenario.json        # 시나리오별 입력 데이터
+├── login-scenario.json
+└── order-scenario.json
+```
+
+### 2-3. E2E 테스트 코드 작성
+
+**기술 스택**: Playwright
+
+**프로젝트 초기화:**
+```bash
+mkdir -p e2e
+cd e2e
+npm init -y
+npm install -D @playwright/test
+npx playwright install
+```
+
+**`e2e/playwright.config.ts`:**
+```typescript
+import { defineConfig } from '@playwright/test';
+
+export default defineConfig({
+  testDir: './tests',
+  timeout: 30000,
+  retries: 1,
+  use: {
+    baseURL: 'http://localhost:5173',
+    screenshot: 'only-on-failure',
+    trace: 'on-first-retry',
+  },
+  webServer: {
+    command: 'cd ../frontend && npm run dev',
+    port: 5173,
+    reuseExistingServer: true,
+  },
+});
+```
+
+**테스트 코드 작성 절차:**
+
+1. 공통 fixture를 작성한다:
+   ```typescript
+   // e2e/tests/fixtures/auth.ts
+   import { test as base, Page } from '@playwright/test';
+   import accounts from '../fixtures/accounts.json';
+
+   export const test = base.extend<{ authenticatedPage: Page }>({
+     authenticatedPage: async ({ page }, use) => {
+       await page.goto('/login');
+       await page.fill('[name="email"]', accounts.testUser.email);
+       await page.fill('[name="password"]', accounts.testUser.password);
+       await page.click('button[type="submit"]');
+       await page.waitForURL('/dashboard');
+       await use(page);
+     },
+   });
+   ```
+
+2. 시나리오별 테스트를 작성한다:
+   ```typescript
+   // e2e/tests/user-registration.spec.ts
+   import { test, expect } from '@playwright/test';
+   import signupData from '../fixtures/signup-scenario.json';
+
+   test.describe('회원가입 시나리오', () => {
+     test('E2E-001: 정상 회원가입 후 로그인 가능', async ({ page }) => {
+       // 1. 회원가입 페이지 이동
+       await page.goto('/signup');
+
+       // 2. 필드 입력
+       await page.fill('[name="email"]', signupData.validUser.email);
+       await page.fill('[name="password"]', signupData.validUser.password);
+       await page.fill('[name="name"]', signupData.validUser.name);
+
+       // 3. 제출
+       await page.click('button[type="submit"]');
+
+       // 4. 성공 확인
+       await expect(page).toHaveURL('/login');
+       await expect(page.locator('.success-message')).toBeVisible();
+     });
+
+     test('E2E-002: 중복 이메일로 가입 시 에러 표시', async ({ page }) => {
+       // ...
+     });
+   });
+   ```
+
+3. 네이밍 규칙: `{scenario-name}.spec.ts`
+4. 테스트 파일 위치: `e2e/tests/`
+
+### 2-4. E2E 테스트 실행
+
+**사전 조건**: 백킹서비스 + 백엔드 전체 서비스 + 프론트엔드 기동 상태
+
+```bash
+# 사전 준비
+docker compose up -d
+python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
+
+# E2E 테스트 실행
+cd e2e && npx playwright test
+
+# 특정 시나리오만 실행
+npx playwright test tests/user-registration.spec.ts
+
+# 브라우저 표시하며 실행 (디버깅용)
+npx playwright test --headed
+
+# 리포트 확인
+npx playwright show-report
+```
+
+- 전체 PASS 확인
+- 실패 시: 스크린샷·트레이스 분석 → 구현 코드 수정 → 재실행
+- 모든 E2E 테스트 PASS 될 때까지 반복
+
+---
+
+## Part 3. 종합 테스트 실행 및 리포트 (Step 5-2에서 수행)
+
+### 3-1. 전체 테스트 스위트 실행
+
+모든 레벨의 테스트를 순서대로 실행한다:
+
+```bash
+# 1. 백엔드 단위 + 통합 테스트
+./gradlew clean build test
+
+# 2. 프론트엔드 빌드 + 린트
+cd frontend && npm run build && npm run lint
+
+# 3. AI 서비스 테스트 (해당 시)
+cd ai-service && pytest
+
+# 4. E2E 테스트
+cd e2e && npx playwright test
+```
+
+### 3-2. 실패 분석 및 버그 수정 사이클
+
+1. 실패한 테스트를 분류한다:
+   - **단위 테스트 실패** → backend-developer / frontend-developer에게 수정 재지시
+   - **통합 테스트 실패** → 연동 관련 코드 수정 재지시
+   - **E2E 테스트 실패** → UI 또는 API 연동 수정 재지시
+2. 수정 완료 후 해당 테스트 재실행
+3. 전체 PASS 될 때까지 반복
+
+### 3-3. 종합 테스트 리포트 작성
+
+모든 테스트 PASS 후 최종 리포트를 작성한다.
+
+**산출물**: `docs/develop/test-report.md`
+
+```markdown
+# 종합 테스트 리포트
+
+## 1. 테스트 환경
+
+| 항목 | 값 |
+|------|-----|
+| 테스트 일시 | {YYYY-MM-DD} |
+| 백킹서비스 환경 | docker-compose |
+| 백엔드 서비스 수 | {N}개 |
+| 프론트엔드 프레임워크 | {React/Vue} |
+| AI 서비스 | {포함/미포함} |
+| E2E 테스트 프레임워크 | Playwright |
+
+## 2. 테스트 결과 요약
+
+| 테스트 레벨 | 총 케이스 | 성공 | 실패 | 통과율 |
+|------------|----------|------|------|--------|
+| 단위 테스트 | {N} | {N} | 0 | 100% |
+| 통합 테스트 | {N} | {N} | 0 | 100% |
+| E2E 테스트 | {N} | {N} | 0 | 100% |
+| AI 서비스 테스트 | {N} | {N} | 0 | 100% |
+| **합계** | **{N}** | **{N}** | **0** | **100%** |
+
+## 3. 백엔드 통합 테스트 상세
+
+| 서비스 | 테스트 클래스 | 케이스 수 | 결과 |
+|--------|-------------|----------|------|
+| {service} | {TestClass} | {N} | PASS |
+
+## 4. E2E 테스트 상세
+
+| 유저스토리 | 시나리오 | 테스트 파일 | 결과 |
+|-----------|---------|-----------|------|
+| {US-ID} | {시나리오명} | {file.spec.ts} | PASS |
+
+## 5. 프론트엔드 테스트 상세
+
+| 항목 | 결과 |
+|------|------|
+| 빌드 (`npm run build`) | PASS |
+| 린트 (`npm run lint`) | PASS |
+
+## 6. AI 서비스 테스트 상세 (해당 시)
+
+| 테스트 파일 | 케이스 수 | 결과 |
+|-----------|----------|------|
+| {test_file.py} | {N} | PASS |
+
+## 7. 버그 수정 이력
+
+| ID | 심각도 | 서비스 | 발견 테스트 | 설명 | 수정 상태 |
+|----|--------|--------|-----------|------|----------|
+| BUG-{N} | {Critical/Major/Minor} | {서비스명} | {테스트 ID} | {버그 설명} | 수정완료 |
+
+## 8. MVP Must Have 커버리지
+
+| 유저스토리 | E2E 테스트 | 통합 테스트 | 커버 여부 |
+|-----------|-----------|-----------|----------|
+| {US-ID} {제목} | {E2E-NNN} | {IT-NNN} | 커버됨 |
+
+**MVP Must Have 커버리지**: {N}/{M} ({%})
+
+## 9. 최종 요약
+
+- 전체 테스트 수: {N}
+- 전체 통과율: 100%
+- MVP Must Have 커버리지: {N}/{M} (100%)
+- 미해결 버그: 0건
+```
+
+---
+
+## 서비스 시작/중지 방법
 
 백엔드(Spring Boot) 서비스는 반드시 `run-intellij-service-profile.py`를 사용하여 실행한다. 이 도구는 IntelliJ `.run/*.run.xml` 실행 프로파일을 파싱하여 환경변수(DB 접속 정보, 포트, 서비스 간 연동 URL 등)를 자동 주입한 후 `gradlew bootRun`을 실행한다. `./gradlew bootRun`을 직접 실행하면 환경변수가 누락되어 DB 연결 실패 등의 오류가 발생한다.
 
-#### 서비스 실행기 준비
+### 서비스 실행기 준비
 
 `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py`를 프로젝트 루트의 `tools/` 디렉토리에 복사한다.
 
@@ -135,7 +455,7 @@ mkdir -p tools
 cp {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py tools/
 ```
 
-#### 서비스 목록 확인
+### 서비스 목록 확인
 
 ```bash
 python3 tools/run-intellij-service-profile.py --list
@@ -149,7 +469,7 @@ python3 tools/run-intellij-service-profile.py --list
   schedule             port=8083   task=schedule:bootRun
 ```
 
-#### 백엔드 서비스 시작
+### 백엔드 서비스 시작
 
 **전체 서비스 시작** (서비스 간 5초 지연):
 ```bash
@@ -171,7 +491,7 @@ python3 tools/run-intellij-service-profile.py {service-name}
 nohup python3 tools/run-intellij-service-profile.py {service-name} > logs/{service-name}.log 2>&1 &
 ```
 
-#### 서비스 시작 확인
+### 서비스 시작 확인
 
 ```bash
 # 각 서비스의 actuator/health 엔드포인트 확인
@@ -184,7 +504,7 @@ curl -s http://localhost:{port}/actuator/health
 tail -f logs/{service-name}.log
 ```
 
-#### 서비스 중지
+### 서비스 중지
 
 **Linux/Mac:**
 ```bash
@@ -201,7 +521,7 @@ netstat -ano | findstr :{PORT}
 powershell "Stop-Process -Id {PID} -Force"
 ```
 
-#### AI 서비스 시작/중지
+### AI 서비스 시작/중지
 
 ```bash
 # Docker Compose ai 프로파일로 시작
@@ -214,81 +534,25 @@ cd ai-service && uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 docker compose --profile ai down
 ```
 
-#### 프론트엔드 개발 서버 시작
+### 프론트엔드 개발 서버 시작
 
 ```bash
 cd frontend && npm run dev
 ```
 
-### 검증 방법
-
-- 유저스토리의 Must Have 기능 전체 테스트 여부
-- 테스트 리포트에 성공/실패 목록 포함 여부
-- 발견된 버그 전체 수정 완료 여부
-
-## 출력 형식
-
-### 종합 테스트 리포트 템플릿
-
-```markdown
-# 종합 테스트 리포트
-
-## 1. 테스트 환경
-
-| 항목 | 값 |
-|------|-----|
-| 테스트 일시 | {YYYY-MM-DD} |
-| 백킹서비스 환경 | docker-compose |
-| 백엔드 서비스 수 | {N}개 |
-| 프론트엔드 프레임워크 | {React/Vue} |
-| AI 서비스 | {포함/미포함} |
-
-## 2. 백엔드 API 테스트 결과
-
-| 서비스 | 엔드포인트 | 메서드 | 결과 | 비고 |
-|--------|----------|--------|------|------|
-| {service} | {path} | {GET/POST/...} | {PASS/FAIL} | {설명} |
-
-## 3. 프론트엔드 테스트 결과
-
-| 페이지 | 주요 기능 | API 연동 | UI 동작 | 결과 |
-|--------|----------|---------|---------|------|
-| {page} | {기능} | {정상/오류} | {정상/오류} | {PASS/FAIL} |
-
-## 4. AI 서비스 테스트 결과 (해당 시)
-
-| 엔드포인트 | 입력 | 기대 결과 | 실제 결과 | 결과 |
-|-----------|------|----------|----------|------|
-| {endpoint} | {input} | {expected} | {actual} | {PASS/FAIL} |
-
-## 5. 통합 시나리오 테스트
-
-| 유저스토리 | 시나리오 | 결과 | 비고 |
-|-----------|---------|------|------|
-| {US-ID} {제목} | {시나리오 설명} | {PASS/FAIL} | {설명} |
-
-## 6. 발견된 버그 및 수정 내역
-
-| ID | 심각도 | 서비스 | 설명 | 수정 여부 | 비고 |
-|----|--------|--------|------|----------|------|
-| BUG-{N} | {Critical/Major/Minor} | {서비스명} | {버그 설명} | {수정완료/미해결} | {설명} |
-
-## 7. 최종 요약
-
-- 전체 테스트 수: {N}
-- 성공: {N} / 실패: {N}
-- MVP Must Have 커버리지: {N}/{M} ({%})
-- 미해결 버그: {N}건
-```
+---
 
 ## 품질 기준
 
-- [ ] MVP Must Have 기능 전체 테스트 수행
-- [ ] 설정 Manifest ↔ 실행 프로파일 일치 사전 검증 완료
-- [ ] 테스트 리포트에 성공/실패 목록 포함
+- [ ] 통합 테스트 케이스 문서(`docs/develop/integration-test-cases.md`) 작성 완료
+- [ ] 통합 테스트 샘플 데이터(`{service}/src/test/resources/data/`) 작성 완료
+- [ ] 통합 테스트 코드(`*IntegrationTest.java`) 전체 PASS
+- [ ] E2E 테스트 케이스 문서(`docs/develop/e2e-test-cases.md`) 작성 완료
+- [ ] E2E 테스트 샘플 데이터(`e2e/fixtures/`) 작성 완료
+- [ ] E2E 테스트 코드(`e2e/tests/*.spec.ts`) 전체 PASS
+- [ ] MVP Must Have 기능 전체 테스트 커버
 - [ ] 발견된 버그 전체 수정 완료
-- [ ] 통합 시나리오 테스트(유저스토리 기반) 수행
-- [ ] 테스트 리포트 경로: `docs/develop/test-report.md`
+- [ ] 종합 테스트 리포트(`docs/develop/test-report.md`) 작성 완료
 
 ## 주의사항
 
@@ -299,4 +563,6 @@ cd frontend && npm run dev
 - 실행 결과 로그는 `logs/` 디렉토리 하위에 자동 생성됨 (`logs/{service-name}.log`)
 - 소스 수정 후 서비스 중지 → `run-intellij-service-profile.py`로 재시작 (Gradle이 자동으로 컴파일 후 실행)
 - AI 서비스 테스트 시 LLM API 호출 비용 주의 (가능하면 mock 활용)
-- 테스트 리포트 경로는 기존 `docs/test/test-report.md`가 아닌 `docs/develop/test-report.md`로 통일
+- 테스트 리포트 경로는 `docs/develop/test-report.md`로 통일
+- E2E 테스트의 Playwright는 `e2e/` 디렉토리에 독립 프로젝트로 구성한다 (프론트엔드 `frontend/`와 분리)
+- 통합 테스트의 `@Sql` seed 스크립트는 멱등성을 보장해야 한다 (TRUNCATE → INSERT)
