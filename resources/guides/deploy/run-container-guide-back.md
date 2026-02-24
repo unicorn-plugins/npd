@@ -16,34 +16,86 @@
 ## 방법론
 
 ### 실행정보 확인
-프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-- {ACR명}: Azure 컨테이너 이미지 레지스트리 이름
+프롬프트의 '[실행정보]'섹션에서 아래정보를 확인한다.
+
+**공통 항목:**
+- {레지스트리유형}: 이미지 레지스트리 유형 (`DockerHub`, `ECR`, `ACR`, `GCR`)
+- {REGISTRY_URL}: 이미지 레지스트리 전체 경로 (유형별 조립됨)
 - {VM.KEY파일}: VM 접속하는 Private Key파일 경로
 - {VM.USERID}: VM 접속하는 OS 유저명
 - {VM.IP}: VM IP
 
-예시) ACR 이용시:
+**유형별 추가 항목:**
+| 유형 | 추가 항목 |
+|------|----------|
+| DockerHub | IMG_REG, IMG_ORG, IMG_ID, IMG_PW |
+| ECR | ECR_ACCOUNT, ECR_REGION |
+| ACR | ACR명 |
+| GCR | GCR_PROJECT, GCR_REGION, GCR_REPO |
+
+#### Docker Hub 예시
 ```
 [실행정보]
-- ACR명: acrdigitalgarage01
+- 레지스트리유형: DockerHub
+- IMG_REG: docker.io
+- IMG_ORG: hiondal
+- IMG_ID: hiondal
+- IMG_PW: dckr_pat_xxxxx
+- REGISTRY_URL: docker.io/hiondal
 - VM
   - KEY파일: ~/home/bastion-dg0500
   - USERID: azureuser
   - IP: 4.230.5.6
 ```
 
-다른 컨테이너 이미지 레지스트리 이용 시:
+#### AWS ECR 예시
 ```
 [실행정보]
-- {IMG_REG}: docker.io
-- {IMG_ORG}: hiondal
-- {IMG_ID}: hiondal
-- {IMG_PW}: dckr_pat_0E1PBHpAMf_I02OvMZRddddd
+- 레지스트리유형: ECR
+- ECR_ACCOUNT: 123456789012
+- ECR_REGION: ap-northeast-2
+- REGISTRY_URL: 123456789012.dkr.ecr.ap-northeast-2.amazonaws.com/tripgen
 - VM
   - KEY파일: ~/home/bastion-dg0500
   - USERID: azureuser
   - IP: 4.230.5.6
 ```
+
+#### Azure ACR 예시
+```
+[실행정보]
+- 레지스트리유형: ACR
+- ACR명: acrdigitalgarage01
+- REGISTRY_URL: acrdigitalgarage01.azurecr.io/tripgen
+- VM
+  - KEY파일: ~/home/bastion-dg0500
+  - USERID: azureuser
+  - IP: 4.230.5.6
+```
+
+#### Google GCR 예시
+```
+[실행정보]
+- 레지스트리유형: GCR
+- GCR_PROJECT: my-project-id
+- GCR_REGION: asia-northeast3
+- GCR_REPO: my-repo
+- REGISTRY_URL: asia-northeast3-docker.pkg.dev/my-project-id/my-repo
+- VM
+  - KEY파일: ~/home/bastion-dg0500
+  - USERID: azureuser
+  - IP: 4.230.5.6
+```
+
+### REGISTRY_URL 변수 정의
+`[실행정보]`의 `REGISTRY_URL` 값을 사용한다. 이후 태그/푸시/실행/재배포 명령에서 `{REGISTRY_URL}/{서비스명}:latest` 형식으로 통합 사용한다.
+
+| 유형 | REGISTRY_URL 조립 규칙 |
+|------|----------------------|
+| DockerHub | `docker.io/{IMG_ORG}` |
+| ECR | `{ECR_ACCOUNT}.dkr.ecr.{ECR_REGION}.amazonaws.com/{ROOT}` |
+| ACR | `{ACR명}.azurecr.io/{ROOT}` |
+| GCR | `{GCR_REGION}-docker.pkg.dev/{GCR_PROJECT}/{GCR_REPO}` |
 
 ### 시스템명과 서비스명 확인
 settings.gradle에서 확인.
@@ -74,15 +126,12 @@ include 'trip-service'
   ```
   ssh -i {VM.KEY파일} {VM.USERID}@{VM.IP}
   ```
-- 접속 후 docker login 방법 안내
-  ```
-  docker login {ACR명}.azurecr.io -u {ID} -p {암호}
-  ```
+- 접속 후 레지스트리 로그인은 아래 "컨테이너 레지스트리 로그인 방법 안내" 섹션을 참조
 
 ### Git Repository 클론 안내
 - workspace 디렉토리 생성 및 이동
   ```
-  mkdir -p ~/home/workspace 
+  mkdir -p ~/home/workspace
   cd ~/home/workspace
   ```
 - 소스 Clone
@@ -102,64 +151,85 @@ include 'trip-service'
 `deployment/container/build-image.md` 파일을 열어 가이드대로 수행하도록 안내
 
 ### 컨테이너 레지스트리 로그인 방법 안내
-- ACR 이용 시 : {ACR명}이 제공된 경우
 
-  아래 명령으로 {ACR명}의 인증정보를 구합니다.
-  'username'이 ID이고 'passwords[0].value'가 암호임.
-  ```
-  az acr credential show --name {ACR명}
-  ```
+`[실행정보]`의 `레지스트리유형`에 따라 해당하는 로그인 방법을 안내한다.
 
-  예시) ID=dg0200cr, 암호={암호}
-  ```
-  $ az acr credential show --name dg0200cr 
-  {
-    "passwords": [
-      {
-        "name": "password",
-        "value": "{암호}"
-      },
-      {
-        "name": "password2",
-        "value": "{암호2}"
-      }
-    ],
-    "username": "dg0200cr"
-  }
-  ```
+#### Docker Hub
+```
+docker login docker.io -u {IMG_ID} -p {IMG_PW}
+```
 
-  아래와 같이 로그인 명령을 작성합니다.
-  ```
-  docker login {ACR명}.azurecr.io -u {ID} -p {암호}
-  ```
-- 다른 컨테이너 이미지 레지스트리 이용시: {IMG_REG}, {IMG_ORG}, {IMG_ID}, {IMG_PW} 제공 시
-  ```
-  docker login {IMG_REG} -u {IMG_ID} -p {IMG_PW}
-  ```
+#### AWS ECR
+사전 요구사항: `aws` CLI가 설치되어 있어야 한다.
 
-### 컨테이너 푸시 방법 안내
-- ACR 이용 시 :
+ECR 인증 토큰을 발급받아 로그인한다.
+```
+aws ecr get-login-password --region {ECR_REGION} | docker login --username AWS --password-stdin {ECR_ACCOUNT}.dkr.ecr.{ECR_REGION}.amazonaws.com
+```
 
-  Docker Tag 명령으로 이미지를 tag하는 명령을 작성합니다.
-  ```
-  docker tag {서비스명}:latest {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest 
-  ```
-  이미지 푸시 명령을 작성합니다.
-  ```
-  docker push {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
-  ```
-- 다른 컨테이너 이미지 레지스트리 이용시:
+> **주의**: ECR 인증 토큰은 **12시간** 후 만료된다. 만료 시 위 명령을 다시 실행하여 재인증한다.
 
-  Docker Tag 명령으로 이미지를 tag하는 명령을 작성합니다.
-  ```
-  docker tag {서비스명}:latest {IMG_REG}/{IMG_ORG}/{서비스명}:latest 
-  ```
-  이미지 푸시 명령을 작성합니다.
-  ```
-  docker push {IMG_REG}/{IMG_ORG}/{서비스명}:latest
-  ```
+#### Azure ACR
+사전 요구사항: `az` CLI가 설치되어 있어야 한다.
+
+아래 명령으로 {ACR명}의 인증정보를 구한다.
+'username'이 ID이고 'passwords[0].value'가 암호임.
+```
+az acr credential show --name {ACR명}
+```
+
+예시) ID=dg0200cr, 암호={암호}
+```
+$ az acr credential show --name dg0200cr
+{
+  "passwords": [
+    {
+      "name": "password",
+      "value": "{암호}"
+    },
+    {
+      "name": "password2",
+      "value": "{암호2}"
+    }
+  ],
+  "username": "dg0200cr"
+}
+```
+
+아래와 같이 로그인 명령을 작성한다.
+```
+docker login {ACR명}.azurecr.io -u {ID} -p {암호}
+```
+
+#### Google GCR (Artifact Registry)
+사전 요구사항: `gcloud` CLI가 설치되어 있어야 한다.
+
+gcloud 인증을 통해 Docker를 설정한다.
+```
+gcloud auth configure-docker {GCR_REGION}-docker.pkg.dev
+```
+
+또는 서비스 계정 JSON 키를 사용하는 경우:
+```
+cat {서비스계정키.json} | docker login -u _json_key --password-stdin https://{GCR_REGION}-docker.pkg.dev
+```
+
+### 컨테이너 이미지 태그 및 푸시 방법 안내
+
+Docker Tag 명령으로 이미지를 tag하는 명령을 작성한다.
+```
+docker tag {서비스명}:latest {REGISTRY_URL}/{서비스명}:latest
+```
+
+이미지 푸시 명령을 작성한다.
+```
+docker push {REGISTRY_URL}/{서비스명}:latest
+```
 
 ### 컨테이너 실행 명령 생성
+
+> `settings.gradle`의 `include` 목록에서 `common`을 제외한 각 서비스마다 아래 절차를 반복하여 `docker run` 명령을 생성한다.
+
 - 환경변수 확인
 
   `{서비스명}/.run/{서비스명}.run.xml` 을 읽어 각 서비스의 환경변수 찾음.
@@ -176,29 +246,20 @@ include 'trip-service'
             <entry key="DB_HOST" value="20.249.137.175" />
   ```
 
-- 아래 명령으로 컨테이너를 실행하는 명령을 생성합니다.
+- 아래 명령으로 컨테이너를 실행하는 명령을 생성한다.
   - shell 파일을 만들지 말고 command로 수행하는 방법 안내.
-  - 모든 환경변수에 대해 '-e' 파라미터로 환경변수값을 넘깁니다.
+  - 모든 환경변수에 대해 '-e' 파라미터로 환경변수값을 넘긴다.
   - 중요) CORS 설정 환경변수에 프론트엔드 주소 추가
     - 'ALLOWED_ORIGINS' 포함된 환경변수가 CORS 설정 환경변수임.
     - 이 환경변수의 값에 'http://{VM.IP}:3000'번 추가
 
-  - ACR 이용시:
-    ```
-    SERVER_PORT={환경변수의 SERVER_PORT값}
+  ```
+  SERVER_PORT={환경변수의 SERVER_PORT값}
 
-    docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:${SERVER_PORT} \
-    -e {환경변수 KEY}={환경변수 VALUE} 
-    {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
-    ```
-  - 다른 컨테이너 이미지 레지스트리 이용시:
-    ```
-    SERVER_PORT={환경변수의 SERVER_PORT값}
-
-    docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:${SERVER_PORT} \
-    -e {환경변수 KEY}={환경변수 VALUE} 
-    {IMG_REG}/{IMG_ORG}/{서비스명}:latest
-    ```
+  docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:${SERVER_PORT} \
+  -e {환경변수 KEY}={환경변수 VALUE} \
+  {REGISTRY_URL}/{서비스명}:latest
+  ```
 
 ### 실행된 컨테이너 확인 방법 작성
 아래 명령으로 모든 서비스의 컨테이너가 실행 되었는지 확인하는 방법을 안내.
@@ -220,33 +281,28 @@ docker ps | grep {서비스명}
 
   `deployment/container/build-image.md` 파일을 열어 가이드대로 수행
 
-- 컨테이너 이미지 푸시
-  - ACR 이용 시:
-    ```
-    docker tag {서비스명}:latest {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
-    docker push {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
-    ```
-  - 다른 컨테이너 이미지 레지스트리 이용시:
-    ```
-    docker tag {서비스명}:latest {IMG_REG}/{IMG_ORG}/{서비스명}:latest
-    docker push {IMG_REG}/{IMG_ORG}/{서비스명}:latest
-    ```
+- 레지스트리 재인증 (필요 시)
+
+  > **AWS ECR 사용 시**: ECR 토큰은 **12시간** 후 만료되므로, 재배포 전 토큰 유효 여부를 확인하고 만료된 경우 "컨테이너 레지스트리 로그인 방법 안내"의 AWS ECR 섹션을 참조하여 재인증한다.
+
+- 컨테이너 이미지 태그 및 푸시
+  ```
+  docker tag {서비스명}:latest {REGISTRY_URL}/{서비스명}:latest
+  docker push {REGISTRY_URL}/{서비스명}:latest
+  ```
 
 - 컨테이너 중지
   ```
   docker stop {서비스명}
   ```
 - 컨테이너 이미지 삭제
-  - ACR 이용 시:
-    ```
-    docker rmi {ACR명}.azurecr.io/{ROOT}/{서비스명}:latest
-    ```
-  - 다른 컨테이너 이미지 레지스트리 이용시:
-    ```
-    docker rmi {IMG_REG}/{IMG_ORG}/{서비스명}:latest
-    ```
+  ```
+  docker rmi {REGISTRY_URL}/{서비스명}:latest
+  ```
 
 - 컨테이너 재실행
+
+  위 "컨테이너 실행 명령 생성" 섹션의 `docker run` 명령을 각 서비스마다 그대로 실행한다.
 
 ## 출력 형식
 `deployment/container/run-container-guide.md` 파일에 수행할 명령어를 포함하여 컨테이너 실행 가이드를 단계별로 기록한다.

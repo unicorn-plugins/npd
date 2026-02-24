@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1771833163651,
+  "lastScanned": 1771920033738,
   "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -25,7 +25,10 @@
     "isMonorepo": false,
     "workspaces": [],
     "mainDirectories": [],
-    "gitBranches": null
+    "gitBranches": {
+      "defaultBranch": "main",
+      "branchingStrategy": null
+    }
   },
   "customNotes": [],
   "directoryMap": {
@@ -33,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1771833163637,
+      "lastAccessed": 1771920033655,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 11,
-      "lastAccessed": 1771833163638,
+      "lastAccessed": 1771920033655,
       "keyFiles": [
         "add-ext-skill.md",
         "create.md",
@@ -53,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1771833163638,
+      "lastAccessed": 1771920033655,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -63,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1771833163638,
+      "lastAccessed": 1771920033656,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -74,7 +77,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1771833163638,
+      "lastAccessed": 1771920033656,
       "keyFiles": [
         "resource.md"
       ]
@@ -83,142 +86,232 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1771833163638,
+      "lastAccessed": 1771920033656,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "resources\\guides\\develop\\backing-service-setup.md",
-      "accessCount": 68,
-      "lastAccessed": 1771849645655,
-      "type": "file"
+      "path": "",
+      "accessCount": 51,
+      "lastAccessed": 1771927257205,
+      "type": "directory"
     },
     {
-      "path": "resources\\references\\java-config-manifest-standard.md",
-      "accessCount": 9,
-      "lastAccessed": 1771850158480,
-      "type": "file"
+      "path": "resources\\guides\\deploy",
+      "accessCount": 40,
+      "lastAccessed": 1771927911801,
+      "type": "directory"
     },
     {
-      "path": "skills\\develop\\SKILL.md",
-      "accessCount": 8,
-      "lastAccessed": 1771834579487,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\dev-plan.md",
-      "accessCount": 7,
-      "lastAccessed": 1771833926757,
-      "type": "file"
-    },
-    {
-      "path": "skills\\design\\SKILL.md",
-      "accessCount": 7,
-      "lastAccessed": 1771835387508,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-env-setup.md",
-      "accessCount": 6,
-      "lastAccessed": 1771834554804,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-ai-integration.md",
-      "accessCount": 3,
-      "lastAccessed": 1771835261911,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-api-dev.md",
-      "accessCount": 3,
-      "lastAccessed": 1771835291607,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\design\\architecture-highlevel.md",
-      "accessCount": 2,
-      "lastAccessed": 1771833918613,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\design\\architecture-patterns.md",
-      "accessCount": 2,
-      "lastAccessed": 1771833920270,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\design\\logical-architecture-design.md",
-      "accessCount": 2,
-      "lastAccessed": 1771833921937,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\design\\physical-architecture-design.md",
-      "accessCount": 2,
-      "lastAccessed": 1771833923558,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\design\\class-design.md",
-      "accessCount": 2,
-      "lastAccessed": 1771835175744,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-front-minikube.md",
-      "accessCount": 2,
-      "lastAccessed": 1771835356542,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-front.md",
-      "accessCount": 2,
-      "lastAccessed": 1771835358189,
+      "path": "skills\\deploy\\SKILL.md",
+      "accessCount": 38,
+      "lastAccessed": 1771927957102,
       "type": "file"
     },
     {
       "path": "resources\\guides\\deploy\\run-container-guide-front.md",
-      "accessCount": 2,
-      "lastAccessed": 1771835359836,
-      "type": "file"
-    },
-    {
-      "path": "resources\\standards\\standard_package_structure.md",
-      "accessCount": 1,
-      "lastAccessed": 1771835183440,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-back-minikube.md",
-      "accessCount": 1,
-      "lastAccessed": 1771835341932,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-back.md",
-      "accessCount": 1,
-      "lastAccessed": 1771835343585,
+      "accessCount": 37,
+      "lastAccessed": 1771927958465,
       "type": "file"
     },
     {
       "path": "resources\\guides\\deploy\\run-container-guide-back.md",
-      "accessCount": 1,
-      "lastAccessed": 1771835348583,
+      "accessCount": 20,
+      "lastAccessed": 1771928053008,
       "type": "file"
     },
     {
-      "path": "resources\\references\\백킹서비스설치방법.md",
-      "accessCount": 1,
-      "lastAccessed": 1771837444035,
+      "path": "resources\\guides\\deploy\\deploy-k8s-front.md",
+      "accessCount": 16,
+      "lastAccessed": 1771927014556,
       "type": "file"
     },
     {
-      "path": "resources\\references\\setup-minikube.md",
-      "accessCount": 1,
-      "lastAccessed": 1771837444217,
+      "path": "resources\\guides\\deploy\\deploy-k8s-back.md",
+      "accessCount": 16,
+      "lastAccessed": 1771927232737,
       "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\run-container-guide-ai.md",
+      "accessCount": 12,
+      "lastAccessed": 1771928049067,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-front-minikube.md",
+      "accessCount": 10,
+      "lastAccessed": 1771924824837,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-actions-cicd-back.md",
+      "accessCount": 9,
+      "lastAccessed": 1771927217259,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-back-minikube.md",
+      "accessCount": 7,
+      "lastAccessed": 1771922115255,
+      "type": "file"
+    },
+    {
+      "path": "resources\\tools\\customs\\general\\run-intellij-service-profile.py",
+      "accessCount": 6,
+      "lastAccessed": 1771925542318,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\ai-service-env-setup.md",
+      "accessCount": 5,
+      "lastAccessed": 1771921876683,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-jenkins-cicd-back.md",
+      "accessCount": 5,
+      "lastAccessed": 1771926986934,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-actions-cicd-front.md",
+      "accessCount": 5,
+      "lastAccessed": 1771927224819,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-jenkins-cicd-front.md",
+      "accessCount": 3,
+      "lastAccessed": 1771921192994,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-actions-cicd-front-minikube.md",
+      "accessCount": 3,
+      "lastAccessed": 1771921194791,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides",
+      "accessCount": 3,
+      "lastAccessed": 1771924205450,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\setup\\prepare.md",
+      "accessCount": 3,
+      "lastAccessed": 1771926839046,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-actions-cicd-back-minikube.md",
+      "accessCount": 3,
+      "lastAccessed": 1771926983590,
+      "type": "file"
+    },
+    {
+      "path": "skills\\develop\\SKILL.md",
+      "accessCount": 3,
+      "lastAccessed": 1771927009578,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\AGENT.md",
+      "accessCount": 2,
+      "lastAccessed": 1771920592602,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\ai-service-dev.md",
+      "accessCount": 2,
+      "lastAccessed": 1771921684137,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-ai-minikube.md",
+      "accessCount": 2,
+      "lastAccessed": 1771922266725,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-ai.md",
+      "accessCount": 2,
+      "lastAccessed": 1771922266776,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop",
+      "accessCount": 2,
+      "lastAccessed": 1771924183489,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev.md",
+      "accessCount": 2,
+      "lastAccessed": 1771924193481,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-argocd-cicd.md",
+      "accessCount": 2,
+      "lastAccessed": 1771926996642,
+      "type": "file"
+    },
+    {
+      "path": "commands\\deploy.md",
+      "accessCount": 1,
+      "lastAccessed": 1771920314184,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\tools.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1771920373086,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1771920373097,
+      "type": "file"
+    },
+    {
+      "path": "gateway\\runtime-mapping.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1771920374210,
+      "type": "file"
+    },
+    {
+      "path": "gateway\\install.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1771920386607,
+      "type": "file"
+    },
+    {
+      "path": ".claude\\settings.local.json",
+      "accessCount": 1,
+      "lastAccessed": 1771920454628,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\design\\ai-service-design.md",
+      "accessCount": 1,
+      "lastAccessed": 1771921100993,
+      "type": "file"
+    },
+    {
+      "path": "skills\\deploy",
+      "accessCount": 1,
+      "lastAccessed": 1771926710650,
+      "type": "directory"
+    },
+    {
+      "path": "skills",
+      "accessCount": 1,
+      "lastAccessed": 1771927001152,
+      "type": "directory"
     }
   ],
   "userDirectives": []

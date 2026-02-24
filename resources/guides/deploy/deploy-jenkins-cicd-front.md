@@ -515,7 +515,6 @@ podTemplate(
                                     -f deployment/container/Dockerfile-frontend \\
                                     --build-arg PROJECT_FOLDER="." \\
                                     --build-arg BUILD_FOLDER="deployment/container" \\
-                                    --build-arg EXPORT_PORT="8080" \\
                                     -t {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag} .
 
                                 podman push {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}

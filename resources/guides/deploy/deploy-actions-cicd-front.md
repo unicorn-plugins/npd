@@ -527,7 +527,6 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
               -f deployment/container/Dockerfile-frontend \
               --build-arg PROJECT_FOLDER="." \
               --build-arg BUILD_FOLDER="deployment/container" \
-              --build-arg EXPORT_PORT="8080" \
               -t ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }} .
 
             docker push ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }}

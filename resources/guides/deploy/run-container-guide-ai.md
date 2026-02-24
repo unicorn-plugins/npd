@@ -1,7 +1,7 @@
-# 프론트엔드 컨테이너 실행방법 가이드
+# AI 서비스 컨테이너 실행방법 가이드
 
 ## 목적
-프론트엔드 서비스의 컨테이너 이미지를 컨테이너로 실행하는 방법을 안내한다. 실제 컨테이너 실행은 하지 않으며, 수행할 명령어를 포함하여 컨테이너 실행 가이드를 결과 파일에 생성한다.
+AI 서비스(Python FastAPI 기반)의 컨테이너 이미지를 컨테이너로 실행하는 가이드를 작성한다. 실제 컨테이너 실행은 하지 않으며, 수행할 명령어를 포함하여 컨테이너 실행 가이드를 결과 파일에 생성한다.
 
 ## 입력 (이전 단계 산출물)
 | 산출물 | 파일 경로 | 활용 방법 |
@@ -98,17 +98,14 @@
 | GCR | `{GCR_REGION}-docker.pkg.dev/{GCR_PROJECT}/{GCR_REPO}` |
 
 ### 서비스명 확인
-프레임워크에 따라 서비스명 소스가 다르다.
-- **React/Vue**: package.json의 "name" 필드값이 서비스명임.
-  ```
-  {
-    "name": "tripgen-front",
-    "private": true,
-  ```
-- **Flutter Web**: pubspec.yaml의 `name` 필드값이 서비스명임.
-  ```yaml
-  name: tripgen-front
-  ```
+AI 서비스 디렉토리의 `pyproject.toml` 파일에서 서비스명을 확인한다.
+
+```toml
+[tool.poetry]
+name = "ai-service"
+```
+
+`[tool.poetry] name` 필드값이 서비스명이다. `pyproject.toml`이 없는 경우 AI 서비스 디렉토리명을 서비스명으로 사용한다.
 
 ### VM 접속 방법 안내
 - Linux/Mac은 기본 터미널을 실행하고 Window는 Window Terminal을 실행하도록 안내
@@ -135,16 +132,12 @@
   ```
   git clone {원격 Git Repository 주소}
   ```
-  예)
-  ```
-  git clone https://github.com/cna-bootcamp/phonebill-front.git
-  ```
 - 프로젝트 디렉토리로 이동
   ```
-  cd {서비스명}
+  cd {ROOT}
   ```
 
-### 컨테이너 이미지 생성 방법 안내
+### 어플리케이션 빌드 및 컨테이너 이미지 생성 방법 안내
 `deployment/container/build-image.md` 파일을 열어 가이드대로 수행하도록 안내
 
 ### 컨테이너 레지스트리 로그인 방법 안내
@@ -223,48 +216,50 @@ docker tag {서비스명}:latest {REGISTRY_URL}/{서비스명}:latest
 docker push {REGISTRY_URL}/{서비스명}:latest
 ```
 
-### 런타임 환경변수 파일 생성 방법 안내
-- runtime-env.js 파일을 읽어 그 안의 설정을 모두 포함
-  - **React/Vue**: `public/runtime-env.js`
-  - **Flutter Web**: `web/runtime-env.js`
-
-  예제)
-  ```
-  window.__runtime_config__ = {
-    API_GROUP: "/api/v1",
-    // 서비스별 HOST — 개발 단계에서 작성한 public/runtime-env.js 참조
-    MEMBER_HOST: "http://localhost:8080",
-    AUTH_HOST: "http://localhost:8081",
-    LOCATION_HOST: "http://localhost:8082",
-    TRIP_HOST: "http://localhost:8083",
-    AI_HOST: "http://localhost:8084",
-  };
-  ```
-- 'localhost'를 {VM.IP}로 변경하여 runtime-env.js 파일로 생성하는 방법 안내
-  - **React/Vue**: `~/{서비스명}/public/runtime-env.js`
-  - **Flutter Web**: `~/{서비스명}/web/runtime-env.js`
-
 ### 컨테이너 실행 명령 생성
-아래 명령으로 컨테이너를 실행하는 명령을 생성한다.
-shell 파일을 만들지 말고 command로 수행하는 방법 안내.
-'-v'로 runtime-env.js파일을 볼륨 마운트하도록 명령어 작성.
+- 환경변수 확인
 
-```
-SERVER_PORT=3000
+  AI 서비스 디렉토리의 `.env.example` 파일을 읽어 환경변수를 추출한다.
+  `^[A-Z_]+=` 패턴에 매칭되는 라인에서 환경변수를 추출하고, `#`으로 시작하는 주석 라인은 제외한다.
 
-docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:8080 \
--v ~/{서비스명}/public/runtime-env.js:/usr/share/nginx/html/runtime-env.js \
-{REGISTRY_URL}/{서비스명}:latest
-```
+  예제) `.env.example`에서 추출
+  ```
+  APP_ENV=development
+  APP_PORT=8000
+  LOG_LEVEL=INFO
+  LLM_PROVIDER=openai
+  LLM_MODEL_NAME=gpt-4o
+  OPENAI_API_KEY=your-openai-api-key-here
+  ```
 
-> **Flutter Web의 경우**: 볼륨 마운트의 호스트 측 경로만 다르다.
-> `-v ~/{서비스명}/web/runtime-env.js:/usr/share/nginx/html/runtime-env.js`
-> 컨테이너 내부 경로(`/usr/share/nginx/html/runtime-env.js`)는 동일하다.
+  위에서 `APP_PORT`가 포트 환경변수이며, 기본값은 8000이다.
+
+- 아래 명령으로 컨테이너를 실행하는 명령을 생성한다.
+  - shell 파일을 만들지 말고 command로 수행하는 방법 안내.
+  - `.env.example`에서 추출한 모든 환경변수에 대해 '-e' 파라미터로 환경변수값을 넘긴다.
+  - 주석 처리된(`#` 접두사) 환경변수는 선택적이므로, 실제 사용 여부를 확인 후 필요한 것만 포함한다.
+
+  ```
+  APP_PORT={환경변수의 APP_PORT값, 기본 8000}
+
+  docker run -d --name {서비스명} --rm -p ${APP_PORT}:${APP_PORT} \
+  -e APP_ENV={값} \
+  -e APP_PORT=${APP_PORT} \
+  -e LLM_PROVIDER={값} \
+  -e OPENAI_API_KEY={값} \
+  {REGISTRY_URL}/{서비스명}:latest
+  ```
 
 ### 실행된 컨테이너 확인 방법 작성
-아래 명령으로 모든 서비스의 컨테이너가 실행 되었는지 확인하는 방법을 안내.
+아래 명령으로 AI 서비스 컨테이너가 실행 되었는지 확인하는 방법을 안내.
 ```
 docker ps | grep {서비스명}
+```
+
+헬스체크 확인:
+```
+wget -qO- http://localhost:{APP_PORT}/health
+# 기대 응답: {"status":"ok"}
 ```
 
 ### 재배포 방법 작성
@@ -272,7 +267,7 @@ docker ps | grep {서비스명}
 - VM 접속
 - 디렉토리 이동 및 소스 내려받기
   ```
-  cd ~/home/workspace/{서비스명}
+  cd ~/home/workspace/{ROOT}
   ```
   ```
   git pull
@@ -299,9 +294,10 @@ docker ps | grep {서비스명}
   ```
   docker rmi {REGISTRY_URL}/{서비스명}:latest
   ```
+
 - 컨테이너 재실행
 
-  위 "컨테이너 실행 명령 생성" 섹션의 `docker run` 명령을 그대로 실행한다 (runtime-env.js 볼륨 마운트 포함).
+  위 "컨테이너 실행 명령 생성" 섹션의 `docker run` 명령을 그대로 실행한다.
 
 ## 출력 형식
 `deployment/container/run-container-guide.md` 파일에 수행할 명령어를 포함하여 컨테이너 실행 가이드를 단계별로 기록한다.
@@ -313,5 +309,8 @@ docker ps | grep {서비스명}
 ## 주의사항
 - 실제 컨테이너 실행은 하지 않고 가이드 문서만 생성
 - shell 파일을 만들지 말고 command로 수행하는 방법으로 안내
-- runtime-env.js 볼륨 마운트를 반드시 포함하여 런타임 환경변수 주입
-- 프론트엔드 컨테이너는 포트 3000 -> 8080(nginx) 매핑으로 실행
+- `.run/*.run.xml`은 Java/IntelliJ 전용이므로 사용하지 않음. `.env.example`에서 환경변수를 추출
+- 환경변수 파싱: `^[A-Z_]+=` 패턴 라인 추출, `#` 주석 라인 제외
+- 포트 환경변수는 `APP_PORT` (기본값 8000). 백엔드의 `SERVER_PORT`와 다름에 주의
+- Health check endpoint는 `/health` (Spring Boot Actuator의 `/actuator/health`가 아님)
+- CORS는 FastAPI 미들웨어로 처리되므로 별도 CORS 환경변수 설정 불필요 (backend-to-backend 내부 서비스)

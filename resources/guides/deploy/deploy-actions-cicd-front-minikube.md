@@ -491,7 +491,6 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
             build-args: |
               PROJECT_FOLDER=.
               BUILD_FOLDER=deployment/container
-              EXPORT_PORT=8080
 
     deploy:
       name: Deploy to Kubernetes

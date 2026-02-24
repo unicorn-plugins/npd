@@ -8,15 +8,20 @@ IntelliJ의 .run/*.run.xml 파일을 파싱하여 환경변수를 추출하고
 로그는 {config-dir}/logs/{service-name}.log 에 저장됩니다.
 
 Usage:
-  # 전체 서비스 시작 (서비스 간 5초 delay)
+  # 전체 서비스 시작 (서비스 간 5초 delay, 기존 실행 중인 서비스는 자동 중지)
   python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
 
   # 백그라운드로 전체 서비스 시작
   nohup python3 tools/run-intellij-service-profile.py --config-dir . --delay 5 > /dev/null 2>&1 &
 
-  # 개별 서비스 시작
+  # 개별 서비스 시작 (기존 실행 중이면 자동 중지 후 재시작)
   python3 tools/run-intellij-service-profile.py auth
-  nohup python3 tools/run-intellij-service-profile.py schedule > logs/schedule.log 2>&1 &
+
+  # 전체 서비스 중지
+  python3 tools/run-intellij-service-profile.py --stop
+
+  # 개별 서비스 중지
+  python3 tools/run-intellij-service-profile.py --stop auth
 
   # 서비스 목록 확인
   python3 tools/run-intellij-service-profile.py --list
@@ -217,6 +222,145 @@ def find_service_xml(config_dir: Path, service_name: str) -> Path:
 
 
 # ─────────────────────────────────────────────
+# 프로세스 탐지 및 중지
+# ─────────────────────────────────────────────
+
+def find_pid_by_port(port: int) -> list:
+    """
+    특정 포트를 LISTEN 중인 프로세스의 PID 목록을 반환합니다.
+    """
+    pids = []
+    try:
+        if sys.platform == "win32":
+            result = subprocess.run(
+                ['netstat', '-ano', '-p', 'TCP'],
+                capture_output=True, text=True, timeout=10,
+            )
+            for line in result.stdout.splitlines():
+                if f':{port}' in line and 'LISTENING' in line:
+                    parts = line.split()
+                    if parts:
+                        pid = int(parts[-1])
+                        if pid > 0 and pid not in pids:
+                            pids.append(pid)
+        else:
+            result = subprocess.run(
+                ['lsof', '-ti', f':{port}'],
+                capture_output=True, text=True, timeout=10,
+            )
+            for line in result.stdout.strip().splitlines():
+                line = line.strip()
+                if line.isdigit():
+                    pid = int(line)
+                    if pid > 0 and pid not in pids:
+                        pids.append(pid)
+    except (subprocess.TimeoutExpired, FileNotFoundError, ValueError):
+        pass
+    return pids
+
+
+def stop_pid(pid: int, timeout: int = 5) -> bool:
+    """
+    PID를 graceful 종료(SIGTERM) 시도 후, 실패 시 강제 종료(SIGKILL/taskkill)합니다.
+
+    Returns:
+        True: 종료 성공, False: 종료 실패
+    """
+    import signal
+
+    try:
+        if sys.platform == "win32":
+            subprocess.run(
+                ['taskkill', '/PID', str(pid), '/F'],
+                capture_output=True, timeout=timeout,
+            )
+        else:
+            os.kill(pid, signal.SIGTERM)
+            # graceful 종료 대기
+            for _ in range(timeout * 10):
+                time.sleep(0.1)
+                try:
+                    os.kill(pid, 0)  # 프로세스 존재 확인
+                except OSError:
+                    return True
+            # 아직 살아있으면 강제 종료
+            os.kill(pid, signal.SIGKILL)
+
+        # 종료 확인
+        time.sleep(0.5)
+        try:
+            os.kill(pid, 0)
+            return False
+        except OSError:
+            return True
+    except (OSError, subprocess.TimeoutExpired):
+        return True
+
+
+def stop_service(service_info: dict, config_dir: Path) -> bool:
+    """
+    서비스가 사용하는 포트의 기존 프로세스를 중지합니다.
+
+    Returns:
+        True: 중지 완료 또는 실행 중이 아님, False: 중지 실패
+    """
+    name = service_info['name']
+    port_str = service_info['env'].get('SERVER_PORT')
+    if not port_str:
+        print(f"  [{name}] SERVER_PORT가 설정되지 않아 기존 프로세스 확인을 건너뜁니다.")
+        return True
+
+    try:
+        port = int(port_str)
+    except ValueError:
+        print(f"  [{name}] SERVER_PORT 값이 유효하지 않습니다: {port_str}")
+        return True
+
+    pids = find_pid_by_port(port)
+    if not pids:
+        return True
+
+    print(f"  [{name}] 포트 {port}에서 실행 중인 프로세스 발견: PID {pids}")
+    all_stopped = True
+    for pid in pids:
+        print(f"  [{name}] PID {pid} 종료 중...")
+        if stop_pid(pid):
+            print(f"  [{name}] PID {pid} 종료 완료")
+        else:
+            print(f"  [{name}] PID {pid} 종료 실패", file=sys.stderr)
+            all_stopped = False
+    return all_stopped
+
+
+def stop_all_services(config_dir: Path):
+    """
+    config_dir 하위의 모든 서비스를 중지합니다.
+    """
+    xml_files = find_all_run_xml(config_dir)
+    if not xml_files:
+        print("중지할 서비스를 찾을 수 없습니다.")
+        return
+
+    print(f"서비스 중지: {len(xml_files)}개")
+    print()
+
+    stopped = 0
+    for xml_file in xml_files:
+        try:
+            service_info = parse_run_xml(xml_file)
+            name = service_info['name']
+            port = service_info['env'].get('SERVER_PORT', '?')
+            print(f"[STOP] {name}  port={port}")
+            if stop_service(service_info, config_dir):
+                stopped += 1
+        except (ValueError, OSError) as e:
+            print(f"[SKIP] {xml_file.name}: {e}", file=sys.stderr)
+
+    print()
+    print(f"중지 완료: {stopped}/{len(xml_files)}개")
+
+
+# ─────────────────────────────────────────────
 # 서비스 시작
 # ─────────────────────────────────────────────
 
@@ -237,6 +381,10 @@ def start_service(service_info: dict, config_dir: Path, log_file: str = None) ->
 
     if not tasks:
         raise ValueError(f"'{name}': taskNames 가 비어 있습니다.")
+
+    # 기존 프로세스 중지
+    if not stop_service(service_info, config_dir):
+        raise RuntimeError(f"'{name}': 기존 프로세스 종료에 실패하여 시작할 수 없습니다.")
 
     gradlew_cmd = find_gradlew(config_dir)
     cmd = gradlew_cmd + tasks
@@ -305,6 +453,11 @@ def main():
         action='store_true',
         help='발견된 서비스 목록만 출력하고 종료',
     )
+    parser.add_argument(
+        '--stop',
+        action='store_true',
+        help='서비스를 시작하지 않고 기존 프로세스만 중지',
+    )
 
     args = parser.parse_args()
     config_dir = Path(args.config_dir).resolve()
@@ -312,6 +465,22 @@ def main():
     if not config_dir.is_dir():
         print(f"오류: 디렉토리를 찾을 수 없습니다: {config_dir}", file=sys.stderr)
         sys.exit(1)
+
+    # ── 중지 모드 ──
+    if args.stop:
+        if args.service:
+            try:
+                xml_path = find_service_xml(config_dir, args.service)
+                service_info = parse_run_xml(xml_path)
+                port = service_info['env'].get('SERVER_PORT', '?')
+                print(f"[STOP] {service_info['name']}  port={port}")
+                stop_service(service_info, config_dir)
+            except (FileNotFoundError, ValueError) as e:
+                print(f"오류: {e}", file=sys.stderr)
+                sys.exit(1)
+        else:
+            stop_all_services(config_dir)
+        return
 
     # ── 목록 출력 모드 ──
     if args.list:

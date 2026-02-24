@@ -47,13 +47,17 @@
 ```
 
 ### 서비스명 확인
-package.json의 "name" 필드값이 서비스명임.
-예시) 아래 예에서는 'tripgen-front'가 서비스명임.
-```
-{
-  "name": "tripgen-front",
-  "private": true,
-```
+프레임워크에 따라 서비스명 소스가 다르다.
+- **React/Vue**: package.json의 "name" 필드값이 서비스명임.
+  ```
+  {
+    "name": "tripgen-front",
+    "private": true,
+  ```
+- **Flutter Web**: pubspec.yaml의 `name` 필드값이 서비스명임.
+  ```yaml
+  name: tripgen-front
+  ```
 
 ### 매니페스트 작성 주의사항
 - namespace는 명시: {네임스페이스}값 이용
@@ -67,7 +71,9 @@ package.json의 "name" 필드값이 서비스명임.
 ### 매니페스트 작성 (`deployment/k8s/` 디렉토리 하위)
 
 **ConfigMap 매니페스트 작성**
-- public/runtime-env.js의 내용을 읽음 (개발 단계에서 `window.__runtime_config__` 형식으로 작성된 파일)
+- runtime-env.js의 내용을 읽음 (개발 단계에서 `window.__runtime_config__` 형식으로 작성된 파일)
+  - **React/Vue**: `public/runtime-env.js`
+  - **Flutter Web**: `web/runtime-env.js`
 - 파일명 runtime-env.js를 키로 하고 파일 내용을 값으로 하는 ConfigMap 매니페스트 작성
   단, 내용에서 서비스별 HOST의 'http://Host:Port'를 'http://{Gateway Host}'로 변경
   예시)
