@@ -111,9 +111,30 @@ include '{service-name-2}'
 // 서비스 목록 추가
 ```
 
-#### 3단계: 루트 build.gradle 작성
+#### 3단계: Version Catalog + 루트 build.gradle 작성
 
 `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 표준 형식에 따라 작성한다.
+
+**3-a. `gradle/libs.versions.toml` 생성 (Version Catalog):**
+
+모든 플러그인·라이브러리 버전을 이 파일에서 관리한다. `ext` 블록에 버전을 하드코딩하지 않는다.
+
+```bash
+mkdir -p gradle
+```
+
+- `java-build-gradle-standard.md`의 Version Catalog 템플릿에서 **필수 코어** 항목을 복사한다
+- **선택 라이브러리**는 설계 산출물을 분석하여 필요한 항목만 주석 해제한다 (전체 복사 금지, 판단 기준은 표준 파일 참조)
+- **`"{최신 stable 조회}"` 플레이스홀더를 실제 버전으로 교체한다**:
+  - Spring Boot → [Spring Initializr](https://start.spring.io)에서 최신 GA 버전 확인
+  - Gradle 플러그인 → [Gradle Plugin Portal](https://plugins.gradle.org)에서 확인
+  - 라이브러리 → [Maven Central](https://search.maven.org)에서 최신 stable 확인 (RC/SNAPSHOT 제외)
+  - Spring Cloud → Spring Boot 버전과 호환되는 릴리스 트레인 확인
+- **플레이스홀더를 남겨둔 채 커밋하면 빌드가 실패한다**
+
+**3-b. 루트 build.gradle 작성:**
+
+Version Catalog의 `alias(libs.plugins.*)`, `libs.*` 참조를 사용한다.
 
 **group 값 설정 (필수):**
 ```groovy
@@ -167,7 +188,8 @@ spring:
 
 - **Gradle Wrapper**: `gradle/wrapper/gradle-wrapper.properties`, `gradle-wrapper.jar`, `gradlew`, `gradlew.bat`
 - **settings.gradle**: `rootProject.name` + `include` 서비스 목록
-- **build.gradle**: `java-build-gradle-standard.md` 표준 형식
+- **gradle/libs.versions.toml**: Version Catalog (모든 버전 중앙 관리, 플레이스홀더 없이 실제 버전 기입 완료)
+- **build.gradle**: `java-build-gradle-standard.md` 표준 형식 (Version Catalog 참조, `ext` 블록 버전 하드코딩 없음)
 - **application.yml**: `java-config-manifest-standard.md` 표준 형식
 
 ## 품질 기준
@@ -176,7 +198,8 @@ spring:
 - [ ] gradlew 실행 권한 부여
 - [ ] `./gradlew --version` 검증 통과
 - [ ] settings.gradle에 모든 서비스가 include
-- [ ] 루트 build.gradle이 표준 준수
+- [ ] `gradle/libs.versions.toml` 존재하고 플레이스홀더 없이 실제 버전 기입 완료
+- [ ] 루트 build.gradle이 Version Catalog 참조 (`alias(libs.plugins.*)`, `libs.*`) 사용
 - [ ] 서비스별 application.yml이 설정 Manifest 표준 준수
 - [ ] 환경변수 placeholder 사용 (하드코딩 금지)
 - [ ] 공통 모듈 compileJava 성공

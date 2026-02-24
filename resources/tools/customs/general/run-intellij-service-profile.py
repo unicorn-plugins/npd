@@ -550,8 +550,8 @@ def main():
         print(f"  {name:20s} PID {proc.pid}")
     print()
     print("서비스 종료:")
-    print("  Linux/Mac : kill $(pgrep -f run-intellij-service-profile.py) && pkill -f 'java.*spring'")
-    print("  Windows   : netstat -ano | findstr :{PORT}  →  Stop-Process -Id {PID} -Force")
+    print("  전체 중지 : python3 tools/run-intellij-service-profile.py --stop")
+    print("  개별 중지 : python3 tools/run-intellij-service-profile.py --stop {service-name}")
 
 
 if __name__ == '__main__':

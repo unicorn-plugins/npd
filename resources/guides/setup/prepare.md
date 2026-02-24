@@ -491,11 +491,12 @@ aws --version
 
 **2.AWS 인증 설정**  
 **1)Access Key 방식**
-AWS Console에서 IAM > 사용자 > 보안 자격 증명 > 액세스 키 만들기로 Access Key를 생성합니다.
+AWS Console에서 IAM > 사용자 > 사용자 선택 > 보안 자격 증명 탭 > 액세스 키 만들기 > CLI 유형 선택으로 Access Key를 생성합니다.
 ```
 aws configure
 ```
 프롬프트에 아래 정보를 입력합니다.
+Access Key ID는 'AKIA'로 시작합니다.   
 ```
 AWS Access Key ID: {Access Key ID}
 AWS Secret Access Key: {Secret Access Key}
@@ -504,8 +505,29 @@ Default output format: json
 ```
 
 **2)SSO 방식**
+사전 준비: AWS Console > IAM Identity Center에서 아래 작업을 완료합니다.
+- IAM Identity Center 활성화
+- 사용자 생성 (이메일 초대 → 비밀번호 설정)
+- 권한 세트 생성 (예: `AdministratorAccess`)
+- AWS 계정에 사용자 + 권한 세트 할당
+
+SSO 설정을 시작합니다.
 ```
 aws configure sso
+```
+프롬프트에 아래 정보를 입력합니다.
+SSO start URL은 IAM Identity Center > 설정 > "AWS access portal URL"의 "기본 IPv4 전용" URL입니다.
+```
+SSO session name: {임의 이름} (예: my-sso)
+SSO start URL: {AWS access portal URL} (예: https://d-xxxxxxxxxx.awsapps.com/start)
+SSO region: {리전} (예: ap-northeast-2)
+SSO registration scopes: sso:account:access (기본값 Enter)
+```
+브라우저가 열리면 SSO 사용자로 로그인하고, 이후 CLI에서 계정/역할을 선택합니다.
+```
+CLI default client Region: {리전} (예: ap-northeast-2)
+CLI default output format: json
+CLI profile name: {프로필 이름} (예: my-sso-profile)
 ```
 
 **3)Trouble shooting**  

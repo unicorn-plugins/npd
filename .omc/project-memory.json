@@ -116,6 +116,12 @@
       "type": "file"
     },
     {
+      "path": "resources\\guides\\develop\\verification-gate.md",
+      "accessCount": 27,
+      "lastAccessed": 1771959299997,
+      "type": "file"
+    },
+    {
       "path": "resources\\guides\\deploy\\run-container-guide-back.md",
       "accessCount": 20,
       "lastAccessed": 1771928053008,
@@ -140,10 +146,22 @@
       "type": "file"
     },
     {
+      "path": "resources\\guides\\develop\\backend-env-setup.md",
+      "accessCount": 11,
+      "lastAccessed": 1771961958398,
+      "type": "directory"
+    },
+    {
       "path": "resources\\guides\\deploy\\deploy-k8s-front-minikube.md",
       "accessCount": 10,
       "lastAccessed": 1771924824837,
       "type": "directory"
+    },
+    {
+      "path": "resources\\tools\\customs\\general\\run-intellij-service-profile.py",
+      "accessCount": 10,
+      "lastAccessed": 1771934129324,
+      "type": "file"
     },
     {
       "path": "resources\\guides\\deploy\\deploy-actions-cicd-back.md",
@@ -158,9 +176,15 @@
       "type": "file"
     },
     {
-      "path": "resources\\tools\\customs\\general\\run-intellij-service-profile.py",
+      "path": "resources\\guides\\develop\\test-qa.md",
+      "accessCount": 7,
+      "lastAccessed": 1771948200169,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\setup\\prepare.md",
       "accessCount": 6,
-      "lastAccessed": 1771925542318,
+      "lastAccessed": 1771931472437,
       "type": "file"
     },
     {
@@ -182,6 +206,12 @@
       "type": "file"
     },
     {
+      "path": "resources\\guides\\develop\\backend-api-dev.md",
+      "accessCount": 5,
+      "lastAccessed": 1771960627488,
+      "type": "file"
+    },
+    {
       "path": "resources\\guides\\deploy\\deploy-jenkins-cicd-front.md",
       "accessCount": 3,
       "lastAccessed": 1771921192994,
@@ -200,12 +230,6 @@
       "type": "directory"
     },
     {
-      "path": "resources\\guides\\setup\\prepare.md",
-      "accessCount": 3,
-      "lastAccessed": 1771926839046,
-      "type": "file"
-    },
-    {
       "path": "resources\\guides\\deploy\\deploy-actions-cicd-back-minikube.md",
       "accessCount": 3,
       "lastAccessed": 1771926983590,
@@ -216,6 +240,12 @@
       "accessCount": 3,
       "lastAccessed": 1771927009578,
       "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop",
+      "accessCount": 3,
+      "lastAccessed": 1771933906689,
+      "type": "directory"
     },
     {
       "path": "agents\\devops-engineer\\AGENT.md",
@@ -240,12 +270,6 @@
       "accessCount": 2,
       "lastAccessed": 1771922266776,
       "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop",
-      "accessCount": 2,
-      "lastAccessed": 1771924183489,
-      "type": "directory"
     },
     {
       "path": "resources\\guides\\develop\\frontend-dev.md",
@@ -311,6 +335,18 @@
       "path": "skills",
       "accessCount": 1,
       "lastAccessed": 1771927001152,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\references\\java-security-jwt-swagger.md",
+      "accessCount": 1,
+      "lastAccessed": 1771960355549,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\references\\java-config-manifest-standard.md",
+      "accessCount": 1,
+      "lastAccessed": 1771960358301,
       "type": "directory"
     }
   ],

@@ -254,6 +254,7 @@ import { defineConfig } from '@playwright/test';
 
 export default defineConfig({
   testDir: './tests',
+  outputDir: '../.temp/playwright-results',
   timeout: 30000,
   retries: 1,
   use: {
@@ -524,19 +525,14 @@ tail -f logs/{service-name}.log
 
 ### 서비스 중지
 
-**Linux/Mac:**
+**전체 서비스 중지:**
 ```bash
-# Java(Spring Boot) 프로세스 전체 중지
-pkill -f 'java.*spring'
+python3 tools/run-intellij-service-profile.py --stop
 ```
 
-**Windows:**
+**개별 서비스 중지:**
 ```bash
-# 포트로 프로세스 찾기
-netstat -ano | findstr :{PORT}
-
-# 프로세스 종료
-powershell "Stop-Process -Id {PID} -Force"
+python3 tools/run-intellij-service-profile.py --stop {service-name}
 ```
 
 ### AI 서비스 시작/중지
@@ -579,7 +575,7 @@ cd frontend && npm run dev
 - 설정 Manifest(`application.yml`)의 민감 정보는 하드코딩하지 않고 환경변수 처리
 - 설정 Manifest 수정 시 실행 프로파일(`.run/*.run.xml`)도 함께 업데이트 (run-profile.md 가이드 참조)
 - 실행 결과 로그는 `logs/` 디렉토리 하위에 자동 생성됨 (`logs/{service-name}.log`)
-- 소스 수정 후 서비스 중지 → `run-intellij-service-profile.py`로 재시작 (Gradle이 자동으로 컴파일 후 실행)
+- 소스 수정 후 `run-intellij-service-profile.py --stop`으로 서비스 중지 → 재시작 (Gradle이 자동으로 컴파일 후 실행)
 - AI 서비스 테스트 시 LLM API 호출 비용 주의 (가능하면 mock 활용)
 - 테스트 리포트 경로는 `docs/develop/test-report.md`로 통일
 - E2E 테스트의 Playwright는 `e2e/` 디렉토리에 독립 프로젝트로 구성한다 (프론트엔드 `frontend/`와 분리)
