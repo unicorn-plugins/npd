@@ -145,6 +145,22 @@
 
 ### 1-4. 통합 테스트 실행
 
+**사전 조건**: 전체 서비스가 기동된 상태에서 통합 테스트를 실행한다.
+
+**1단계. 전체 서비스 동시 기동**
+
+```bash
+# 백킹서비스 기동
+docker compose up -d
+# 백엔드 전체 서비스 기동
+python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
+# AI 서비스 기동 (해당 시)
+docker compose --profile ai up -d
+```
+- 전 서비스 기동 후 에러 로그 0건이어야 PASS
+
+**2단계. 통합 테스트 실행**
+
 ```bash
 # 전체 통합 테스트 실행
 ./gradlew test --tests '*IntegrationTest'
@@ -308,12 +324,14 @@ export default defineConfig({
 
 ### 2-4. E2E 테스트 실행
 
-**사전 조건**: 백킹서비스 + 백엔드 전체 서비스 + 프론트엔드 기동 상태
+**사전 조건**: 백킹서비스 + 백엔드 전체 서비스 + AI 서비스(해당 시) + 프론트엔드 기동 상태
 
 ```bash
 # 사전 준비
 docker compose up -d
 python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
+# AI 서비스 기동 (해당 시)
+docker compose --profile ai up -d
 
 # E2E 테스트 실행
 cd e2e && npx playwright test
