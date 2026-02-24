@@ -152,6 +152,34 @@ grep -rn "TODO\|FIXME\|HACK" --include="*.java" --include="*.py" --include="*.ts
 - **확인 방법**: `grep -rn "@GetMapping\|@PostMapping\|@PutMapping\|@DeleteMapping\|@PatchMapping" --include="*.java" .` 로 실제 매핑 목록 추출 후 대조
 - 누락 엔드포인트가 있으면 FAIL + 누락 목록 기록
 
+#### 3-b. API 응답 스키마 필드 대조 (정적)
+
+엔드포인트 존재 여부(항목 3)와 별개로, **응답 데이터의 필드명·타입·구조**가 설계서와 일치하는지 검증한다.
+(이 검증이 없으면 FE↔BE 간 필드명 불일치가 통합 단계까지 발견되지 않는다)
+
+**검증 방법:**
+1. `docs/design/api-design.md`에서 각 엔드포인트의 Response Body 필드 목록을 추출한다
+2. 대응하는 Controller의 반환 타입(DTO/Response 클래스)을 식별한다
+3. DTO 클래스의 실제 필드명을 추출하여 설계서와 대조한다
+
+```bash
+echo "=== API Response 스키마 필드 검증 ==="
+# 각 DTO/Response 클래스의 필드 추출
+grep -rn "private.*;" --include="*Dto.java" --include="*Response.java" --include="*Vo.java" . \
+  | grep -v "/test/" | grep -v "/build/" | grep -v "serialVersionUID"
+```
+
+- 설계서의 Response 필드명과 DTO 필드명을 **1:1 대조**한다
+- 흔한 불일치 패턴 (반드시 확인):
+  - 필드명 차이: `name` vs `place_name`, `type` vs `briefing_type`
+  - 구조 차이: flat 응답 vs nested 객체 (예: `price: 9900` vs `price: {amount, currency, period}`)
+  - 타입 차이: `String` vs `LocalDateTime`, `int` vs `BigDecimal`
+  - 누락 필드: 설계서에는 있으나 DTO에 없는 필드
+- **불일치가 1건이라도 있으면 FAIL** → 설계서 또는 코드 수정 후 재검증
+- **불일치 목록을 증거로 기록한다** (필드명, 설계서 기대값, 실제 코드값)
+
+> **왜 이 검증이 필요한가**: 백엔드·프론트엔드가 병렬 개발할 때, 각자 API 설계서를 다르게 해석하여 필드명이 달라지는 문제가 가장 빈번하다. 유닛테스트는 각자 자기 코드를 기준으로 Mock을 작성하므로 이 불일치를 잡지 못한다.
+
 #### 4. 프론트엔드 빌드 + 정적 분석 + 테스트
 
 **Pre-flight에서 도구 설치를 확인한 상태에서만 실행한다.**
@@ -510,9 +538,116 @@ MCP Playwright 도구로 검증한다:
 - 위 6단계 모두 정상이어야 통합 스모크 테스트 PASS
 - **스냅샷·네트워크 요청 결과·스크린샷을 증거로 기록한다**
 
+**5-e. API 응답 스키마 동적 검증**
+
+실제 백엔드 API를 호출하여 응답 JSON의 필드명·타입·구조가 API 설계서와 일치하는지 검증한다.
+(Part 1의 정적 검증은 코드 레벨 대조, 여기서는 **실제 런타임 응답** 대조)
+
+```bash
+echo "=== API 응답 스키마 동적 검증 ==="
+# docs/design/api-design.md에서 주요 엔드포인트를 추출하여 실제 호출
+# 인증이 필요한 경우 테스트 토큰 사용
+```
+
+**검증 절차:**
+1. `docs/design/api-design.md`에서 **모든 API 엔드포인트**의 Response Body 스키마(필드명, 타입)를 추출한다
+2. 각 엔드포인트를 `curl`로 실제 호출한다 (인증 필요 시 테스트 토큰 사용)
+3. 응답 JSON의 **실제 필드명**과 설계서의 **기대 필드명**을 1:1 대조한다
+4. 불일치 유형별 판정:
+
+| 불일치 유형 | 예시 | 판정 |
+|------------|------|------|
+| 필드명 불일치 | 설계: `place_name` / 실제: `name` | **FAIL** |
+| 구조 불일치 | 설계: `price: int` / 실제: `price: {amount, currency}` | **FAIL** |
+| 타입 불일치 | 설계: `created_at: string(ISO)` / 실제: `created_at: array` | **FAIL** |
+| 필드 누락 | 설계에 있으나 응답에 없음 | **FAIL** |
+| 필드 추가 | 설계에 없으나 응답에 있음 | **WARN** (기록) |
+
+- **FAIL 1건이라도 있으면 게이트 FAIL** → 백엔드 DTO 또는 프론트엔드 파싱 수정 후 재검증
+- **불일치 목록을 증거로 기록한다** (엔드포인트, 필드명, 설계서 기대값, 실제 응답값)
+
+> **왜 동적 검증도 필요한가**: Jackson 직렬화 설정(`@JsonProperty`, `@JsonNaming`), Lombok `@Builder` 기본값, 중첩 객체 구조 등은 정적 코드 분석만으로는 확인이 어렵다. 실제 HTTP 응답을 검사해야 런타임 불일치를 잡을 수 있다.
+
+**5-f. Playwright MCP 유저 시나리오 전체 검증**
+
+`docs/develop/dev-plan.md`의 테스트 시나리오(TC-01~N)를 **실제 브라우저에서 순서대로 실행**하여,
+사용자 관점에서 핵심 기능이 동작하는지 검증한다.
+(5-d 스모크 테스트는 "페이지가 렌더링되는가"만 확인, 여기서는 **"기능이 동작하는가"**를 확인)
+
+**검증 절차:**
+
+1. `docs/develop/dev-plan.md`의 테스트 시나리오 목록을 추출한다
+2. 각 시나리오를 Playwright MCP 도구로 실제 브라우저에서 수행한다:
+
+```
+시나리오별 반복:
+  1. browser_navigate() → 해당 페이지로 이동
+  2. browser_snapshot() → 페이지 구조 확인, 필요한 UI 요소 존재 확인
+  3. browser_click() / browser_fill_form() → 사용자 행위 수행
+     (로그인, 폼 입력, 버튼 클릭, 페이지 이동 등)
+  4. browser_snapshot() → 결과 화면 확인
+  5. browser_network_requests() → API 호출 성공 여부 확인 (5xx = FAIL)
+  6. browser_console_messages() → JavaScript 에러 확인
+  7. browser_take_screenshot() → .temp/ 디렉토리에 증거 저장
+```
+
+3. 시나리오별 판정:
+
+| 결과 | 판정 |
+|------|------|
+| 페이지 이동 성공 + UI 요소 정상 + API 응답 정상 + 콘솔 에러 없음 | **PASS** |
+| 페이지 이동 실패 또는 빈 화면 | **FAIL** |
+| API 호출 5xx 응답 | **FAIL** |
+| JavaScript 콘솔 에러 (CORS, TypeError, null reference 등) | **FAIL** |
+| 기대한 UI 요소 미존재 (버튼, 폼, 데이터 목록 등) | **FAIL** |
+
+4. 모든 시나리오 완료 후 결과 요약:
+
+```
+## 유저 시나리오 검증 결과
+
+| TC | 시나리오 | 결과 | 증거 |
+|----|---------|------|------|
+| TC-01 | 소셜 로그인 | PASS | 스크린샷: .temp/tc-01.png |
+| TC-02 | 여행 생성 + 장소 추가 | FAIL | API 5xx: POST /api/v1/schedules (스크린샷: .temp/tc-02.png) |
+| ... | ... | ... | ... |
+
+FAIL 시나리오: N건 → 해당 서비스 에이전트에게 수정 지시
+```
+
+- **FAIL 시나리오가 1건이라도 있으면 게이트 FAIL**
+- FAIL 시 해당 에러의 원인(백엔드/프론트엔드/설정)을 분류하여 오케스트레이터에 보고
+- 수정 후 FAIL 시나리오만 재검증 (PASS 시나리오는 재실행 불요)
+- **모든 시나리오 PASS까지 반복**
+
+> **이 검증이 최종 방어선이다**: 유닛테스트·통합테스트·빌드가 모두 통과해도, 실제 브라우저에서 사용자가 경험하는 오류는 이 단계에서만 잡을 수 있다. 필드명 불일치, 인증 상태 유지, 라우팅 오류, 날짜 포맷 차이 등 대부분의 통합 버그가 여기서 발견된다.
+
 ### 게이트 판정
 
-위 5개 항목 모두 PASS해야 Step 5 진입. 보고 형식은 Part 1과 동일하게 증거 기반 테이블을 사용한다.
+위 5개 항목(+ 5-e, 5-f 서브항목) 모두 PASS해야 Step 5 진입. 보고 형식은 Part 1과 동일하게 증거 기반 테이블을 사용한다.
+
+**FAIL 시 보고 형식:**
+
+```
+## Part 2 검증 결과
+
+| # | 항목 | 결과 | 증거 |
+|---|------|------|------|
+| 1 | Mock 잔존 확인 | PASS | grep 결과 0건 |
+| 2 | 서비스 기동+헬스체크 | PASS | 전 포트 200 |
+| 3 | 통합 테스트 | PASS | 42 tests, 0 failed |
+| 4 | BE↔AI 연동 | SKIP | AI 미사용 |
+| 5-a~d | FE→BE 연동 + 스모크 | PASS | 렌더링 정상, 콘솔 에러 0 |
+| 5-e | API 응답 스키마 동적 검증 | FAIL | 3건 불일치 (상세 첨부) |
+| 5-f | 유저 시나리오 전체 검증 | FAIL | TC-02, TC-07 실패 (스크린샷 첨부) |
+
+### FAIL 항목 상세
+- **5-e**: GET /api/v1/places 응답 필드 `name` → 설계서는 `place_name`
+- **5-f TC-02**: 여행 생성 시 POST /api/v1/trips 500 에러 (백엔드 로그 첨부)
+
+### 판정: FAIL (2건)
+→ 오케스트레이터에 보고하여 backend-developer에게 수정 지시 필요
+```
 
 ---
 
