@@ -326,9 +326,33 @@ curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health
 - 헬스체크 엔드포인트 호출 → 정상 응답 확인
 - `logs/ai-service.log`에서 `ERROR` 레벨 로그 검색 (기준 동일)
 
+#### 8. design-contract 행위 계약 테스트 실행
+
+Step 1-2에서 생성된 행위 계약 테스트를 전체 실행하여,
+구현된 코드가 시퀀스 설계서의 행위 계약을 준수하는지 검증한다.
+
+**사전 조건**: 항목 7의 서비스 기동이 완료된 상태
+
+```bash
+echo "=== design-contract 행위 계약 테스트 ==="
+cd test/design-contract
+npm ci
+npx jest --verbose 2>&1 | tee ../../.temp/design-contract-test-output.log
+echo "Exit code: $?"
+grep -E "Tests:|Test Suites:" ../../.temp/design-contract-test-output.log
+```
+
+- 전체 test suite PASS이어야 PASS
+- FAIL 시: FAIL된 테스트명과 에러 메시지를 기록하고 FAIL
+- FAIL 테스트의 원인 분류:
+  - **구현 누락**: 시퀀스의 alt/else 분기에 해당하는 로직이 구현되지 않음 → backend-developer에게 수정 지시
+  - **응답 스키마 불일치**: API 응답 필드가 설계서와 다름 → backend-developer에게 수정 지시
+  - **테스트 오류**: 테스트 자체의 assertion이 설계서와 다름 → 오케스트레이터에 보고하여 Step 1-2 재수행
+- **실제 jest 출력의 결과 라인을 증거로 캡처한다**
+
 ### 게이트 판정
 
-위 7개 항목 모두 PASS해야 Step 4 진입. FAIL 항목 발견 시 아래 형식으로 보고한다:
+위 8개 항목 모두 PASS해야 Step 4 진입. FAIL 항목 발견 시 아래 형식으로 보고한다:
 
 ```
 ## Part 1 검증 결과
@@ -342,6 +366,7 @@ curl -s -o /dev/null -w '%{http_code}' http://localhost:8000/health
 | 5 | 백엔드 빌드+테스트 | PASS | BUILD SUCCESSFUL, 204 tests, 0 failed |
 | 6 | AI 서비스 | SKIP | ai-service/ 미존재 |
 | 7 | 서비스 기동+헬스체크 | PASS | 모든 포트 200 |
+| 8 | design-contract 테스트 | PASS/FAIL | jest 결과: X suites, Y tests, 0 failed |
 
 ### FAIL 항목 상세
 - **항목 4**: flutter analyze에서 3건의 에러 발견
@@ -622,9 +647,24 @@ FAIL 시나리오: N건 → 해당 서비스 에이전트에게 수정 지시
 
 > **이 검증이 최종 방어선이다**: 유닛테스트·통합테스트·빌드가 모두 통과해도, 실제 브라우저에서 사용자가 경험하는 오류는 이 단계에서만 잡을 수 있다. 필드명 불일치, 인증 상태 유지, 라우팅 오류, 날짜 포맷 차이 등 대부분의 통합 버그가 여기서 발견된다.
 
+#### 6. design-contract 행위 계약 테스트 통합 환경 재실행
+
+Mock 환경이 아닌 **실제 서비스 간 연동 환경**에서 design-contract test를 재실행한다.
+(Phase 2에서는 각 서비스가 독립 기동 상태에서 테스트했으나, 여기서는 전체 서비스가 연동된 상태에서 재검증)
+
+```bash
+echo "=== design-contract 테스트 (통합 환경) ==="
+cd test/design-contract
+npx jest --verbose 2>&1 | tee ../../.temp/design-contract-integration-output.log
+echo "Exit code: $?"
+```
+
+- 전체 PASS이어야 PASS
+- Phase 2에서 PASS했으나 여기서 FAIL이면: 서비스 간 연동 설정 문제 (CORS, 인증 토큰 전파 등)
+
 ### 게이트 판정
 
-위 5개 항목(+ 5-e, 5-f 서브항목) 모두 PASS해야 Step 5 진입. 보고 형식은 Part 1과 동일하게 증거 기반 테이블을 사용한다.
+위 6개 항목(+ 5-e, 5-f 서브항목) 모두 PASS해야 Step 5 진입. 보고 형식은 Part 1과 동일하게 증거 기반 테이블을 사용한다.
 
 **FAIL 시 보고 형식:**
 
@@ -809,6 +849,13 @@ fi
 cd ai-service && pytest -v 2>&1 | tee .temp/ai-test-output.log
 echo "=== pytest Exit Code: $? ==="
 ```
+
+**4-e. design-contract 행위 계약 테스트**
+```bash
+cd test/design-contract && npx jest --verbose 2>&1 | tee .temp/design-contract-final-output.log
+echo "=== design-contract Exit Code: $? ==="
+```
+- 전체 PASS이어야 PASS
 
 #### 5. 설정 일관성 교차 검증
 ```bash

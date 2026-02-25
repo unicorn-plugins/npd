@@ -8,11 +8,10 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 종합 개발 계획서 | `docs/develop/dev-plan.md` | 서비스 목록 |
-| 아키텍처 패턴 정의서 | `docs/design/pattern-definition.md` | 아키텍처 패턴, 구현 고려사항 |
-| 공통 베이스 클래스 | `docs/design/class/common-base.puml` | 공통 컴포넌트 |
+| 종합 개발 계획서 | `docs/develop/dev-plan.md` | 서비스 목록, 아키텍처 패턴(섹션 1) |
+| 공통 모듈 구성 정보 | `docs/develop/dev-plan.md` 섹션 10-1 | 공통 컴포넌트 (BaseEntity, 예외처리, 공통 DTO 등) |
+| 기술스택 정보 | `docs/develop/dev-plan.md` 섹션 10-5 | SpringBoot/Java 버전, 빌드 도구 |
 | 패키지 구조 | `docs/design/class/package-structure.md` | 패키지 구조 |
-| HighLevel 아키텍처 | `docs/design/high-level-architecture.md` | SpringBoot/Java 버전 |
 | Gradle 빌드 표준 | `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` | Gradle 멀티모듈 구성 표준 |
 | 설정 Manifest 표준 | `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` | application.yml 작성 표준 |
 
@@ -162,7 +161,7 @@ spring:
 
 #### 6단계: 공통 모듈 개발
 
-`docs/design/class/common-base.puml` 기반으로 common 모듈의 공통 컴포넌트(베이스 클래스, 공통 유틸, 예외 처리 등)를 구현한다.
+`docs/develop/dev-plan.md` 섹션 10-1(공통 모듈 구성)을 기반으로 common 모듈의 공통 컴포넌트(베이스 클래스, 공통 유틸, 예외 처리 등)를 구현한다.
 
 #### 7단계: 공통 모듈 컴파일 검증
 
@@ -206,7 +205,7 @@ spring:
 
 ## 주의사항
 
-- SpringBoot/Java 버전은 `high-level-architecture.md` 참조
+- SpringBoot/Java 버전은 `dev-plan.md`의 '10-5. 기술스택 정보' 참조
 - `{VERSION}`을 실제 버전 번호로 교체 (예: 8.10.2)
 - Windows에서는 `./gradlew` 대신 `.\gradlew.bat` 사용
 - application.yml의 환경변수 실제 값은 이 단계에서 설정하지 않음 (backing-service-setup.md 단계에서 .env.example로 통일)

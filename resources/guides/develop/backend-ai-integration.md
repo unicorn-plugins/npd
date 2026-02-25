@@ -10,8 +10,9 @@
 |--------|----------|----------|
 | 백엔드 API 코드 | `{service-name}/src/main/java/.../` | 연동 코드를 추가할 서비스 레이어 위치 확인 (backend-api-dev.md 산출물) |
 | AI 서비스 API 명세 | `docs/design/api/` 하위 `*.yaml` 파일 중 AI 서비스 관련 파일 탐색 | AI 서비스 엔드포인트, 요청/응답 스펙 확인 (ai-service-dev.md 산출물) |
-| AI 서비스 설계서 | `docs/design/ai-service/` 또는 `docs/design/` 하위에서 AI 서비스 설계 관련 파일 탐색 | 연동 설계, 장애 격리 패턴, SKIP 여부 판단 기준 |
-| 외부 시퀀스 설계서 | `docs/design/sequence/outer/` 하위 `*.puml` 파일 목록 조회 후 서비스 관련 파일 식별 | 서비스 간 AI 호출 흐름 구현 기준 |
+| AI 서비스 설계서 | `docs/design/ai-service-design.md` | 연동 설계, 장애 격리 패턴, SKIP 여부 판단 기준 |
+| 종합 개발 계획서 (통합 맥락) | `docs/develop/dev-plan.md` | BE↔AI 연동 시나리오, 의존관계 |
+| 행위 계약 테스트 | `test/design-contract/integration/*.spec.ts` | BE↔AI 연동 행위 계약 |
 
 ## 출력 (이 단계 산출물)
 
@@ -47,7 +48,7 @@ grep -i "불필요\|해당 없음\|미사용\|skip" docs/design/ai-service-desig
 ### 작성 원칙
 
 - **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다. `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
-- **외부 시퀀스 설계서 일치**: `docs/design/sequence/outer/` 하위에서 식별한 외부 시퀀스 설계서의 AI 호출 흐름을 그대로 구현
+- **행위 계약 테스트 준수**: `test/design-contract/integration/*.spec.ts`의 BE↔AI 연동 시나리오를 기반으로 구현하고, `docs/develop/dev-plan.md`의 서비스 간 의존관계를 참조한다
 - **장애 격리 패턴 적용**: `ai-service-design.md`에 지정된 Circuit Breaker, Fallback 전략 준수
 - **타임아웃 필수 설정**: LLM 응답 지연이 30초 이상 발생할 수 있으므로 connectTimeout/readTimeout 명시
 - **환경변수 관리**: AI 서비스 URL은 하드코딩 금지, `AI_SERVICE_URL` 환경변수로 관리
@@ -60,16 +61,15 @@ grep -i "불필요\|해당 없음\|미사용\|skip" docs/design/ai-service-desig
 - `docs/design/ai-service-design.md`에서 SKIP 조건 확인 (위 SKIP 조건 절차 수행)
 - 설계 산출물 탐색 절차:
   ```
-  1. docs/design/sequence/outer/ 하위 파일 목록 조회
-  2. docs/design/api/ 또는 docs/design/ai-service/ 하위 파일 목록 조회
-  3. 각 디렉토리에서 서비스명(또는 약어)과 매칭되는 파일을 식별
-  4. 매칭 불확실 시 파일 내용 첫 줄을 읽어 서비스 관련 여부 확인
-  5. 특정 디렉토리에서 0건 매칭 시, docs/design/ 전체를 재귀 탐색하여 서비스 관련 파일을 찾는다
-  6. 재귀 탐색에서도 0건이면 해당 산출물이 없는 것으로 간주하고 SKIP한다
-  7. SKIP한 산출물 목록을 최종 결과에 명시하여 오케스트레이터가 확인할 수 있도록 한다
+  1. docs/develop/dev-plan.md를 읽어 서비스 목록, 입력 파일 매핑(섹션 8) 확인
+  2. 매핑 테이블에 명시된 파일만 로드:
+     - API 명세: docs/design/api/{ai-service}-api.yaml
+     - AI 서비스 설계: docs/design/ai-service-design.md
+  3. 행위 계약 테스트 확인: test/design-contract/integration/*.spec.ts
+  4. 누락 파일이 있으면 오케스트레이터에 보고 (직접 탐색하지 않음)
   ```
 - `docs/design/api/` 하위 탐색으로 식별한 AI 서비스 API 명세 파일에서 엔드포인트, 요청/응답 DTO 스펙 파악
-- `docs/design/sequence/outer/` 하위 탐색으로 식별한 외부 시퀀스 설계서에서 어느 서비스 레이어에서 AI 서비스를 호출하는지 흐름 파악
+- `test/design-contract/integration/*.spec.ts`에서 BE↔AI 연동 시나리오의 기대 동작 확인
 - `build.gradle`에 resilience4j 의존성 추가 여부 확인
 
 **실행**

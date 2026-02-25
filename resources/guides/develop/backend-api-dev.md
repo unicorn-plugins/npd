@@ -8,13 +8,13 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 | 산출물 | 탐색 방법 | 활용 방법 |
 |--------|----------|----------|
-| 종합 개발 계획서 | `docs/develop/dev-plan.md` | 서비스 목록, 개발 순서, 의존성 |
-| API 설계서 | `docs/design/api/` 하위 `*.yaml` 파일 중 서비스명 포함 파일 탐색 | 엔드포인트 구현 기준 |
-| 내부 시퀀스 설계서 | `docs/design/sequence/inner/` 하위 `*.puml` 파일 목록 조회 후 서비스 관련 파일 식별 | 레이어 간 호출 흐름 |
-| 클래스 설계서 | `docs/design/class/` 하위 `*.puml` 파일 중 서비스 관련 파일 식별 | 클래스 구조 및 관계 |
-| 데이터 설계서 | `docs/design/database/` 하위 `*.md` 파일 중 서비스 관련 파일 식별 | 엔티티 필드, 관계, 인덱스 |
-| Gradle 환경 | `settings.gradle`, `build.gradle`, `{service-name}/build.gradle` | 빌드 구성 (backend-env-setup.md 산출물) |
-| 백킹서비스 연결 정보 | `.env.example` | DB/Redis/MQ 연결 설정 (backing-service-setup.md 산출물) |
+| 종합 개발 계획서 (통합 맥락) | `docs/develop/dev-plan.md` | 서비스 목록, 개발 순서, 의존성, 아키텍처 결정사항 |
+| API 설계서 | `docs/design/api/` 하위 `*.yaml` | 엔드포인트 구현 기준 |
+| 데이터 설계서 | `docs/design/database/` 하위 `*.md` | 엔티티 필드, 관계, 인덱스 |
+| 패키지 구조 | `docs/design/class/package-structure.md` | 패키지 레이아웃 |
+| 행위 계약 테스트 | `test/design-contract/{service-name}/` | **구현 목표 — 이 테스트를 PASS시키는 것이 구현 완료 기준** |
+| Gradle 환경 | `settings.gradle`, `build.gradle` | 빌드 구성 |
+| 백킹서비스 연결 정보 | `.env.example` | DB/Redis/MQ 연결 설정 |
 | 보안·JWT·Swagger 표준 | `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` | JWT 인증, Swagger 설정 표준 |
 | 테스트 코드 가이드 | `{PLUGIN_DIR}/resources/references/java-test-guide.md` | 단위 테스트 작성 표준 |
 | 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 서비스 기동 검증 |
@@ -36,9 +36,8 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 - **설계 아키텍처 패턴 적용**: 서비스별로 지정된 패턴을 적용
   - **Layered 아키텍처**: Service 레이어에 Interface 사용 (`{ServiceName}Service` 인터페이스 + `{ServiceName}ServiceImpl` 구현체)
   - **Clean 아키텍처**: Port/Adapter 용어 대신 Clean 아키텍처 고유 용어 사용 (UseCase, Gateway 등)
-- **내부 시퀀스 설계서 일치**: 내부 시퀀스 설계서(`docs/design/sequence/inner/` 하위 — 준비 단계에서 식별한 파일)와 레이어 간 호출 흐름이 일치하도록 구현
-- **클래스 설계서 일관성**: 클래스 설계서(`docs/design/class/` 하위 — 준비 단계에서 식별한 파일)의 클래스 구조·관계를 그대로 반영
-- **인증 방식은 설계서에서 확인 후 적용**: `docs/design/high-level-architecture.md`의 `보안 요구사항 > 인증/인가` 및 API 설계서의 `components/securitySchemes`에서 인증 방식을 식별한다
+- **행위 계약 테스트 준수**: 행위 계약 테스트(`test/design-contract/{service-name}/`)의 각 it() 케이스를 PASS시키는 것이 구현 완료 기준
+- **인증 방식은 설계서에서 확인 후 적용**: `docs/develop/dev-plan.md` 섹션 10-3의 인증 방식 및 API 설계서의 `components/securitySchemes`에서 인증 방식을 식별한다
   - **JWT 인증**: `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (R3) 기반 구현
   - **OAuth2/OIDC (소셜 로그인 — Google, 카카오, 네이버 등)**: Spring Security OAuth2 Client 기반 구현
   - 설계서에 인증 방식이 명시되지 않은 경우 클래스 설계서의 Security 관련 클래스를 확인하여 판단
@@ -50,18 +49,16 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 **설계 산출물 탐색 절차:**
 ```
-1. docs/design/api/ 하위 파일 목록 조회
-2. docs/design/sequence/inner/ 하위 파일 목록 조회
-3. docs/design/class/ 하위 파일 목록 조회
-4. docs/design/database/ 하위 파일 목록 조회
-5. 각 디렉토리에서 서비스명(또는 약어)과 매칭되는 파일을 식별
-6. 매칭 불확실 시 파일 내용 첫 줄을 읽어 서비스 관련 여부 확인
-7. 특정 디렉토리에서 0건 매칭 시, docs/design/ 전체를 재귀 탐색하여 서비스 관련 파일을 찾는다
-8. 재귀 탐색에서도 0건이면 해당 산출물이 없는 것으로 간주하고 SKIP한다
-9. SKIP한 산출물 목록을 최종 결과에 명시하여 오케스트레이터가 확인할 수 있도록 한다
+1. docs/develop/dev-plan.md를 읽어 서비스 목록, 입력 파일 매핑(섹션 8) 확인
+2. 매핑 테이블에 명시된 파일만 로드:
+   - API 명세: docs/design/api/{service-name}-api.yaml
+   - DB 설계: docs/design/database/{service-name}.md
+   - 패키지 구조: docs/design/class/package-structure.md
+3. 행위 계약 테스트 확인: test/design-contract/{service-name}/*.spec.ts
+4. 누락 파일이 있으면 오케스트레이터에 보고 (직접 탐색하지 않음)
 ```
 
-- 서비스별 설계 산출물 분석: API 설계서, 내부 시퀀스, 클래스 설계서, 데이터 설계서 순서로 파악
+- 서비스별 설계 산출물 분석: API 설계서, 데이터 설계서, 행위 계약 테스트 순서로 파악
 - 서비스 간 의존성 분석: `dev-plan.md` 기반으로 독립 서비스와 의존 서비스를 구분 (병렬 처리 가이드 참조)
 - 패키지 구조도 작성: `클래스설계서`와 일치하도록 모든 클래스·파일을 포함한 트리구조 텍스트로 작성
   - 결과 파일: `docs/develop/dev/{service-name}-package-structure.md`
@@ -88,12 +85,13 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 **레포지토리 작성 기준:**
 - `JpaRepository<{Entity}, {IdType}>` 상속
-- 내부 시퀀스 설계서에 나타나는 조회 조건을 `findBy...`, `@Query` 등으로 구현
+- 행위 계약 테스트의 시나리오에 나타나는 조회 조건을 `findBy...`, `@Query` 등으로 구현
 - 복잡한 쿼리는 `@Query(value = "...", nativeQuery = true)` 또는 JPQL 사용
 
 #### 2단계: 서비스 레이어 구현
 
-내부 시퀀스 설계서(`docs/design/sequence/inner/` 하위 — 준비 단계에서 식별한 파일)의 흐름을 그대로 반영한다.
+dev-plan.md의 서비스별 내부 흐름 설명과 design-contract test의 시나리오를 기반으로 구현한다.
+행위 계약 테스트(test/design-contract/{service-name}/*.spec.ts)의 각 it() 케이스가 곧 구현해야 할 행위 목록이다.
 
 **Layered 아키텍처 적용 시:**
 ```java
@@ -168,9 +166,9 @@ public class {ServiceName}Controller {
 **SecurityConfig/인증/SwaggerConfig 구현:**
 
 먼저 인증 방식을 식별한다:
-1. `docs/design/high-level-architecture.md`의 `보안 요구사항 > 인증/인가` 항목 확인
+1. `docs/develop/dev-plan.md` 섹션 10-3의 인증 방식 확인
 2. API 설계서(`docs/design/api/*.yaml`)의 `components/securitySchemes` 확인
-3. 클래스 설계서(`docs/design/class/`)의 Security 관련 클래스 확인
+3. `docs/develop/dev-plan.md` 섹션 10-3의 Security 클래스 목록 확인
 
 **[JWT 인증인 경우]**
 
@@ -407,6 +405,23 @@ class {ServiceName}ControllerTest {
 - 단위 테스트 전체 통과 여부 확인
 - API 설계서 엔드포인트 누락 여부 확인
 
+#### 5-b단계: 행위 계약 테스트 실행
+
+서비스 기동 후 design-contract test를 실행하여 시퀀스 설계서의 행위 계약 준수를 확인한다.
+
+```bash
+# 서비스 기동 (6단계에서 수행하는 기동과 동일)
+python3 tools/run-intellij-service-profile.py {service-name}
+
+# 행위 계약 테스트 실행
+cd test/design-contract
+npx jest --testPathPattern="{service-name}" --verbose
+```
+
+- 전체 PASS가 구현 완료 기준
+- FAIL 시: 프로덕션 코드를 수정하여 테스트를 통과시킴 (테스트 코드 수정 금지)
+- 테스트가 설계 의도와 다르다고 판단되면, 오케스트레이터에 보고하여 Step 1-2 재수행 요청
+
 #### 6단계: 서비스 기동 검증
 
 컴파일과 단위 테스트를 통과해도 런타임에 빈 주입 실패, 설정 누락 등의 오류가 발생할 수 있다. `run-intellij-service-profile.py`를 사용하여 실제 서비스 기동을 확인한다.
@@ -593,6 +608,7 @@ curl -s http://localhost:{port}/actuator/health
 - [ ] 서비스별 아키텍처 패턴(Layered/Clean) 일관성 유지
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" {service-name}/src/` 결과가 0건이어야 한다
 - [ ] **핵심 API 실호출 검증**: 서비스 기동 후 최소 1개 핵심 API에 `curl` 호출하여 정상 응답(2xx) 확인
+- [ ] **design-contract test PASS**: `cd test/design-contract && npx jest --testPathPattern="{service-name}" --verbose` 결과 전체 PASS
 
 ## 주의사항
 

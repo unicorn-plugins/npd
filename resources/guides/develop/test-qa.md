@@ -2,7 +2,7 @@
 
 ## 목적
 
-구현된 전체 시스템(백엔드, 프론트엔드, AI 서비스)에 대해 **자동화된 테스트 코드**를 작성하고 실행하여, MVP Must Have 기능 전체가 정상 동작함을 검증한다. curl 수동 확인이 아닌, 재실행 가능한 테스트 코드 기반의 검증 체계를 구축한다.
+구현된 전체 시스템(백엔드, 프론트엔드, AI 서비스)에 대해 **자동화된 테스트 코드**를 작성하고 실행하여, dev-plan.md에 정의된 전체 기능이 정상 동작함을 검증한다. curl 수동 확인이 아닌, 재실행 가능한 테스트 코드 기반의 검증 체계를 구축한다.
 
 ## 입력 (이전 단계 산출물)
 
@@ -11,13 +11,14 @@
 | 구현된 백엔드 코드 | `{service-name}/src/` | 테스트 대상 |
 | 구현된 프론트엔드 코드 | `frontend/` | 테스트 대상 |
 | 구현된 AI 서비스 코드 | `ai-service/` | 테스트 대상 (존재 시) |
-| 유저스토리 | `docs/plan/design/userstory.md` | E2E 테스트 시나리오 결정 |
+| 테스트 시나리오 | `docs/develop/dev-plan.md` 섹션 9 | E2E 테스트 시나리오 결정 |
 | API 설계서 | `docs/design/api/*.yaml` | 통합 테스트 케이스 결정 |
 | 데이터 설계서 | `docs/design/data-design.md` | 샘플 데이터 설계 |
 | 서비스 실행 프로파일 | `{service-name}/.run/{service-name}.run.xml` | 실행 환경 확인 |
 | 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 백엔드 서비스 실행 |
 | 백킹서비스 설치 결과서 | `docs/develop/backing-service-result.md` | 연결 정보 확인 |
 | Docker Compose 파일 | `./docker-compose.yml` | 백킹서비스 기동 |
+| 행위 계약 테스트 | `test/design-contract/*.spec.ts` | 시퀀스 기반 행위 계약 검증 대상 |
 
 ## 출력 (이 단계 산출물)
 
@@ -181,11 +182,11 @@ docker compose --profile ai up -d
 
 ### 2-1. E2E 테스트 케이스 설계
 
-**입력**: 유저스토리(`docs/plan/design/userstory.md`)
+**입력**: 테스트 시나리오(`docs/develop/dev-plan.md` 섹션 9)
 
 **절차:**
 
-1. 유저스토리의 Must Have 기능을 사용자 시나리오로 변환한다
+1. dev-plan.md 섹션 9의 테스트 시나리오를 E2E 사용자 시나리오로 변환한다
 2. 각 시나리오의 단계별 동작·검증 포인트를 정의한다:
    - 페이지 이동 경로
    - 입력 데이터
@@ -200,13 +201,13 @@ docker compose --profile ai up -d
 
 ## 1. 테스트 범위
 
-| 유저스토리 | 시나리오 수 | 우선순위 |
-|-----------|-----------|---------|
-| {US-ID} {제목} | {N} | Must Have |
+| 테스트 시나리오 (TC-ID) | 시나리오 수 | 우선순위 |
+|------------------------|-----------|---------|
+| {TC-ID} {제목} | {N} | {우선순위} |
 
 ## 2. 테스트 시나리오 목록
 
-### {US-ID}: {유저스토리 제목}
+### {TC-ID}: {시나리오 제목}
 
 | ID | 시나리오 | 사전 조건 | 단계 | 기대 결과 | 유형 |
 |----|---------|----------|------|----------|------|
@@ -371,6 +372,9 @@ cd ai-service && pytest
 
 # 4. E2E 테스트
 cd e2e && npx playwright test
+
+# 5. design-contract 행위 계약 테스트
+cd test/design-contract && npx jest --verbose
 ```
 
 ### 3-2. 실패 분석 및 버그 수정 사이클
@@ -410,6 +414,7 @@ cd e2e && npx playwright test
 | 통합 테스트 | {N} | {N} | 0 | 100% |
 | E2E 테스트 | {N} | {N} | 0 | 100% |
 | AI 서비스 테스트 | {N} | {N} | 0 | 100% |
+| design-contract 테스트 | {N} | {N} | 0 | 100% |
 | **합계** | **{N}** | **{N}** | **0** | **100%** |
 
 ## 3. 백엔드 통합 테스트 상세
@@ -420,9 +425,9 @@ cd e2e && npx playwright test
 
 ## 4. E2E 테스트 상세
 
-| 유저스토리 | 시나리오 | 테스트 파일 | 결과 |
-|-----------|---------|-----------|------|
-| {US-ID} | {시나리오명} | {file.spec.ts} | PASS |
+| 테스트 시나리오 | 시나리오 | 테스트 파일 | 결과 |
+|---------------|---------|-----------|------|
+| {TC-ID} | {시나리오명} | {file.spec.ts} | PASS |
 
 ## 5. 프론트엔드 테스트 상세
 
@@ -443,19 +448,19 @@ cd e2e && npx playwright test
 |----|--------|--------|-----------|------|----------|
 | BUG-{N} | {Critical/Major/Minor} | {서비스명} | {테스트 ID} | {버그 설명} | 수정완료 |
 
-## 8. MVP Must Have 커버리지
+## 8. 기능 커버리지
 
-| 유저스토리 | E2E 테스트 | 통합 테스트 | 커버 여부 |
-|-----------|-----------|-----------|----------|
-| {US-ID} {제목} | {E2E-NNN} | {IT-NNN} | 커버됨 |
+| 테스트 시나리오 | E2E 테스트 | 통합 테스트 | 커버 여부 |
+|---------------|-----------|-----------|----------|
+| {TC-ID} {제목} | {E2E-NNN} | {IT-NNN} | 커버됨 |
 
-**MVP Must Have 커버리지**: {N}/{M} ({%})
+**기능 커버리지**: {N}/{M} ({%})
 
 ## 9. 최종 요약
 
 - 전체 테스트 수: {N}
 - 전체 통과율: 100%
-- MVP Must Have 커버리지: {N}/{M} (100%)
+- 기능 커버리지: {N}/{M} (100%)
 - 미해결 버그: 0건
 ```
 
@@ -564,7 +569,7 @@ cd frontend && npm run dev
 - [ ] E2E 테스트 케이스 문서(`docs/develop/e2e-test-cases.md`) 작성 완료
 - [ ] E2E 테스트 샘플 데이터(`e2e/fixtures/`) 작성 완료
 - [ ] E2E 테스트 코드(`e2e/tests/*.spec.ts`) 전체 PASS
-- [ ] MVP Must Have 기능 전체 테스트 커버
+- [ ] dev-plan.md 정의 기능 전체 테스트 커버
 - [ ] 발견된 버그 전체 수정 완료
 - [ ] 종합 테스트 리포트(`docs/develop/test-report.md`) 작성 완료
 

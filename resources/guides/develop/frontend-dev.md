@@ -13,11 +13,11 @@ Mock API 연동이 완성된 상태로 실제 백엔드 전환을 준비한다.
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
+| 프로토타입 | `docs/plan/design/uiux/prototype/` | 화면 구조·컴포넌트 구현 기준 |
 | OpenAPI 명세 | `docs/design/api/*.yaml` | Prism Mock 데이터 자동 생성 기준 |
-| UI/UX 설계서 | `docs/design/frontend/uiux-design.md` | 화면 구조·컴포넌트 구현 기준 |
-| API 매핑설계서 | `docs/design/frontend/api-mapping.md` | 페이지-API 연동 기준 |
-| 유저스토리 | `docs/plan/design/userstory.md` | 페이지 구현 우선순위 결정 |
+| 종합 개발 계획서 | `docs/develop/dev-plan.md` | 페이지 우선순위(섹션 5) |
 | 프론트엔드 프로젝트 골격 | `frontend/` | `frontend-env-setup.md` 산출물 |
+| 행위 계약 테스트 | `test/design-contract/integration/*.spec.ts` | 프론트엔드↔백엔드 연동 시나리오 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -54,7 +54,7 @@ Mock API 연동이 완성된 상태로 실제 백엔드 전환을 준비한다.
 
 1. 준비: 설계 문서 분석 및 Prism Mock 서버 기동 확인
 2. 공통 컴포넌트/위젯 개발
-3. 페이지별 구현 (유저스토리 우선순위 순)
+3. 페이지별 구현 (dev-plan.md의 섹션5 참조)
 4. 빌드 및 에러 해결
 
 ---
@@ -67,16 +67,15 @@ Mock API 연동이 완성된 상태로 실제 백엔드 전환을 준비한다.
 
 | 파일 | 파악할 내용 |
 |------|-----------|
-| `docs/design/frontend/uiux-design.md` | 화면 목록, 컴포넌트 구성, 인터랙션 |
-| `docs/design/frontend/api-mapping.md` | 페이지별 사용 API 엔드포인트 |
-| `docs/plan/design/userstory.md` | Must Have / Should Have 우선순위 |
+| `프로토타입(docs/plan/design/uiux/prototype/)` | 화면 목록, 컴포넌트 구성, 인터랙션, 페이지별 API 연동 포인트 |
+| `docs/develop/dev-plan.md` 섹션 5 | 페이지 목록, 구현 우선순위 |
 | `docs/design/api/*.yaml` | 엔드포인트, 요청/응답 스키마 |
 
 OpenAPI 명세에서 각 엔드포인트의 응답 스키마를 파악하여 컴포넌트에 필요한 타입을 미리 정리한다.
 
 #### 1.2 프로토타입 화면 분석
 
-UI/UX 설계서에 프로토타입 URL이 있으면 playwright MCP로 각 화면을 모바일 사이즈(390×844)로 열어 확인한다.
+프로토타입을 playwright MCP로 각 화면을 모바일 사이즈(390×844)로 열어 확인한다.
 
 ```
 구현 전 확인 항목:
@@ -164,7 +163,7 @@ flutter run --dart-define=API_BASE_URL=http://localhost:4010
 
 #### 2.1 컴포넌트 분류 기준
 
-UI/UX 설계서와 프로토타입 분석 결과를 바탕으로 컴포넌트를 분류한다.
+프로토타입 분석 결과를 바탕으로 컴포넌트를 분류한다.
 
 <!-- IF PLATFORM == REACT -->
 | 분류 | 경로 | 기준 |
@@ -364,8 +363,6 @@ AppBadge / AppTag
 
 #### 2.3 레이아웃 컴포넌트/위젯
 
-UI/UX 설계서의 레이아웃 구조를 기반으로 구현한다.
-
 <!-- IF PLATFORM == REACT -->
 ```typescript
 // src/layouts/MainLayout.tsx 예시
@@ -522,7 +519,7 @@ export const usersService = {
 }
 ```
 
-모든 엔드포인트는 `api-mapping.md`에 정의된 것과 정확히 일치해야 한다.
+모든 엔드포인트는 `API 설계서(docs/design/api/*.yaml)`에 정의된 것과 정확히 일치해야 한다.
 
 #### 3.3 React Query 훅
 
@@ -837,21 +834,21 @@ final usersNotifierProvider =
 
 #### 4.1 구현 순서 결정
 
-`docs/plan/design/userstory.md`의 우선순위를 기준으로 구현 순서를 정한다.
+`docs/develop/dev-plan.md` 섹션 5의 우선순위를 기준으로 구현 순서를 정한다.
 
 ```
 구현 순서 원칙:
-1. Must Have 유저스토리 → 2. Should Have 유저스토리
-동일 우선순위 내에서는 UI/UX 설계서의 화면 목록 순서를 따른다.
+1. `dev-plan.md`의 '5. 프론트엔드 범위'의 우선순위대로 개발 
+동일 우선순위 내에서는 프로토타입의 화면 목록 순서를 따른다.
 ```
 
 구현 전 각 페이지에 대해 아래를 확인한다.
 
 | 확인 항목 | 참조 파일 |
 |----------|---------|
-| 이 페이지의 유저스토리 | `docs/plan/design/userstory.md` |
-| 사용하는 API 엔드포인트 | `docs/design/frontend/api-mapping.md` |
-| 화면 구성 및 인터랙션 | `docs/design/frontend/uiux-design.md` |
+| 이 페이지의 설명 | `docs/develop/dev-plan.md` 섹션 5 |
+| 사용하는 API 엔드포인트 | `docs/design/api/*.yaml` |
+| 화면 구성 및 인터랙션 | `프로토타입(docs/plan/design/uiux/prototype/)` |
 | 요청/응답 스키마 | `docs/design/api/*.yaml` |
 
 #### 4.2 페이지/화면 구현 패턴
@@ -1232,9 +1229,9 @@ frontend/lib/
 ## 페이지명: _______________
 
 ### 준비
-- [ ] 유저스토리 확인 (userstory.md)
-- [ ] API 엔드포인트 확인 (api-mapping.md)
-- [ ] 화면 구성 확인 (uiux-design.md)
+- [ ] 우선순위 확인 (dev-plan.md 섹션 5)
+- [ ] API 엔드포인트 확인 (OpenAPI yaml)
+- [ ] 화면 구성 확인 (프로토타입)
 - [ ] 요청/응답 스키마 확인 (OpenAPI yaml)
 - [ ] 프로토타입 화면 확인 (playwright)
 
@@ -1250,16 +1247,16 @@ frontend/lib/
 - [ ] 화면 정상 렌더링 확인
 - [ ] 콘솔 에러 없음 확인
 - [ ] 반응형 레이아웃 확인 (모바일/데스크톱)
-- [ ] UI/UX 설계서 화면과 일치 확인
+- [ ] 프로토타입 화면과 일치 확인
 ```
 <!-- ELIF PLATFORM == VUE -->
 ```
 ## 화면명: _______________
 
 ### 준비
-- [ ] 유저스토리 확인 (userstory.md)
-- [ ] API 엔드포인트 확인 (api-mapping.md)
-- [ ] 화면 구성 확인 (uiux-design.md)
+- [ ] 우선순위 확인 (dev-plan.md 섹션 5)
+- [ ] API 엔드포인트 확인 (OpenAPI yaml)
+- [ ] 화면 구성 확인 (프로토타입)
 - [ ] 요청/응답 스키마 확인 (OpenAPI yaml)
 - [ ] 프로토타입 화면 확인 (playwright)
 
@@ -1275,16 +1272,16 @@ frontend/lib/
 - [ ] 화면 정상 렌더링 확인
 - [ ] 콘솔 에러 없음 확인
 - [ ] 반응형 레이아웃 확인 (모바일/데스크톱)
-- [ ] UI/UX 설계서 화면과 일치 확인
+- [ ] 프로토타입 화면과 일치 확인
 ```
 <!-- ELIF PLATFORM == FLUTTER -->
 ```
 ## 화면명: _______________
 
 ### 준비
-- [ ] 유저스토리 확인 (userstory.md)
-- [ ] API 엔드포인트 확인 (api-mapping.md)
-- [ ] 화면 구성 확인 (uiux-design.md)
+- [ ] 우선순위 확인 (dev-plan.md 섹션 5)
+- [ ] API 엔드포인트 확인 (OpenAPI yaml)
+- [ ] 화면 구성 확인 (프로토타입)
 - [ ] 요청/응답 스키마 확인 (OpenAPI yaml)
 - [ ] 프로토타입 화면 확인 (playwright — 모바일 사이즈 390×844)
 
@@ -1302,7 +1299,7 @@ frontend/lib/
 - [ ] Prism Mock 서버 응답 확인 (Dio 로그 or flutter_inspector, http://localhost:4010)
 - [ ] 화면 정상 렌더링 확인
 - [ ] flutter logs에 에러 없음
-- [ ] UI/UX 설계서 화면과 일치 확인 (모바일/태블릿)
+- [ ] 프로토타입 화면과 일치 확인 (모바일/태블릿)
 ```
 <!-- ENDIF -->
 
@@ -1312,36 +1309,36 @@ frontend/lib/
 
 <!-- IF PLATFORM == REACT -->
 - [ ] 모든 페이지가 Prism Mock API(localhost:4010) 기반으로 정상 동작
-- [ ] API 서비스 함수의 엔드포인트가 `api-mapping.md`와 정확히 일치
+- [ ] API 서비스 함수의 엔드포인트가 `API 설계서(docs/design/api/*.yaml)`와 정확히 일치
 - [ ] `public/runtime-env.js` 변경만으로 Mock → 실제 서버 전환 가능한 구조
 - [ ] 반응형 UI 구현 (모바일/태블릿/데스크톱)
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 - [ ] CSS 변수가 `style-guide.md` 기준 값과 일치 (하드코딩 없음)
 - [ ] Prism stub 데이터가 `src/services/api/stubs/`에 분리됨
-- [ ] 유저스토리 Must Have 항목 전체 구현
+- [ ] dev-plan.md 섹션 5의 페이지 전체 구현
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/src/` 결과가 0건
 - [ ] **런타임 동작 확인**: `npm run dev` 실행 후 브라우저에서 주요 페이지 접근 및 Mock API 호출 정상 동작
 <!-- ELIF PLATFORM == VUE -->
 - [ ] 모든 화면이 Prism Mock API(localhost:4010) 기반으로 정상 동작
-- [ ] API 서비스 함수의 엔드포인트가 `api-mapping.md`와 정확히 일치
+- [ ] API 서비스 함수의 엔드포인트가 `API 설계서(docs/design/api/*.yaml)`와 정확히 일치
 - [ ] `public/runtime-env.js` 변경만으로 Mock → 실제 서버 전환 가능한 구조
 - [ ] 반응형 UI 구현 (모바일/태블릿/데스크톱)
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 - [ ] CSS 변수가 `style-guide.md` 기준 값과 일치 (하드코딩 없음)
 - [ ] Prism stub 데이터가 `src/services/api/stubs/`에 분리됨
-- [ ] 유저스토리 Must Have 항목 전체 구현
+- [ ] dev-plan.md 섹션 5의 페이지 전체 구현
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/src/` 결과가 0건
 - [ ] **런타임 동작 확인**: `npm run dev` 실행 후 브라우저에서 주요 페이지 접근 및 Mock API 호출 정상 동작
 <!-- ELIF PLATFORM == FLUTTER -->
 - [ ] 모든 화면이 Prism Mock API(localhost:4010) 기반으로 정상 동작
-- [ ] DataSource의 엔드포인트가 `api-mapping.md`와 정확히 일치
+- [ ] DataSource의 엔드포인트가 `API 설계서(docs/design/api/*.yaml)`와 정확히 일치
 - [ ] `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile) 변경만으로 Mock → 실제 서버 전환 가능한 구조
 - [ ] `flutter analyze` 결과 오류(error) 0건, 경고(warning) 0건
 - [ ] `dart run build_runner build` 성공 (freezed/json_serializable 코드 최신 상태)
 - [ ] `flutter build apk` (또는 대상 플랫폼 빌드) 성공
 - [ ] ThemeData 기반 스타일링 (하드코딩된 색상·폰트 크기 없음)
 - [ ] Prism stub 데이터가 `lib/core/stubs/`에 분리됨
-- [ ] 유저스토리 Must Have 항목 전체 구현
+- [ ] dev-plan.md 섹션 5의 페이지 전체 구현
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/lib/` 결과가 0건
 - [ ] **런타임 동작 확인**: `flutter run -d chrome` 실행 후 주요 화면 접근 및 Mock API 호출 정상 동작
 <!-- ENDIF -->
