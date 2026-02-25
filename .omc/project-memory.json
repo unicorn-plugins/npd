@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1771920033738,
+  "lastScanned": 1772016593532,
   "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1771920033655,
+      "lastAccessed": 1772016593519,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 11,
-      "lastAccessed": 1771920033655,
+      "lastAccessed": 1772016593519,
       "keyFiles": [
         "add-ext-skill.md",
         "create.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1771920033655,
+      "lastAccessed": 1772016593520,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1771920033656,
+      "lastAccessed": 1772016593520,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -77,7 +77,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1771920033656,
+      "lastAccessed": 1772016593521,
       "keyFiles": [
         "resource.md"
       ]
@@ -86,268 +86,274 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1771920033656,
+      "lastAccessed": 1772016593521,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "",
+      "path": "skills\\develop\\SKILL.md",
       "accessCount": 51,
-      "lastAccessed": 1771927257205,
+      "lastAccessed": 1772041895972,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 36,
+      "lastAccessed": 1772038479280,
       "type": "directory"
     },
     {
-      "path": "resources\\guides\\deploy",
-      "accessCount": 40,
-      "lastAccessed": 1771927911801,
-      "type": "directory"
-    },
-    {
-      "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 38,
-      "lastAccessed": 1771927957102,
+      "path": "resources\\guides\\develop\\frontend-integration-react.md",
+      "accessCount": 23,
+      "lastAccessed": 1772037532019,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\deploy\\run-container-guide-front.md",
-      "accessCount": 37,
-      "lastAccessed": 1771927958465,
+      "path": "resources\\guides\\develop\\frontend-integration-flutter.md",
+      "accessCount": 22,
+      "lastAccessed": 1772037533486,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\verification-gate.md",
-      "accessCount": 27,
-      "lastAccessed": 1771959299997,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-guide-back.md",
-      "accessCount": 20,
-      "lastAccessed": 1771928053008,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-front.md",
-      "accessCount": 16,
-      "lastAccessed": 1771927014556,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-back.md",
-      "accessCount": 16,
-      "lastAccessed": 1771927232737,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-guide-ai.md",
-      "accessCount": 12,
-      "lastAccessed": 1771928049067,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-env-setup.md",
-      "accessCount": 11,
-      "lastAccessed": 1771961958398,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-front-minikube.md",
-      "accessCount": 10,
-      "lastAccessed": 1771924824837,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\tools\\customs\\general\\run-intellij-service-profile.py",
-      "accessCount": 10,
-      "lastAccessed": 1771934129324,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-actions-cicd-back.md",
-      "accessCount": 9,
-      "lastAccessed": 1771927217259,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-back-minikube.md",
-      "accessCount": 7,
-      "lastAccessed": 1771922115255,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\test-qa.md",
-      "accessCount": 7,
-      "lastAccessed": 1771948200169,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\setup\\prepare.md",
-      "accessCount": 6,
-      "lastAccessed": 1771931472437,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\ai-service-env-setup.md",
-      "accessCount": 5,
-      "lastAccessed": 1771921876683,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-jenkins-cicd-back.md",
-      "accessCount": 5,
-      "lastAccessed": 1771926986934,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-actions-cicd-front.md",
-      "accessCount": 5,
-      "lastAccessed": 1771927224819,
+      "path": "resources\\guides\\develop\\frontend-integration-vue.md",
+      "accessCount": 21,
+      "lastAccessed": 1772037532698,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\backend-api-dev.md",
-      "accessCount": 5,
-      "lastAccessed": 1771960627488,
+      "accessCount": 17,
+      "lastAccessed": 1772041501642,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\deploy\\deploy-jenkins-cicd-front.md",
-      "accessCount": 3,
-      "lastAccessed": 1771921192994,
+      "path": "resources\\guides\\develop\\test-api.md",
+      "accessCount": 16,
+      "lastAccessed": 1772036858240,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\deploy\\deploy-actions-cicd-front-minikube.md",
-      "accessCount": 3,
-      "lastAccessed": 1771921194791,
+      "path": "skills\\design\\SKILL.md",
+      "accessCount": 16,
+      "lastAccessed": 1772040138600,
       "type": "file"
     },
     {
-      "path": "resources\\guides",
-      "accessCount": 3,
-      "lastAccessed": 1771924205450,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-actions-cicd-back-minikube.md",
-      "accessCount": 3,
-      "lastAccessed": 1771926983590,
+      "path": "skills\\deploy\\SKILL.md",
+      "accessCount": 14,
+      "lastAccessed": 1772040141127,
       "type": "file"
     },
     {
-      "path": "skills\\develop\\SKILL.md",
-      "accessCount": 3,
-      "lastAccessed": 1771927009578,
+      "path": "resources\\guides\\develop\\run-profile.md",
+      "accessCount": 13,
+      "lastAccessed": 1772038611406,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\test-on-browser.md",
+      "accessCount": 12,
+      "lastAccessed": 1772035401611,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\backend-env-setup.md",
+      "accessCount": 12,
+      "lastAccessed": 1772038612131,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\java-config-manifest-standard.md",
+      "accessCount": 9,
+      "lastAccessed": 1772038609976,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop",
-      "accessCount": 3,
-      "lastAccessed": 1771933906689,
+      "accessCount": 8,
+      "lastAccessed": 1772026477151,
       "type": "directory"
     },
     {
-      "path": "agents\\devops-engineer\\AGENT.md",
+      "path": "resources\\guides\\develop\\backing-service-setup.md",
+      "accessCount": 7,
+      "lastAccessed": 1772036856690,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-react.md",
+      "accessCount": 6,
+      "lastAccessed": 1772035398426,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
+      "accessCount": 6,
+      "lastAccessed": 1772035411993,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-flutter.md",
+      "accessCount": 5,
+      "lastAccessed": 1772035412579,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\design-contract-compile.md",
+      "accessCount": 5,
+      "lastAccessed": 1772036702111,
+      "type": "file"
+    },
+    {
+      "path": "skills\\plan\\SKILL.md",
+      "accessCount": 5,
+      "lastAccessed": 1772040137809,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-env-setup-react.md",
+      "accessCount": 4,
+      "lastAccessed": 1772035398083,
+      "type": "file"
+    },
+    {
+      "path": "dev-revise-plan.md",
+      "accessCount": 3,
+      "lastAccessed": 1772026494196,
+      "type": "file"
+    },
+    {
+      "path": "skills",
+      "accessCount": 3,
+      "lastAccessed": 1772030073510,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\develop\\dev-plan.md",
       "accessCount": 2,
-      "lastAccessed": 1771920592602,
+      "lastAccessed": 1772035395726,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\ai-service-env-setup.md",
+      "accessCount": 2,
+      "lastAccessed": 1772035399417,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\ai-service-dev.md",
       "accessCount": 2,
-      "lastAccessed": 1771921684137,
+      "lastAccessed": 1772035400174,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\deploy\\deploy-k8s-ai-minikube.md",
+      "path": "resources\\guides\\develop\\backend-ai-integration.md",
       "accessCount": 2,
-      "lastAccessed": 1771922266725,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-ai.md",
-      "accessCount": 2,
-      "lastAccessed": 1771922266776,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev.md",
-      "accessCount": 2,
-      "lastAccessed": 1771924193481,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-argocd-cicd.md",
-      "accessCount": 2,
-      "lastAccessed": 1771926996642,
-      "type": "file"
-    },
-    {
-      "path": "commands\\deploy.md",
-      "accessCount": 1,
-      "lastAccessed": 1771920314184,
-      "type": "file"
-    },
-    {
-      "path": "agents\\devops-engineer\\tools.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1771920373086,
-      "type": "file"
-    },
-    {
-      "path": "agents\\devops-engineer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1771920373097,
+      "lastAccessed": 1772035400309,
       "type": "file"
     },
     {
       "path": "gateway\\runtime-mapping.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1771920374210,
+      "accessCount": 2,
+      "lastAccessed": 1772035402132,
       "type": "file"
     },
     {
-      "path": "gateway\\install.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1771920386607,
+      "path": "resources\\guides\\develop\\frontend-env-setup-vue.md",
+      "accessCount": 2,
+      "lastAccessed": 1772035410825,
       "type": "file"
     },
     {
-      "path": ".claude\\settings.local.json",
-      "accessCount": 1,
-      "lastAccessed": 1771920454628,
+      "path": "resources\\guides\\develop\\frontend-env-setup-flutter.md",
+      "accessCount": 2,
+      "lastAccessed": 1772035411392,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\design\\ai-service-design.md",
-      "accessCount": 1,
-      "lastAccessed": 1771921100993,
+      "path": "agents\\qa-engineer\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1772035422471,
       "type": "file"
     },
     {
-      "path": "skills\\deploy",
+      "path": "skills\\prepare\\SKILL.md",
+      "accessCount": 2,
+      "lastAccessed": 1772040140257,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\verification-gate.md",
       "accessCount": 1,
-      "lastAccessed": 1771926710650,
+      "lastAccessed": 1772023426709,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\test-qa.md",
+      "accessCount": 1,
+      "lastAccessed": 1772023433880,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-env-setup.md",
+      "accessCount": 1,
+      "lastAccessed": 1772025769484,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev.md",
+      "accessCount": 1,
+      "lastAccessed": 1772025773161,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-integration.md",
+      "accessCount": 1,
+      "lastAccessed": 1772025777961,
+      "type": "file"
+    },
+    {
+      "path": "skills\\develop",
+      "accessCount": 1,
+      "lastAccessed": 1772026477829,
       "type": "directory"
     },
     {
-      "path": "skills",
+      "path": "agents\\backend-developer\\AGENT.md",
       "accessCount": 1,
-      "lastAccessed": 1771927001152,
-      "type": "directory"
+      "lastAccessed": 1772035340953,
+      "type": "file"
     },
     {
-      "path": "resources\\references\\java-security-jwt-swagger.md",
+      "path": "agents\\qa-engineer\\AGENT.md",
       "accessCount": 1,
-      "lastAccessed": 1771960355549,
-      "type": "directory"
+      "lastAccessed": 1772035341278,
+      "type": "file"
     },
     {
-      "path": "resources\\references\\java-config-manifest-standard.md",
+      "path": "agents\\frontend-developer\\AGENT.md",
       "accessCount": 1,
-      "lastAccessed": 1771960358301,
-      "type": "directory"
+      "lastAccessed": 1772035341680,
+      "type": "file"
+    },
+    {
+      "path": "agents\\backend-developer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1772035420997,
+      "type": "file"
+    },
+    {
+      "path": "agents\\frontend-developer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1772035421468,
+      "type": "file"
+    },
+    {
+      "path": "agents\\ai-engineer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1772035421916,
+      "type": "file"
     }
   ],
   "userDirectives": []

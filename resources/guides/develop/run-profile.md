@@ -111,6 +111,7 @@
           <!-- 로깅 -->
           <entry key="LOG_LEVEL_ROOT" value="INFO" />
           <entry key="LOG_LEVEL_APP" value="DEBUG" />
+          <entry key="LOG_FILE_PATH" value="logs/{service-name}.log" />
         </map>
       </option>
       <option name="executionName" />
@@ -146,7 +147,7 @@
 | Redis | REDIS_HOST, REDIS_PORT, REDIS_PASSWORD, REDIS_DATABASE | 캐시 사용 서비스 |
 | JWT | JWT_SECRET, JWT_ACCESS_TOKEN_EXPIRATION, JWT_REFRESH_TOKEN_EXPIRATION | 인증 사용 서비스 |
 | MQ | MQ 유형별 연결 환경변수 | 비동기 통신 서비스만 |
-| 로깅 | LOG_LEVEL_ROOT, LOG_LEVEL_APP | 모든 서비스 |
+| 로깅 | LOG_LEVEL_ROOT, LOG_LEVEL_APP, LOG_FILE_PATH | 모든 서비스 |
 
 ## 품질 기준
 

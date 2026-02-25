@@ -147,16 +147,34 @@ Kafka를 사용하는 경우 rabbitmq 대신 아래 kafka 구성으로 교체한
   prism-mock:
     image: stoplight/prism:latest
     profiles: ["mock"]
-    command: mock -h 0.0.0.0 /api/merged-api.yaml
+    command: mock -h 0.0.0.0 /api/{service-name}-api.yaml
     volumes:
       - ./docs/design/api:/api:ro
     ports:
       - "${MOCK_PORT:-4010}:4010"
 ```
 
-> OpenAPI yaml 파일이 여러 개인 경우 하나로 머지하거나 개별 파일명을 지정한다.
-> 단일 서비스 yaml이라면 `command`의 파일명을 해당 yaml로 지정한다.
+> `command`의 파일명은 프론트엔드가 주로 사용하는 API yaml 파일명으로 지정한다.
 > 예: `command: mock -h 0.0.0.0 /api/order-api.yaml`
+> 서비스가 여러 개이고 프론트엔드가 다수의 API를 동시에 사용해야 하는 경우, 서비스별로 Prism 인스턴스를 분리하여 포트를 다르게 할당한다:
+> ```yaml
+>   prism-order:
+>     image: stoplight/prism:latest
+>     profiles: ["mock"]
+>     command: mock -h 0.0.0.0 /api/order-api.yaml
+>     volumes:
+>       - ./docs/design/api:/api:ro
+>     ports:
+>       - "4010:4010"
+>   prism-user:
+>     image: stoplight/prism:latest
+>     profiles: ["mock"]
+>     command: mock -h 0.0.0.0 /api/user-api.yaml
+>     volumes:
+>       - ./docs/design/api:/api:ro
+>     ports:
+>       - "4011:4010"
+> ```
 
 **volumes 선언**
 
@@ -403,7 +421,7 @@ services:
   prism-mock:
     image: stoplight/prism:latest
     profiles: ["mock"]
-    command: mock -h 0.0.0.0 /api/merged-api.yaml
+    command: mock -h 0.0.0.0 /api/{service-name}-api.yaml
     volumes:
       - ./docs/design/api:/api:ro
     ports:
@@ -500,7 +518,7 @@ docker compose --profile mock up -d          # + Mock 서버
 - **포트 충돌 방지**: 기본 포트(5432, 6379, 5672, 4010)가 로컬에서 이미 사용 중인 경우
   `.env`에서 포트를 변경한다. (예: `DB_PORT=15432`)
 - **Prism Mock 파일 마운트**: `docs/design/api/` 디렉토리 전체를 읽기 전용으로 마운트한다.
-  yaml 파일이 여러 개인 경우 단일 파일로 머지하거나 `command`에 파일명을 명시한다.
+  yaml 파일이 여러 개인 경우 서비스별 Prism 인스턴스를 분리하여 포트를 다르게 할당한다.
 - **MQ 포함 조건 엄수**: dev-plan.md 섹션 10-2에서 MQ 불필요로 판정된 경우
   MQ 서비스를 임의로 추가하지 않는다.
 - **볼륨 초기화**: 데이터를 완전히 초기화하려면 `docker compose down -v`로 볼륨을 함께 삭제한다.

@@ -12,7 +12,7 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 | API 설계서 | `docs/design/api/` 하위 `*.yaml` | 엔드포인트 구현 기준 |
 | 데이터 설계서 | `docs/design/database/` 하위 `*.md` | 엔티티 필드, 관계, 인덱스 |
 | 패키지 구조 | `docs/design/class/package-structure.md` | 패키지 레이아웃 |
-| 행위 계약 테스트 | `test/design-contract/{service-name}/` | **구현 목표 — 이 테스트를 PASS시키는 것이 구현 완료 기준** |
+| 행위 계약 테스트 | `test/design-contract/{service-name}/` | **행위 참고 자료** — alt/else 분기를 참고하여 구현 시 누락 방지 |
 | Gradle 환경 | `settings.gradle`, `build.gradle` | 빌드 구성 |
 | 백킹서비스 연결 정보 | `.env.example` | DB/Redis/MQ 연결 설정 |
 | 보안·JWT·Swagger 표준 | `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` | JWT 인증, Swagger 설정 표준 |
@@ -36,7 +36,7 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 - **설계 아키텍처 패턴 적용**: 서비스별로 지정된 패턴을 적용
   - **Layered 아키텍처**: Service 레이어에 Interface 사용 (`{ServiceName}Service` 인터페이스 + `{ServiceName}ServiceImpl` 구현체)
   - **Clean 아키텍처**: Port/Adapter 용어 대신 Clean 아키텍처 고유 용어 사용 (UseCase, Gateway 등)
-- **행위 계약 테스트 준수**: 행위 계약 테스트(`test/design-contract/{service-name}/`)의 각 it() 케이스를 PASS시키는 것이 구현 완료 기준
+- **행위 계약 참고**: 행위 계약 테스트(`test/design-contract/{service-name}/`)의 각 it() 케이스를 참고하여 구현 시 alt/else 분기를 누락하지 않도록 한다 (테스트 실행은 불요)
 - **인증 방식은 설계서에서 확인 후 적용**: `docs/develop/dev-plan.md` 섹션 10-3의 인증 방식 및 API 설계서의 `components/securitySchemes`에서 인증 방식을 식별한다
   - **JWT 인증**: `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (R3) 기반 구현
   - **OAuth2/OIDC (소셜 로그인 — Google, 카카오, 네이버 등)**: Spring Security OAuth2 Client 기반 구현
@@ -90,8 +90,8 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 #### 2단계: 서비스 레이어 구현
 
-dev-plan.md의 서비스별 내부 흐름 설명과 design-contract test의 시나리오를 기반으로 구현한다.
-행위 계약 테스트(test/design-contract/{service-name}/*.spec.ts)의 각 it() 케이스가 곧 구현해야 할 행위 목록이다.
+dev-plan.md의 서비스별 내부 흐름 설명과 design-contract test의 시나리오를 참고하여 구현한다.
+행위 계약 테스트(test/design-contract/{service-name}/*.spec.ts)의 각 it() 케이스를 참고하여 구현해야 할 행위 목록을 파악한다.
 
 **Layered 아키텍처 적용 시:**
 ```java
@@ -405,22 +405,15 @@ class {ServiceName}ControllerTest {
 - 단위 테스트 전체 통과 여부 확인
 - API 설계서 엔드포인트 누락 여부 확인
 
-#### 5-b단계: 행위 계약 테스트 실행
+#### 참고: 행위 계약 테스트 활용
 
-서비스 기동 후 design-contract test를 실행하여 시퀀스 설계서의 행위 계약 준수를 확인한다.
+> **이 단계는 실행하지 않는다.** 행위 계약 테스트는 참고 자료로만 활용한다.
 
-```bash
-# 서비스 기동 (6단계에서 수행하는 기동과 동일)
-python3 tools/run-intellij-service-profile.py {service-name}
+`test/design-contract/{service-name}/*.spec.ts`의 it() 케이스를 참고하여:
+- 구현해야 할 API 행위(alt/else 분기)가 누락되지 않았는지 확인
+- 각 분기의 기대 HTTP 상태코드와 응답 구조를 참조
 
-# 행위 계약 테스트 실행
-cd test/design-contract
-npx jest --testPathPattern="{service-name}" --verbose
-```
-
-- 전체 PASS가 구현 완료 기준
-- FAIL 시: 프로덕션 코드를 수정하여 테스트를 통과시킴 (테스트 코드 수정 금지)
-- 테스트가 설계 의도와 다르다고 판단되면, 오케스트레이터에 보고하여 Step 1-2 재수행 요청
+실제 검증은 Step 4(API 테스트 + 브라우저 테스트)에서 수행한다.
 
 #### 6단계: 서비스 기동 검증
 
@@ -428,16 +421,10 @@ npx jest --testPathPattern="{service-name}" --verbose
 
 이 도구는 IntelliJ `.run/*.run.xml` 실행 프로파일에서 환경변수(DB 접속 정보, 포트 등)를 추출하여 `gradlew bootRun`에 주입한다. `./gradlew bootRun`을 직접 실행하면 환경변수가 누락되므로 반드시 이 도구를 사용한다.
 
-**실행기 준비:**
-```bash
-mkdir -p tools
-cp {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py tools/
-```
-
 **서비스 기동:**
 ```bash
 # 개별 서비스 기동
-python3 tools/run-intellij-service-profile.py {service-name}
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py {service-name}
 ```
 
 **기동 확인:**
@@ -451,10 +438,10 @@ curl -s http://localhost:{port}/actuator/health
 **서비스 중지:**
 ```bash
 # 개별 서비스 중지
-python3 tools/run-intellij-service-profile.py --stop {service-name}
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py --stop {service-name}
 
 # 전체 서비스 중지
-python3 tools/run-intellij-service-profile.py --stop
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py --stop
 ```
 
 ### 병렬 처리 가이드
@@ -485,7 +472,7 @@ python3 tools/run-intellij-service-profile.py --stop
 # {service-name}/build/reports/tests/test/index.html
 
 # 서비스 기동 검증 (run-intellij-service-profile.py 사용)
-python3 tools/run-intellij-service-profile.py {service-name}
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py {service-name}
 curl -s http://localhost:{port}/actuator/health
 ```
 
@@ -608,7 +595,7 @@ curl -s http://localhost:{port}/actuator/health
 - [ ] 서비스별 아키텍처 패턴(Layered/Clean) 일관성 유지
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" {service-name}/src/` 결과가 0건이어야 한다
 - [ ] **핵심 API 실호출 검증**: 서비스 기동 후 최소 1개 핵심 API에 `curl` 호출하여 정상 응답(2xx) 확인
-- [ ] **design-contract test PASS**: `cd test/design-contract && npx jest --testPathPattern="{service-name}" --verbose` 결과 전체 PASS
+- [ ] **행위 계약 참고 확인**: `test/design-contract/{service-name}/*.spec.ts`의 it() 케이스 목록과 구현된 API 행위를 대조하여 누락 없음을 확인
 
 ## 주의사항
 

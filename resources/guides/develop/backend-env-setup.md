@@ -157,6 +157,17 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+
+# Logging — java-config-manifest-standard.md 표준
+logging:
+  file:
+    name: ${LOG_FILE_PATH:logs/{서비스명}.log}
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${LOG_ROLLING_FILE_PATTERN:logs/{서비스명}.%d{yyyy-MM-dd}.%i.log}
+      max-file-size: ${LOG_MAX_FILE_SIZE:100MB}
+      max-history: ${LOG_MAX_HISTORY:30}
+      total-size-cap: ${LOG_TOTAL_SIZE_CAP:1GB}
 ```
 
 #### 6단계: 공통 모듈 개발

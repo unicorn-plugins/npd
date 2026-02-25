@@ -165,7 +165,26 @@ irm https://claude.ai/install.ps1 | iex
 ```bash
 claude 
 ```
-  
+
+> 2026년 2월부터 Claude Code는 npm을 이용하지 않고 독립적인 런타임 엔진을 사용
+> 기존 설치한 사람은 아래 명령으로 기존 claude를 삭제하고 재설치 바람 
+> **삭제**   
+> ```
+> # 강제 언인스톨
+> npm uninstall -g @anthropic-ai/claude-code --force
+> # 확인
+> where claude
+> 만약, 위 명령 결과가 나오면 아래 수행하여 삭제   
+> rm -rf {위 결과 파일 경로}
+> # 캐시 정리
+> npm cache clean --force
+> ```
+> **설치**
+> ```
+> claude install 
+> ```
+
+
 | [Top](#로컬-개발-환경-구성) |
 
 ---

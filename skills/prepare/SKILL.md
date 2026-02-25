@@ -141,7 +141,7 @@ claude plugin install oh-my-claudecode
 OMC 초기 설정:     
 Claude Code 프롬프트창에서 아래 명령 실행 하도록 안내. 단 MCP는 context7만 설치하도록 안내    
 ```
-/oh-my-claudecode:omc-setup
+/omc-setup
 ```
 
 ### Step 5. Claude Code 설정 안내

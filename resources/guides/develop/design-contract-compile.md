@@ -4,7 +4,8 @@
 
 PlantUML 시퀀스 설계서의 alt/else 분기와 API 명세의 요청/응답 스키마를
 TypeScript 테스트 코드(design-contract test spec)로 변환한다.
-이 테스트는 이후 모든 개발·검증 단계에서 "행위 계약"으로 활용된다.
+이 테스트 코드는 **직접 실행하지 않으며**, 백엔드 API 구현 시 **행위 참고 자료**로 활용된다.
+(실제 검증은 Step 4의 API 테스트와 브라우저 테스트에서 수행한다.)
 
 ## 입력 (이전 단계 산출물)
 
@@ -227,12 +228,10 @@ test/design-contract/
 ```bash
 cd test/design-contract
 npx tsc --noEmit
-npx jest --verbose
 ```
 
-- **컴파일 성공**: `npx tsc --noEmit` 이 오류 없이 완료
-- **테스트 구조 정합성**: 이 시점에서는 API 서버 미구현이므로 모든 테스트가 FAIL이어야 정상
-- 실제 PASS 검증은 Step 3 이후 서비스 구현 완료 시
+- **컴파일 성공**: `npx tsc --noEmit` 이 오류 없이 완료 (타입 정합성 확인)
+- **테스트 실행은 하지 않는다**: 이 산출물은 백엔드 구현 시 행위 참고 자료로만 활용된다
 
 #### 구조 정합성 자동 검증 스크립트
 

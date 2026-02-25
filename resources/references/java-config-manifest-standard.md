@@ -11,6 +11,7 @@
 - 민감한 정보의 디폴트값은 생략하거나 간략한 값으로 지정
 - JWT Secret Key는 모든 서비스가 동일해야 함
 - MQ는 Spring Cloud Stream으로 추상화하여 binder 교체만으로 로컬/클라우드 전환 가능하게 함
+- **`server.servlet.context-path`를 사용하지 않는다** — 서비스별 경로 접두사는 API Gateway(라우팅 규칙)에서 관리하며, 각 서비스는 루트(`/`)에서 시작하는 API를 제공한다. context-path를 설정하면 Actuator, Swagger UI, 내부 통신 경로가 모두 영향을 받아 운영 복잡도가 증가한다.
 - 아래 각 섹션의 표준을 준수하여 설정
 
 ## application.yml 표준 설정
@@ -69,6 +70,7 @@ springdoc:
 # Logging
 logging:
   level:
+    root: ${LOG_LEVEL_ROOT:INFO}
     com.{ORG}.{ROOT}: ${LOG_LEVEL_APP:DEBUG}  # CLAUDE.md의 ORG, ROOT 값 참조
     org.springframework.web: ${LOG_LEVEL_WEB:INFO}
     org.hibernate.SQL: ${LOG_LEVEL_SQL:INFO}
@@ -78,6 +80,12 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
   file:
     name: ${LOG_FILE_PATH:logs/{서비스명}.log}
+  logback:
+    rollingpolicy:
+      file-name-pattern: ${LOG_ROLLING_FILE_PATTERN:logs/{서비스명}.%d{yyyy-MM-dd}.%i.log}
+      max-file-size: ${LOG_MAX_FILE_SIZE:100MB}
+      max-history: ${LOG_MAX_HISTORY:30}
+      total-size-cap: ${LOG_TOTAL_SIZE_CAP:1GB}
 ```
 
 ## DB/Redis 설정 예제
