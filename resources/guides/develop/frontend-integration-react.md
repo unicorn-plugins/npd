@@ -80,14 +80,30 @@ cat frontend/.env.local
 
 ### 2단계. API 타입 동기화
 
-Step 4-0에서 현행화된 OpenAPI 명세(`docs/design/api/*.yaml`)와 프론트엔드의 TypeScript 타입/인터페이스를 동기화한다.
-Mock 개발 시 원본 명세 기반으로 작성한 타입이 실제 백엔드 구현과 다를 수 있으므로, 실제 API 연동 전에 반드시 수행한다.
+백엔드 controller와 AI 서비스 router의 **실제 구현 코드**를 읽어 프론트엔드 TypeScript 타입/인터페이스를 동기화한다.
+문서가 아닌 실제 코드가 source of truth이므로, controller/router 코드를 직접 확인하여 동기화한다.
 
-#### 2.1 변경 사항 파악
+#### 2.1 실제 API 구현 파악
 
-`docs/develop/api-update-log.md` (Step 4-0 산출물)를 읽어 원본 명세 대비 변경된 항목을 파악한다.
+백엔드와 AI 서비스의 실제 코드를 읽어 엔드포인트 경로, 요청/응답 필드명·타입을 파악한다.
 
-주요 확인 항목:
+```bash
+# Spring Boot controller 찾기 (어노테이션 기반)
+grep -rn "@RestController\|@Controller" --include="*.java" --include="*.kt" .
+# 엔드포인트 매핑 찾기
+grep -rn "@RequestMapping\|@GetMapping\|@PostMapping\|@PutMapping\|@DeleteMapping" --include="*.java" --include="*.kt" .
+# AI 서비스 router 찾기 (FastAPI/Express/Flask 등)
+grep -rn "app\.get\|app\.post\|router\.\|@app\.route\|@router\." --include="*.py" --include="*.ts" --include="*.js" .
+```
+
+확인 항목:
+- 어노테이션/데코레이터에 정의된 실제 엔드포인트 경로
+- 요청/응답 DTO 클래스의 필드명, 타입, 필수 여부 (controller가 참조하는 DTO를 추적하여 확인)
+- AI 서비스 router의 경로 및 응답 구조
+
+파악한 내용을 프론트엔드의 기존 타입과 대조하여 불일치 항목을 도출한다.
+
+대조 확인 항목:
 - 필드명 변경 (예: `userName` → `username`)
 - 필드 타입 변경 (예: `string` → `number`)
 - 필드 추가/삭제

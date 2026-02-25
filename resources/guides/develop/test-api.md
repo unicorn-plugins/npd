@@ -27,23 +27,32 @@
 
 각 백엔드/AI 서비스의 API 호출이 정상적으로 동작하는지 검증한다.
 
-### API 목록 
-각 백엔드/AI 서비스의 Controller 레이어의 클래스를 접근하여 정리  
+### API 목록
+어노테이션/패턴 기반으로 Controller와 Router를 탐색하여 API 목록을 정리한다.
+```bash
+# Spring Boot controller 찾기
+grep -rn "@RestController\|@Controller" --include="*.java" --include="*.kt" .
+# 엔드포인트 매핑 찾기 (클래스 레벨 @RequestMapping + 메서드 레벨 매핑 모두 확인)
+grep -rn "@RequestMapping\|@GetMapping\|@PostMapping\|@PutMapping\|@DeleteMapping" --include="*.java" --include="*.kt" .
+# AI 서비스 router 찾기 (FastAPI/Express/Flask 등)
+grep -rn "app\.get\|app\.post\|router\.\|@app\.route\|@router\." --include="*.py" --include="*.ts" --include="*.js" .
 ```
-# API 목록 
+탐색된 controller/router의 각 엔드포인트를 아래 형식으로 정리한다.
+```
+# API 목록
 ## {Service Name}
 | ID | 엔드포인트 | 메서드 | 설명 | 입력 | 응답 |
 |----|-----------|--------|---------|------|----------|------|
 | API-{NNN} | {path} | {GET/POST/...} | {API 설명} | {요청 데이터 구조} | {HTTP 상태코드 + 응답 구조} |
 ```
-'API 테스트 결과'파일에 저장 
+'API 테스트 결과'파일에 저장
 
 ### 샘플 데이터 작성
 
 **DB인증정보** 취득: 백킹서비스 설치결과서(backing-service-result.md)에서 각 DB 접근 정보 구함  
 
 **절차:**
-1. **Controller클래스**를 읽어 각 API의 요청 데이터 구조를 분석하여 테스트에 필요한 데이터를 식별한다
+1. 위 API 목록에서 탐색된 **Controller/Router 클래스**를 읽어 각 API의 요청 데이터 구조를 분석하고, 참조하는 DTO 클래스를 추적하여 테스트에 필요한 데이터를 식별한다
 2. 컬럼명/테이블명은 **JPA가 생성한 실제 스키마**를 확인한다. 
 3. 서비스별 SQL seed 스크립트를 작성한다:
    - `{service}/src/test/resources/data/seed.sql` — 기본 테스트 데이터
