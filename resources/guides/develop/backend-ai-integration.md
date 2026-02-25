@@ -9,7 +9,7 @@
 | 산출물 | 탐색 방법 | 활용 방법 |
 |--------|----------|----------|
 | 백엔드 API 코드 | `{service-name}/src/main/java/.../` | 연동 코드를 추가할 서비스 레이어 위치 확인 (backend-api-dev.md 산출물) |
-| AI 서비스 API 명세 | `docs/design/api/` 하위 `*.yaml` 파일 중 AI 서비스 관련 파일 탐색 | AI 서비스 엔드포인트, 요청/응답 스펙 확인 (ai-service-dev.md 산출물) |
+| AI 서비스 실제 코드 | AI 서비스 router/controller 코드 (어노테이션/패턴 기반 탐색) | AI 서비스 엔드포인트, 요청/응답 스펙 확인 (ai-service-dev.md 산출물) |
 | AI 서비스 설계서 | `docs/design/ai-service-design.md` | 연동 설계, 장애 격리 패턴, SKIP 여부 판단 기준 |
 | 종합 개발 계획서 (통합 맥락) | `docs/develop/dev-plan.md` | BE↔AI 연동 시나리오, 의존관계 |
 | 행위 계약 테스트 | `test/design-contract/integration/*.spec.ts` | BE↔AI 연동 행위 계약 |
@@ -63,12 +63,15 @@ grep -i "불필요\|해당 없음\|미사용\|skip" docs/design/ai-service-desig
   ```
   1. docs/develop/dev-plan.md를 읽어 서비스 목록, 입력 파일 매핑(섹션 8) 확인
   2. 매핑 테이블에 명시된 파일만 로드:
-     - API 명세: docs/design/api/{ai-service}-api.yaml
      - AI 서비스 설계: docs/design/ai-service-design.md
-  3. 행위 계약 테스트 확인: test/design-contract/integration/*.spec.ts
+  3. AI 서비스 router/controller 탐색 (어노테이션/패턴 기반):
+     ```
+     grep -rn "app\.get\|app\.post\|router\.\|@app\.route\|@router\." --include="*.py" --include="*.ts" --include="*.js" .
+     ```
+  4. 행위 계약 테스트 확인: test/design-contract/integration/*.spec.ts
   4. 누락 파일이 있으면 오케스트레이터에 보고 (직접 탐색하지 않음)
   ```
-- `docs/design/api/` 하위 탐색으로 식별한 AI 서비스 API 명세 파일에서 엔드포인트, 요청/응답 DTO 스펙 파악
+- 위에서 탐색한 AI 서비스 router/controller 코드에서 엔드포인트 경로, 요청/응답 DTO 스펙 파악
 - `test/design-contract/integration/*.spec.ts`에서 BE↔AI 연동 시나리오의 기대 동작 확인
 - `build.gradle`에 resilience4j 의존성 추가 여부 확인
 
@@ -107,7 +110,7 @@ dependencyManagement {
 
 #### 2단계: AI 서비스 클라이언트 인터페이스 정의
 
-AI 서비스 API 명세(`docs/design/api/` 하위 — 준비 단계에서 식별한 파일)의 엔드포인트를 기반으로 클라이언트 인터페이스를 작성한다.
+준비 단계에서 탐색한 AI 서비스 router/controller의 실제 엔드포인트를 기반으로 클라이언트 인터페이스를 작성한다.
 
 ```java
 /**
@@ -128,7 +131,7 @@ public interface AiServiceClient {
 }
 ```
 
-요청/응답 DTO는 준비 단계에서 식별한 AI 서비스 API 명세 파일의 스키마와 필드명을 그대로 맞춘다:
+요청/응답 DTO는 AI 서비스 router/controller가 실제로 수신/반환하는 필드명과 타입을 그대로 맞춘다:
 
 ```java
 /**
@@ -141,7 +144,7 @@ public interface AiServiceClient {
 public class AiAnalysisRequest {
     private String inputText;
     private String modelType;
-    // ai-service-api.yaml의 requestBody 스키마 필드 그대로 반영
+    // AI 서비스 router의 실제 요청 필드 그대로 반영
 }
 
 /**
@@ -154,7 +157,7 @@ public class AiAnalysisRequest {
 public class AiAnalysisResponse {
     private String result;
     private Double confidence;
-    // ai-service-api.yaml의 response 스키마 필드 그대로 반영
+    // AI 서비스 router의 실제 응답 필드 그대로 반영
 }
 ```
 
