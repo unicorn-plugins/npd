@@ -14,6 +14,7 @@
 | HighLevel 아키텍처 | `docs/design/high-level-architecture.md` | 기술 스택, 아키텍처 다이어그램, 시스템 구성도 추출 |
 | API 명세 | `docs/design/api/*.yaml` | 서비스별 주요 엔드포인트 요약 |
 | 환경변수 템플릿 | `./.env.example` | 필요 환경변수 목록 |
+| 브라우저 테스트 최종 보고서 | `docs/develop/test/final-report.md` | 테스트 결과 요약, 잔여 이슈/개선사항 추출 |
 
 ## 출력 (이 단계 산출물)
 
@@ -74,6 +75,18 @@
 `docs/design/high-level-architecture.md`에서:
 - 시스템 구성도 (Mermaid 다이어그램이 있으면 그대로 삽입)
 - 없으면 서비스 간 관계를 텍스트로 간략 기술
+
+#### 6. 테스트 결과 추출
+
+> **조건**: `docs/develop/test/final-report.md` 파일이 존재할 때만 이 단계를 수행한다.
+> 파일이 존재하지 않으면 (Step 5 미수행 시) 테스트 결과 섹션 전체를 출력에서 제외한다.
+
+`docs/develop/test/final-report.md`에서:
+- 최종 판정 (PASS / FAIL)
+- 총 TC 수 및 PASS율
+- 잔여 이슈 (Known Issues) — 있을 경우만
+- 잔여 개선사항 (Known Improvements) — 있을 경우만
+- Final Report 및 상세 레포트 파일 링크
 
 ## 출력 형식
 
@@ -151,6 +164,32 @@ python3 tools/run-intellij-service-profile.py --stop
 <!-- ENDIF -->
 ```
 
+## 테스트 결과
+<!-- 이 섹션은 docs/develop/test/final-report.md가 존재할 때만 포함한다. 미존재 시 섹션 전체를 제외한다. -->
+
+| 항목 | 결과 |
+|------|------|
+| 전체 TC | {X}개 PASS / {X}개 |
+| 브라우저 E2E | PASS |
+| PO 제품 검증 | Critical/Major 0건 |
+| SP 제품 검증 | Critical/Major 0건 |
+
+**상세 보고서**: [Final Report](docs/develop/test/final-report.md)
+
+{잔여 이슈가 있을 경우에만}
+### Known Issues
+| # | 심각도 | 설명 |
+|---|--------|------|
+| 1 | Minor | {설명} |
+
+{잔여 개선사항이 있을 경우에만}
+### Known Improvements
+| # | 관점 | 설명 |
+|---|------|------|
+| 1 | PO | {설명} |
+
+> 상세 테스트 레포트: [docs/develop/test/](docs/develop/test/)
+
 ## 라이선스
 
 This project is proprietary and confidential.
@@ -168,6 +207,9 @@ This project is proprietary and confidential.
 - [ ] API 엔드포인트가 API 명세와 일치
 - [ ] AI 서비스 섹션은 해당 시에만 포함
 - [ ] 프론트엔드 기동 명령이 PLATFORM에 맞게 분기됨
+- [ ] 테스트 결과 섹션이 final-report.md 기반으로 작성됨 (해당 시)
+- [ ] Known Issues/Improvements가 final-report.md와 일치 (해당 시)
+- [ ] Final Report 링크가 정상 동작 — 상대 경로 (해당 시)
 
 ## 주의사항
 

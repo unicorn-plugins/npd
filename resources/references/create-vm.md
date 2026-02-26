@@ -1,4 +1,25 @@
 # CLOUD별 VM 생성
+
+- [CLOUD별 VM 생성](#cloud별-vm-생성)
+  - [AWS: EC2(Elastic Compute Cloud) 생성](#aws-ec2elastic-compute-cloud-생성)
+    - [시작](#시작)
+    - [입력](#입력)
+    - [출력: 생성된 EC2 클릭하여 확인](#출력-생성된-ec2-클릭하여-확인)
+    - [테스트](#테스트)
+    - [방화벽 오픈](#방화벽-오픈)
+  - [Azure: 가상머신 생성](#azure-가상머신-생성)
+    - [시작](#시작-1)
+    - [입력](#입력-1)
+    - [출력: 생성된 VM 클릭하여 확인](#출력-생성된-vm-클릭하여-확인)
+    - [테스트](#테스트-1)
+    - [방화벽 오픈](#방화벽-오픈-1)
+  - [GCP: 가상머신 생성](#gcp-가상머신-생성)
+    - [시작](#시작-2)
+    - [입력](#입력-2)
+    - [출력: 생성된 VM 확인](#출력-생성된-vm-확인)
+
+---
+
 ## AWS: EC2(Elastic Compute Cloud) 생성
 ### 시작
 - http://console.aws.amazon.com/ 로그인 
@@ -26,6 +47,8 @@ ex) ssh ubuntu@3.34.99.128 -i ~/workspace/ssh-key/my-ec2.pem
 	- 소스: 0.0.0.0/0
   - 저장 
 
+---
+
 ## Azure: 가상머신 생성 
 ### 시작 
 - https://portal.azure.com 로그인 
@@ -51,8 +74,10 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 ### 방화벽 오픈 
 - 생성된 VM 클릭
 - 좌측 메뉴에서 '네트워킹 > 네트워킹 설정' 클릭 
-- 하단 '네트워크 보안 그룹' 우측의 '포트큐칙 만들기' 버튼 클릭하고 '인바운드 포트 규칙' 선택
+- 하단 '네트워크 보안 그룹' 우측의 '포트규칙 만들기' 버튼 클릭하고 '인바운드 포트 규칙' 선택
 - 대상 포트 범위: 0-65535, 이름: Any라고 입력하고 저장. 필요한 포트만 오픈하는게 맞으나 교육용이므로 모든 포트 오픈 
+
+---
 
 ## GCP: 가상머신 생성  
 ### 시작 
@@ -72,7 +97,8 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 	- 클릭해서 '고정 외부 IP 주소 예약' 선택 
 	- 이름을 적절히 입력하고 '예약' 클릭 
 - 만들기 클릭 
-### 출력: 
+   
+### 출력: 생성된 VM 확인
 - 초기화면에서 'Compute Engine' 버튼 클릭 > 가상머신 하위의 VM 인스턴스 클릭.   
   Compute Engine API 화면 나오면 몇분정도 기다림. 
 	(만약 API 사용 설정 안되어 있으면 활성화함)       
@@ -86,9 +112,9 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 - SSH Key: 
 	SSH Key 생성: ~/.ssh에 gcp_key, gcp_key.pub 파일 생성  	
 	```
-	ssh {{USER}@{외부IP} -i ~/.ssh/gcp_key
+	ssh {USER}@{외부IP} -i ~/.ssh/gcp_key
 	``` 
-	SSH Key 업데이트   
+- SSH Key 업데이트   
 	```
 	gcloud compute instances add-metadata VM_NAME \
   --zone=asia-northeast3-a \
@@ -111,3 +137,35 @@ ex) ssh hiondal@34.64.192.123 -i ~/.ssh/gcp_key
 - 프로토콜 및 포트: 모두 허용  
   필요한 포트만 오픈하는게 맞으나 교육용이므로 모든 포트 오픈 
 
+---
+
+## (필수) VM 접속 Config 파일 생성
+아래 예제와 같이 ~/.ssh/config 파일에 접속 정보를 등록하면 'ssh aws'와 같이 편하게 접속할 수 있음   
+
+아래 명령 수행하여 예제를 참고하여 본인 VM의 접속 정보 등록  
+(주의) **이 작업은 반드시 해주세요**. AI가 이 정보를 읽어 필요한 툴을 자동으로 설치합니다.   
+```
+code ~/.ssh/config 
+```
+
+예시)  
+Host 뒤의 값은 본인이 기억하기 쉬운 이름으로 아무거나 지정하시면 됩니다.  
+```
+Host aws
+    HostName 3.36.58.0
+    Port 22
+    User ubuntu
+    IdentityFile ~/.ssh/my-ec2.pem
+
+Host azure
+    HostName 20.249.211.13
+    Port 22
+    User azureuser
+    IdentityFile ~/.ssh/my-vm.pem
+
+Host gcp
+    HostName 34.64.192.123
+    Port 22
+    User hiondal
+    IdentityFile ~/.ssh/gcp_key
+```
