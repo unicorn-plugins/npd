@@ -158,7 +158,6 @@ Thumbs.db
 
 # Env
 .env
-.env.local
 
 # Others
 .dmap/

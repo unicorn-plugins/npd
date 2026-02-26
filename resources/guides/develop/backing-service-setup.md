@@ -272,6 +272,17 @@ MOCK_PORT=4010
 FRONTEND_PORT=3000
 CORS_ALLOWED_ORIGINS=http://localhost:${FRONTEND_PORT}
 
+# ===========================
+# AI Service (AI 서비스 포함 시 주석 해제)
+# ===========================
+# APP_PORT=8000
+# LOG_LEVEL=INFO
+# LLM_PROVIDER=openai
+# LLM_MODEL_NAME=gpt-4o
+# LLM_TEMPERATURE=0.7
+# LLM_MAX_TOKENS=4096
+# OPENAI_API_KEY=your-openai-api-key-here
+
 ```
 
 > `.env.example`을 복사하여 `.env`를 생성하고 실제 값을 채운다.

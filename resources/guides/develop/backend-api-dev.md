@@ -30,8 +30,8 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 ### 작성 원칙
 
-- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다 (`{PLUGIN_DIR}/resources/standards/standard_package_structure.md` 참조). `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
-- **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{PLUGIN_DIR}/resources/standards/standard_comment.md` 참조)
+- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다 (`{PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조). `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
+- **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{PLUGIN_DIR}/resources/references/standard_comment.md` 참조)
 - **API 설계서 일관성**: API 설계서(`docs/design/api/` 하위 — 준비 단계에서 식별한 파일)의 모든 엔드포인트를 누락 없이 Controller에 구현
 - **설계 아키텍처 패턴 적용**: 서비스별로 지정된 패턴을 적용
   - **Layered 아키텍처**: Service 레이어에 Interface 사용 (`{ServiceName}Service` 인터페이스 + `{ServiceName}ServiceImpl` 구현체)
@@ -119,7 +119,7 @@ biz/service/{ServiceName}Service.java            ← UseCase 구현체
 biz/usecase/out/{EntityReader}.java              ← 아웃바운드 UseCase 인터페이스
 infra/gateway/{EntityGateway}.java               ← 아웃바운드 구현체
 ```
-> Port/Adapter 용어 사용 금지 — `패키지구조표준`(`{PLUGIN_DIR}/resources/standards/standard_package_structure.md`) 준수
+> Port/Adapter 용어 사용 금지 — `패키지구조표준`(`{PLUGIN_DIR}/resources/references/standard_package_structure.md`) 준수
 
 **서비스 구현 공통 사항:**
 - 트랜잭션 경계: 읽기 전용은 `@Transactional(readOnly = true)`, 쓰기는 `@Transactional`
@@ -283,11 +283,11 @@ config/
     └── OAuth2FailureHandler.java
 ```
 
-> 패키지 구조 표준: `{PLUGIN_DIR}/resources/standards/standard_package_structure.md` 준수
+> 패키지 구조 표준: `{PLUGIN_DIR}/resources/references/standard_package_structure.md` 준수
 
 #### 4단계: 단위 테스트 작성
 
-R4(`{PLUGIN_DIR}/resources/references/java-test-guide.md`) 및 테스트코드표준(`{PLUGIN_DIR}/resources/standards/standard_testcode.md`)을 준용한다.
+R4(`{PLUGIN_DIR}/resources/references/java-test-guide.md`) 및 테스트코드표준(`{PLUGIN_DIR}/resources/references/standard_testcode.md`)을 준용한다.
 
 **Mockito 사용 원칙:**
 - 외부 의존성(Repository, 외부 서비스)은 `@Mock`으로 모킹
@@ -480,7 +480,7 @@ curl -s http://localhost:{port}/actuator/health
 
 ### 서비스별 패키지 구조 예시
 
-> 패키지 구조는 `{PLUGIN_DIR}/resources/standards/standard_package_structure.md`를 준수한다.
+> 패키지 구조는 `{PLUGIN_DIR}/resources/references/standard_package_structure.md`를 준수한다.
 
 **Layered 아키텍처 적용 서비스:**
 ```
@@ -606,8 +606,8 @@ curl -s http://localhost:{port}/actuator/health
 - SecurityConfig의 공개 경로 설정은 API 설계서의 인증 요구 여부를 기준으로 조정
 - 테스트 설정 Manifest(`src/test/resources/application.yml`)의 값은 환경변수 처리 (하드코딩 금지)
 - 테스트 실패 시 테스트 코드를 우회하는 방식이 아닌 프로덕션 코드의 로직을 수정하여 해결
-- 참조: 개발주석표준 — `{PLUGIN_DIR}/resources/standards/standard_comment.md`
-- 참조: 테스트코드표준 — `{PLUGIN_DIR}/resources/standards/standard_testcode.md`
+- 참조: 개발주석표준 — `{PLUGIN_DIR}/resources/references/standard_comment.md`
+- 참조: 테스트코드표준 — `{PLUGIN_DIR}/resources/references/standard_testcode.md`
 - 인증 방식은 설계서(`high-level-architecture.md` 보안 요구사항 + API 설계서 securitySchemes)에서 확인 후 적용. 무조건 JWT로 구현하지 않을 것
 - 참조: SecurityConfig/JWT/Swagger 예제 (R3) — `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (JWT 인증인 경우만 적용)
 - 참조: 테스트 가이드 (R4) — `{PLUGIN_DIR}/resources/references/java-test-guide.md`

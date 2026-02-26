@@ -22,7 +22,6 @@
 | 라우팅 설정 | `frontend/src/router/` |
 | 상태 관리 스토어 | `frontend/src/store/` |
 | API 클라이언트 | `frontend/src/services/api/` |
-| 환경변수 예시 | `frontend/.env.example` |
 
 ## 방법론
 
@@ -122,8 +121,6 @@ frontend/
 │   ├── utils/
 │   ├── App.vue
 │   └── main.ts
-├── .env.example
-├── .env.local
 ├── vite.config.ts
 ├── tsconfig.json
 └── package.json
@@ -153,23 +150,7 @@ export default defineConfig({
 })
 ```
 
-**.env.example**
-
-```dotenv
-# API 서버 URL (runtime-env.js의 fallback용)
-# 주 설정은 public/runtime-env.js에서 관리
-VITE_API_URL=http://localhost:4010
-
-# 앱 환경
-VITE_APP_ENV=development
-```
-
-**.env.local** (로컬 실행용, gitignore에 포함)
-
-```dotenv
-VITE_API_URL=http://localhost:4010
-VITE_APP_ENV=development
-```
+> **환경변수 관리**: 프론트엔드 환경변수는 `public/runtime-env.js`에서 런타임으로 주입한다. `.env.example`이나 `.env.local` 파일은 별도로 생성하지 않는다. API URL 등의 설정은 `runtime-env.js` → 하드코딩 fallback(`'http://localhost:4010'`) 순서로 적용된다.
 
 ---
 
@@ -608,14 +589,14 @@ docker compose --profile mock up -d
 | 런타임 설정 헬퍼 | `frontend/src/config/runtime.ts` | window.__runtime_config__ 읽기 |
 | API 설정 | `frontend/src/services/api/config.ts` | runtime-env.js 기반 |
 | 공통 타입 | `frontend/src/types/api.ts` | 응답 래퍼, 에러 타입 |
-| 환경변수 예시 | `frontend/.env.example` | VITE_API_URL 포함 |
+| 런타임 환경변수 | `frontend/public/runtime-env.js` | 서비스별 HOST 설정 |
 
 ## 품질 기준
 
 - [ ] 정보아키텍처(`ia.md`) 기반 폴더 구조와 라우트 정의
 - [ ] CSS 변수가 `style-guide.md`의 컬러·타이포그래피·간격 값과 일치
 - [ ] API 서비스별 HOST가 `public/runtime-env.js`로 관리됨 (`VITE_API_URL`은 fallback)
-- [ ] `.env.example`에 `VITE_API_URL=http://localhost:4010` 포함
+- [ ] `public/runtime-env.js`에 API_URL 설정 포함
 - [ ] `npm run dev` 성공 및 브라우저 로딩 확인
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
 - [ ] 페이지 컴포넌트 미구현 (placeholder만 존재)
@@ -626,4 +607,4 @@ docker compose --profile mock up -d
 - Prism Mock 서버는 docker-compose의 mock 프로파일로 제공된다. `backing-service-setup.md`의 산출물을 사용한다.
 - CSS 변수 값을 임의로 추정하지 않는다. 반드시 `style-guide.md`에서 확인한 값을 사용한다.
 - 기존 `frontend/` 디렉토리가 있는 경우 기존 파일을 삭제하거나 덮어쓰지 않는다.
-- 환경변수 파일(`.env.local`, `.env`)은 gitignore에 포함시키고, `.env.example`만 커밋한다.
+- 환경변수는 `public/runtime-env.js`로 관리한다. 프론트엔드 디렉토리에 별도 `.env` 파일을 생성하지 않는다.

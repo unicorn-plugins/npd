@@ -119,7 +119,7 @@ frontend/
 ├── pubspec.yaml
 ├── pubspec.lock
 ├── analysis_options.yaml
-└── .env                        # 환경변수 (flutter_dotenv 사용 시)
+└── analysis_options.yaml
 ```
 
 `features/` 하위 폴더는 `ia.md`의 주요 기능(메뉴) 단위로 생성한다.
@@ -140,19 +140,7 @@ linter:
     - use_key_in_widget_constructors
 ```
 
-**.env** (flutter_dotenv 사용 시, gitignore에 포함)
-
-```dotenv
-API_BASE_URL=http://localhost:8080
-APP_ENV=development
-```
-
-**.env.example**
-
-```dotenv
-API_BASE_URL=http://localhost:8080
-APP_ENV=development
-```
+> **환경변수 관리**: Flutter 환경변수는 `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile)으로 주입한다. 프론트엔드 디렉토리에 별도 `.env` 파일을 생성하지 않는다.
 
 ---
 
@@ -825,5 +813,5 @@ flutter test
 - `pubspec.yaml`의 의존성 버전은 최신 호환 버전을 확인 후 입력한다. `flutter pub outdated`로 최신 버전 확인 가능.
 - `build_runner`를 사용하는 경우 코드 생성 명령을 실행한다: `dart run build_runner build --delete-conflicting-outputs`
 - 기존 `frontend/` 디렉토리가 있는 경우 기존 파일을 삭제하거나 덮어쓰지 않는다. 충돌 여부를 먼저 확인한다.
-- `.env` 파일은 gitignore에 포함시키고, `.env.example`만 커밋한다.
+- 환경변수는 `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile)으로 관리한다. 프론트엔드 디렉토리에 별도 `.env` 파일을 생성하지 않는다.
 - 프로토타입 화면 분석이 필요한 경우 playwright MCP 도구를 활용하여 모바일 사이즈(예: 390×844)로 확인한다.

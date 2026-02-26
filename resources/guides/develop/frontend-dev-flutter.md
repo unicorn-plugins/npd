@@ -106,6 +106,23 @@ flutter run --dart-define=API_BASE_URL=http://localhost:4010
 > **[DEFERRED] MOCK == MULTI**: 서비스별 Prism 인스턴스를 개별 포트에서 실행하는 멀티 Prism 패턴은 이번 범위에서 제외한다.
 > MOCK == MULTI support will be added when `backing-service-setup.md` is updated to support per-service Prism instances.
 
+#### 1.4 이미지 생성 도구
+
+프론트엔드 구현 중 필요한 이미지(아이콘, 일러스트, 배너, 플레이스홀더 등)는 Nano Banana(Gemini) 이미지 생성 도구를 활용하여 생성한다.
+`.env` 파일의 `GEMINI_API_KEY` 값을 `--api-key` 옵션에 전달한다.
+
+```bash
+# 이미지 생성 사용법
+python {PLUGIN_DIR}/resources/tools/customs/general/generate_image.py \
+  --prompt "생성할 이미지 설명" \
+  --output-dir frontend/lib/assets/images \
+  --output-name 파일명 \
+  --api-key <GEMINI_API_KEY>
+```
+
+이미지가 필요한 경우(로고, 아이콘, 배경, 일러스트 등) 이 도구를 사용하여 생성한다.
+외부 이미지 URL에 의존하거나 빈 placeholder를 남기지 않는다.
+
 ---
 
 ### 2단계. 공통 컴포넌트/위젯 개발

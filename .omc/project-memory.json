@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772016593532,
+  "lastScanned": 1772108317065,
   "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772016593519,
+      "lastAccessed": 1772108317050,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 11,
-      "lastAccessed": 1772016593519,
+      "lastAccessed": 1772108317050,
       "keyFiles": [
         "add-ext-skill.md",
         "create.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1772016593520,
+      "lastAccessed": 1772108317050,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1772016593520,
+      "lastAccessed": 1772108317051,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -77,7 +77,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772016593521,
+      "lastAccessed": 1772108317051,
       "keyFiles": [
         "resource.md"
       ]
@@ -86,310 +86,220 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772016593521,
+      "lastAccessed": 1772108317051,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
+      "path": "resources\\guides\\develop\\ai-service-env-setup.md",
+      "accessCount": 22,
+      "lastAccessed": 1772116657641,
+      "type": "file"
+    },
+    {
       "path": "skills\\develop\\SKILL.md",
-      "accessCount": 114,
-      "lastAccessed": 1772084568052,
-      "type": "file"
-    },
-    {
-      "path": "skills\\plan\\SKILL.md",
-      "accessCount": 43,
-      "lastAccessed": 1772057552927,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-integration-react.md",
-      "accessCount": 43,
-      "lastAccessed": 1772057839604,
+      "accessCount": 14,
+      "lastAccessed": 1772116605614,
       "type": "file"
     },
     {
       "path": "",
-      "accessCount": 36,
-      "lastAccessed": 1772038479280,
-      "type": "directory"
-    },
-    {
-      "path": "skills\\design\\SKILL.md",
-      "accessCount": 36,
-      "lastAccessed": 1772057657488,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-integration-flutter.md",
-      "accessCount": 31,
-      "lastAccessed": 1772048808280,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-integration-vue.md",
-      "accessCount": 30,
-      "lastAccessed": 1772048793790,
-      "type": "file"
-    },
-    {
-      "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 24,
-      "lastAccessed": 1772085391872,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\test-api.md",
-      "accessCount": 20,
-      "lastAccessed": 1772057748832,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\run-profile.md",
-      "accessCount": 20,
-      "lastAccessed": 1772084543548,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-api-dev.md",
-      "accessCount": 19,
-      "lastAccessed": 1772057836472,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop",
       "accessCount": 14,
-      "lastAccessed": 1772048815625,
+      "lastAccessed": 1772116639232,
       "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-env-setup.md",
-      "accessCount": 14,
-      "lastAccessed": 1772057834581,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\test-on-browser.md",
-      "accessCount": 13,
-      "lastAccessed": 1772057749763,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-ai-integration.md",
-      "accessCount": 13,
-      "lastAccessed": 1772057840266,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backing-service-setup.md",
-      "accessCount": 13,
-      "lastAccessed": 1772084531412,
-      "type": "file"
-    },
-    {
-      "path": "skills\\create\\SKILL.md",
-      "accessCount": 10,
-      "lastAccessed": 1772046957082,
-      "type": "file"
-    },
-    {
-      "path": "resources\\references\\java-config-manifest-standard.md",
-      "accessCount": 9,
-      "lastAccessed": 1772038609976,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev-react.md",
-      "accessCount": 9,
-      "lastAccessed": 1772084455585,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev-flutter.md",
-      "accessCount": 9,
-      "lastAccessed": 1772084560149,
-      "type": "file"
-    },
-    {
-      "path": "skills\\prepare\\SKILL.md",
-      "accessCount": 8,
-      "lastAccessed": 1772044606875,
-      "type": "file"
-    },
-    {
-      "path": "skills",
-      "accessCount": 8,
-      "lastAccessed": 1772049418461,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
-      "accessCount": 7,
-      "lastAccessed": 1772084455647,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-env-setup-flutter.md",
-      "accessCount": 7,
-      "lastAccessed": 1772084561364,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\design-contract-compile.md",
-      "accessCount": 6,
-      "lastAccessed": 1772057738964,
-      "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-env-setup-react.md",
-      "accessCount": 6,
-      "lastAccessed": 1772084454200,
-      "type": "file"
-    },
-    {
-      "path": "skills\\setup\\SKILL.md",
-      "accessCount": 5,
-      "lastAccessed": 1772044601861,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\ai-service-dev.md",
-      "accessCount": 4,
-      "lastAccessed": 1772057838426,
-      "type": "file"
-    },
-    {
-      "path": "dev-revise-plan.md",
-      "accessCount": 3,
-      "lastAccessed": 1772026494196,
-      "type": "file"
-    },
-    {
-      "path": "skills\\add-ext-skill\\SKILL.md",
-      "accessCount": 3,
-      "lastAccessed": 1772043179156,
-      "type": "file"
-    },
-    {
-      "path": "skills\\help\\SKILL.md",
-      "accessCount": 3,
-      "lastAccessed": 1772044602724,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\dev-plan.md",
-      "accessCount": 3,
-      "lastAccessed": 1772057738037,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\ai-service-env-setup.md",
-      "accessCount": 3,
-      "lastAccessed": 1772057742554,
+      "accessCount": 14,
+      "lastAccessed": 1772116652277,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-env-setup-vue.md",
+      "accessCount": 11,
+      "lastAccessed": 1772116585085,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-integration-react.md",
+      "accessCount": 8,
+      "lastAccessed": 1772116500071,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-env-setup-flutter.md",
+      "accessCount": 8,
+      "lastAccessed": 1772116590581,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-integration-flutter.md",
+      "accessCount": 7,
+      "lastAccessed": 1772116503541,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-integration-vue.md",
+      "accessCount": 6,
+      "lastAccessed": 1772116502359,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\ai-service-dev.md",
+      "accessCount": 6,
+      "lastAccessed": 1772116504563,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-ai-minikube.md",
+      "accessCount": 6,
+      "lastAccessed": 1772116505944,
+      "type": "file"
+    },
+    {
+      "path": "skills\\create\\SKILL.md",
+      "accessCount": 5,
+      "lastAccessed": 1772116496447,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-ai.md",
+      "accessCount": 5,
+      "lastAccessed": 1772116507255,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\run-container-guide-ai.md",
+      "accessCount": 5,
+      "lastAccessed": 1772116508729,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\backing-service-setup.md",
+      "accessCount": 5,
+      "lastAccessed": 1772116630023,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-react.md",
+      "accessCount": 4,
+      "lastAccessed": 1772109609114,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
+      "accessCount": 4,
+      "lastAccessed": 1772109613994,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-flutter.md",
+      "accessCount": 4,
+      "lastAccessed": 1772109618963,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop",
+      "accessCount": 4,
+      "lastAccessed": 1772114947216,
+      "type": "directory"
+    },
+    {
+      "path": "resources",
+      "accessCount": 4,
+      "lastAccessed": 1772116658335,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\develop\\backend-api-dev.md",
       "accessCount": 3,
-      "lastAccessed": 1772084454721,
+      "lastAccessed": 1772116609141,
       "type": "file"
     },
     {
-      "path": "gateway\\runtime-mapping.yaml",
+      "path": "resources\\guides\\develop\\backend-env-setup.md",
+      "accessCount": 3,
+      "lastAccessed": 1772116610844,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy",
       "accessCount": 2,
-      "lastAccessed": 1772035402132,
-      "type": "file"
+      "lastAccessed": 1772114947685,
+      "type": "directory"
     },
     {
-      "path": "agents\\qa-engineer\\agentcard.yaml",
+      "path": "resources\\references\\java-test-guide.md",
       "accessCount": 2,
-      "lastAccessed": 1772035422471,
+      "lastAccessed": 1772116606460,
       "type": "file"
     },
     {
-      "path": "skills\\remove-ext-skill\\SKILL.md",
+      "path": "resources\\guides\\design\\architecture-highlevel.md",
       "accessCount": 2,
-      "lastAccessed": 1772043167309,
+      "lastAccessed": 1772116607271,
       "type": "file"
     },
     {
-      "path": "skills\\ext-github-release-manager\\SKILL.md",
+      "path": "resources\\guides\\design\\class-design.md",
       "accessCount": 2,
-      "lastAccessed": 1772043168789,
+      "lastAccessed": 1772116608231,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\verification-gate.md",
-      "accessCount": 1,
-      "lastAccessed": 1772023426709,
+      "path": "resources\\guides\\develop\\backend-ai-integration.md",
+      "accessCount": 2,
+      "lastAccessed": 1772116609979,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\test-qa.md",
+      "path": "skills",
+      "accessCount": 2,
+      "lastAccessed": 1772116637707,
+      "type": "directory"
+    },
+    {
+      "path": "skills\\deploy\\SKILL.md",
       "accessCount": 1,
-      "lastAccessed": 1772023433880,
+      "lastAccessed": 1772108332484,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\frontend-env-setup.md",
+      "path": "resources\\tools\\customs\\general\\generate_image.py",
       "accessCount": 1,
-      "lastAccessed": 1772025769484,
+      "lastAccessed": 1772109352975,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\frontend-dev.md",
+      "path": "resources\\guides\\develop\\run-profile.md",
       "accessCount": 1,
-      "lastAccessed": 1772025773161,
+      "lastAccessed": 1772114940503,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\frontend-integration.md",
+      "path": "resources\\guides\\develop\\readme-generation.md",
       "accessCount": 1,
-      "lastAccessed": 1772025777961,
+      "lastAccessed": 1772114941129,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\oauth2-provider-setup-guide.md",
+      "accessCount": 1,
+      "lastAccessed": 1772114942048,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\firebase-fcm-setup-guide.md",
+      "accessCount": 1,
+      "lastAccessed": 1772114942175,
       "type": "file"
     },
     {
       "path": "skills\\develop",
       "accessCount": 1,
-      "lastAccessed": 1772026477829,
+      "lastAccessed": 1772114942345,
       "type": "directory"
-    },
-    {
-      "path": "agents\\backend-developer\\AGENT.md",
-      "accessCount": 1,
-      "lastAccessed": 1772035340953,
-      "type": "file"
-    },
-    {
-      "path": "agents\\qa-engineer\\AGENT.md",
-      "accessCount": 1,
-      "lastAccessed": 1772035341278,
-      "type": "file"
-    },
-    {
-      "path": "agents\\frontend-developer\\AGENT.md",
-      "accessCount": 1,
-      "lastAccessed": 1772035341680,
-      "type": "file"
-    },
-    {
-      "path": "agents\\backend-developer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1772035420997,
-      "type": "file"
-    },
-    {
-      "path": "agents\\frontend-developer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1772035421468,
-      "type": "file"
-    },
-    {
-      "path": "agents\\ai-engineer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1772035421916,
-      "type": "file"
     }
   ],
   "userDirectives": []

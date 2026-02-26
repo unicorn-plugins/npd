@@ -56,8 +56,8 @@
 - 6.1.2 프론트엔드 기술스택: 유저스토리와 UI/UX 설계서(기획 산출물) 참조하여 최적안 추천
 - 6.2 서비스별 개발 아키텍처 패턴: 클래스설계서에 적용된 '설계 아키텍처 패턴'과 일치(Layered 또는 Clean Architecture)
 - 6.3 개발 가이드라인:
-  - 코딩표준: '개발주석표준' 주소 링크 - https://github.com/unicorn-plugins/npd/blob/main/resources/standards/standard_comment.md
-  - 테스트 전략: '테스트코드표준' 주소 링크 - https://github.com/unicorn-plugins/npd/blob/main/resources/standards/standard_testcode.md
+  - 코딩표준: '개발주석표준' 주소 링크 - https://github.com/unicorn-plugins/npd/blob/main/resources/references/standard_comment.md
+  - 테스트 전략: '테스트코드표준' 주소 링크 - https://github.com/unicorn-plugins/npd/blob/main/resources/references/standard_testcode.md
 
 **7. 물리 아키텍처 (Physical View)**
 - 7.1 클라우드 아키텍처 패턴: '아키텍처패턴'과 일치하게 작성

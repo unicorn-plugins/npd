@@ -30,7 +30,7 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 
 ### 작성 원칙
 
-- **Java 패키지 그룹명 표준**: `com.{ORG}.{ROOT}` 형식을 강제 적용한다 (`{PLUGIN_DIR}/resources/standards/standard_package_structure.md` 참조)
+- **Java 패키지 그룹명 표준**: `com.{ORG}.{ROOT}` 형식을 강제 적용한다 (`{PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조)
   - `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 `CLAUDE.md`에서 읽는다
   - 설계서(클래스 설계서, 패키지 구조 등)에 다른 패키지명이 있더라도 이 표준으로 통일한다
   - 루트 `build.gradle`의 `group` 값: `'com.{ORG}.{ROOT}'`

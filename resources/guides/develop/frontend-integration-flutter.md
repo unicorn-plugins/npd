@@ -74,8 +74,8 @@ curl http://localhost:8080/api/health
 docker compose --profile mock ps
 
 # 프론트엔드 현재 환경변수 확인
-cat frontend/.env.local
-# VITE_API_URL=http://localhost:4010  <-- 현재 Mock URL
+cat frontend/web/runtime-env.js
+# window.__RUNTIME_ENV__ = { API_URL: 'http://localhost:4010' }  <-- 현재 Mock URL
 ```
 
 ---

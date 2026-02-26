@@ -23,7 +23,7 @@
 | 프로젝트 골격 | `{service-name}/` | 설계서 지정 디렉토리 구조 |
 | 의존성 파일 | `pyproject.toml` 또는 `requirements.txt` | 런타임·개발 의존성 |
 | FastAPI 앱 | `main.py`, `routers/`, `config.py` | 앱 진입점, 라우터, 설정 |
-| 환경변수 템플릿 | `.env.example` | LLM API 키 등 환경변수 목록 |
+| 환경변수 템플릿 | 루트 `.env.example` AI 서비스 섹션 | LLM API 키 등 환경변수 목록 |
 | Dockerfile | `Dockerfile` | 로컬 개발용 컨테이너 이미지 |
 | Compose 등록 | `docker-compose.yml` | `ai` 프로파일에 서비스 추가 |
 
@@ -74,8 +74,6 @@ cd {service-name}
 {service-name}/
 ├── main.py                    # FastAPI 앱 진입점
 ├── config.py                  # 환경변수 기반 설정 (Pydantic Settings)
-├── .env.example               # 환경변수 템플릿 (버전 관리 포함)
-├── .env                       # 실제 환경변수 (버전 관리 제외 — .gitignore)
 ├── Dockerfile                 # 로컬 개발용 컨테이너 이미지
 ├── pyproject.toml             # 의존성 및 프로젝트 메타데이터 (poetry 사용 시)
 ├── requirements.txt           # 의존성 목록 (pip 사용 시)
@@ -193,10 +191,14 @@ pip install -r requirements.txt
 
 ### 5단계: 기본 설정 파일 작성
 
-**`.env.example`** (버전 관리에 포함, 실제 값 없이 키 목록만):
+**루트 `.env.example`에 AI 서비스 섹션 추가**:
+
+프로젝트 루트의 `.env.example` 파일에 아래 AI 서비스 관련 환경변수를 추가한다 (이미 `backing-service-setup.md`에서 주석 처리된 섹션이 있으면 주석을 해제하고 값을 채운다):
 
 ```dotenv
-# 앱 설정
+# ===========================
+# AI Service ({service-name})
+# ===========================
 APP_ENV=development
 APP_PORT=8000
 LOG_LEVEL=INFO
@@ -225,13 +227,6 @@ OPENAI_API_KEY=your-openai-api-key-here
 # VECTOR_DB_URL=http://localhost:6333
 ```
 
-**`.env`** (`.gitignore`에 추가, 실제 키 입력):
-
-```bash
-# .env.example을 복사하여 실제 값으로 채운다
-cp .env.example .env
-```
-
 **`config.py`**:
 
 ```python
@@ -240,7 +235,7 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
     model_config = SettingsConfigDict(
-        env_file=".env",
+        env_file="../.env",
         env_file_encoding="utf-8",
         case_sensitive=False,
     )
@@ -275,7 +270,6 @@ settings = Settings()
 **`.gitignore`에 추가**:
 
 ```
-.env
 .venv/
 __pycache__/
 *.pyc
@@ -370,7 +364,7 @@ services:
     ports:
       - "{port}:8000"
     env_file:
-      - ./{service-name}/.env
+      - ./.env
     environment:
       - APP_ENV=development
     # 다른 서비스(DB 등)가 먼저 기동되어야 하는 경우
@@ -421,15 +415,14 @@ curl http://localhost:{port}/health
 - [ ] 프로젝트 디렉토리 생성 (설계서 2.7절 구조 일치)
 - [ ] 가상환경 설정 완료 (poetry 또는 venv)
 - [ ] 의존성 정의 및 설치 완료 (pyproject.toml 또는 requirements.txt)
-- [ ] .env.example 작성 완료 (LLM API 키 항목 포함)
-- [ ] .env는 .gitignore에 등록됨
+- [ ] 루트 .env.example에 AI 서비스 환경변수 섹션 추가 완료
 - [ ] config.py 작성 완료 (Pydantic Settings 기반)
 - [ ] main.py 작성 완료 (FastAPI 앱 + 라우터 등록)
 - [ ] /health 엔드포인트 응답 정상 확인
 - [ ] Dockerfile 빌드 성공
 - [ ] docker-compose.yml ai 프로파일에 서비스 등록
 - [ ] docker compose --profile ai up으로 기동 확인
-- [ ] LLM API 키 하드코딩 없음 (.env 관리 확인)
+- [ ] LLM API 키 하드코딩 없음 (루트 .env 관리 확인)
 
 ## RAG 관련 (설계서 6절 해당 시)
 - [ ] rag/ 디렉토리 생성 (indexer.py, retriever.py, embeddings.py 스텁)
@@ -453,15 +446,15 @@ curl http://localhost:{port}/health
 | /health 엔드포인트 | `{"status": "ok"}` 응답 정상 반환 |
 | Dockerfile 빌드 | `docker build` 오류 없이 완료 |
 | ai 프로파일 기동 | `docker compose --profile ai up` 서비스 정상 기동 |
-| LLM API 키 관리 | 코드 내 하드코딩 없음, .env로만 관리 |
-| .env 버전 관리 | .gitignore 등록 확인, .env.example만 커밋 |
+| LLM API 키 관리 | 코드 내 하드코딩 없음, 루트 .env로만 관리 |
+| .env 버전 관리 | 루트 .gitignore 등록 확인, 루트 .env.example에 AI 서비스 섹션 포함 |
 | 의존성 파일 | 설계서 LLM 제공자 반영, LangChain 의존성 포함 |
 
 ---
 
 ## 주의사항
 
-- **LLM API 키 하드코딩 금지**: 키는 반드시 `.env`에서 관리하고 코드에 직접 기재하지 않는다. `.env.example`에는 키 이름만 포함하고 실제 값은 제외한다.
+- **LLM API 키 하드코딩 금지**: 키는 반드시 루트 `.env`에서 관리하고 코드에 직접 기재하지 않는다. 루트 `.env.example`의 AI 서비스 섹션에 키 이름만 포함하고 실제 값은 제외한다.
 
 - **비즈니스 로직 구현 금지**: 이 단계에서는 프로젝트 골격만 설정한다. `services/`, `clients/`, `prompts/` 등 하위 디렉토리에는 `__init__.py`만 생성하고 실제 구현은 개발 단계에서 수행한다.
 

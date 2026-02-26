@@ -233,7 +233,7 @@ groq_api_key: str = ""
 ai_service_url: str = "http://localhost:8000"
 ```
 
-**`.env.example`에 추가할 항목**:
+**루트 `.env.example`에 추가할 항목**:
 
 ```dotenv
 # LLM 제공자 설정 (설계서 기준으로 주석 해제)
