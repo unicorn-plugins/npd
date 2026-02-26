@@ -118,6 +118,7 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 | 변수 | 가능한 값 | 판별 소스 |
 |------|-----------|-----------|
 | PLATFORM | REACT, VUE, FLUTTER | `docs/design/high-level-architecture.md` 기술스택 섹션 |
+| FRONTEND_PORT | 3000 | PLATFORM에서 파생 (React/Vue/Flutter 모두 3000 통일) |
 | MOCK | SINGLE | `docker-compose.yml` Prism 서비스 수 |
 
 ### 플랫폼 판별 키워드 매핑
@@ -448,8 +449,8 @@ cd frontend && npm run dev
 ​```
 # Flutter Web 프로젝트인 경우:
 ​```bash
-cd frontend && flutter run -d chrome        # 브라우저 자동 실행 (브라우저 닫으면 서버도 중지)
-cd frontend && flutter run -d web-server    # 브라우저와 별도로 서버만 실행
+cd frontend && flutter run -d chrome --web-port 3000        # 브라우저 자동 실행 (브라우저 닫으면 서버도 중지)
+cd frontend && flutter run -d web-server --web-port 3000    # 브라우저와 별도로 서버만 실행
 ​```
 
 #### 4. AI 서비스 기동 (해당 시)

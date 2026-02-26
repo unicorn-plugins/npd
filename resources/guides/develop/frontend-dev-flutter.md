@@ -670,7 +670,7 @@ frontend/lib/
 - [ ] Prism stub 데이터가 `lib/core/stubs/`에 분리됨
 - [ ] dev-plan.md 섹션 5의 페이지 전체 구현
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/lib/` 결과가 0건
-- [ ] **런타임 동작 확인**: `flutter run -d chrome` 실행 후 주요 화면 접근 및 Mock API 호출 정상 동작
+- [ ] **런타임 동작 확인**: `flutter run -d chrome --web-port 3000` 실행 후 주요 화면 접근 및 Mock API 호출 정상 동작
 
 ## 주의사항
 

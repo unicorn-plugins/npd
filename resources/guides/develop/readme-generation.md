@@ -125,7 +125,7 @@ cd frontend && npm run dev
 <!-- ELIF PLATFORM == VUE -->
 cd frontend && npm run dev
 <!-- ELIF PLATFORM == FLUTTER -->
-cd frontend && flutter run -d web-server
+cd frontend && flutter run -d web-server --web-port 3000
 <!-- ENDIF -->
 
 # 4. AI 서비스 기동 (해당 시)

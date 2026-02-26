@@ -266,6 +266,12 @@ MQ_VHOST=/
 # ===========================
 MOCK_PORT=4010
 
+# ===========================
+# CORS (프론트엔드 허용 도메인)
+# ===========================
+FRONTEND_PORT=3000
+CORS_ALLOWED_ORIGINS=http://localhost:${FRONTEND_PORT}
+
 ```
 
 > `.env.example`을 복사하여 `.env`를 생성하고 실제 값을 채운다.

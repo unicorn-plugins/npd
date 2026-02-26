@@ -813,7 +813,7 @@ flutter test
 - [ ] Dio baseURL이 `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile)으로 관리됨 (하드코딩 없음)
 - [ ] `flutter_secure_storage`로 토큰 저장 (localStorage 미사용)
 - [ ] `flutter analyze` 오류 없음
-- [ ] `flutter run` 성공 및 기본 화면 표시 확인
+- [ ] `flutter run --web-port 3000` 성공 및 기본 화면 표시 확인
 - [ ] `flutter build apk --debug` 성공 (빌드 오류 없음)
 - [ ] 화면 Widget 미구현 (placeholder Text만 존재)
 
