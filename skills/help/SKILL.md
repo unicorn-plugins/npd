@@ -3,7 +3,6 @@ name: help
 description: NPD 플러그인 사용법 및 명령어 안내
 type: utility
 user-invocable: true
-allowed-tools: Read
 ---
 
 # Help

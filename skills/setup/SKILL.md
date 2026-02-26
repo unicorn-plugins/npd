@@ -3,7 +3,6 @@ name: setup
 description: NPD 플러그인 초기 설정 (MCP 서버 설치, GitHub 토큰 설정)
 type: setup
 user-invocable: true
-allowed-tools: Read, Write, Bash
 ---
 
 # Setup
@@ -106,6 +105,7 @@ echo $GITHUB_TOKEN
 | 1 | `gateway/install.yaml` 을 반드시 읽어 설치 대상을 파악할 것 |
 | 2 | 설치 전 기존 설치 여부를 확인하여 중복 설치를 방지할 것 |
 | 3 | 설정 완료 후 다음 단계(`/npd:create`) 안내를 포함할 것 |
+| 4 | `<!--ASK_USER-->` 발견 시 AskUserQuestion 도구를 호출할 것 (텍스트 출력 금지) |
 
 ## MUST NOT 규칙
 

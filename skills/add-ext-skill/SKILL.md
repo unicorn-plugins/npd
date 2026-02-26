@@ -3,7 +3,6 @@ name: add-ext-skill
 description: 외부호출 스킬(ext-{대상플러그인}) 추가 유틸리티
 type: utility
 user-invocable: true
-allowed-tools: Read, Write, Edit, Bash
 ---
 
 # Add Ext Skill

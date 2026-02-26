@@ -261,7 +261,7 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 | `ulw` | `Skill("oh-my-claudecode:ultrawork")` |
 
 ### 교훈 목록
-(아직 없음)
+- [HIGH] `<!--ASK_USER-->` 발견 시 AskUserQuestion 도구를 호출할 것 - 공통
 
 ````
 

@@ -3,7 +3,6 @@ name: remove-ext-skill
 description: 외부호출 스킬(ext-{대상플러그인}) 제거 유틸리티
 type: utility
 user-invocable: true
-allowed-tools: Read, Edit, Bash
 ---
 
 # Remove Ext Skill

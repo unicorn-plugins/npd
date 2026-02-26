@@ -3,7 +3,6 @@ name: prepare
 description: Claude Code 사용을 위한 로컬 개발 환경 사전준비 (기본 프로그램 설치 안내, Claude Code + OMC 설치, Claude Code 설정)
 type: setup
 user-invocable: true
-allowed-tools: Read, Bash
 ---
 
 # Prepare
@@ -414,6 +413,7 @@ claude mcp list
 | 14 | GitHub CLI(gh) 설치 여부를 확인하고 미설치 시 OS에 맞는 명령으로 자동 설치할 것 |
 | 15 | GitHub CLI 설치 후 인증 상태를 확인하고 미인증 시 `gh auth login` 안내할 것 |
 | 16 | 결과 보고 후 반드시 다음 단계(`/npd:setup`) 안내를 포함할 것 |
+| 17 | `<!--ASK_USER-->` 발견 시 AskUserQuestion 도구를 호출할 것 (텍스트 출력 금지) |
 
 ## MUST NOT 규칙
 

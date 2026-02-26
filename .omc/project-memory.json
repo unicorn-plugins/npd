@@ -93,8 +93,20 @@
   "hotPaths": [
     {
       "path": "skills\\develop\\SKILL.md",
-      "accessCount": 51,
-      "lastAccessed": 1772041895972,
+      "accessCount": 114,
+      "lastAccessed": 1772084568052,
+      "type": "file"
+    },
+    {
+      "path": "skills\\plan\\SKILL.md",
+      "accessCount": 43,
+      "lastAccessed": 1772057552927,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-integration-react.md",
+      "accessCount": 43,
+      "lastAccessed": 1772057839604,
       "type": "file"
     },
     {
@@ -104,63 +116,81 @@
       "type": "directory"
     },
     {
-      "path": "resources\\guides\\develop\\frontend-integration-react.md",
-      "accessCount": 23,
-      "lastAccessed": 1772037532019,
+      "path": "skills\\design\\SKILL.md",
+      "accessCount": 36,
+      "lastAccessed": 1772057657488,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-integration-flutter.md",
-      "accessCount": 22,
-      "lastAccessed": 1772037533486,
+      "accessCount": 31,
+      "lastAccessed": 1772048808280,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-integration-vue.md",
-      "accessCount": 21,
-      "lastAccessed": 1772037532698,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-api-dev.md",
-      "accessCount": 17,
-      "lastAccessed": 1772041501642,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\test-api.md",
-      "accessCount": 16,
-      "lastAccessed": 1772036858240,
-      "type": "file"
-    },
-    {
-      "path": "skills\\design\\SKILL.md",
-      "accessCount": 16,
-      "lastAccessed": 1772040138600,
+      "accessCount": 30,
+      "lastAccessed": 1772048793790,
       "type": "file"
     },
     {
       "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 14,
-      "lastAccessed": 1772040141127,
+      "accessCount": 24,
+      "lastAccessed": 1772085391872,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\test-api.md",
+      "accessCount": 20,
+      "lastAccessed": 1772057748832,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\run-profile.md",
-      "accessCount": 13,
-      "lastAccessed": 1772038611406,
+      "accessCount": 20,
+      "lastAccessed": 1772084543548,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\backend-api-dev.md",
+      "accessCount": 19,
+      "lastAccessed": 1772057836472,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop",
+      "accessCount": 14,
+      "lastAccessed": 1772048815625,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\develop\\backend-env-setup.md",
+      "accessCount": 14,
+      "lastAccessed": 1772057834581,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\test-on-browser.md",
-      "accessCount": 12,
-      "lastAccessed": 1772035401611,
+      "accessCount": 13,
+      "lastAccessed": 1772057749763,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\backend-env-setup.md",
-      "accessCount": 12,
-      "lastAccessed": 1772038612131,
+      "path": "resources\\guides\\develop\\backend-ai-integration.md",
+      "accessCount": 13,
+      "lastAccessed": 1772057840266,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\backing-service-setup.md",
+      "accessCount": 13,
+      "lastAccessed": 1772084531412,
+      "type": "file"
+    },
+    {
+      "path": "skills\\create\\SKILL.md",
+      "accessCount": 10,
+      "lastAccessed": 1772046957082,
       "type": "file"
     },
     {
@@ -170,51 +200,63 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop",
-      "accessCount": 8,
-      "lastAccessed": 1772026477151,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\develop\\backing-service-setup.md",
-      "accessCount": 7,
-      "lastAccessed": 1772036856690,
-      "type": "file"
-    },
-    {
       "path": "resources\\guides\\develop\\frontend-dev-react.md",
-      "accessCount": 6,
-      "lastAccessed": 1772035398426,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
-      "accessCount": 6,
-      "lastAccessed": 1772035411993,
+      "accessCount": 9,
+      "lastAccessed": 1772084455585,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-dev-flutter.md",
-      "accessCount": 5,
-      "lastAccessed": 1772035412579,
+      "accessCount": 9,
+      "lastAccessed": 1772084560149,
+      "type": "file"
+    },
+    {
+      "path": "skills\\prepare\\SKILL.md",
+      "accessCount": 8,
+      "lastAccessed": 1772044606875,
+      "type": "file"
+    },
+    {
+      "path": "skills",
+      "accessCount": 8,
+      "lastAccessed": 1772049418461,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
+      "accessCount": 7,
+      "lastAccessed": 1772084455647,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-env-setup-flutter.md",
+      "accessCount": 7,
+      "lastAccessed": 1772084561364,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\design-contract-compile.md",
-      "accessCount": 5,
-      "lastAccessed": 1772036702111,
-      "type": "file"
-    },
-    {
-      "path": "skills\\plan\\SKILL.md",
-      "accessCount": 5,
-      "lastAccessed": 1772040137809,
+      "accessCount": 6,
+      "lastAccessed": 1772057738964,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-env-setup-react.md",
+      "accessCount": 6,
+      "lastAccessed": 1772084454200,
+      "type": "file"
+    },
+    {
+      "path": "skills\\setup\\SKILL.md",
+      "accessCount": 5,
+      "lastAccessed": 1772044601861,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\ai-service-dev.md",
       "accessCount": 4,
-      "lastAccessed": 1772035398083,
+      "lastAccessed": 1772057838426,
       "type": "file"
     },
     {
@@ -224,33 +266,33 @@
       "type": "file"
     },
     {
-      "path": "skills",
+      "path": "skills\\add-ext-skill\\SKILL.md",
       "accessCount": 3,
-      "lastAccessed": 1772030073510,
-      "type": "directory"
+      "lastAccessed": 1772043179156,
+      "type": "file"
+    },
+    {
+      "path": "skills\\help\\SKILL.md",
+      "accessCount": 3,
+      "lastAccessed": 1772044602724,
+      "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\dev-plan.md",
-      "accessCount": 2,
-      "lastAccessed": 1772035395726,
+      "accessCount": 3,
+      "lastAccessed": 1772057738037,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\ai-service-env-setup.md",
-      "accessCount": 2,
-      "lastAccessed": 1772035399417,
+      "accessCount": 3,
+      "lastAccessed": 1772057742554,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\ai-service-dev.md",
-      "accessCount": 2,
-      "lastAccessed": 1772035400174,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backend-ai-integration.md",
-      "accessCount": 2,
-      "lastAccessed": 1772035400309,
+      "path": "resources\\guides\\develop\\frontend-env-setup-vue.md",
+      "accessCount": 3,
+      "lastAccessed": 1772084454721,
       "type": "file"
     },
     {
@@ -260,27 +302,21 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\frontend-env-setup-vue.md",
-      "accessCount": 2,
-      "lastAccessed": 1772035410825,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-env-setup-flutter.md",
-      "accessCount": 2,
-      "lastAccessed": 1772035411392,
-      "type": "file"
-    },
-    {
       "path": "agents\\qa-engineer\\agentcard.yaml",
       "accessCount": 2,
       "lastAccessed": 1772035422471,
       "type": "file"
     },
     {
-      "path": "skills\\prepare\\SKILL.md",
+      "path": "skills\\remove-ext-skill\\SKILL.md",
       "accessCount": 2,
-      "lastAccessed": 1772040140257,
+      "lastAccessed": 1772043167309,
+      "type": "file"
+    },
+    {
+      "path": "skills\\ext-github-release-manager\\SKILL.md",
+      "accessCount": 2,
+      "lastAccessed": 1772043168789,
       "type": "file"
     },
     {

@@ -3,7 +3,6 @@ name: ext-github-release-manager
 description: github-release-manager 외부 플러그인 워크플로우 실행
 type: external
 user-invocable: true
-allowed-tools: Skill
 ---
 
 # ext-github-release-manager
