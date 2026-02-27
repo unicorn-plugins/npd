@@ -92,57 +92,123 @@
   },
   "hotPaths": [
     {
+      "path": "skills\\develop\\SKILL.md",
+      "accessCount": 117,
+      "lastAccessed": 1772184572044,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 64,
+      "lastAccessed": 1772184385552,
+      "type": "directory"
+    },
+    {
+      "path": "skills\\deploy\\SKILL.md",
+      "accessCount": 51,
+      "lastAccessed": 1772126390387,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\test-on-browser.md",
+      "accessCount": 38,
+      "lastAccessed": 1772184566957,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\setup\\prepare-deploy.md",
+      "accessCount": 30,
+      "lastAccessed": 1772125952729,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\readme-generation.md",
+      "accessCount": 28,
+      "lastAccessed": 1772184574144,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-integration-react.md",
+      "accessCount": 26,
+      "lastAccessed": 1772179448450,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-env-setup-react.md",
+      "accessCount": 25,
+      "lastAccessed": 1772179441901,
+      "type": "file"
+    },
+    {
       "path": "resources\\guides\\develop\\ai-service-env-setup.md",
       "accessCount": 22,
       "lastAccessed": 1772116657641,
       "type": "file"
     },
     {
-      "path": "skills\\develop\\SKILL.md",
-      "accessCount": 14,
-      "lastAccessed": 1772116605614,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 14,
-      "lastAccessed": 1772116639232,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-env-setup-react.md",
-      "accessCount": 14,
-      "lastAccessed": 1772116652277,
-      "type": "file"
-    },
-    {
       "path": "resources\\guides\\develop\\frontend-env-setup-vue.md",
-      "accessCount": 11,
-      "lastAccessed": 1772116585085,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-integration-react.md",
-      "accessCount": 8,
-      "lastAccessed": 1772116500071,
+      "accessCount": 20,
+      "lastAccessed": 1772179442085,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-env-setup-flutter.md",
-      "accessCount": 8,
-      "lastAccessed": 1772116590581,
+      "accessCount": 17,
+      "lastAccessed": 1772179442480,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-react.md",
+      "accessCount": 17,
+      "lastAccessed": 1772179446942,
       "type": "file"
     },
     {
       "path": "resources\\guides\\develop\\frontend-integration-flutter.md",
-      "accessCount": 7,
-      "lastAccessed": 1772116503541,
+      "accessCount": 15,
+      "lastAccessed": 1772179449008,
       "type": "file"
     },
     {
+      "path": "resources\\guides\\develop",
+      "accessCount": 15,
+      "lastAccessed": 1772184529467,
+      "type": "directory"
+    },
+    {
       "path": "resources\\guides\\develop\\frontend-integration-vue.md",
-      "accessCount": 6,
-      "lastAccessed": 1772116502359,
+      "accessCount": 14,
+      "lastAccessed": 1772179448593,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\create-vm.md",
+      "accessCount": 13,
+      "lastAccessed": 1772124560559,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
+      "accessCount": 11,
+      "lastAccessed": 1772179447131,
+      "type": "file"
+    },
+    {
+      "path": "test-on-browser.md",
+      "accessCount": 11,
+      "lastAccessed": 1772184175483,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy",
+      "accessCount": 9,
+      "lastAccessed": 1772125945337,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\develop\\frontend-dev-flutter.md",
+      "accessCount": 9,
+      "lastAccessed": 1772179447591,
       "type": "file"
     },
     {
@@ -159,8 +225,14 @@
     },
     {
       "path": "skills\\create\\SKILL.md",
-      "accessCount": 5,
-      "lastAccessed": 1772116496447,
+      "accessCount": 6,
+      "lastAccessed": 1772165709481,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\setup\\prepare.md",
+      "accessCount": 6,
+      "lastAccessed": 1772184176240,
       "type": "file"
     },
     {
@@ -182,30 +254,6 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\frontend-dev-react.md",
-      "accessCount": 4,
-      "lastAccessed": 1772109609114,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev-vue.md",
-      "accessCount": 4,
-      "lastAccessed": 1772109613994,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\frontend-dev-flutter.md",
-      "accessCount": 4,
-      "lastAccessed": 1772109618963,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop",
-      "accessCount": 4,
-      "lastAccessed": 1772114947216,
-      "type": "directory"
-    },
-    {
       "path": "resources",
       "accessCount": 4,
       "lastAccessed": 1772116658335,
@@ -224,9 +272,9 @@
       "type": "file"
     },
     {
-      "path": "resources\\guides\\deploy",
-      "accessCount": 2,
-      "lastAccessed": 1772114947685,
+      "path": "skills",
+      "accessCount": 3,
+      "lastAccessed": 1772165991045,
       "type": "directory"
     },
     {
@@ -254,16 +302,22 @@
       "type": "file"
     },
     {
-      "path": "skills",
+      "path": "resources\\guides\\deploy\\run-container-guide-back.md",
       "accessCount": 2,
-      "lastAccessed": 1772116637707,
+      "lastAccessed": 1772124578856,
+      "type": "file"
+    },
+    {
+      "path": "skills\\develop",
+      "accessCount": 2,
+      "lastAccessed": 1772165732023,
       "type": "directory"
     },
     {
-      "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 1,
-      "lastAccessed": 1772108332484,
-      "type": "file"
+      "path": "agents",
+      "accessCount": 2,
+      "lastAccessed": 1772165992236,
+      "type": "directory"
     },
     {
       "path": "resources\\tools\\customs\\general\\generate_image.py",
@@ -275,12 +329,6 @@
       "path": "resources\\guides\\develop\\run-profile.md",
       "accessCount": 1,
       "lastAccessed": 1772114940503,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\readme-generation.md",
-      "accessCount": 1,
-      "lastAccessed": 1772114941129,
       "type": "file"
     },
     {
@@ -296,10 +344,52 @@
       "type": "file"
     },
     {
-      "path": "skills\\develop",
+      "path": "resources\\guides\\setup\\deploy-pre-setup.md",
       "accessCount": 1,
-      "lastAccessed": 1772114942345,
+      "lastAccessed": 1772126312243,
+      "type": "file"
+    },
+    {
+      "path": "commands",
+      "accessCount": 1,
+      "lastAccessed": 1772165694907,
       "type": "directory"
+    },
+    {
+      "path": "agents\\qa-engineer\\AGENT.md",
+      "accessCount": 1,
+      "lastAccessed": 1772165699202,
+      "type": "file"
+    },
+    {
+      "path": "agents\\product-owner\\AGENT.md",
+      "accessCount": 1,
+      "lastAccessed": 1772165699721,
+      "type": "file"
+    },
+    {
+      "path": "agents\\service-planner\\AGENT.md",
+      "accessCount": 1,
+      "lastAccessed": 1772165700311,
+      "type": "file"
+    },
+    {
+      "path": "skills\\plan\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772165998985,
+      "type": "file"
+    },
+    {
+      "path": ".temp\\new_steps.md",
+      "accessCount": 1,
+      "lastAccessed": 1772172266656,
+      "type": "file"
+    },
+    {
+      "path": ".temp\\new_steps_v2.md",
+      "accessCount": 1,
+      "lastAccessed": 1772174259390,
+      "type": "file"
     }
   ],
   "userDirectives": []

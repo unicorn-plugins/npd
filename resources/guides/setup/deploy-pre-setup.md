@@ -150,6 +150,7 @@ SSH로 VM에 접속하여 도구 설치 여부를 확인하고, 미설치 도구
 - 각 도구별로 `ssh {VM_HOST_ALIAS} "command -v {tool}"` 로 설치 여부 확인
 - 미설치 도구만 prepare-deploy.md의 해당 섹션 명령을 `ssh {VM_HOST_ALIAS} "{설치 명령}"` 형태로 실행
 - 모든 apt 명령에 `-y` 플래그, GCP install.sh에 `--quiet --disable-prompts` 플래그 필수
+- **AWS CLI install 스크립트(`./aws/install`)는 quiet 플래그를 지원하지 않으므로 플래그 없이 실행**
 - Docker 설치 후 `usermod -aG docker` 적용: AI 에이전트는 매 ssh 호출이 새 세션이므로 재접속 없이 별도 ssh 명령으로 `docker version` 확인만 수행
 - 각 도구 설치 후 버전 확인 명령으로 성공 여부 검증
 - 도구별 설치 실패 시: 에러 로그 표시 + 사용자에게 재시도/수동 설치/계속 진행 선택 요청

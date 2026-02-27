@@ -67,28 +67,14 @@ export default defineConfig({
 
 ### 2. 프론트엔드 개발 서버 기동
 
-<!-- IF PLATFORM == REACT -->
 ```bash
-cd frontend && npm run dev &
-sleep 10
-curl -s -o /dev/null -w '%{http_code}' http://localhost:${FRONTEND_PORT}
+python3 tools/run-frontend-devserver.py start --background --force
+python3 tools/run-frontend-devserver.py status
 ```
-<!-- ELIF PLATFORM == VUE -->
-```bash
-cd frontend && npm run dev &
-sleep 10
-curl -s -o /dev/null -w '%{http_code}' http://localhost:${FRONTEND_PORT}
-```
-<!-- ELIF PLATFORM == FLUTTER -->
-```bash
-cd frontend && flutter build web 2>&1 | tail -5
-python3 -m http.server ${FRONTEND_PORT} -d frontend/build/web &
-sleep 3
-curl -s -o /dev/null -w '%{http_code}' http://localhost:${FRONTEND_PORT}
-```
-<!-- ENDIF -->
 
-- HTTP 200 응답이어야 진행 가능
+> tools/ 미존재 시: `{PLUGIN_DIR}/resources/tools/customs/general/run-frontend-devserver.py` 사용
+
+- `status` 명령으로 "상태: 실행 중" 출력을 확인한 뒤 진행
 
 ### 3. 시나리오 목록 추출
 
