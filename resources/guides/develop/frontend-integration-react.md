@@ -72,8 +72,9 @@ curl http://localhost:8080/api/health
 docker compose --profile mock ps
 
 # 프론트엔드 현재 환경변수 확인
-cat frontend/public/runtime-env.js
-# window.__RUNTIME_ENV__ = { API_URL: 'http://localhost:4010' }  <-- 현재 Mock URL
+bash tools/generate-runtime-env.sh && cat frontend/public/runtime-env.js
+# .env의 MOCK_MODE 설정에 따라 runtime-env.js가 자동 생성되었는지 확인
+# MOCK_MODE=false이면 실제 서비스 포트가, MOCK_MODE=true이면 localhost:4010이 반영됨
 ```
 
 ---
@@ -161,42 +162,35 @@ npx tsc --noEmit
 
 ### 3단계. 환경변수 전환
 
-#### 3.1 runtime-env.js 값 교체
+#### 3.1 generate-runtime-env.sh로 자동 전환
 
-`frontend/public/runtime-env.js` 파일에서 서비스별 HOST를 실제 백엔드 URL로 변경한다.
+`tools/generate-runtime-env.sh`를 실행하면 ROOT/.env에 정의된 실제 서비스 포트를 읽어
+`frontend/public/runtime-env.js`가 자동 생성된다.
 
-```javascript
-// public/runtime-env.js (실제 백엔드 연동)
-window.__runtime_config__ = {
-  API_GROUP: "/api/v1",
-  MEMBER_HOST: "http://localhost:8081",
-  ORDER_HOST: "http://localhost:8082",
-  RECOMMEND_HOST: "http://localhost:8083",
-  // ... 서비스별 실제 포트 (backing-service-result.md 참조)
-};
+```bash
+# .env의 MOCK_MODE=false 확인 후 실행
+bash tools/generate-runtime-env.sh
+
+# 또는 npm run dev가 predev 스크립트를 통해 자동 실행
+npm run dev
 ```
 
-URL은 `backing-service-result.md`에 기록된 실제 백엔드 주소를 사용한다.
+생성된 파일을 확인하여 HOST가 실제 백엔드 포트와 일치하는지 검증한다:
 
-**환경 분기 관리 원칙**: `runtime-env.js`만 변경하면 Mock ↔ 실제 전환이 완료된다.
-Mock 환경으로 복귀하려면 HOST를 `http://localhost:4010`으로 되돌린다.
-
-```javascript
-// Mock 환경으로 복귀 시
-window.__runtime_config__ = {
-  API_GROUP: "/api/v1",
-  MEMBER_HOST: "http://localhost:4010",
-  ORDER_HOST: "http://localhost:4010",
-  // ... 모든 HOST를 Prism 서버로 복귀
-};
+```bash
+cat frontend/public/runtime-env.js
+# MEMBER_HOST: "http://localhost:8081" 등 실제 포트가 반영되었는지 확인
 ```
+
+**Mock 환경으로 복귀**: `.env`에서 `MOCK_MODE=true`로 변경한 뒤 `npm run dev`를 재시작하면
+`generate-runtime-env.sh`가 `predev`에서 자동 실행되어 모든 HOST가 `localhost:4010`으로 복귀한다.
 
 > **브라우저 캐시 주의**: `runtime-env.js`가 캐싱되면 변경이 반영되지 않을 수 있다.
 > 개발 서버에서는 Vite가 자동으로 처리하지만, nginx 배포 시에는 `Cache-Control: no-cache` 설정이 필요하다.
 
 #### 3.2 전환 후 즉시 확인
 
-`runtime-env.js` 변경 후 Vite 개발 서버를 재시작하고 Network 탭에서 요청 URL을 확인한다.
+`.env`의 `MOCK_MODE=false` 설정 후 Vite 개발 서버를 재시작하고 Network 탭에서 요청 URL을 확인한다.
 
 ```bash
 cd frontend

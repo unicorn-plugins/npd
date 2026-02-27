@@ -501,31 +501,115 @@ class ExampleWidget extends ConsumerWidget {
 `API 설계서(docs/design/api/*.yaml)`를 참조하여 Dio 클라이언트와 서비스 레이어를 구성한다.
 Flutter에서는 `localStorage`를 사용할 수 없으므로 `flutter_secure_storage`로 토큰을 관리한다.
 
-#### 7.1 런타임 환경변수 설정 (Flutter Web 전용)
+#### 7.1 런타임 환경변수 자동 생성 (Flutter Web 전용, `tools/generate-runtime-env.sh`)
 
-Flutter Web 빌드인 경우 `web/runtime-env.js` + Dart JS interop 헬퍼를 사용한다.
+Flutter Web 빌드인 경우 ROOT `.env`에서 `web/runtime-env.js`를 자동 생성한다.
 Flutter Mobile(네이티브) 빌드는 `runtime-env.js`를 사용할 수 없으므로 기존 `--dart-define` 방식을 유지한다.
 
-**`web/runtime-env.js` 파일 생성** (Flutter Web 전용, 기본값 — Mock 서버)
+에이전트는 프로젝트의 서비스 구성을 분석하여 `tools/generate-runtime-env.sh`를 **동적으로 생성**한다.
 
-```javascript
-// web/runtime-env.js
+**스크립트 생성 절차**:
+
+1. ROOT `.env` 파일과 `docs/develop/dev-plan.md` (섹션 1: 서비스 목록)을 읽어 프로젝트에 필요한 환경변수 목록을 파악한다.
+2. 아래 템플릿 구조를 기반으로 `tools/generate-runtime-env.sh`를 생성한다.
+3. 변수 매핑 규칙:
+   - `{SERVICE_NAME}_SERVICE_PORT` → `{SERVICE_NAME}_HOST: "http://localhost:${PORT}"`
+   - OAuth2 크리덴셜 (`KAKAO_CLIENT_ID` 등) → 동일 키로 전달
+   - `APP_ENV` → 기본값 `"development"`
+   - `API_GROUP` → 기본값 `"/api/v1"`
+4. Mock 단계 대응: `.env`의 `MOCK_MODE=true|false`를 읽어 분기. `MOCK_MODE=true`이면 모든 HOST를 `localhost:${MOCK_PORT}`(기본 4010)로 설정.
+
+**스크립트 템플릿** (Flutter — OUTPUT_FILE이 `frontend/web/`):
+
+```bash
+#!/usr/bin/env bash
+set -euo pipefail
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+ENV_FILE="${1:-$PROJECT_ROOT/.env}"
+OUTPUT_FILE="$PROJECT_ROOT/frontend/web/runtime-env.js"
+
+if [ ! -f "$ENV_FILE" ]; then
+  echo "WARN: .env not found ($ENV_FILE), using defaults"
+fi
+
+get_env() {
+  local key="$1" default="$2"
+  if [ -f "$ENV_FILE" ]; then
+    local value
+    value=$(grep -E "^${key}=" "$ENV_FILE" 2>/dev/null | head -1 | cut -d'=' -f2- | tr -d '\r')
+    echo "${value:-$default}"
+  else
+    echo "$default"
+  fi
+}
+
+MOCK_MODE=$(get_env "MOCK_MODE" "true")
+MOCK_PORT=$(get_env "MOCK_PORT" "4010")
+
+# === 아래는 프로젝트의 서비스 목록에 맞게 동적 생성 ===
+# dev-plan.md 섹션 1의 서비스 목록과 .env의 변수를 분석하여 작성한다.
+# 예시:
+# MEMBER_PORT=$(get_env "MEMBER_SERVICE_PORT" "8081")
+# ORDER_PORT=$(get_env "ORDER_SERVICE_PORT" "8082")
+
+if [ "$MOCK_MODE" = "true" ]; then
+  cat > "$OUTPUT_FILE" <<EOF
 window.__runtime_config__ = {
+  APP_ENV: "development",
   API_GROUP: "/api/v1",
-  MEMBER_HOST: "http://localhost:4010",
-  ORDER_HOST: "http://localhost:4010",
-  // ... 프로젝트의 서비스 목록에 맞게 추가
+  // 서비스별 HOST — 프로젝트의 서비스 목록에 맞게 동적 생성
+  // 예시:
+  // MEMBER_HOST: "http://localhost:${MOCK_PORT}",
+  // ORDER_HOST: "http://localhost:${MOCK_PORT}",
 };
+EOF
+else
+  cat > "$OUTPUT_FILE" <<EOF
+window.__runtime_config__ = {
+  APP_ENV: "$(get_env 'APP_ENV' 'development')",
+  API_GROUP: "$(get_env 'API_GROUP' '/api/v1')",
+  // 서비스별 HOST — 프로젝트의 서비스 목록에 맞게 동적 생성
+  // 예시:
+  // MEMBER_HOST: "http://localhost:${MEMBER_PORT}",
+  // ORDER_HOST: "http://localhost:${ORDER_PORT}",
+};
+EOF
+fi
+
+echo "OK: $OUTPUT_FILE generated (MOCK_MODE=$MOCK_MODE)"
 ```
 
-**`web/index.html`에 script 태그 추가**
+> 에이전트는 위 템플릿을 참고하되, **프로젝트의 실제 서비스 목록과 `.env` 변수에 맞게 변수 읽기 부분과 cat 블록의 내용을 동적으로 구성**한다.
+
+#### 7.1a Flutter Web 실행 시 스크립트 실행
+
+Flutter는 npm이 아닌 `flutter` CLI를 사용하므로 `predev`/`prebuild` lifecycle hook이 없다.
+Flutter Web 개발 서버 시작 전에 `generate-runtime-env.sh`를 수동으로 실행한다.
+
+```bash
+# runtime-env.js 생성 후 Flutter Web 개발 서버 시작
+bash tools/generate-runtime-env.sh && cd frontend && flutter run -d chrome --web-port 3000
+```
+
+> Mock/실제 전환은 `.env`의 `MOCK_MODE=true|false`만 변경한 뒤 스크립트를 재실행하면 된다.
+
+#### 7.1b `web/index.html` script 태그 추가
 
 ```html
 <!-- web/index.html의 <head> 내부, Flutter 부트스트랩보다 앞에 배치 -->
 <script src="runtime-env.js"></script>
 ```
 
-**Dart JS interop 헬퍼** (`lib/core/config/runtime_config.dart`)
+#### 7.1c 초기 실행 확인
+
+```bash
+bash tools/generate-runtime-env.sh
+cat frontend/web/runtime-env.js
+```
+
+#### 7.1d Dart JS interop 헬퍼 (`lib/core/config/runtime_config.dart`)
 
 ```dart
 import 'dart:js_interop';

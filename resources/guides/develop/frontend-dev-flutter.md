@@ -81,19 +81,19 @@ Prism은 `docs/design/api/*.yaml` 파일을 읽어 OpenAPI 명세에 정의된 `
 
 **프론트엔드 환경변수 확인 — MOCK == SINGLE (단일 Prism 인스턴스)**
 
-**Flutter Web**: `web/runtime-env.js`에 아래 설정이 있는지 확인한다.
+**Flutter Web**: `frontend-env-setup-flutter.md`에서 생성된 `tools/generate-runtime-env.sh`가
+Mock 단계에 적합한 `frontend/web/runtime-env.js`를 자동 생성한다.
 
-```javascript
-// web/runtime-env.js (Mock 단계)
-window.__runtime_config__ = {
-  API_GROUP: "/api/v1",
-  MEMBER_HOST: "http://localhost:4010",
-  ORDER_HOST: "http://localhost:4010",
-  // ... Prism이 모든 API를 대리하므로 동일 포트
-};
+Mock 단계에서는 모든 서비스 HOST가 Prism 서버(`http://localhost:4010`)를 가리켜야 한다.
+`.env`의 `MOCK_MODE=true`(기본값)이면 `generate-runtime-env.sh`가 자동으로 모든 HOST를
+`localhost:${MOCK_PORT}`(기본 4010)로 설정하므로 별도 조치 불요.
+
+확인:
+
+```bash
+cat frontend/web/runtime-env.js
+# 모든 *_HOST 값이 http://localhost:4010인지 확인
 ```
-
-`frontend-env-setup-flutter.md`에서 이미 생성되었다면 그대로 사용한다.
 
 **Flutter Mobile (네이티브)**: `runtime-env.js`를 사용할 수 없으므로 기존 `--dart-define` 방식을 유지한다.
 

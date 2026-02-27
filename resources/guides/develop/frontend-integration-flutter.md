@@ -74,8 +74,9 @@ curl http://localhost:8080/api/health
 docker compose --profile mock ps
 
 # 프론트엔드 현재 환경변수 확인
-cat frontend/web/runtime-env.js
-# window.__RUNTIME_ENV__ = { API_URL: 'http://localhost:4010' }  <-- 현재 Mock URL
+bash tools/generate-runtime-env.sh && cat frontend/web/runtime-env.js
+# .env의 MOCK_MODE 설정에 따라 runtime-env.js가 자동 생성되었는지 확인
+# MOCK_MODE=false이면 실제 서비스 포트가, MOCK_MODE=true이면 localhost:4010이 반영됨
 ```
 
 ---
@@ -165,20 +166,22 @@ flutter analyze
 
 ### 3단계. 환경변수 전환
 
-#### 3.1 런타임 설정 전환
+#### 3.1 generate-runtime-env.sh로 자동 전환
 
-**Flutter Web**: `web/runtime-env.js` 파일에서 서비스별 HOST를 실제 백엔드 URL로 변경한다.
+**Flutter Web**: `tools/generate-runtime-env.sh`를 실행하면 ROOT/.env에 정의된 실제 서비스 포트를 읽어
+`frontend/web/runtime-env.js`가 자동 생성된다.
 
-```javascript
-// web/runtime-env.js (실제 백엔드 연동)
-window.__runtime_config__ = {
-  API_GROUP: "/api/v1",
-  MEMBER_HOST: "http://localhost:8081",
-  ORDER_HOST: "http://localhost:8082",
-  RECOMMEND_HOST: "http://localhost:8083",
-  // ... 서비스별 실제 포트 (backing-service-result.md 참조)
-};
+```bash
+# .env의 MOCK_MODE=false 확인 후 실행
+bash tools/generate-runtime-env.sh
+
+# 생성된 파일 확인
+cat frontend/web/runtime-env.js
+# MEMBER_HOST: "http://localhost:8081" 등 실제 포트가 반영되었는지 확인
 ```
+
+**Mock 환경으로 복귀**: `.env`에서 `MOCK_MODE=true`로 변경한 뒤 `bash tools/generate-runtime-env.sh`를 재실행하면
+모든 HOST가 `localhost:4010`으로 복귀한다.
 
 **Flutter Mobile (네이티브)**: `--dart-define` 값을 변경한다.
 
@@ -202,8 +205,8 @@ flutter run --dart-define=API_BASE_URL=https://api.example.com
 #### 3.2 전환 후 즉시 확인
 
 ```bash
-# Flutter Web: runtime-env.js 변경 후 재시작
-flutter run -d chrome
+# Flutter Web: .env의 MOCK_MODE=false 설정 후 재시작
+bash tools/generate-runtime-env.sh && flutter run -d chrome
 
 # Flutter Mobile: --dart-define으로 실행
 flutter run --dart-define=API_BASE_URL=http://localhost:8080
