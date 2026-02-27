@@ -283,9 +283,38 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 <!--/ASK_USER-->
 
 **생성** 선택 시:
+
+**6-1. Organization 입력**
+
+<!--ASK_USER-->
+{"title":"GitHub Organization","questions":[
+  {"question":"GitHub Organization을 입력해주세요. 비워두면 개인 계정(username)에 생성됩니다.","type":"text"}
+]}
+<!--/ASK_USER-->
+
+- 사용자가 입력하지 않거나 빈 값이면 → `--org` 옵션 없이 개인 계정에 생성
+- 사용자가 Organization을 입력하면 → `--org {입력값}` 옵션으로 해당 Organization에 생성
+
+**6-2. 공개/비공개 선택**
+
+<!--ASK_USER-->
+{"title":"저장소 공개 설정","questions":[
+  {"question":"저장소를 공개(Public)로 생성할까요, 비공개(Private)로 생성할까요?","type":"radio","options":["Public","Private"]}
+]}
+<!--/ASK_USER-->
+
+- **Public** 선택 시 → `--private` 옵션 없이 공개 저장소로 생성
+- **Private** 선택 시 → `--private` 옵션으로 비공개 저장소로 생성
+
+**6-3. 레포 생성 실행**
+
 1. `resources/tools/customs/git/create_repo.py` 도구 존재 여부 확인
 2. 환경변수 `GITHUB_TOKEN` 설정 여부 확인
-3. 공개/비공개 여부 확인 후 레포 생성 실행
+3. 레포 생성 실행
+   - Organization 지정 + Private: `python create_repo.py --name {project} --org {org} --private ...`
+   - Organization 지정 + Public: `python create_repo.py --name {project} --org {org} ...`
+   - 개인 계정 + Private: `python create_repo.py --name {project} --private ...`
+   - 개인 계정 + Public: `python create_repo.py --name {project} ...`
 4. 생성된 레포 URL 보고
 
 **건너뛰기** 선택 시 → Step 7로 이동
@@ -300,6 +329,8 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 - 도메인: {추론된 도메인}
 - 도메인 컨텍스트: {프로젝트 디렉토리}/.npd/domain-context.yaml
 - GitHub 레포: {URL 또는 "미생성"}
+- GitHub Organization: {Organization명 또는 "개인 계정"}
+- 저장소 공개 설정: {Public 또는 Private}
 
 ### 다음 단계
 `/npd:plan` 으로 기획을 시작하세요.
