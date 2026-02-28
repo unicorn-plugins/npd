@@ -311,7 +311,40 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
 - **GUIDE**: `resources/guides/deploy/build-image-back.md`, `resources/guides/deploy/build-image-front.md`, `resources/guides/deploy/build-image-ai.md` 참조
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: 백엔드, 프론트엔드, AI 서비스 Dockerfile을 작성하고 컨테이너 이미지를 빌드하고 푸시
-- **EXPECTED OUTCOME**: Dockerfile 생성, 이미지 빌드 성공, 이미지 푸시 성공 
+- **EXPECTED OUTCOME**: Dockerfile 생성, 이미지 빌드 성공, 이미지 푸시 성공
+
+#### Step 2-1. 산출물 커밋 & 동기화
+
+Step 2 완료 후, VM에서 생성된 산출물(Dockerfile, build guide 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
+
+**VM에서 커밋 & 푸시:**
+```bash
+ssh {VM.HOST}
+cd ~/workspace/{ROOT}
+git add -A
+git commit -m "deploy: Step 2 산출물 (Dockerfile, build-image guide)"
+git push
+```
+
+**Private 저장소인 경우** (PAT 기반 push):
+```bash
+# PAT 입력 (shell history에 남지 않도록 read -s 사용)
+read -s GIT_PAT
+git remote set-url origin https://${GIT_PAT}@github.com/{org}/{repo}.git
+git push
+
+# 보안 정리: push 후 PAT 제거
+git remote set-url origin https://github.com/{org}/{repo}.git
+unset GIT_PAT
+```
+
+> PAT는 `build-image-*.md`의 clone 단계에서 사용한 것과 동일한 방식이다.
+> 로컬에서 `gh auth token`으로 획득할 수 있다.
+
+**로컬 동기화:**
+```bash
+git pull
+```
 
 ### Step 3. 컨테이너 실행 검증 → Agent: devops-engineer (`/ultraqa` 활용)
 
@@ -330,6 +363,26 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: 빌드된 이미지로 컨테이너를 실행하여 정상 동작 확인
 - **EXPECTED OUTCOME**: 백엔드·프론트엔드·AI 서비스 컨테이너 정상 실행 확인
+
+#### Step 3-2. 산출물 커밋 & 동기화
+
+Step 3 완료 후, VM에서 생성된 산출물(결과 보고서, 컨테이너 실행 가이드 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
+
+**VM에서 커밋 & 푸시:**
+```bash
+ssh {VM.HOST}
+cd ~/workspace/{ROOT}
+git add -A
+git commit -m "deploy: Step 3 산출물 (backing-service-result, run-container-guide)"
+git push
+```
+
+**Private 저장소인 경우** — Step 2-1과 동일한 PAT 기반 push 방식 사용.
+
+**로컬 동기화:**
+```bash
+git pull
+```
 
 ### Step 4. 물리 아키텍처 설계 → Agent: architect (`/ralph` 활용)
 
