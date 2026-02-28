@@ -308,12 +308,41 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
 
 ### Step 2. 컨테이너 이미지 빌드 & 푸시 → Agent: devops-engineer (`/ralph` 활용)
 
-- **GUIDE**: `resources/guides/deploy/build-image-back.md`, `resources/guides/deploy/build-image-front.md`, `resources/guides/deploy/build-image-ai.md` 참조
-- **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
-- **TASK**: 백엔드, 프론트엔드, AI 서비스 Dockerfile을 작성하고 컨테이너 이미지를 빌드하고 푸시
+#### PREV_ACTION: VM 소스 동기화
+
+Step 2 시작 전, 로컬 소스를 커밋 & 푸시하고 VM에서 소스를 준비한다.
+
+**로컬 소스 커밋 & 푸시:**
+```bash
+git add -A && git commit -m "deploy: Step 2 시작 전 소스 동기화" && git push
+```
+
+**VM 소스 준비 (clone 또는 pull):**
+```bash
+# VM에 소스가 없으면 clone, 있으면 pull
+ssh {VM.HOST} 'if [ -d ~/workspace/{ROOT} ]; then cd ~/workspace/{ROOT} && git pull; else mkdir -p ~/workspace && cd ~/workspace && git clone https://github.com/{org}/{repo}.git && cd {ROOT}; fi'
+```
+
+> Private repository인 경우 PAT를 사용한다:
+> ```bash
+> GIT_PAT=$(gh auth token)
+> ssh {VM.HOST} "if [ -d ~/workspace/{ROOT} ]; then cd ~/workspace/{ROOT} && git pull; else mkdir -p ~/workspace && cd ~/workspace && git clone https://\${GIT_PAT}@github.com/{org}/{repo}.git && cd {ROOT} && git remote set-url origin https://github.com/{org}/{repo}.git; fi"
+> ```
+
+#### TASK: 백엔드·프론트엔드·AI 병렬 빌드 & 푸시
+
+3개 서비스를 **서브에이전트로 병렬 실행**한다. 각 에이전트는 해당 가이드를 참조하여 Dockerfile 작성 → 이미지 빌드 → 레지스트리 푸시를 수행한다.
+
+| 서비스 | GUIDE | 주요 산출물 |
+|--------|-------|-----------|
+| 백엔드 | `resources/guides/deploy/build-image-back.md` | `deployment/container/Dockerfile-backend` |
+| 프론트엔드 | `resources/guides/deploy/build-image-front.md` | `deployment/container/Dockerfile-frontend`, `nginx.conf` |
+| AI | `resources/guides/deploy/build-image-ai.md` | `deployment/container/Dockerfile-ai` |
+
+- **CONTEXT**: 조립된 `[실행정보]` 블록을 각 에이전트 프롬프트에 포함
 - **EXPECTED OUTCOME**: Dockerfile 생성, 이미지 빌드 성공, 이미지 푸시 성공
 
-#### Step 2-1. 산출물 커밋 & 동기화
+#### POST_ACTION: 산출물 커밋 & 동기화
 
 Step 2 완료 후, VM에서 생성된 산출물(Dockerfile, build guide 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
 
@@ -324,10 +353,8 @@ ssh {VM.HOST} 'cd ~/workspace/{ROOT} && git add -A && git commit -m "deploy: Ste
 
 **VM에서 커밋 & 푸시 (Private 저장소 — PAT 기반):**
 ```bash
-# 로컬에서 PAT 획득
 GIT_PAT=$(gh auth token)
 
-# VM에서 커밋 & PAT 기반 푸시 & 보안 정리를 원격 명령 한 번으로 수행
 ssh {VM.HOST} "cd ~/workspace/{ROOT} \
   && git add -A \
   && git commit -m 'deploy: Step 2 산출물 (Dockerfile, build-image guide)' \
@@ -336,9 +363,6 @@ ssh {VM.HOST} "cd ~/workspace/{ROOT} \
   && git remote set-url origin https://github.com/{org}/{repo}.git"
 ```
 
-> PAT는 `build-image-*.md`의 clone 단계에서 사용한 것과 동일한 방식이다.
-> `gh auth token`으로 로컬에서 획득하여 SSH 명령에 변수로 전달한다.
-
 **로컬 동기화:**
 ```bash
 git pull
@@ -346,32 +370,71 @@ git pull
 
 ### Step 3. 컨테이너 실행 검증 → Agent: devops-engineer (`/ultraqa` 활용)
 
+#### PREV_ACTION: VM 소스 동기화 및 환경파일 전송
+
+Step 2 POST_ACTION에서 푸시된 산출물을 VM에 반영하고, 로컬 `.env` 파일을 VM에 복사한다.
+
+**VM 소스 동기화:**
+```bash
+ssh {VM.HOST} 'cd ~/workspace/{ROOT} && git pull'
+```
+
+> Private repository인 경우:
+> ```bash
+> GIT_PAT=$(gh auth token)
+> ssh {VM.HOST} "cd ~/workspace/{ROOT} && git remote set-url origin https://\${GIT_PAT}@github.com/{org}/{repo}.git && git pull && git remote set-url origin https://github.com/{org}/{repo}.git"
+> ```
+
+**로컬 `.env` 파일을 VM에 복사:**
+```bash
+scp .env {VM.HOST}:~/workspace/{ROOT}/.env
+```
+
+> `.env`는 `.gitignore`에 포함되어 git으로 전달되지 않으므로 `scp`로 직접 복사한다.
+> AI 서비스 컨테이너 실행 시 `--env-file`로 참조한다.
+
 #### Step 3-0. VM 백킹서비스 배포 (선행)
 
 - **GUIDE**: `resources/guides/deploy/backing-service-deploy.md` 참조
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
-- **TASK**: VM에 SSH 접속하여 docker-compose로 백킹서비스(DB, Redis, MQ)를 기동하고 health check 수행
+- **TASK**: VM에 SSH 접속하여 docker-compose로 백킹서비스(DB, Redis, MQ)를 기동하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
 - **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-result.md` 작성
 
 > 백킹서비스가 정상 기동된 후에야 아래 애플리케이션 컨테이너 실행이 가능하다.
 
-#### Step 3-1. 애플리케이션 컨테이너 실행
+#### TASK: 백엔드·프론트엔드·AI 병렬 컨테이너 실행
 
-- **GUIDE**: `resources/guides/deploy/run-container-guide-back.md`, `resources/guides/deploy/run-container-guide-front.md`, `resources/guides/deploy/run-container-guide-ai.md` 참조
-- **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
-- **TASK**: 빌드된 이미지로 컨테이너를 실행하여 정상 동작 확인
-- **EXPECTED OUTCOME**: 백엔드·프론트엔드·AI 서비스 컨테이너 정상 실행 확인
+3개 서비스를 **서브에이전트로 병렬 실행**한다. 각 에이전트는 해당 가이드를 참조하여 컨테이너를 실행하고 정상 동작을 확인한다.
 
-#### Step 3-2. 산출물 커밋 & 동기화
+| 서비스 | GUIDE |
+|--------|-------|
+| 백엔드 | `resources/guides/deploy/run-container-back.md` |
+| 프론트엔드 | `resources/guides/deploy/run-container-front.md` |
+| AI | `resources/guides/deploy/run-container-ai.md` |
 
-Step 3 완료 후, VM에서 생성된 산출물(결과 보고서, 컨테이너 실행 가이드 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
+- **CONTEXT**: 조립된 `[실행정보]` 블록을 각 에이전트 프롬프트에 포함
+- **EXPECTED OUTCOME**: 백엔드·프론트엔드·AI 서비스 컨테이너 정상 실행 확인, `docs/deploy/run-container-{back,front,ai}-result.md` 작성
+
+#### POST_ACTION: 산출물 커밋 & 동기화
+
+Step 3 완료 후, VM에서 생성된 산출물(결과 보고서, 컨테이너 실행 결과서 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
 
 **VM에서 커밋 & 푸시 (Public 저장소):**
 ```bash
-ssh {VM.HOST} 'cd ~/workspace/{ROOT} && git add -A && git commit -m "deploy: Step 3 산출물 (backing-service-result, run-container-guide)" && git push'
+ssh {VM.HOST} 'cd ~/workspace/{ROOT} && git add -A && git commit -m "deploy: Step 3 산출물 (backing-service-result, run-container-result)" && git push'
 ```
 
-**Private 저장소인 경우** — Step 2-1과 동일한 PAT 기반 원격 명령 방식 사용.
+**VM에서 커밋 & 푸시 (Private 저장소 — PAT 기반):**
+```bash
+GIT_PAT=$(gh auth token)
+
+ssh {VM.HOST} "cd ~/workspace/{ROOT} \
+  && git add -A \
+  && git commit -m 'deploy: Step 3 산출물 (backing-service-result, run-container-result)' \
+  && git remote set-url origin https://${GIT_PAT}@github.com/{org}/{repo}.git \
+  && git push \
+  && git remote set-url origin https://github.com/{org}/{repo}.git"
+```
 
 **로컬 동기화:**
 ```bash
@@ -459,6 +522,7 @@ git pull
 
 - [ ] 모든 워크플로우 단계(Step 1~7)가 정상 완료됨
 - [ ] VM 백킹서비스 배포 완료 (`docs/deploy/backing-service-result.md` 생성)
+- [ ] 컨테이너 실행 검증 완료 (`docs/deploy/run-container-{back,front,ai}-result.md` 생성)
 - [ ] 물리 아키텍처 설계서(`docs/design/physical/`)가 생성됨
 - [ ] Dockerfile(백엔드/프론트엔드/AI 서비스)이 생성되고 빌드 성공
 - [ ] K8s 매니페스트(`deploy/k8s/`)가 생성되고 배포 성공

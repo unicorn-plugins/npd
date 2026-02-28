@@ -29,68 +29,6 @@ name = "ai-service"
 
 `[tool.poetry] name` 필드값이 서비스명이다. `pyproject.toml`이 없는 경우 AI 서비스 디렉토리명을 서비스명으로 사용한다.
 
-### VM 접속 및 소스 준비
-
-> 이후 모든 빌드/푸시 명령은 VM(EC2 등)에서 실행한다.
-> 로컬에서 직접 빌드할 경우 레지스트리 푸시 시 네트워크 오류가 빈발하므로,
-> 동일 Cloud 내부 네트워크의 VM 사용을 권장한다.
-
-#### VM 접속
-```bash
-ssh -i {키파일} {사용자}@{VM-IP}
-```
-
-#### VM 사전 도구 확인
-
-VM에 필수 도구가 설치되어 있는지 확인하고, 없으면 설치한다.
-
-```bash
-# Docker 확인 및 설치
-docker --version || {
-  # Amazon Linux 2023 / AL2
-  sudo yum install -y docker && sudo systemctl start docker && sudo systemctl enable docker
-  sudo usermod -aG docker $(whoami) && newgrp docker
-  # Ubuntu / Debian
-  # sudo apt update && sudo apt install -y docker.io && sudo systemctl start docker && sudo systemctl enable docker
-  # sudo usermod -aG docker $(whoami) && newgrp docker
-}
-
-# Git 확인 및 설치
-git --version || {
-  sudo yum install -y git    # Amazon Linux
-  # sudo apt install -y git  # Ubuntu
-}
-
-# Python 확인 및 설치 (AI 서비스 로컬 테스트 시 필요)
-python3 --version || {
-  sudo yum install -y python3 python3-pip    # Amazon Linux
-  # sudo apt install -y python3 python3-pip  # Ubuntu
-}
-```
-
-#### 소스 코드 클론
-
-로컬에서 소스를 commit & push한 뒤, VM에서 클론한다.
-Private repository인 경우 PAT(Personal Access Token)를 사용한다.
-
-```bash
-# 로컬에서 PAT 획득 (GitHub CLI 설치 필요)
-gh auth token
-
-# VM에서 Private repo 클론 (shell history에 남지 않도록 환경변수 사용)
-read -s GIT_PAT
-git clone https://${GIT_PAT}@github.com/{org}/{repo}.git
-cd {repo}
-
-# 보안 정리: 클론 후 PAT 제거
-git remote set-url origin https://github.com/{org}/{repo}.git
-git config --local credential.helper ""
-unset GIT_PAT
-```
-
-> Public repository인 경우 PAT 없이 `git clone https://github.com/{org}/{repo}.git`으로 클론한다.
-> AI 서비스는 Dockerfile 내부에서 `pip install` (또는 `poetry install`)을 수행하므로, VM 호스트에 Python 설치는 불필요하다.
-
 ### 의존성 파일 확인
 
 AI 서비스 디렉토리에서 의존성 관리 방식을 확인한다.
@@ -304,7 +242,6 @@ docker push ${REGISTRY_URL}/${service}:latest
 | `docker push` 타임아웃 | 네트워크 또는 이미지 크기 문제 | 네트워크 확인, 이미지 크기 최적화 |
 | SSH 연결 끊김 (빌드 중 갑자기 종료) | VM 메모리 부족 (OOM Killer) | VM 스펙 업그레이드 (최소 4GB 권장, t3a.xlarge 16GB 검증됨) |
 | `docker push` 시 `use of closed network connection` | 로컬 → Cloud 레지스트리 네트워크 불안정 | 동일 Cloud 내부 VM에서 push 수행 |
-| `git clone` 인증 실패 | PAT 만료 또는 권한 부족 | `gh auth token`으로 새 PAT 발급, repo 권한 확인 |
 | VM에서 `docker: command not found` | Docker 미설치 | VM에 Docker 설치: `sudo yum install -y docker && sudo systemctl start docker` (Amazon Linux) |
 | 빌드 시간이 과도하게 길다 | VM 최초 빌드 시 Docker 레이어 캐시 없음 | 정상 동작임. 2회차부터 캐시 적용. BuildKit 활성화: `DOCKER_BUILDKIT=1 docker build ...` |
 
@@ -315,5 +252,4 @@ docker push ${REGISTRY_URL}/${service}:latest
 - 이미지 태그는 로컬 빌드 시 `:latest`를 사용. CI/CD 환경에서의 태그 전략은 CI/CD 파이프라인 가이드에서 관리
 - ML 모델 파일은 이미지에 포함하지 않음 (LLM API 호출 방식). 모델 파일이 존재하는 경우 `.dockerignore`로 제외
 - VM에서 빌드 시 Docker가 설치되어 있어야 한다 (Python 설치는 불필요)
-- git clone 후 반드시 PAT를 remote URL에서 제거한다 (`git remote set-url`, `unset GIT_PAT`)
 - VM 최소 스펙: 4GB RAM 이상 권장 (메모리 부족 시 OOM으로 SSH 끊김 발생)
