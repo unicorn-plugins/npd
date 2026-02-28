@@ -7,12 +7,12 @@ AI 서비스(Python FastAPI 기반)의 컨테이너 이미지를 VM에서 실제
 ## 입력 (이전 단계 산출물)
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 이미지 빌드 결과 | `deployment/container/build-image.md` | 푸시된 이미지 fullname 확인 |
+| 이미지 빌드 결과 | `deployment/container/build-image-ai.md` | 푸시된 이미지 fullname 확인 |
 
 ## 출력 (이 단계 산출물)
 | 산출물 | 파일 경로 |
 |--------|----------|
-| 컨테이너 실행 결과서 | `docs/deploy/run-container-ai-result.md` |
+| 컨테이너 실행 결과서 | `docs/deploy/run-container-ai.md` |
 
 ## 방법론
 
@@ -150,7 +150,7 @@ wget -qO- http://localhost:{APP_PORT}/health
 
 ## 출력 형식
 
-`docs/deploy/run-container-ai-result.md` 결과 보고서 템플릿:
+`docs/deploy/run-container-ai.md` 결과 보고서 템플릿:
 
 ```markdown
 # AI 서비스 컨테이너 실행 결과서

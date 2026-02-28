@@ -7,12 +7,12 @@
 ## 입력 (이전 단계 산출물)
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 이미지 빌드 결과 | `deployment/container/build-image.md` | 푸시된 이미지 fullname 확인 |
+| 이미지 빌드 결과 | `deployment/container/build-image-front.md` | 푸시된 이미지 fullname 확인 |
 
 ## 출력 (이 단계 산출물)
 | 산출물 | 파일 경로 |
 |--------|----------|
-| 컨테이너 실행 결과서 | `docs/deploy/run-container-front-result.md` |
+| 컨테이너 실행 결과서 | `docs/deploy/run-container-front.md` |
 
 ## 방법론
 
@@ -153,7 +153,7 @@ docker ps | grep {서비스명}
 
 ## 출력 형식
 
-`docs/deploy/run-container-front-result.md` 결과 보고서 템플릿:
+`docs/deploy/run-container-front.md` 결과 보고서 템플릿:
 
 ```markdown
 # 프론트엔드 컨테이너 실행 결과서
@@ -200,7 +200,7 @@ window.__runtime_config__ = {
 ## 품질 기준
 - [ ] `docker ps`로 프론트엔드 컨테이너가 `Up` 상태
 - [ ] 브라우저에서 `http://{VM.IP}:{FRONTEND_PORT}` 접속 확인
-- [ ] `docs/deploy/run-container-front-result.md`가 작성됨
+- [ ] `docs/deploy/run-container-front.md`가 작성됨
 
 ## 주의사항
 - VM에서 실제 컨테이너를 실행하고 정상 동작을 확인한다
