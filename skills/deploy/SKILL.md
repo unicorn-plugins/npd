@@ -317,29 +317,27 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
 
 Step 2 완료 후, VM에서 생성된 산출물(Dockerfile, build guide 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
 
-**VM에서 커밋 & 푸시:**
+**VM에서 커밋 & 푸시 (Public 저장소):**
 ```bash
-ssh {VM.HOST}
-cd ~/workspace/{ROOT}
-git add -A
-git commit -m "deploy: Step 2 산출물 (Dockerfile, build-image guide)"
-git push
+ssh {VM.HOST} 'cd ~/workspace/{ROOT} && git add -A && git commit -m "deploy: Step 2 산출물 (Dockerfile, build-image guide)" && git push'
 ```
 
-**Private 저장소인 경우** (PAT 기반 push):
+**VM에서 커밋 & 푸시 (Private 저장소 — PAT 기반):**
 ```bash
-# PAT 입력 (shell history에 남지 않도록 read -s 사용)
-read -s GIT_PAT
-git remote set-url origin https://${GIT_PAT}@github.com/{org}/{repo}.git
-git push
+# 로컬에서 PAT 획득
+GIT_PAT=$(gh auth token)
 
-# 보안 정리: push 후 PAT 제거
-git remote set-url origin https://github.com/{org}/{repo}.git
-unset GIT_PAT
+# VM에서 커밋 & PAT 기반 푸시 & 보안 정리를 원격 명령 한 번으로 수행
+ssh {VM.HOST} "cd ~/workspace/{ROOT} \
+  && git add -A \
+  && git commit -m 'deploy: Step 2 산출물 (Dockerfile, build-image guide)' \
+  && git remote set-url origin https://${GIT_PAT}@github.com/{org}/{repo}.git \
+  && git push \
+  && git remote set-url origin https://github.com/{org}/{repo}.git"
 ```
 
 > PAT는 `build-image-*.md`의 clone 단계에서 사용한 것과 동일한 방식이다.
-> 로컬에서 `gh auth token`으로 획득할 수 있다.
+> `gh auth token`으로 로컬에서 획득하여 SSH 명령에 변수로 전달한다.
 
 **로컬 동기화:**
 ```bash
@@ -368,16 +366,12 @@ git pull
 
 Step 3 완료 후, VM에서 생성된 산출물(결과 보고서, 컨테이너 실행 가이드 등)을 원격 저장소에 반영하고 로컬과 동기화한다.
 
-**VM에서 커밋 & 푸시:**
+**VM에서 커밋 & 푸시 (Public 저장소):**
 ```bash
-ssh {VM.HOST}
-cd ~/workspace/{ROOT}
-git add -A
-git commit -m "deploy: Step 3 산출물 (backing-service-result, run-container-guide)"
-git push
+ssh {VM.HOST} 'cd ~/workspace/{ROOT} && git add -A && git commit -m "deploy: Step 3 산출물 (backing-service-result, run-container-guide)" && git push'
 ```
 
-**Private 저장소인 경우** — Step 2-1과 동일한 PAT 기반 push 방식 사용.
+**Private 저장소인 경우** — Step 2-1과 동일한 PAT 기반 원격 명령 방식 사용.
 
 **로컬 동기화:**
 ```bash
