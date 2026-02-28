@@ -125,8 +125,8 @@ name = "ai-service"
 ### Git Repository 클론 안내
 - workspace 디렉토리 생성 및 이동
   ```
-  mkdir -p ~/home/workspace
-  cd ~/home/workspace
+  mkdir -p ~/workspace
+  cd ~/workspace
   ```
 - 소스 Clone
   ```
@@ -238,11 +238,14 @@ docker push {REGISTRY_URL}/{서비스명}:latest
   - shell 파일을 만들지 말고 command로 수행하는 방법 안내.
   - `.env.example`에서 추출한 모든 환경변수에 대해 '-e' 파라미터로 환경변수값을 넘긴다.
   - 주석 처리된(`#` 접두사) 환경변수는 선택적이므로, 실제 사용 여부를 확인 후 필요한 것만 포함한다.
+  - 중요) `--network {ROOT}_default`로 docker-compose 네트워크에 참여시킨다.
+    - 백킹서비스 접속 호스트는 docker-compose 서비스명을 사용한다 (예: `DB_HOST=postgres`, `REDIS_HOST=redis`).
 
   ```
   APP_PORT={환경변수의 APP_PORT값, 기본 8000}
 
-  docker run -d --name {서비스명} --rm -p ${APP_PORT}:${APP_PORT} \
+  docker run -d --name {서비스명} --rm --network {ROOT}_default \
+  -p ${APP_PORT}:${APP_PORT} \
   -e APP_ENV={값} \
   -e APP_PORT=${APP_PORT} \
   -e LLM_PROVIDER={값} \
@@ -267,7 +270,7 @@ wget -qO- http://localhost:{APP_PORT}/health
 - VM 접속
 - 디렉토리 이동 및 소스 내려받기
   ```
-  cd ~/home/workspace/{ROOT}
+  cd ~/workspace/{ROOT}
   ```
   ```
   git pull

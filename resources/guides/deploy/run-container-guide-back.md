@@ -1,7 +1,8 @@
 # 백엔드 컨테이너 실행방법 가이드
 
 ## 목적
-백엔드 각 서비스들의 컨테이너 이미지를 컨테이너로 실행하는 가이드를 작성한다. 실제 컨테이너 실행은 하지 않으며, 수행할 명령어를 포함하여 컨테이너 실행 가이드를 결과 파일에 생성한다.
+백엔드 각 서비스들의 컨테이너 이미지를 컨테이너로 실행하는 가이드를 작성한다.   
+실제 컨테이너 실행은 하지 않으며, 수행할 명령어를 포함하여 컨테이너 실행 가이드를 결과 파일에 생성한다.
 
 ## 입력 (이전 단계 산출물)
 | 산출물 | 파일 경로 | 활용 방법 |
@@ -131,8 +132,8 @@ include 'trip-service'
 ### Git Repository 클론 안내
 - workspace 디렉토리 생성 및 이동
   ```
-  mkdir -p ~/home/workspace
-  cd ~/home/workspace
+  mkdir -p ~/workspace
+  cd ~/workspace
   ```
 - 소스 Clone
   ```
@@ -249,6 +250,10 @@ docker push {REGISTRY_URL}/{서비스명}:latest
 - 아래 명령으로 컨테이너를 실행하는 명령을 생성한다.
   - shell 파일을 만들지 말고 command로 수행하는 방법 안내.
   - 모든 환경변수에 대해 '-e' 파라미터로 환경변수값을 넘긴다.
+  - 중요) `--network {ROOT}_default`로 docker-compose 네트워크에 참여시킨다.
+    - 백킹서비스 접속 호스트는 `localhost`나 VM IP가 아닌 **docker-compose 서비스명**을 사용한다.
+    - 예: `DB_HOST=postgres`, `REDIS_HOST=redis`, `MQ_HOST=rabbitmq`
+    - `.run.xml`의 `DB_HOST` 값이 localhost나 IP인 경우 서비스명으로 치환한다.
   - 중요) CORS 설정 환경변수에 프론트엔드 주소 추가
     - 'ALLOWED_ORIGINS' 포함된 환경변수가 CORS 설정 환경변수임.
     - 이 환경변수의 값에 'http://{VM.IP}:3000'번 추가
@@ -256,7 +261,8 @@ docker push {REGISTRY_URL}/{서비스명}:latest
   ```
   SERVER_PORT={환경변수의 SERVER_PORT값}
 
-  docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:${SERVER_PORT} \
+  docker run -d --name {서비스명} --rm --network {ROOT}_default \
+  -p ${SERVER_PORT}:${SERVER_PORT} \
   -e {환경변수 KEY}={환경변수 VALUE} \
   {REGISTRY_URL}/{서비스명}:latest
   ```
@@ -272,7 +278,7 @@ docker ps | grep {서비스명}
 - VM 접속
 - 디렉토리 이동 및 소스 내려받기
   ```
-  cd ~/home/workspace/{ROOT}
+  cd ~/workspace/{ROOT}
   ```
   ```
   git pull

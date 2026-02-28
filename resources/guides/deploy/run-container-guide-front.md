@@ -128,8 +128,8 @@
 ### Git Repository 클론 안내
 - workspace 디렉토리 생성 및 이동
   ```
-  mkdir -p ~/home/workspace
-  cd ~/home/workspace
+  mkdir -p ~/workspace
+  cd ~/workspace
   ```
 - 소스 Clone
   ```
@@ -248,11 +248,13 @@ docker push {REGISTRY_URL}/{서비스명}:latest
 아래 명령으로 컨테이너를 실행하는 명령을 생성한다.
 shell 파일을 만들지 말고 command로 수행하는 방법 안내.
 '-v'로 runtime-env.js파일을 볼륨 마운트하도록 명령어 작성.
+`--network {ROOT}_default`로 docker-compose 네트워크에 참여시킨다.
 
 ```
 SERVER_PORT=3000
 
-docker run -d --name {서비스명} --rm -p ${SERVER_PORT}:8080 \
+docker run -d --name {서비스명} --rm --network {ROOT}_default \
+-p ${SERVER_PORT}:8080 \
 -v ~/{서비스명}/public/runtime-env.js:/usr/share/nginx/html/runtime-env.js \
 {REGISTRY_URL}/{서비스명}:latest
 ```
@@ -272,7 +274,7 @@ docker ps | grep {서비스명}
 - VM 접속
 - 디렉토리 이동 및 소스 내려받기
   ```
-  cd ~/home/workspace/{서비스명}
+  cd ~/workspace/{서비스명}
   ```
   ```
   git pull

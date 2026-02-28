@@ -6,23 +6,24 @@
     - [설치](#설치)
     - [기존 인증정보 삭제](#기존-인증정보-삭제)
     - [Git 사용법](#git-사용법)
+  - [GitHub CLI (gh) 설치](#github-cli-gh-설치)
+    - [설치](#설치-1)
+    - [인증](#인증)
+    - [설치 확인](#설치-확인)
   - [Window Terminal의 Git Bash 설정(Windows Only)](#window-terminal의-git-bash-설정windows-only)
   - [Node.js 설치](#nodejs-설치)
   - [Microsoft Visual Studio Code 설치](#microsoft-visual-studio-code-설치)
-    - [설치](#설치-1)
+    - [설치](#설치-2)
     - [설정](#설정)
   - [Claude Code 설치](#claude-code-설치)
   - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
-  - [DMAP 빌더 설치(권장)](#dmap-빌더-설치권장)
-    - [플러그인 설치](#플러그인-설치)
-    - [웹에서 실행](#웹에서-실행)
   - [NPD 플러그인 추가](#npd-플러그인-추가)
     - [플러그인 추가](#플러그인-추가)
     - [플러그인 추가 확인](#플러그인-추가-확인)
 - [추가 설치](#추가-설치)
   - [Python 설치](#python-설치)
   - [IntelliJ 설치](#intellij-설치)
-    - [설치](#설치-2)
+    - [설치](#설치-3)
     - [IntelliJ 환경 설정](#intellij-환경-설정)
   - [Docker Desktop 설치](#docker-desktop-설치)
   - [GitHub 회원가입 및 토큰 생성](#github-회원가입-및-토큰-생성)
@@ -73,7 +74,51 @@ LegacyGeneric:target=git:https://github.com
 
 ### Git 사용법
 https://happycloud-lee.tistory.com/93
-   
+
+| [Top](#로컬-개발-환경-구성) |
+
+---
+
+## GitHub CLI (gh) 설치
+GitHub CLI는 터미널에서 GitHub 레포지토리 생성, PR, Issue 등을 관리할 수 있는 도구입니다.
+
+### 설치
+`gh --version` 명령으로 설치 여부를 확인하여 미설치 시 아래 방법으로 설치합니다.
+
+**Windows: Powershell에서 수행**
+```
+winget install --id GitHub.cli
+```
+
+**Mac**
+```
+brew install gh
+```
+
+**Linux**
+```
+(type -p wget >/dev/null || (sudo apt update && sudo apt-get install wget -y)) \
+  && sudo mkdir -p -m 755 /etc/apt/keyrings \
+  && out=$(mktemp) && wget -nv -O$out https://cli.github.com/packages/githubcli-archive-keyring.gpg \
+  && cat $out | sudo tee /etc/apt/keyrings/githubcli-archive-keyring.gpg > /dev/null \
+  && sudo chmod go+r /etc/apt/keyrings/githubcli-archive-keyring.gpg \
+  && echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/githubcli-archive-keyring.gpg] https://cli.github.com/packages stable main" | sudo tee /etc/apt/sources.list.d/github-cli.list > /dev/null \
+  && sudo apt update \
+  && sudo apt install gh -y
+```
+
+### 인증
+```
+gh auth login
+```
+프롬프트 안내에 따라 GitHub.com > HTTPS > 브라우저 인증을 선택합니다.
+
+### 설치 확인
+```
+gh --version
+gh auth status
+```
+
 | [Top](#로컬-개발-환경-구성) |
 
 ---
@@ -208,55 +253,6 @@ claude
 /oh-my-claudecode:omc-setup
 ```
 
-| [Top](#로컬-개발-환경-구성) |
-
----
-
-## DMAP 빌더 설치(권장)
-DMAP 빌더는 Claude Code 터미널이 아닌 웹페이지에서 NPD 플러그인을 사용하기 위해 설치합니다.   
-Claude Code를 이용할 때는 설치 안해도 됩니다.   
-
-작업 디렉토리 작성       
-Linux/Mac 사용자는 터미널에서 수행하고 Window 사용자는 Window Terminal의 Git Bash 터미널에서 수행합니다.      
-Window 사용자는 특별히 언급이 없으면 Git Bash 터미널을 사용합니다.    
-```
-mkdir -p ~/workspace
-```
-> Tip: 위 명령에서 `-p'는 이미 해당 디렉토리가 있어도 에러를 안내는 옵션이고 '~'는 사용자의 홈디렉토리를 의미합니다.      
-  
-### 플러그인 설치   
-```bash
-claude plugin marketplace add unicorn-plugins/dmap
-claude plugin install dmap@unicorn
-```
-  
-### 웹에서 실행   
-PC에 DMAP을 클론하고 웹 앱을 실행하면 브라우저에서 DMAP 빌더를 사용할 수 있음.
-**1. DMAP 클론**    
-```bash
-cd ~/workspace
-git clone https://github.com/unicorn-plugins/dmap.git
-cd dmap
-```
-
-**2. DMAP 웹 실행**    
-```bash
-cd dmap-web
-npm install
-npm run dev
-```
-  
-**3. 브라우저에서 확인**    
-http://localhost:5173 
-
-**4.NPD플러그인 추가**     
-'unicorn-plugins/npd'를 입력하여 추가합니다.   
-![](images/2026-02-20-16-07-32.png)  
-
-메뉴관리 아이콘을 누르고 '[AI 추천]'버튼을 눌러 메뉴명을 추천 받습니다.    
-필요 시 메뉴를 drag & drop으로 순서를 바꿉니다.   
-![](images/2026-02-20-16-08-58.png)
-   
 | [Top](#로컬-개발-환경-구성) |
 
 ---

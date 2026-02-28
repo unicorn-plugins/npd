@@ -11,8 +11,8 @@ tier_mapping:
     HEAVY:
       model: "claude-opus-4-6"
     HIGH:
-      #model: "claude-opus-4-6"
-      model: "claude-sonnet-4-6"
+      model: "claude-opus-4-6"
+      #model: "claude-sonnet-4-6"
     MEDIUM:
       model: "claude-sonnet-4-6"
     LOW:
