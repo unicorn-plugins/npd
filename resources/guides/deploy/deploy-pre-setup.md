@@ -31,7 +31,7 @@
 
 ### Cloud CLI
 
-`resources/guides/setup/prepare.md` "Cloud CLI 설치 및 로그인" 섹션 참조. {CLOUD}에 맞는 CLI만 설치한다.
+`resources/guides/setup/prepare-deploy.md` "Cloud CLI 설치 및 로그인" 섹션 참조. {CLOUD}에 맞는 CLI만 설치한다.
 
 | CLOUD | 확인 명령 | Windows 설치 | Mac 설치 |
 |-------|----------|-------------|----------|

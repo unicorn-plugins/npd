@@ -1,28 +1,5 @@
 # CLOUD별 VM 생성
 
-- [CLOUD별 VM 생성](#cloud별-vm-생성)
-  - [AWS: EC2(Elastic Compute Cloud) 생성](#aws-ec2elastic-compute-cloud-생성)
-    - [시작](#시작)
-    - [입력](#입력)
-    - [출력: 생성된 EC2 클릭하여 확인](#출력-생성된-ec2-클릭하여-확인)
-    - [테스트](#테스트)
-    - [방화벽 오픈](#방화벽-오픈)
-    - [고정 IP 지정](#고정-ip-지정)
-    - [EC2 삭제](#ec2-삭제)
-  - [Azure: 가상머신 생성](#azure-가상머신-생성)
-    - [시작](#시작-1)
-    - [입력](#입력-1)
-    - [출력: 생성된 VM 클릭하여 확인](#출력-생성된-vm-클릭하여-확인)
-    - [테스트](#테스트-1)
-    - [방화벽 오픈](#방화벽-오픈-1)
-    - [가상머신 삭제](#가상머신-삭제)
-  - [GCP: 가상머신 생성](#gcp-가상머신-생성)
-    - [시작](#시작-2)
-    - [입력](#입력-2)
-    - [출력: 생성된 VM 확인](#출력-생성된-vm-확인)
-
----
-
 ## AWS: EC2(Elastic Compute Cloud) 생성
 ### 시작
 - http://console.aws.amazon.com/ 로그인 
@@ -119,7 +96,7 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 	- 이름을 적절히 입력하고 '예약' 클릭 
 - 만들기 클릭 
    
-### 출력: 생성된 VM 확인
+### 출력: 생성된 VM 확인  
 - 초기화면에서 'Compute Engine' 버튼 클릭 > 가상머신 하위의 VM 인스턴스 클릭.   
   Compute Engine API 화면 나오면 몇분정도 기다림. 
 	(만약 API 사용 설정 안되어 있으면 활성화함)       
@@ -129,7 +106,7 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 - OS User: GCP접속 ID(email이면 @앞)  
   확실하게 확인   
   - 'VM 인스턴스'목록의 '연결'컬럼의 SSH 우측 클릭하고 '브라우저 창에서 열기' 선택 
-	- @앞에 있는것이 OS User명 
+  - '@'앞에 있는것이 OS User명 
 - SSH Key: 
 	SSH Key 생성: ~/.ssh에 gcp_key, gcp_key.pub 파일 생성  	
 	```
@@ -141,18 +118,20 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
   --zone=asia-northeast3-a \
   --metadata ssh-keys="USERNAME:$(cat ~/.ssh/gcp_key.pub)"
   ```
-	예)
+	
+  예)
 	```
 	gcloud compute instances add-metadata my-machine \
   --zone=asia-northeast3-a \
   --metadata ssh-keys="hiondal:$(cat ~/.ssh/gcp_key.pub)"	
 	```
-### 가상서버 삭제 
-
-
+   
 ### 테스트
+```
 ssh {OS user}@{Public IP} -i {SSH Key파일 경로}
+```
 ex) ssh hiondal@34.64.192.123 -i ~/.ssh/gcp_key
+
 ### 방화벽 오픈 
 - 'VM 인스턴스'목록의 '내부IP'컬럼의 'nic0' 클릭
 - VPC 방화벽 규칙의 'VPC 방화벽 규칙 만들기' 클릭 
@@ -160,6 +139,10 @@ ex) ssh hiondal@34.64.192.123 -i ~/.ssh/gcp_key
 - 프로토콜 및 포트: 모두 허용  
   필요한 포트만 오픈하는게 맞으나 교육용이므로 모든 포트 오픈 
 
+### 가상서버 삭제 
+- 초기화면에서 'Compute Engine' 버튼 클릭 > 가상머신 하위의 VM 인스턴스 클릭
+- 상단의 '삭제' 클릭하여 삭제 
+   
 ---
 
 ## (필수) VM 접속 Config 파일 생성
