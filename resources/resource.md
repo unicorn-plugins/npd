@@ -41,7 +41,7 @@ npd 플러그인에 포함된 공유자원 목록.
 | develop | database-install | 데이터베이스 설치 가이드 | [상세](guides/develop/database-install.md) |
 | deploy | build-image-back | 백엔드 Docker 이미지 빌드 | [상세](guides/deploy/build-image-back.md) |
 | deploy | build-image-front | 프론트엔드 Docker 이미지 빌드 | [상세](guides/deploy/build-image-front.md) |
-| deploy | backing-service-deploy | VM 백킹서비스 배포 | [상세](guides/deploy/backing-service-deploy.md) |
+| deploy | backing-service-container | VM 백킹서비스 배포 | [상세](guides/deploy/backing-service/backing-service-container.md) |
 | deploy | run-container-back | 백엔드 컨테이너 VM 실행 및 검증 | [상세](guides/deploy/run-container-back.md) |
 | deploy | run-container-front | 프론트엔드 컨테이너 VM 실행 및 검증 | [상세](guides/deploy/run-container-front.md) |
 | deploy | run-container-ai | AI 서비스 컨테이너 VM 실행 및 검증 | [상세](guides/deploy/run-container-ai.md) |

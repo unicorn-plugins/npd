@@ -137,7 +137,7 @@ binder 교체만으로 다른 MQ 제품으로 전환할 수 있다.
 ### Cloud MQ별 운영 프로비저닝
 
 > Cloud MQ 프로비저닝 절차:
-> `{PLUGIN_DIR}/resources/guides/deploy/backing-mq-deploy.md` 참조.
+> `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md` 참조.
 
 ---
 

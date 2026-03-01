@@ -3,7 +3,7 @@
 ## 목적
 
 Self-hosted MQ 배포 healthcheck 및 Cloud Managed MQ 프로비저닝 가이드를 제공한다.
-이 가이드는 `backing-service-deploy.md`의 보조 가이드이다.
+이 가이드는 `backing-service-container.md`의 보조 가이드이다.
 
 ---
 

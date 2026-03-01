@@ -395,7 +395,7 @@ scp .env {VM.HOST}:~/workspace/{ROOT}/.env
 
 #### Step 3-0. VM 백킹서비스 배포 (선행)
 
-- **GUIDE**: `resources/guides/deploy/backing-service-deploy.md` 참조
+- **GUIDE**: `resources/guides/deploy/backing-service/backing-service-container.md` 참조
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: VM에 SSH 접속하여 docker-compose로 백킹서비스(DB, Redis, MQ)를 기동하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
 - **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-result.md` 작성

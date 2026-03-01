@@ -3,7 +3,7 @@
 ## 목적
 
 MongoDB를 VM docker-compose로 배포할 때의 설정 및 healthcheck를 제공한다.
-이 가이드는 `backing-service-deploy.md`의 보조 가이드이다.
+이 가이드는 `backing-service-container.md`의 보조 가이드이다.
 
 ---
 

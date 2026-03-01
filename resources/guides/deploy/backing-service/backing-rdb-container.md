@@ -3,7 +3,7 @@
 ## 목적
 
 PostgreSQL 외 RDB(MySQL, MariaDB)를 VM docker-compose로 배포할 때의 차이점을 제공한다.
-이 가이드는 `backing-service-deploy.md`의 보조 가이드이다.
+이 가이드는 `backing-service-container.md`의 보조 가이드이다.
 
 ---
 
