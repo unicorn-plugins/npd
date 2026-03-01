@@ -4,6 +4,43 @@
 # 삭제: kubectl delete -f test-app.yaml
 # ============================================================
 
+# 0. Nodepool
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: service
+  labels:
+    agentpool: service
+spec:
+  limits:
+    cpu: 32
+    memory: 128Gi
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+  template:
+    metadata:
+      labels:
+        agentpool: service
+    spec:
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: default
+      requirements:
+        - key: eks.amazonaws.com/instance-family
+          operator: In
+          values: ["t3a", "m5a"]
+        - key: eks.amazonaws.com/instance-size
+          operator: In
+          values: ["xlarge", "2xlarge"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["${CAPACITY_TYPE}"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+
 # 1. Deployment
 apiVersion: apps/v1
 kind: Deployment
