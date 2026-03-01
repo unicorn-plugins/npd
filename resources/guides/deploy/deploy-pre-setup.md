@@ -3,7 +3,7 @@
 배포 워크플로우(Step 1)에서 참조하는 가이드.
 로컬/VM 도구 설치, `~/.ssh/config` 파싱, SSH 접속 테스트, VM 원격 도구 설치의 상세 절차를 정의한다.
 
-- **참조 가이드**: `resources/guides/setup/prepare-deploy.md` (설치 명령 레시피), `resources/guides/setup/prepare.md` (Cloud CLI 설치), `resources/references/create-vm.md` (VM 생성)
+- **참조 가이드**: `resources/references/create-vm.md` (VM 생성)
 
 ---
 
@@ -21,26 +21,86 @@
 
 ### K8s 도구
 
-`resources/guides/setup/prepare-deploy.md` "로컬 설치" 섹션 참조.
+#### kubectl
+**확인**: `kubectl version --client 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+- Windows (Powershell):
+  ```
+  winget install kubectl
+  ```
+- Mac:
+  ```
+  brew install kubectl
+  ```
 
-| 도구 | 확인 명령 | Windows 설치 | Mac 설치 |
-|------|----------|-------------|----------|
-| kubectl | `which kubectl` | `powershell.exe -Command "winget install kubectl"` | `brew install kubectl` |
-| kubens/kubectx | `which kubens` | git clone + symlink (Git Bash에서 실행) | `brew install kubectx` |
-| helm | `which helm` | `powershell.exe -Command "winget install Helm.Helm"` | `brew install helm` |
+#### kubens/kubectx
+**확인**: `kubens --help 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+- Windows (Git Bash):
+  ```
+  git clone https://github.com/ahmetb/kubectx.git ~/.kubectx
+  ln -sf ~/.kubectx/kubectx /usr/local/bin/kubectx
+  ln -sf ~/.kubectx/kubens /usr/local/bin/kubens
+  ```
+- Mac:
+  ```
+  brew install kubectx
+  ```
+
+#### helm
+**확인**: `helm version 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+- Windows (Powershell):
+  ```
+  winget install Helm.Helm
+  ```
+- Mac:
+  ```
+  brew install helm
+  ```
 
 ### Cloud CLI
 
-`resources/guides/setup/prepare-deploy.md` "Cloud CLI 설치 및 로그인" 섹션 참조. {CLOUD}에 맞는 CLI만 설치한다.
+{CLOUD}에 맞는 CLI만 설치한다.
 
-| CLOUD | 확인 명령 | Windows 설치 | Mac 설치 |
-|-------|----------|-------------|----------|
-| AWS | `aws --version` | `powershell.exe -Command 'msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi'` | `curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg" && sudo installer -pkg AWSCLIV2.pkg -target /` |
-| Azure | `az version` | `powershell.exe -Command "winget install --exact --id Microsoft.AzureCLI"` | `brew update && brew install azure-cli` |
-| GCP | `gcloud version` | GCP SDK 설치 파일 다운로드 안내 (자동 설치 불가, URL 제공) | `curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-darwin-arm.tar.gz && tar -xf google-cloud-cli-darwin-arm.tar.gz && ./google-cloud-sdk/install.sh --quiet` |
+#### AWS CLI
+**확인**: `aws --version`
+- Windows (Powershell):
+  ```
+  msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
+  ```
+  > 또는 https://awscli.amazonaws.com/AWSCLIV2.msi 를 다운로드하여 실행
+- Mac:
+  ```
+  curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+  sudo installer -pkg AWSCLIV2.pkg -target /
+  ```
+- 설치 확인:
+  ```
+  aws --version
+  ```
+
+#### Azure CLI
+**확인**: `az version`
+- Windows (Powershell):
+  ```
+  winget install --exact --id Microsoft.AzureCLI
+  ```
+- Mac:
+  ```
+  brew update && brew install azure-cli
+  ```
+
+#### Google Cloud CLI
+**확인**: `gcloud version`
+- Windows: https://cloud.google.com/sdk/docs/install#windows 에서 설치파일을 다운로드하여 실행
+- Mac:
+  ```
+  # Apple Silicon (M1/M2/M3/M4)
+  curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-darwin-arm.tar.gz
+  tar -xf google-cloud-cli-darwin-arm.tar.gz
+  ./google-cloud-sdk/install.sh
+  ```
 
 > **Windows 참고**: `winget`/`msiexec`는 PowerShell/CMD 전용이므로 MINGW(Git Bash) 환경에서는 `powershell.exe -Command` 래핑으로 실행한다.
-> **GCP Windows 참고**: GCP SDK는 GUI 설치 프로그램이므로 자동 설치가 불가하다. 설치 URL(`https://cloud.google.com/sdk/docs/install#windows`)을 안내하고 사용자에게 수동 설치를 요청한다.
+> **GCP Windows 참고**: GCP SDK는 GUI 설치 프로그램이므로 자동 설치가 불가하다. 설치 URL을 안내하고 사용자에게 수동 설치를 요청한다.
 
 설치 후 각 도구의 버전을 확인하여 결과를 기록한다.
 
@@ -57,7 +117,119 @@
 | GCP | `gcloud auth list` |
 
 로그인이 안 되어 있으면 ASK_USER로 수동 로그인을 안내한다.
-참고 URL: `https://github.com/unicorn-plugins/npd/blob/main/resources/guides/setup/prepare.md#cloud-cli-설치-및-로그인`
+
+### AWS 로그인
+
+**1) Access Key 방식**
+AWS Console에서 IAM > 사용자 > 보안 자격 증명 탭 > 액세스 키 만들기 > CLI 유형 선택으로 Access Key를 생성한다.
+```
+aws configure
+```
+프롬프트에 아래 정보를 입력한다. Access Key ID는 'AKIA'로 시작한다.
+```
+AWS Access Key ID: {Access Key ID}
+AWS Secret Access Key: {Secret Access Key}
+Default region name: {리전} (예: ap-northeast-2)
+Default output format: json
+```
+
+**2) SSO 방식**
+사전 준비: AWS Console > IAM Identity Center에서 아래 작업을 완료한다.
+- IAM Identity Center 활성화
+- 사용자 생성 (이메일 초대 → 비밀번호 설정)
+- 권한 세트 생성 (예: `AdministratorAccess`)
+- AWS 계정에 사용자 + 권한 세트 할당
+
+SSO 설정:
+```
+aws configure sso
+```
+프롬프트에 아래 정보를 입력한다.
+SSO start URL은 IAM Identity Center > 설정 > "AWS access portal URL"의 "기본 IPv4 전용" URL이다.
+```
+SSO session name: {임의 이름} (예: my-sso)
+SSO start URL: {AWS access portal URL} (예: https://d-xxxxxxxxxx.awsapps.com/start)
+SSO region: {리전} (예: ap-northeast-2)
+SSO registration scopes: sso:account:access (기본값 Enter)
+```
+브라우저가 열리면 SSO 사용자로 로그인하고, 이후 CLI에서 계정/역할을 선택한다.
+
+**Trouble shooting**
+인증 실패 시 이전 인증 정보를 삭제하고 다시 한다.
+```
+rm -rf ~/.aws/credentials
+rm -rf ~/.aws/config
+aws configure
+```
+
+**설정 확인**:
+```
+aws sts get-caller-identity
+```
+
+### Azure 로그인
+
+**1) Mac/Windows**
+```
+az login
+```
+
+**2) Linux**
+아래 명령 수행 후 나오는 URL을 브라우저에서 접근하여 코드를 입력하여 로그인한다.
+```
+az login --use-device-code
+```
+
+**Trouble shooting**
+인증 실패 시 이전 인증 정보를 삭제하고 다시 한다.
+```
+az logout
+az account clear
+az cache purge
+```
+
+**Azure 전역 설정**
+```
+az group list -o table
+az configure -d group={리소스그룹} location={Location}
+```
+설정 확인:
+```
+az configure -l -o table
+```
+
+### Google Cloud 로그인
+
+**1) Mac/Windows**
+```
+gcloud auth login
+```
+
+**2) Linux**
+```
+gcloud auth login --no-launch-browser
+```
+출력되는 URL을 브라우저에서 열어 인증 후, 인증 코드를 터미널에 붙여넣기 한다.
+
+**Trouble shooting**
+인증 실패 시 이전 인증 정보를 삭제하고 다시 한다.
+```
+gcloud auth revoke --all
+gcloud config configurations delete default
+gcloud auth login
+```
+
+**Google Cloud 전역 설정**
+```
+gcloud projects list
+gcloud config set project {프로젝트ID}
+gcloud config set compute/region {리전}
+gcloud config set compute/zone {존}
+```
+설정 확인:
+```
+gcloud config list
+```
 
 ---
 
@@ -126,29 +298,128 @@ ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new {VM_HOST_ALIAS} exit
 ## 1-7. VM 원격 도구 설치
 
 SSH로 VM에 접속하여 도구 설치 여부를 확인하고, 미설치 도구를 자동 설치한다.
-`resources/guides/setup/prepare-deploy.md`의 "VM에 툴 설치" 섹션을 참조한다.
 
 ### 사전 검증
 
 - `ssh {VM_HOST_ALIAS} "sudo -n true"` 로 NOPASSWD sudo 확인
 - 실패 시 → 사용자에게 sudo 설정 안내
 
-### 설치 순서 및 확인 명령
+### OS Update
+```
+sudo apt-get update
+```
 
-| 순서 | 도구 | 확인 명령 | CLOUD 조건 |
-|------|------|----------|-----------|
-| 1 | OS update | (항상 수행) | 공통 |
-| 2 | Cloud CLI | `aws --version` / `az version` / `gcloud version` | {CLOUD}에 맞는 것만 |
-| 3 | Docker | `docker --version` | 공통 |
-| 4 | kubectl | `kubectl version --client` | 공통 |
-| 5 | kubens/kubectx | `kubens --help` | 공통 |
-| 6 | helm | `helm version` | 공통 |
-| 7 | JDK | `java -version` | 공통 |
+### Cloud CLI (VM)
+**확인**: `aws --version 2>/dev/null || az version 2>/dev/null || gcloud version 2>/dev/null`
+
+{CLOUD}에 맞는 CLI만 설치한다.
+
+- **AWS**:
+  ```
+  curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+  unzip awscliv2.zip
+  sudo ./aws/install
+  aws --version
+  ```
+
+- **Azure**:
+  ```
+  curl -sL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor | sudo tee /etc/apt/trusted.gpg.d/microsoft.gpg > /dev/null
+  AZ_REPO=$(lsb_release -cs)
+  echo "deb [arch=amd64] https://packages.microsoft.com/repos/azure-cli/ $AZ_REPO main" | sudo tee /etc/apt/sources.list.d/azure-cli.list
+  sudo apt-get update
+  sudo apt-get install -y azure-cli
+  az version
+  ```
+
+- **GCP**:
+  ```
+  curl -O https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-cli-linux-x86_64.tar.gz
+  tar -xf google-cloud-cli-linux-x86_64.tar.gz
+  ./google-cloud-sdk/install.sh --quiet --disable-prompts
+  source ~/google-cloud-sdk/path.bash.inc
+  gcloud version
+  ```
+
+### Docker (VM)
+**확인**: `docker --version 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+
+```bash
+# 1. 필요한 패키지 설치
+sudo apt-get update
+sudo apt-get install -y ca-certificates curl gnupg lsb-release
+
+# 2. Docker GPG key 추가
+sudo mkdir -p /etc/apt/keyrings
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+
+# 3. Docker repository 설정
+echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+# 4. Docker 엔진 설치
+sudo apt-get update
+sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-compose-plugin
+
+# 5. 현재 사용자를 docker 그룹에 추가
+sudo usermod -aG docker $USER
+
+# 6. Docker 서비스 시작
+sudo service docker start
+```
+
+> **참고**: `usermod -aG docker` 적용을 위해 터미널을 닫고 새 터미널에서 `docker version`으로 확인한다.
+> AI 에이전트의 SSH 실행 시에는 매번 새 세션이므로 별도 ssh 호출로 확인하면 된다.
+
+### kubectl (VM)
+**확인**: `kubectl version --client 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+```
+sudo snap install kubectl --classic
+```
+
+### kubens/kubectx (VM)
+**확인**: `kubens --help 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+```
+sudo apt install -y kubectx
+```
+
+### helm (VM)
+**확인**: `helm version 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+```
+curl https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3 | bash
+```
+
+### JDK (VM)
+**확인**: `java -version 2>/dev/null && echo "INSTALLED" || echo "NOT_INSTALLED"`
+```
+# 1. 설치
+sudo apt update && sudo apt install -y openjdk-21-jdk && \
+
+# 2. JAVA_HOME 자동 탐지 후 /etc/environment 등록
+JAVA_HOME_PATH=$(dirname $(dirname $(readlink -f $(which java)))) && \
+echo "JAVA_HOME=\"$JAVA_HOME_PATH\"" | sudo tee -a /etc/environment && \
+
+# 3. 즉시 적용 및 확인
+source /etc/environment && \
+echo "JAVA_HOME=$JAVA_HOME" && \
+java -version
+```
+
+### 설치 순서 요약
+
+| 순서 | 도구 | CLOUD 조건 |
+|------|------|-----------|
+| 1 | OS update | 공통 |
+| 2 | Cloud CLI | {CLOUD}에 맞는 것만 |
+| 3 | Docker | 공통 |
+| 4 | kubectl | 공통 |
+| 5 | kubens/kubectx | 공통 |
+| 6 | helm | 공통 |
+| 7 | JDK | 공통 |
 
 ### 실행 방식
 
 - 각 도구별로 `ssh {VM_HOST_ALIAS} "command -v {tool}"` 로 설치 여부 확인
-- 미설치 도구만 prepare-deploy.md의 해당 섹션 명령을 `ssh {VM_HOST_ALIAS} "{설치 명령}"` 형태로 실행
+- 미설치 도구만 위 해당 섹션의 명령을 `ssh {VM_HOST_ALIAS} "{설치 명령}"` 형태로 실행
 - 모든 apt 명령에 `-y` 플래그, GCP install.sh에 `--quiet --disable-prompts` 플래그 필수
 - **AWS CLI install 스크립트(`./aws/install`)는 quiet 플래그를 지원하지 않으므로 플래그 없이 실행**
 - Docker 설치 후 `usermod -aG docker` 적용: AI 에이전트는 매 ssh 호출이 새 세션이므로 재접속 없이 별도 ssh 명령으로 `docker version` 확인만 수행
