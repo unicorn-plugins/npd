@@ -11,7 +11,7 @@ VM에서 애플리케이션이 의존하는 백킹서비스(DB, Redis, MQ)를 do
 |--------|----------|----------|
 | Docker Compose 파일 | `./docker-compose.yml` | VM에서 백킹서비스 기동 |
 | 환경변수 템플릿 | `./.env.example` | `.env` 생성 원본 |
-| DB 초기화 스크립트 | `docker/postgres/init/*.sql` | 서비스별 DB 자동 생성 |
+| DB 초기화 스크립트 | `docker/{db-product}/init/*` | 서비스별 DB 자동 생성 (PostgreSQL: `.sql`, MongoDB: `.js`) |
 | 개발 환경 백킹서비스 결과서 | `docs/develop/backing-service-result.md` | 연결 정보 참조 |
 
 ## 출력 (이 단계 산출물)
@@ -156,11 +156,19 @@ docker network ls | grep default
 | RabbitMQ (해당 시) | `curl -u ${MQ_USER}:${MQ_PASSWORD} http://localhost:15672/api/healthchecks/node` | `{"status":"ok"}` |
 | Kafka (해당 시) | `docker compose exec kafka kafka-topics.sh --bootstrap-server localhost:9092 --list` | 에러 없이 토픽 목록 출력 |
 
+> **MySQL/MariaDB healthcheck**: `{PLUGIN_DIR}/resources/guides/deploy/backing-rdb-deploy.md` 참조
+> **MongoDB healthcheck**: `{PLUGIN_DIR}/resources/guides/deploy/backing-nosql-deploy.md` 참조
+> **Cloud MQ 프로비저닝**: `{PLUGIN_DIR}/resources/guides/deploy/backing-mq-deploy.md` 참조
+
 **서비스별 database 확인** (PostgreSQL):
 ```
 docker compose exec postgres psql -U ${DB_USER} -l
 ```
-init 스크립트(`docker/postgres/init/*.sql`)로 생성된 서비스별 database가 목록에 존재하는지 확인한다.
+init 스크립트로 생성된 서비스별 database가 목록에 존재하는지 확인한다.
+
+> **대안 DB 사용 시**: MySQL/MariaDB/MongoDB의 database 확인 명령은 해당 카테고리 가이드 참조.
+> - RDB: `{PLUGIN_DIR}/resources/guides/deploy/backing-rdb-deploy.md`
+> - NoSQL: `{PLUGIN_DIR}/resources/guides/deploy/backing-nosql-deploy.md`
 
 ### 재구성 절차
 
@@ -187,6 +195,10 @@ init 스크립트(`docker/postgres/init/*.sql`)로 생성된 서비스별 databa
 ### 결과 보고서 작성
 
 Health Check 완료 후 `docs/deploy/backing-service-result.md`를 작성한다.
+선택된 제품에 맞게 연결 정보를 작성한다. 제품별 보고서 템플릿은 해당 카테고리 가이드 참조:
+- RDB (MySQL/MariaDB): `{PLUGIN_DIR}/resources/guides/deploy/backing-rdb-deploy.md`
+- NoSQL (MongoDB): `{PLUGIN_DIR}/resources/guides/deploy/backing-nosql-deploy.md`
+- MQ (Cloud MQ): `{PLUGIN_DIR}/resources/guides/deploy/backing-mq-deploy.md`
 
 ## 출력 형식
 

@@ -12,7 +12,7 @@
 ## 출력 (이 단계 산출물)
 | 산출물 | 파일 경로 |
 |--------|----------|
-| 컨테이너 이미지 빌드 가이드 | `deployment/container/build-image.md` |
+| 컨테이너 이미지 빌드 결과 | `docs/deploy/build-image-front.md` |
 | 프론트엔드 Dockerfile | `deployment/container/Dockerfile-frontend` |
 | nginx 설정 파일 | `deployment/container/nginx.conf` |
 | .dockerignore | `.dockerignore` |
@@ -357,7 +357,7 @@ docker push ${REGISTRY_URL}/${service}:latest
 > `${ROOT}`는 CLAUDE.md의 시스템명을 참조한다.
 
 ## 출력 형식
-`deployment/container/build-image.md` 파일에 수행한 명령어를 포함하여 컨테이너 이미지 작성 과정을 단계별로 기록한다.
+`docs/deploy/build-image-front.md` 파일에 수행한 명령어를 포함하여 컨테이너 이미지 작성 과정을 단계별로 기록한다.
 
 ## 품질 기준
 - [ ] `.dockerignore` 파일이 프로젝트 루트에 생성되었는가?

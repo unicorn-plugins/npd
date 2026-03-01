@@ -324,7 +324,7 @@ Step 1은 두 단계로 구성된다:
 #### Step 2-2. 백킹서비스 + Mock 서버 로컬 구성 → Agent: backend-developer (ralph 모드로 수행)
 
 - **GUIDE**: `{PLUGIN_DIR}/resources/guides/develop/backing-service-setup.md`
-- **TASK**: 데이터설계서 기반 프로젝트 루트 단일 `docker-compose.yml` 작성 → DB/Cache/MQ + Prism Mock 서버 구성
+- **TASK**: 데이터설계서 기반 프로젝트 루트 단일 `docker-compose.yml` 작성 → DB(PostgreSQL/MySQL/MariaDB/MongoDB)/Cache/MQ + Prism Mock 서버 구성. 기본 제품(PostgreSQL) 외 선택 시 카테고리 가이드 참조
 - **EXPECTED OUTCOME**: `./docker-compose.yml`, `./.env.example`, `docs/develop/backing-service-result.md`
 - **docker-compose 서비스 구성**:
   - 기본 서비스 (항상 기동): DB, Cache, MQ(설계서 명시 시만)
