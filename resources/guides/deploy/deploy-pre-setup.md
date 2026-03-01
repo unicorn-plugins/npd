@@ -126,7 +126,7 @@ ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new {VM_HOST_ALIAS} exit
 ## 1-7. VM 원격 도구 설치
 
 SSH로 VM에 접속하여 도구 설치 여부를 확인하고, 미설치 도구를 자동 설치한다.
-`resources/guides/setup/prepare-deploy.md`의 "VM 생성과 툴 설치" 섹션을 참조한다.
+`resources/guides/setup/prepare-deploy.md`의 "VM에 툴 설치" 섹션을 참조한다.
 
 ### 사전 검증
 

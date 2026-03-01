@@ -41,4 +41,19 @@
 - 네트워킹 지정: 수정하지 않고 '다음' 클릭
 - 하단의 '생성' 클릭 
 
- 
+### Credential 획득  
+PC에서 아래 명령 수행하면 ~/.kube/config 파일이 생성 또는 업데이트 됨  
+```
+aws eks update-kubeconfig \
+  --region ap-northeast-2 \
+  --name {EKS-name} \
+  --profile {SSO-profile-name}
+```
+- SSO Profile 확인: aws configure list-profiles
+- EKS-name 확인: aws eks list-clusters --profile {SSO-profile-name}
+
+아래 명령으로 정상 접근 확인    
+```
+kubectl get nodes
+```
+
