@@ -222,11 +222,12 @@ k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/mai
 ## 비용절감을 위한 팁
 사용하지 않을 때 EKS를 정지하면 좋겠으나 EKS 클러스터를 정지시킬 수는 없습니다.    
 하지만 Node를 전부 삭제하면 Control plane만 남으므로 비용을 최소화 할 수 있습니다.    
-- 'service' 노드풀 삭제 
-  ```
-  kubectl delete nodepool service
-  ```
-- metrics-server 파드를 0으로 스케일링 
+
+- 배포한 Pod 모두 삭제
+  배포한 Pod가 모두 사라지면 그 Pod가 생성된 커스텀 노드풀(service)의 노드도 자동으로 삭제됩니다. 
+   
+- metrics-server 파드를 0으로 스케일링  
+  기본으로 생성되는 metrics-server Pod가 있어 기본 노드가 삭제 안되니 아래와 같이 Pod를 0으로 만듭니다.   
   ```
   kubectl scale --replicas=0 deploy/metrics-server -n kube-system
   ```
@@ -236,6 +237,8 @@ k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/mai
   kubectl delete node {node id} --force --grace-period=0
   ```
 
+> 주의: 기본 내장 노드풀(system, general-purpose)과 커스텀 노드풀을 삭제하지 마세요.   
+  
 ---
 
 # Azure
