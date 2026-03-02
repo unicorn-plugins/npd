@@ -1,6 +1,15 @@
 # CLOUD별 k8s 생성 
 
 - [CLOUD별 k8s 생성](#cloud별-k8s-생성)
+- [CLOUD CLI 설치](#cloud-cli-설치)
+  - [K8s 공통 도구](#k8s-공통-도구)
+    - [kubectl](#kubectl)
+    - [kubens/kubectx](#kubenskubectx)
+    - [helm](#helm)
+  - [Cloud CLI](#cloud-cli)
+    - [AWS CLI](#aws-cli)
+    - [Azure CLI](#azure-cli)
+    - [Google Cloud CLI](#google-cloud-cli)
 - [Web서버 설치](#web서버-설치)
   - [Web Server용 VM 생성](#web-server용-vm-생성)
   - [nginx 서버 설치](#nginx-서버-설치)
@@ -35,6 +44,87 @@
   - [테스트](#테스트-2)
   - [비용절감을 위한 팁](#비용절감을-위한-팁-2)
 
+
+---
+
+# CLOUD CLI 설치
+
+k8s 클러스터를 생성하고 관리하기 위해 필요한 CLI 도구를 설치합니다.
+
+## K8s 공통 도구
+
+### kubectl
+**확인**: `kubectl version --client`
+- Windows (Powershell):
+  ```
+  winget install kubectl
+  ```
+- Mac:
+  ```
+  brew install kubectl
+  ```
+
+### kubens/kubectx
+**확인**: `kubens --help`
+- Windows (Git Bash):
+  ```
+  git clone https://github.com/ahmetb/kubectx.git ~/.kubectx
+  ln -sf ~/.kubectx/kubectx /usr/local/bin/kubectx
+  ln -sf ~/.kubectx/kubens /usr/local/bin/kubens
+  ```
+- Mac:
+  ```
+  brew install kubectx
+  ```
+
+### helm
+**확인**: `helm version`
+- Windows (Powershell):
+  ```
+  winget install Helm.Helm
+  ```
+- Mac:
+  ```
+  brew install helm
+  ```
+
+## Cloud CLI
+
+사용하는 CLOUD에 맞는 CLI만 설치합니다.
+
+### AWS CLI
+**확인**: `aws --version`
+- Windows (Powershell):
+  ```
+  msiexec.exe /i https://awscli.amazonaws.com/AWSCLIV2.msi
+  ```
+  > 또는 https://awscli.amazonaws.com/AWSCLIV2.msi 를 다운로드하여 실행
+- Mac:
+  ```
+  curl "https://awscli.amazonaws.com/AWSCLIV2.pkg" -o "AWSCLIV2.pkg"
+  sudo installer -pkg AWSCLIV2.pkg -target /
+  ```
+
+### Azure CLI
+**확인**: `az version`
+- Windows (Powershell):
+  ```
+  winget install --exact --id Microsoft.AzureCLI
+  ```
+- Mac:
+  ```
+  brew update && brew install azure-cli
+  ```
+
+### Google Cloud CLI
+**확인**: `gcloud version`
+- Windows: https://cloud.google.com/sdk/docs/install#windows 에서 설치파일을 다운로드하여 실행
+- Mac:
+  ```
+  brew install --cask google-cloud-sdk
+  ```
+
+> **Windows 참고**: `winget`/`msiexec`는 PowerShell/CMD 전용이므로 Git Bash에서는 `powershell.exe -Command` 래핑으로 실행합니다.
 
 ---
 
