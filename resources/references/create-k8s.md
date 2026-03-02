@@ -1,6 +1,10 @@
 # CLOUD별 k8s 생성 
 
 - [CLOUD별 k8s 생성](#cloud별-k8s-생성)
+- [Web서버 설치](#web서버-설치)
+  - [Web Server용 VM 생성](#web-server용-vm-생성)
+  - [nginx 서버 설치](#nginx-서버-설치)
+  - [SSL 설정](#ssl-설정)
 - [AWS](#aws)
   - [시작](#시작)
   - [클러스터 생성](#클러스터-생성)
@@ -14,6 +18,278 @@
   - [비용절감을 위한 팁](#비용절감을-위한-팁)
 - [Azure](#azure)
 
+
+---
+
+# Web서버 설치
+외부에서 http[s]로 접근 시 Web서버 -> LB(Load Balancer) -> Ingress -> Service -> Pod로 접속합니다.  
+이렇게 Web서버를 통해 접근하면 쉽게 사용자 친숙한 도메인과 SSL 사용을 할 수 있어 편합니다.     
+```
+사용자
+    ↓ web서버 주소(예: https://myapp.example.com)
+Nginx (온프레미스 or 공통 서버)
+    ↓
+    ├── AWS EKS ALB
+    ├── Azure AKS LB
+    └── GCP GKE LB
+```
+
+## Web Server용 VM 생성  
+사용하는 CLOUD 서비스에서 Web server용 VM을 생성합니다.  
+https://github.com/unicorn-plugins/npd/blob/main/resources/references/create-vm.md
+
+그리고 ~/.ssh/config에 지정한대로 ssh {alias}로 VM을 접속합니다.   
+
+## nginx 서버 설치  
+Web서버 VM에서 수행합니다.  
+- Nginx 설치
+
+  ```
+  sudo apt update
+  sudo apt install nginx -y
+  ```
+
+  ```
+  sudo systemctl start nginx
+  sudo systemctl enable nginx
+  ```
+
+  ```
+  sudo systemctl status nginx
+  ```
+
+- Nginx 환경설정
+  
+  기존 '/etc/nginx/nginx.conf' 파일을 변경합니다.     
+  ```
+  cat << 'EOF' | sudo tee /etc/nginx/nginx.conf
+  user www-data;
+  worker_processes auto;
+  pid /run/nginx.pid;
+  events {
+    worker_connections 768;
+  }
+  http {
+    sendfile on;
+    tcp_nopush on;
+    tcp_nodelay on;
+    keepalive_timeout 65;
+    types_hash_max_size 2048;
+    include /etc/nginx/mime.types;
+    default_type application/octet-stream;
+    access_log /var/log/nginx/access.log;
+    error_log /var/log/nginx/error.log;
+    gzip on;
+    include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/sites-enabled/*;
+  }
+  EOF
+  ```
+  
+  80포트에 대한 설정을 합니다.  
+  ```
+  cat << 'EOF' | sudo tee /etc/nginx/sites-available/default
+  server {
+    listen 80;
+    server_name _;
+    root /var/www/html;
+    index index.html;
+    location / {
+        try_files $uri $uri/ =404;
+    }
+  }
+  EOF
+  ```
+
+  설정이 적용 되려면 '/etc/nginx/sites-enabled'에 링크를 만들어야 합니다.  
+  ```
+  sudo rm -f /etc/nginx/sites-enabled/default
+  sudo ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+  ```
+
+  설정에 문제가 없는지 테스트 하고 nginx서버를 재시작 합니다.  
+  ```
+  sudo nginx -t
+  sudo systemctl reload nginx
+  ```
+
+- 테스트
+
+  ```  
+  cat << 'EOF' | sudo tee /var/www/html/index.html
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to My Website</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 0;
+        padding: 0;
+        background-color: #f4f4f9;
+        color: #333;
+        text-align: center;
+      }
+      header {
+        background-color: #0078d7;
+        color: white;
+        padding: 1rem 0;
+      }
+      main {
+        padding: 2rem;
+      }
+      footer {
+        margin-top: 2rem;
+        background-color: #333;
+        color: white;
+        padding: 1rem 0;
+        font-size: 0.8rem;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Welcome to My Website</h1>
+      <p>This is a simple HTML page</p>
+    </header>
+    <main>
+      <h2>Hello, World!</h2>
+      <p>Thank you for visiting. This page is styled with basic CSS.</p>
+    </main>
+    <footer>
+      &copy; My Website. All rights reserved.
+    </footer>
+  </body>
+  </html>
+  EOF
+  ```
+
+  웹브라우저에서 'http://{VM Public IP}'로 접근하여 정상적으로 표시되는지 확인합니다.  
+
+---
+
+## SSL 설정  
+
+- 정식 SSL 인증서 받기  
+  인증서 생성 프로그램 설치: sudo certbot --version 으로 설치여부 확인    
+  ```
+  sudo apt update
+  sudo apt install snapd
+  sudo snap install --classic certbot
+  sudo ln -s /snap/bin/certbot /usr/bin/certbot
+  ```
+ 
+- SSL 인증서 만들기  
+  '{domain}'은 위 SSL설정의 'server_name'에 지정한 {본인ID}.{VM Public IP}.nip.io을 사용합니다.   
+  '*.nip.io'는 DNS서버가 없을 때 사용하는 와일드 카드 도메인입니다.   
+
+  ```
+  sudo certbot --nginx -d {domain}
+  ```
+  결과 예시)
+  ```
+  azureuser@dg0100-bastion:/etc/nginx/sites-available$ sudo certbot --nginx -d dg0100.4.217.252.231.nip.io
+  Saving debug log to /var/log/letsencrypt/letsencrypt.log
+  Enter email address (used for urgent renewal and security notices)
+  (Enter 'c' to cancel): hiondal@gmail.com
+
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  Please read the Terms of Service at
+  https://letsencrypt.org/documents/LE-SA-v1.4-April-3-2024.pdf. You must agree in
+  order to register with the ACME server. Do you agree?
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  (Y)es/(N)o: Y
+
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  Would you be willing, once your first certificate is successfully issued, to
+  share your email address with the Electronic Frontier Foundation, a founding
+  partner of the Let's Encrypt project and the non-profit organization that
+  develops Certbot? We'd like to send you email about our work encrypting the web,
+  EFF news, campaigns, and ways to support digital freedom.
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+  (Y)es/(N)o: Y  
+  Account registered.
+  Requesting a certificate for dg0100.4.217.252.231.nip.io
+
+  Successfully received certificate.
+  Certificate is saved at: /etc/letsencrypt/live/dg0100.4.217.252.231.nip.io/fullchain.pem
+  Key is saved at:         /etc/letsencrypt/live/dg0100.4.217.252.231.nip.io/privkey.pem
+  This certificate expires on 2025-05-01.
+  These files will be updated when the certificate renews.
+  Certbot has set up a scheduled task to automatically renew this certificate in the background.
+
+  Deploying certificate
+  Could not install certificate
+
+  NEXT STEPS:
+  - The certificate was saved, but could not be installed (installer: nginx). After fixing the error shown below, try installing it again by running:
+    certbot install --cert-name dg0100.4.217.252.231.nip.io
+
+  Could not automatically find a matching server block for dg0100.4.217.252.231.nip.io. Set the `server_name` directive to use the Nginx installer.
+  Ask for help or search for solutions at https://community.letsencrypt.org. See the logfile /var/log/letsencrypt/letsencrypt.log or re-run Certbot with -v for more details.
+  ```
+
+- nginx 설정 수정  
+  SSL 설정을 추가합니다.    
+  http(80포트) 요청은 https(443포트)으로 리다이렉션 시키고 Proxy 설정을 추가합니다.    
+  'SERVER_NAME'은 {본인ID}.{VM Public IP}.nip.io로 지정합니다.   
+  SSK Key 파일의 경로는 위 SSL 인증서 생성 결과 마지막 쯤에 있는 값과 동일하게 설정합니다.  
+  바꾸지 않았다면 '/etc/letsencrypt/live/${SERVER_NAME}' 디렉토리에 있습니다.    
+  'location' 섹션은 proxying을 위한 설정입니다. 이는 나중에 사용하니 아래 내용처럼 'proxy_pass'를 일단 리마크합니다.      
+  PROXY_TARGET은 Proxying할 때 사용하니 일단 리마크합니다.  
+    
+  ```
+  # 변수 설정
+  SERVER_NAME="web.43.201.25.39.nip.io"
+  #PROXY_TARGET="http://k8s-default-myingres-3824ba4d1c-969790066.ap-northeast-2.elb.amazonaws.com"
+
+  cat << EOF | sudo tee /etc/nginx/sites-available/default
+  # 80 → 443 리다이렉트
+  server {
+    listen 80;
+    server_name ${SERVER_NAME};
+    return 301 https://\$host\$request_uri;
+  }
+
+  # 443 Proxy
+  server {
+    listen 443 ssl;
+    server_name ${SERVER_NAME};
+    ssl_certificate /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_ciphers HIGH:!aNULL:!MD5;
+    root /var/www/html;
+    index index.html;
+
+    location / {
+      //proxy_pass ${PROXY_TARGET};
+      proxy_ssl_verify off;
+      proxy_buffer_size 64k;
+      proxy_buffers 4 64k;
+      proxy_busy_buffers_size 64k;
+      proxy_set_header Host \$host;
+      proxy_set_header X-Real-IP \$remote_addr;
+      proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+      proxy_set_header X-Forwarded-Proto \$scheme;
+      proxy_read_timeout 60s;
+      proxy_connect_timeout 60s;
+      proxy_send_timeout 60s;
+    }
+  }
+  EOF
+  ```
+
+- nginx 서버 재시작  
+  ```
+  sudo nginx -t
+  sudo systemctl reload nginx
+  ```
+
+- 테스트  
+  웹브라우저에서 'https://{domain}'로 접근하여 정상적으로 표시되는지 확인합니다.    
 
 ---
 
@@ -75,9 +351,7 @@ aws eks update-kubeconfig \
 ```
 kubectl get nodes
 ```
-주의) 인증은 8시간만 유효합니다.  만료 시 로그인을 다시하고 kube config파일도 업데이트 해야 합니다.   
-
-이후 작업은 본인이 직접 EKS를 생성한 경우만 수행하시고 **이미 존재하는 EKS를 사용할때는 하지 마십시오**.   
+주의) 인증은 8시간만 유효합니다.  만료 시 'aws sso login --profile {SSO-profile-name}'으로 로그인을 다시 해야 합니다.   
 
 ## ALB 설정
 AWS Load Balancer는 외부에서 들어오는 트래픽을 내부로 전달하는 역할을 합니다.   
@@ -204,6 +478,7 @@ EOF
 ```
 
 ## 테스트
+**1.ALB 테스트**     
 Ingress, Service, Deployment 배포   
 ```
 kubectl apply -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/sample-alb-test.yaml
@@ -214,11 +489,72 @@ kubectl get ing
 ```
 약 2~3분 후에 URL로 접근하여 nginx 페이지 열리는지 확인    
 
+**2.SSL Proxying 테스트**        
+~/.ssh/config 파일에 있는 Alias로 Web서버를 접근합니다.   
+```
+ssh {alias}
+```
+
+SERVER_NAME과 PROXY_TARGET 값을 변경합니다.   
+SERVER_NAME은 Host명이고 web.{VM IP}.nip.io 형식입니다.   
+PROXY_TARGET은 Ingress ADDRESS값입니다.   
+  
+```
+# 변수 설정
+SERVER_NAME="web.43.201.25.39.nip.io"
+PROXY_TARGET="http://k8s-default-myingres-3824ba4d1c-969790066.ap-northeast-2.elb.amazonaws.com"
+
+cat << EOF | sudo tee /etc/nginx/sites-available/default
+# 80 → 443 리다이렉트
+server {
+  listen 80;
+  server_name ${SERVER_NAME};
+  return 301 https://\$host\$request_uri;
+}
+
+# 443 Proxy
+server {
+  listen 443 ssl;
+  server_name ${SERVER_NAME};
+  ssl_certificate /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+  root /var/www/html;
+  index index.html;
+
+  location / {
+    proxy_pass ${PROXY_TARGET};
+    proxy_ssl_verify off;
+    proxy_buffer_size 64k;
+    proxy_buffers 4 64k;
+    proxy_busy_buffers_size 64k;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_read_timeout 60s;
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+  }
+}
+EOF
+```
+
+nginx 서버 재시작   
+```
+sudo nginx -t
+sudo systemctl reload nginx
+```
+  
+웹브라우저에서 'https://{domain}'로 접근하여 정상적으로 표시되는지 확인합니다.    
+
+**3.리소스 삭제**    
 확인 후 리소스 삭제 
 ```
 k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/sample-alb-test.yaml
 ```
-
+  
 ## 비용절감을 위한 팁
 사용하지 않을 때 EKS를 정지하면 좋겠으나 EKS 클러스터를 정지시킬 수는 없습니다.    
 하지만 Node를 전부 삭제하면 Control plane만 남으므로 비용을 최소화 할 수 있습니다.    
@@ -231,7 +567,7 @@ k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/mai
   ```
   kubectl scale --replicas=0 deploy/metrics-server -n kube-system
   ```
-- node 삭제
+- 기본 node 삭제
   ```
   kubectl get nodes 
   kubectl delete node {node id} --force --grace-period=0
@@ -242,3 +578,7 @@ k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/mai
 ---
 
 # Azure
+
+
+---
+

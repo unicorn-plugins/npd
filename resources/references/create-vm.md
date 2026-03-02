@@ -7,8 +7,8 @@
 - '인스턴스 시작' 버튼 클릭 
 ### 입력
 - OS: Ubuntu
-- 인스턴스 유형: t3a.xlarge(4vcpu, 16G, 0.1872$/h) 또는 t3a.2xlarge(8vcpu, 32G, 0.3744$/h)
-  컨테이너 수가 4개 이상이면 t3a.2xlarge 선택
+- 인스턴스 유형: t2.micro(1 vcpu, 1GB), t3a.xlarge(4vcpu, 16G, 0.1872$/h) 또는 t3a.2xlarge(8vcpu, 32G, 0.3744$/h)
+  Web서버는 t2.micro, 컨테이너 배포 시 컨테이너 수가 4개 이상이면 t3a.2xlarge 선택
 - 키페어: 반드시 생성 선택하여 파일 다운로드. 이 파일이 VM 접근 SSH Key임 
 - 스토리지: 30G로 상향 
 ### 출력: 생성된 EC2 클릭하여 확인 
@@ -52,8 +52,8 @@ ex) ssh ubuntu@3.34.99.128 -i ~/workspace/ssh-key/my-ec2.pem
 - 리소스그룹: 본인 리소스 그룹 
 - 지역: Korea Central
 - 이미지: Ubuntu 
-- 크기: DS3_v2(4 vcpu, 14G, 월 240$) 또는 DS4_v2(8 vcpu, 28G, 월 482$)
-  컨테이너 수가 4개 이상이면 DS4_v2 선택
+- 크기: B1s(1 vcpu, 1GB), DS3_v2(4 vcpu, 14G, 월 240$) 또는 DS4_v2(8 vcpu, 28G, 월 482$)
+  Web서버는 B1s, 컨테이너 배포 시 컨테이너 수가 4개 이상이면 DS4_v2 선택
 - 사용자 이름: azureuser
 - SSH 공개 키 원본: 새 키 쌍 생성
 - 키 쌍 이름: 기본값 이용 또는 수정.  이 파일이 VM 접근 SSH Key임 
@@ -83,8 +83,8 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 - 시작하기 아래에 'VM 만들기' 클릭 
 ### 입력
 - 리전: asia-northeast3(서울)
-- 머신유형: e2-standard-4 또는 e2-standard-8
-  컨테이너 수가 4개 이상이면 e2-standard-8 선택
+- 머신유형: e2-micro, e2-standard-4 또는 e2-standard-8
+  Web서버는 e2-micro, 컨테이너 배포 시 컨테이너 수가 4개 이상이면 e2-standard-8 선택
 - OS및 스토리지 설정
 	- 좌측 메뉴 'OS 및 스토리지' 선택 
 	- '운영체제 및 스토리지' 하단의 '변경' 클릭 
