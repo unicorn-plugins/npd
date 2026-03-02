@@ -233,16 +233,16 @@ kubectx | grep '^gke_'
 
 **분기 처리:**
 
-- **매칭 1개** → 해당 컨텍스트를 자동 선택하고 `K8S.CLUSTER`에 설정
-- **매칭 2개 이상** → 사용자에게 선택 요청:
+- **매칭 1개 이상** → 감지된 컨텍스트 목록을 사용자에게 제시하고 배포 대상을 확인받음:
 
 <!--ASK_USER-->
 {"title":"K8s 클러스터 선택","questions":[
-  {"question":"{CLOUD}에 연결된 클러스터가 여러 개 감지되었습니다. 배포 대상 클러스터를 선택하세요.","type":"radio","options":["{감지된 컨텍스트 목록}"]}
+  {"question":"{CLOUD}에 연결된 클러스터가 감지되었습니다. 배포 대상 클러스터를 선택하세요.","type":"radio","options":["{감지된 컨텍스트 목록}"]}
 ]}
 <!--/ASK_USER-->
 
-- **매칭 0개** → 클러스터가 감지되지 않음을 안내하고, `{PLUGIN_DIR}/resources/references/create-k8s.md`를 참조하여 클러스터 생성 및 kubeconfig 등록을 요청
+- **매칭 0개** → 클러스터가 감지되지 않음을 안내하고, 아래 가이드를 참조하여 클러스터 생성 및 Web 서버 구성을 요청:
+  - 참조: [K8s 클러스터 생성 및 Web 서버 구성 가이드](https://github.com/unicorn-plugins/npd/blob/main/resources/references/create-k8s.md)
 
 **컨텍스트 전환 및 클러스터명 추출:**
 ```bash
@@ -257,6 +257,28 @@ kubectx {선택된 컨텍스트}
 **NAMESPACE 결정:**
 
 네임스페이스는 `{ROOT}` (프로젝트명, CLAUDE.md의 시스템명)를 기본값으로 사용한다.
+
+#### 4차: K8S 배포 리소스 설정 (서비스별)
+
+`docs/deploy/run-container-{back,front,ai}-result.md`에서 서비스 목록을 감지한 후, **서비스별로** 파드수·CPU·메모리를 질문한다.
+
+감지된 서비스 목록을 기반으로 AskUserQuestion을 동적 구성한다:
+
+```
+감지된 서비스: member-service, location-service, trip-service, ai-service, tripgen-front
+
+각 서비스별로 질문:
+  - "{서비스명}의 파드 수를 입력하세요." (placeholder: "2")
+  - "{서비스명}의 CPU 리소스를 입력하세요 (요청값/최대값, 단위: core, 예: 0.25/1)." (placeholder: "0.25/1")
+  - "{서비스명}의 메모리 리소스를 입력하세요 (요청값/최대값, 단위: MB, 예: 256/1024)." (placeholder: "256/1024")
+```
+
+> 서비스 수가 많으면 AskUserQuestion을 여러 번 호출하여 분할 질문한다 (1회 최대 4개 질문).
+
+수집된 값을 K8s 리소스 단위로 변환하여 `[실행정보]`에 반영한다:
+- **파드수**: 입력값 그대로 사용
+- **CPU**: core → millicore 변환 (예: `0.25/1` → `250m/1000m`)
+- **메모리**: MB → Mi 변환 (예: `256/1024` → `256Mi/1024Mi`)
 
 #### [실행정보] 조립 규칙
 
@@ -283,6 +305,8 @@ kubectx {선택된 컨텍스트}
 - K8S
   - CLUSTER: {클러스터명}
   - NAMESPACE: {네임스페이스}
+  - 서비스 리소스:
+    - {서비스명}: 파드수={N}, CPU={요청값}m/{최대값}m, 메모리={요청값}Mi/{최대값}Mi
 ```
 
 **AWS ECR:**
@@ -300,6 +324,8 @@ kubectx {선택된 컨텍스트}
 - K8S
   - CLUSTER: {클러스터명}
   - NAMESPACE: {네임스페이스}
+  - 서비스 리소스:
+    - {서비스명}: 파드수={N}, CPU={요청값}m/{최대값}m, 메모리={요청값}Mi/{최대값}Mi
 ```
 
 **Azure ACR:**
@@ -316,6 +342,8 @@ kubectx {선택된 컨텍스트}
 - K8S
   - CLUSTER: {클러스터명}
   - NAMESPACE: {네임스페이스}
+  - 서비스 리소스:
+    - {서비스명}: 파드수={N}, CPU={요청값}m/{최대값}m, 메모리={요청값}Mi/{최대값}Mi
 ```
 
 **Google GCR:**
@@ -334,6 +362,8 @@ kubectx {선택된 컨텍스트}
 - K8S
   - CLUSTER: {클러스터명}
   - NAMESPACE: {네임스페이스}
+  - 서비스 리소스:
+    - {서비스명}: 파드수={N}, CPU={요청값}m/{최대값}m, 메모리={요청값}Mi/{최대값}Mi
 ```
 
 > `{ROOT}`는 CLAUDE.md의 시스템명을 참조하여 결정한다.
@@ -343,17 +373,15 @@ kubectx {선택된 컨텍스트}
 | 옵션 | 설명 | 참조 가이드 |
 |------|------|------------|
 | GitHub Actions (AKS) | Azure 기반 GitHub Actions CI/CD | `deploy-actions-cicd-back.md`, `deploy-actions-cicd-front.md` |
-| GitHub Actions (Minikube) | Minikube/Generic K8s 대상 GitHub Actions CI/CD (SSH 터널링, Docker Hub) | `deploy-actions-cicd-back-minikube.md`, `deploy-actions-cicd-front-minikube.md` |
 | Jenkins | Jenkins + Podman 기반 CI/CD 파이프라인 | `deploy-jenkins-cicd-back.md`, `deploy-jenkins-cicd-front.md` |
 | ArgoCD | GitOps 방식 CI/CD 분리 (매니페스트 레포지토리 활용) | `deploy-argocd-cicd.md` |
 
 ### 환경 선택 분기 규칙
 1. `[실행정보]`에 `레지스트리유형`이 있으면 해당 유형에 맞는 이미지 경로 체계(`REGISTRY_URL`)를 사용
 2. `[실행정보]`에 `ACR_NAME` 또는 `AKS_CLUSTER`가 있으면 **AKS** 경로 선택 (`레지스트리유형: ACR`과 동일 효과)
-3. `[실행정보]`에 `VM_IP` 또는 `MINIKUBE_IP`가 있으면 **Minikube** 경로 선택
-4. `[실행정보]`에 `JENKINS_GIT_CREDENTIALS`가 있으면 **Jenkins** CI/CD 추가 구성
-5. `[실행정보]`에 `MANIFEST_REPO_URL`이 있으면 **ArgoCD** CI/CD 추가 구성
-6. 명시적 지정이 없으면 사용자에게 확인 후 진행
+3. `[실행정보]`에 `JENKINS_GIT_CREDENTIALS`가 있으면 **Jenkins** CI/CD 추가 구성
+4. `[실행정보]`에 `MANIFEST_REPO_URL`이 있으면 **ArgoCD** CI/CD 추가 구성
+5. 명시적 지정이 없으면 사용자에게 확인 후 진행
 
 ### Phase 2 다운스트림 영향 (별도 계획 필요)
 
@@ -520,18 +548,63 @@ git pull
 
 #### TASK: K8s 매니페스트 작성 및 배포
 
-- **GUIDE**:
-  - AKS: `resources/guides/deploy/deploy-k8s-back.md`, `resources/guides/deploy/deploy-k8s-front.md`, `resources/guides/deploy/deploy-k8s-ai.md`
-  - Minikube: `resources/guides/deploy/deploy-k8s-back-minikube.md`, `resources/guides/deploy/deploy-k8s-front-minikube.md`, `resources/guides/deploy/deploy-k8s-ai-minikube.md`
+- **GUIDE**: `resources/guides/deploy/deploy-k8s-back.md`, `resources/guides/deploy/deploy-k8s-front.md`, `resources/guides/deploy/deploy-k8s-ai.md`
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: K8s Deployment, Service, Ingress 매니페스트를 작성하고 배포
 - **EXPECTED OUTCOME**: `deploy/k8s/` 매니페스트 파일 생성, 배포 성공
+
+#### POST_ACTION: Nginx Web Server Proxy 설정
+
+매니페스트 배포 후 Ingress가 생성되면, 외부 HTTPS 접근을 위해 Nginx Proxy 설정을 수행한다.
+
+> **이 POST_ACTION은 배포 스킬(SKILL.md) 레벨에서 실행된다.** 사용자에게 묻는 작업(1~3)은 Agent가 아닌 스킬이 직접 수행한다.
+
+**[사용자 확인 단계]** (스킬이 직접 수행)
+
+**1. Web Server 설치 확인:**
+
+<!--ASK_USER-->
+{"title":"Web Server 설치 확인","questions":[
+  {"question":"K8s 관리 VM에 Nginx Web Server가 설치되어 있나요?\n\n미설치 시 참고: https://github.com/unicorn-plugins/npd/blob/main/resources/references/create-k8s.md > Web서버 설치","type":"radio","options":["설치 완료","아직 없음"]}
+]}
+<!--/ASK_USER-->
+
+**"아직 없음"** 선택 시: 가이드 링크를 안내하고 설치 완료 대기.
+
+**2. VM 접속 정보 확인:**
+
+`~/.ssh/config` 파일을 읽어 Host 목록을 파싱한 후 사용자에게 제시:
+
+<!--ASK_USER-->
+{"title":"Web Server VM 선택","questions":[
+  {"question":"Web Server(Nginx)가 설치된 VM을 선택하세요. (K8s 관리 VM과 동일)","type":"radio","options":["{~/.ssh/config에서 파싱된 Host alias 목록}"]}
+]}
+<!--/ASK_USER-->
+
+선택된 값을 `{WEB_SERVER_SSH_HOST}`로 저장.
+
+**3. SSL 도메인 확인:**
+
+선택한 VM에 SSH 접속하여 `/etc/nginx/sites-available/default`의 `server_name` 값을 읽은 후 사용자에게 확인:
+
+<!--ASK_USER-->
+{"title":"SSL 도메인 확인","questions":[
+  {"question":"Web Server의 SSL 도메인을 확인합니다.\n\n감지된 server_name: `{감지된 server_name}`\n\n이 도메인이 맞습니까?","type":"radio","options":["맞음","직접 입력"]}
+]}
+<!--/ASK_USER-->
+
+**"직접 입력"** 선택 시: 사용자에게 SSL 도메인을 입력받음 (예: `mydomain.com`, `app.example.co.kr`, `{ID}.{VM Public IP}.nip.io` 등). 확인된 값을 `{SSL_DOMAIN}`으로 저장.
+
+**[자동 실행 단계]** (Agent 위임 가능)
+4. **Ingress ADDRESS 확인**: `kubectl get ing -n {K8S_NAMESPACE}`로 Ingress ADDRESS 취득
+5. **Proxy 설정**: Web Server VM(`{WEB_SERVER_SSH_HOST}`)에서 Nginx conf 재생성 (가이드의 "Nginx Web Server Proxy 설정" 섹션 참조)
+6. **Nginx 재시작**: `sudo nginx -t && sudo systemctl reload nginx`
+7. **CORS 확인**: 공통 ConfigMap의 `CORS_ALLOWED_ORIGINS`에 `https://{SSL_DOMAIN}` 포함 여부 확인
 
 ### Step 5. CI/CD 파이프라인 구성 → Agent: devops-engineer (`/ralph` 활용)
 
 - **GUIDE**:
   - GitHub Actions (AKS): `resources/guides/deploy/deploy-actions-cicd-back.md`, `resources/guides/deploy/deploy-actions-cicd-front.md`
-  - GitHub Actions (Minikube): `resources/guides/deploy/deploy-actions-cicd-back-minikube.md`, `resources/guides/deploy/deploy-actions-cicd-front-minikube.md`
   - Jenkins: `resources/guides/deploy/deploy-jenkins-cicd-back.md`, `resources/guides/deploy/deploy-jenkins-cicd-front.md`
   - ArgoCD: `resources/guides/deploy/deploy-argocd-cicd.md`
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
@@ -543,7 +616,6 @@ git pull
 | CI/CD 유형 | 산출물 |
 |-----------|--------|
 | GitHub Actions (AKS) | `.github/workflows/backend-cicd.yaml`, `.github/workflows/frontend-cicd.yaml`, `.github/kustomize/*`, `.github/config/*` |
-| GitHub Actions (Minikube) | `.github/workflows/backend-cicd.yaml`, `.github/workflows/frontend-cicd.yaml`, `.github/kustomize/*` |
 | Jenkins | `deployment/cicd/Jenkinsfile` (백엔드/프론트엔드), `deployment/cicd/kustomize/*`, `deployment/cicd/config/*` |
 | ArgoCD | `deployment/cicd/Jenkinsfile_ArgoCD` 또는 `.github/workflows/*_ArgoCD.yaml`, 매니페스트 레포지토리 구성 |
 
@@ -553,7 +625,7 @@ git pull
 ## 배포 완료
 
 ### 배포 환경
-- 클러스터 유형: {AKS / Minikube}
+- 클러스터 유형: {EKS / AKS / GKE}
 - CI/CD 유형: {GitHub Actions / Jenkins / ArgoCD}
 
 ### 물리 아키텍처
