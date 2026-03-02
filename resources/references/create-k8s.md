@@ -25,7 +25,15 @@
   - [커스텀 노드풀(NodePool) 생성](#커스텀-노드풀nodepool-생성-1)
   - [테스트](#테스트-1)
   - [비용절감을 위한 팁](#비용절감을-위한-팁-1)
-- [GCP GKS](#gcp-gks)
+- [GCP GKE](#gcp-gke)
+  - [시작](#시작-2)
+  - [클러스터 생성](#클러스터-생성-2)
+    - [Console에서 생성](#console에서-생성)
+  - [Credential 획득](#credential-획득-2)
+  - [Ingress 설정](#ingress-설정-1)
+  - [커스텀 노드풀(NodePool) 생성](#커스텀-노드풀nodepool-생성-2)
+  - [테스트](#테스트-2)
+  - [비용절감을 위한 팁](#비용절감을-위한-팁-2)
 
 
 ---
@@ -845,5 +853,218 @@ AKS Automatic 모드는 중단 시킬수가 없습니다.
 
 ---
 
-# GCP GKS
+# GCP GKE
+## 시작
+- https://console.cloud.google.com 로그인
+- 홈에서 'Kubernetes Engine' 버튼 클릭 
+
+## 클러스터 생성
+GKE Autopilot으로 GKE를 생성합니다.
+GKE Autopilot은 k8s Control Plane과 Worker 노드를 Google이 알아서 관리해주는 모드입니다.
+```
+GKE Autopilot = "인프라는 Google이, 앱은 내가"
+
+기존 GKE Standard              GKE Autopilot
+──────────────────────────────────────────────
+노드 직접 생성/관리      →      Google이 자동 생성/관리
+CNI 직접 설치           →      GKE Dataplane V2 자동
+Ingress Controller 설치  →      GCE Ingress Controller 내장
+노드 스케일링 설정       →      Pod 배포하면 자동 스케일
+OS 패치/업데이트        →      Google이 자동 처리
+
+사용자가 할 일: Pod 배포만! (IngressClass도 자동 생성됨)
+```
+> GKE Autopilot은 Pod 리소스 요청 기준으로 과금됩니다 (노드 단위 과금 아님)
+
+### Console에서 생성
+- 사전작업: 프로젝트 선택
+  - 상단 바에서 프로젝트 선택 드롭다운 클릭
+  - 사용할 프로젝트 선택 (없으면 '새 프로젝트'로 생성)
+- 사전작업: GKE API 활성화
+  - 'Kubernetes Engine API' 화면이 나오면 '사용' 버튼 클릭
+- '개요' 페이지에서 가운데 있는 '클러스터 만들기' 버튼 클릭
+- 기본탭
+  - 이름: 팀 프로젝트 수행 시는 'gke-{Team ID}'로 개인 프로젝트 수행 시는 'gke-{개인ID}'
+  - 리전: asia-northeast3 (서울)
+- '만들기' 클릭 (생성까지 약 5~10분 소요)
+
+## Credential 획득
+
+**1.gke-gcloud-auth-plugin 설치**
+kubectl이 GKE 인증을 위해 필요한 플러그인입니다.
+```
+gcloud components install gke-gcloud-auth-plugin
+```
+
+**2.로그인**
+```
+gcloud auth login
+```
+> 최초 실행 시 브라우저에서 Google 계정 인증이 필요합니다.
+
+프로젝트 설정:
+```
+gcloud config set project {프로젝트ID}
+```
+> 주의: 프로젝트 **이름**과 **ID**는 다를 수 있습니다. Console에서 프로젝트 이름이 'myproject'라도 실제 ID는 'myproject-489007' 같은 형식일 수 있습니다.
+> 프로젝트ID 확인: gcloud projects list
+
+**3.Credential 취득**
+```
+gcloud container clusters get-credentials {GKE-name} \
+  --region asia-northeast3
+```
+
+**4.확인**
+아래 명령으로 정상 접근 확인
+```
+kubectl get nodes
+```
+> Autopilot 모드에서는 Pod를 배포하기 전에는 노드가 표시되지 않습니다. 이는 정상입니다.
+
+## Ingress 설정
+GKE Autopilot에는 GCE Ingress Controller가 기본 내장되어 있습니다.
+AWS EKS Auto Mode와 다르게 Subnet 태그 등록이나 IngressClass 수동 생성이 필요없습니다.
+IngressClass 리소스는 별도로 생성되지 않지만, Ingress를 생성하면 GCE 컨트롤러가 자동으로 처리합니다.
+Ingress에 `kubernetes.io/ingress.class: "gce"` 어노테이션을 추가하면 명시적으로 GCE 컨트롤러를 지정할 수 있습니다.
+
+---
+
+## 커스텀 노드풀(NodePool) 생성
+GKE Autopilot 모드에서는 커스텀 노드풀을 직접 생성할 수 없습니다.
+Google이 Pod의 리소스 요청에 따라 자동으로 노드를 프로비저닝합니다.
+이는 AWS EKS Auto Mode나 Azure AKS Automatic과 다른 점입니다.
+
+Spot VM을 사용하여 비용을 절감하려면 Pod spec에 nodeSelector를 추가합니다.
+```
+cat <<EOF | kubectl apply -f -
+# Spot VM을 사용하는 Pod 예시
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: my-app
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: my-app
+  template:
+    metadata:
+      labels:
+        app: my-app
+    spec:
+      nodeSelector:
+        cloud.google.com/gke-spot: "true"
+      terminationGracePeriodSeconds: 25
+      containers:
+        - name: my-app
+          image: nginx
+          resources:
+            requests:
+              cpu: 500m
+              memory: 512Mi
+EOF
+```
+> 배포 후 Pod가 Pending 상태인 것은 정상입니다. Autopilot이 Spot VM 노드를 프로비저닝하는데 1~2분 소요됩니다.
+> Spot VM은 Google이 자원이 부족하면 노드가 없어질 위험이 있습니다.
+  하지만 비용이 평균 60~90% 싸기 때문에 교육시에 잠깐 쓰는 목적으로는 권장됩니다.
+
+확인 후 리소스 삭제:
+```
+kubectl delete deploy my-app
+```
+
+## 테스트
+**1.Ingress 테스트**
+Ingress, Service, Deployment 배포
+GKE Autopilot의 기본 내장 GCE Ingress Controller를 사용합니다.
+```
+kubectl apply -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/k8s/sample-gce-test.yaml
+```
+아래 명령으로 URL 확인
+```
+kubectl get ing
+```
+약 3~5분 후에 ADDRESS의 IP로 접근하여 nginx 페이지 열리는지 확인
+
+**2.SSL Proxying 테스트**
+~/.ssh/config 파일에 있는 Alias로 Web서버를 접근합니다.
+```
+ssh {alias}
+```
+
+SERVER_NAME과 PROXY_TARGET 값을 변경합니다.
+SERVER_NAME은 Host명이고 web.{VM IP}.nip.io 형식입니다.
+PROXY_TARGET은 Ingress ADDRESS값입니다.
+
+```
+# 변수 설정
+SERVER_NAME="web.{VM Public IP}.nip.io"
+PROXY_TARGET="http://{Ingress ADDRESS IP}"
+
+cat << EOF | sudo tee /etc/nginx/sites-available/default
+# 80 → 443 리다이렉트
+server {
+  listen 80;
+  server_name ${SERVER_NAME};
+  return 301 https://\$host\$request_uri;
+}
+
+# 443 Proxy
+server {
+  listen 443 ssl;
+  server_name ${SERVER_NAME};
+  ssl_certificate /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+  root /var/www/html;
+  index index.html;
+
+  location / {
+    proxy_pass ${PROXY_TARGET};
+    proxy_ssl_verify off;
+    proxy_buffer_size 64k;
+    proxy_buffers 4 64k;
+    proxy_busy_buffers_size 64k;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_read_timeout 60s;
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+  }
+}
+EOF
+```
+
+nginx 서버 재시작
+```
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+웹브라우저에서 'https://{domain}'로 접근하여 정상적으로 표시되는지 확인합니다.
+
+**3.리소스 삭제**
+확인 후 리소스 삭제
+```
+kubectl delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/k8s/sample-gce-test.yaml
+```
+
+## 비용절감을 위한 팁
+GKE Autopilot은 Pod 리소스 요청 기준으로 과금되므로 Pod가 없으면 워커 노드 비용이 발생하지 않습니다.
+단, 클러스터 관리 수수료(약 $0.10/시간)는 클러스터가 존재하는 한 계속 발생합니다.
+
+- 배포한 리소스 삭제
+  배포한 Pod가 모두 사라지면 워커 노드도 자동으로 삭제됩니다.
+  Autopilot은 Pod 기준 과금이므로 Pod만 삭제하면 워커 노드 비용은 즉시 절감됩니다.
+
+- 클러스터 삭제
+  더 이상 사용하지 않는 경우 클러스터를 삭제하는 것이 가장 확실한 비용절감 방법입니다.
+  ```
+  gcloud container clusters delete {GKE-name} \
+    --region asia-northeast3 --quiet
+  ```
 
