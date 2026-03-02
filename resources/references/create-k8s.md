@@ -490,7 +490,7 @@ EOF
 **1.ALB 테스트**     
 Ingress, Service, Deployment 배포   
 ```
-kubectl apply -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/sample-alb-test.yaml
+kubectl apply -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/k8s/sample-alb-test.yaml
 ```
 아래 명령으로 URL 확인 
 ```
@@ -561,7 +561,7 @@ sudo systemctl reload nginx
 **3.리소스 삭제**    
 확인 후 리소스 삭제 
 ```
-k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/sample-alb-test.yaml
+k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/k8s/sample-alb-test.yaml
 ```
   
 ## 비용절감을 위한 팁
