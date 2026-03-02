@@ -5,7 +5,7 @@
   - [Web Server용 VM 생성](#web-server용-vm-생성)
   - [nginx 서버 설치](#nginx-서버-설치)
   - [SSL 설정](#ssl-설정)
-- [AWS](#aws)
+- [AWS AKS](#aws-aks)
   - [시작](#시작)
   - [클러스터 생성](#클러스터-생성)
   - [클러스터 생성 확인](#클러스터-생성-확인)
@@ -16,7 +16,7 @@
   - [커스텀 노드풀(NodePool) 생성](#커스텀-노드풀nodepool-생성)
   - [테스트](#테스트)
   - [비용절감을 위한 팁](#비용절감을-위한-팁)
-- [Azure](#azure)
+- [Azure AKS](#azure-aks)
   - [시작](#시작-1)
   - [클러스터 생성](#클러스터-생성-1)
     - [Portal에서 생성](#portal에서-생성)
@@ -25,6 +25,7 @@
   - [커스텀 노드풀(NodePool) 생성](#커스텀-노드풀nodepool-생성-1)
   - [테스트](#테스트-1)
   - [비용절감을 위한 팁](#비용절감을-위한-팁-1)
+- [GCP GKS](#gcp-gks)
 
 
 ---
@@ -301,7 +302,7 @@ Web서버 VM에서 수행합니다.
 
 ---
 
-# AWS
+# AWS AKS
 ## 시작
 - 상단 검색바에 'EKS'입력하여 'Elastic Kubernetes Service' 선택
 - 우측의 '클러스터 생성' 클릭
@@ -585,7 +586,7 @@ k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/mai
   
 ---
 
-# Azure
+# Azure AKS
 ## 시작
 - https://portal.azure.com 로그인
 - 상단 검색바에 'AKS'입력하여 'Kubernetes 서비스 - 자동' 선택
@@ -831,15 +832,18 @@ AKS Automatic 모드는 중단 시킬수가 없습니다.
 
 - 시스템 노드풀 스케일링
   시스템 노드풀을 1개로 줄여 비용을 절감할 수 있습니다. (0개는 불가)
+  단, system-surge NodePool이 시스템 Pod 압력을 감지하여 보조 노드를 자동 생성하므로 절감 효과가 제한적일 수 있습니다.
   ```
   az aks nodepool scale --resource-group {리소스그룹명} --cluster-name {AKS-name} --name systempool --node-count 1
   ```
 
 - 클러스터 삭제
-  더 이상 사용하지 않는 경우 클러스터를 삭제합니다.
+  더 이상 사용하지 않는 경우 클러스터를 삭제하는 것이 가장 확실한 비용절감 방법입니다.
   ```
   az aks delete --resource-group {리소스그룹명} --name {AKS-name} --yes --no-wait
   ```
 
 ---
+
+# GCP GKS
 
