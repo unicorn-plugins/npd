@@ -196,6 +196,68 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
 ]}
 <!--/ASK_USER-->
 
+#### 3차: K8S 클러스터 자동 감지
+
+`kubectx`로 로컬의 kubeconfig 컨텍스트를 조회하여 `{CLOUD}`에 해당하는 클러스터를 자동 감지한다.
+
+**컨텍스트 목록 조회:**
+```bash
+kubectx
+```
+
+> `kubectx`가 설치되어 있지 않은 경우 아래 명령으로 대체한다:
+> ```bash
+> kubectl config get-contexts -o name
+> ```
+
+**클라우드별 컨텍스트 필터링 패턴:**
+
+| CLOUD | 필터링 방법 | 예시 |
+|-------|-----------|------|
+| AWS | `arn:aws:eks:` 포함 | `arn:aws:eks:ap-northeast-2:851725211153:cluster/eks-ondal` |
+| Azure | 컨텍스트명에 `aks` 포함 (대소문자 무시) | `aks-ondal` |
+| GCP | `gke_`로 시작 | `gke_lunchpick-489007_asia-northeast3_gce-ondal` |
+
+**자동 감지 규칙:**
+
+```bash
+# AWS EKS
+kubectx | grep 'arn:aws:eks:'
+
+# Azure AKS
+kubectx | grep -i 'aks'
+
+# GCP GKE
+kubectx | grep '^gke_'
+```
+
+**분기 처리:**
+
+- **매칭 1개** → 해당 컨텍스트를 자동 선택하고 `K8S.CLUSTER`에 설정
+- **매칭 2개 이상** → 사용자에게 선택 요청:
+
+<!--ASK_USER-->
+{"title":"K8s 클러스터 선택","questions":[
+  {"question":"{CLOUD}에 연결된 클러스터가 여러 개 감지되었습니다. 배포 대상 클러스터를 선택하세요.","type":"radio","options":["{감지된 컨텍스트 목록}"]}
+]}
+<!--/ASK_USER-->
+
+- **매칭 0개** → 클러스터가 감지되지 않음을 안내하고, `{PLUGIN_DIR}/resources/references/create-k8s.md`를 참조하여 클러스터 생성 및 kubeconfig 등록을 요청
+
+**컨텍스트 전환 및 클러스터명 추출:**
+```bash
+kubectx {선택된 컨텍스트}
+```
+
+클러스터명은 컨텍스트 이름에서 추출한다:
+- AWS: `arn:aws:eks:{region}:{account}:cluster/{클러스터명}` → 마지막 `/` 뒤
+- Azure: 컨텍스트 이름 자체가 클러스터명
+- GCP: `gke_{project}_{region}_{클러스터명}` → 마지막 `_` 뒤
+
+**NAMESPACE 결정:**
+
+네임스페이스는 `{ROOT}` (프로젝트명, CLAUDE.md의 시스템명)를 기본값으로 사용한다.
+
 #### [실행정보] 조립 규칙
 
 수집된 정보를 아래 템플릿에 따라 `[실행정보]`로 조립한다.
@@ -218,6 +280,9 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
   - KEY파일: {~/.ssh/config IdentityFile}
   - USERID: {~/.ssh/config User}
   - IP: {~/.ssh/config HostName}
+- K8S
+  - CLUSTER: {클러스터명}
+  - NAMESPACE: {네임스페이스}
 ```
 
 **AWS ECR:**
@@ -232,6 +297,9 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
   - KEY파일: {~/.ssh/config IdentityFile}
   - USERID: {~/.ssh/config User}
   - IP: {~/.ssh/config HostName}
+- K8S
+  - CLUSTER: {클러스터명}
+  - NAMESPACE: {네임스페이스}
 ```
 
 **Azure ACR:**
@@ -245,6 +313,9 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
   - KEY파일: {~/.ssh/config IdentityFile}
   - USERID: {~/.ssh/config User}
   - IP: {~/.ssh/config HostName}
+- K8S
+  - CLUSTER: {클러스터명}
+  - NAMESPACE: {네임스페이스}
 ```
 
 **Google GCR:**
@@ -260,16 +331,12 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
   - KEY파일: {~/.ssh/config IdentityFile}
   - USERID: {~/.ssh/config User}
   - IP: {~/.ssh/config HostName}
+- K8S
+  - CLUSTER: {클러스터명}
+  - NAMESPACE: {네임스페이스}
 ```
 
 > `{ROOT}`는 CLAUDE.md의 시스템명을 참조하여 결정한다.
-
-### 배포 대상 클러스터
-
-| 옵션 | 설명 | 참조 가이드 (K8s 배포) |
-|------|------|----------------------|
-| AKS (Azure) | Azure Kubernetes Service 클러스터 배포 | `deploy-k8s-back.md`, `deploy-k8s-front.md`, `deploy-k8s-ai.md` |
-| Minikube | Minikube/Generic K8s 클러스터 배포 (SSH 터널링) | `deploy-k8s-back-minikube.md`, `deploy-k8s-front-minikube.md`, `deploy-k8s-ai-minikube.md` |
 
 ### CI/CD 파이프라인 유형
 
@@ -281,7 +348,6 @@ Step 3(컨테이너 실행 검증) 이전에 이미지 레지스트리 유형과
 | ArgoCD | GitOps 방식 CI/CD 분리 (매니페스트 레포지토리 활용) | `deploy-argocd-cicd.md` |
 
 ### 환경 선택 분기 규칙
-
 1. `[실행정보]`에 `레지스트리유형`이 있으면 해당 유형에 맞는 이미지 경로 체계(`REGISTRY_URL`)를 사용
 2. `[실행정보]`에 `ACR_NAME` 또는 `AKS_CLUSTER`가 있으면 **AKS** 경로 선택 (`레지스트리유형: ACR`과 동일 효과)
 3. `[실행정보]`에 `VM_IP` 또는 `MINIKUBE_IP`가 있으면 **Minikube** 경로 선택
@@ -393,12 +459,12 @@ scp .env {VM.HOST}:~/workspace/{ROOT}/.env
 > `.env`는 `.gitignore`에 포함되어 git으로 전달되지 않으므로 `scp`로 직접 복사한다.
 > AI 서비스 컨테이너 실행 시 `--env-file`로 참조한다.
 
-#### Step 3-0. VM 백킹서비스 배포 (선행)
+#### VM 백킹서비스 배포 (선행)
 
 - **GUIDE**: `resources/guides/deploy/backing-service/backing-service-container.md` 참조
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: VM에 SSH 접속하여 docker-compose로 백킹서비스(DB, Redis, MQ)를 기동하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
-- **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-result.md` 작성
+- **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-container-result.md` 작성
 
 > 백킹서비스가 정상 기동된 후에야 아래 애플리케이션 컨테이너 실행이 가능하다.
 
@@ -441,14 +507,18 @@ ssh {VM.HOST} "cd ~/workspace/{ROOT} \
 git pull
 ```
 
-### Step 4. 물리 아키텍처 설계 → Agent: architect (`/ralph` 활용)
+### Step 4. Kubernetes 배포 → Agent: devops-engineer (`/ralph` 활용)
 
-- **GUIDE**: `resources/guides/design/physical-architecture-design.md` 참조
-- **TASK**: 개발·운영 환경별 K8s 인프라·네트워크·배포 구조를 Mermaid 다이어그램과 함께 설계하고 문법 검증 수행. Cloud 환경은 `docs/design/high-level-architecture.md`의 Cloud 서비스 선택을 참조
-  - **AI 검토**: 설계 완료 후 ai-engineer가 AI 서비스 Pod 리소스, GPU/메모리 요구사항, AI 외부 API 네트워크 설정을 검토
-- **EXPECTED OUTCOME**: `docs/design/physical/physical-architecture.md`, `physical-architecture-dev.md`, `physical-architecture-prod.md`, `physical-architecture-dev.mmd`, `physical-architecture-prod.mmd`, `network-dev.mmd`, `network-prod.mmd`
+#### K8s 백킹서비스 배포 (선행)
 
-### Step 5. Kubernetes 배포 → Agent: devops-engineer (`/ralph` 활용)
+- **GUIDE**: `resources/guides/deploy/backing-service/backing-service-k8s.md` 참조
+- **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
+- **TASK**: K8s 클러스터에 kubectl/helm으로 백킹서비스(DB, Redis)를 Bitnami Helm 차트로 설치하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
+- **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-k8s-result.md` 작성
+
+> 백킹서비스가 K8s 클러스터에 정상 배포된 후에야 아래 애플리케이션 K8s 배포가 가능하다.
+
+#### TASK: K8s 매니페스트 작성 및 배포
 
 - **GUIDE**:
   - AKS: `resources/guides/deploy/deploy-k8s-back.md`, `resources/guides/deploy/deploy-k8s-front.md`, `resources/guides/deploy/deploy-k8s-ai.md`
@@ -457,7 +527,7 @@ git pull
 - **TASK**: K8s Deployment, Service, Ingress 매니페스트를 작성하고 배포
 - **EXPECTED OUTCOME**: `deploy/k8s/` 매니페스트 파일 생성, 배포 성공
 
-### Step 6. CI/CD 파이프라인 구성 → Agent: devops-engineer (`/ralph` 활용)
+### Step 5. CI/CD 파이프라인 구성 → Agent: devops-engineer (`/ralph` 활용)
 
 - **GUIDE**:
   - GitHub Actions (AKS): `resources/guides/deploy/deploy-actions-cicd-back.md`, `resources/guides/deploy/deploy-actions-cicd-front.md`
@@ -468,7 +538,7 @@ git pull
 - **TASK**: 선택된 CI/CD 유형에 따라 파이프라인을 구성
 - **EXPECTED OUTCOME**: CI/CD 파이프라인 설정 파일 생성
 
-#### Step 6 산출물 (CI/CD 유형별)
+#### Step 5 산출물 (CI/CD 유형별)
 
 | CI/CD 유형 | 산출물 |
 |-----------|--------|
@@ -477,7 +547,7 @@ git pull
 | Jenkins | `deployment/cicd/Jenkinsfile` (백엔드/프론트엔드), `deployment/cicd/kustomize/*`, `deployment/cicd/config/*` |
 | ArgoCD | `deployment/cicd/Jenkinsfile_ArgoCD` 또는 `.github/workflows/*_ArgoCD.yaml`, 매니페스트 레포지토리 구성 |
 
-### Step 7. 배포 완료 보고
+### Step 6. 배포 완료 보고
 
 ```
 ## 배포 완료
@@ -520,8 +590,8 @@ git pull
 
 ## 완료 조건
 
-- [ ] 모든 워크플로우 단계(Step 1~7)가 정상 완료됨
-- [ ] VM 백킹서비스 배포 완료 (`docs/deploy/backing-service-result.md` 생성)
+- [ ] 모든 워크플로우 단계(Step 1~6)가 정상 완료됨
+- [ ] VM 백킹서비스 배포 완료 (`docs/deploy/backing-service-container-result.md` 생성)
 - [ ] 컨테이너 실행 검증 완료 (`docs/deploy/run-container-{back,front,ai}-result.md` 생성)
 - [ ] 물리 아키텍처 설계서(`docs/design/physical/`)가 생성됨
 - [ ] Dockerfile(백엔드/프론트엔드/AI 서비스)이 생성되고 빌드 성공

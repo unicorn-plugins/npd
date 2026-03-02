@@ -13,7 +13,7 @@ TripGen 서비스의 개발환경에서 비동기 메시징 시스템 구축을 
 ### 1.3 관련 문서
 - 외부시퀀스설계서: `design/backend/sequence/outer/*.puml`
 - 물리아키텍처: `design/backend/physical/physical-architecture-dev.md`
-- 백킹서비스설치방법: `references/백킹서비스설치방법.md`
+- 백킹서비스설치방법: `references/install-backing-service-k8s.md`
 
 ## 2. 요구사항 분석
 

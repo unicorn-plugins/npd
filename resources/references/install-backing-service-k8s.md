@@ -1,5 +1,5 @@
-# 백킹서비스설치방법
-- [백킹서비스설치방법](#백킹서비스설치방법)
+# Install Backing Service on K8s
+- [Install Backing Service on K8s](#install-backing-service-on-k8s)
   - [1. Database 설치(VM)](#1-database-설치vm)
     - [1) Postgres](#1-postgres)
       - [1. PostgreSQL 14 저장소 추가](#1-postgresql-14-저장소-추가)
@@ -361,8 +361,8 @@ sudo tail -f /var/log/redis/redis-server.log
 
 ## 2. Database 설치(k8s Pod)
 
-주요 Database를 AKS에 설치하는 방법을 가이드합니다.  
-Local Ubuntu 또는 Bastion VM에 로그인하여 작업하십시오.
+주요 Database를 K8s 클러스터(EKS/AKS/GKE)에 Helm 차트로 설치하는 방법을 가이드합니다.
+설치는 로컬에서 수행합니다.
 
 ### Bitnami helm registry 추가
 ```bash
@@ -371,6 +371,16 @@ helm repo ls
 helm repo add bitnami https://charts.bitnami.com/bitnami
 helm repo update
 ```
+
+> **중요**: 2025년 9월 이후 `docker.io/bitnami/*` 이미지는 삭제되었습니다.
+> 반드시 `bitnamilegacy/*` 이미지를 사용하세요. values.yaml에서 명시적으로 지정합니다:
+> ```yaml
+> image:
+>   registry: docker.io
+>   repository: bitnamilegacy/{서비스명}
+> ```
+> Helm 차트 레포(`https://charts.bitnami.com/bitnami`)는 기존 버전이 계속 제공됩니다.
+> `bitnamilegacy` 이미지는 보안 업데이트가 없으므로 교육/실습 용도로만 사용하세요.
 
 ### 작업 디렉토리 생성
 ```bash
@@ -382,6 +392,16 @@ mkdir -p ~/install && cd ~/install
 k create ns {NAMESPACE}
 kubens {NAMESPACE}
 ```
+
+### 클라우드별 StorageClass
+
+아래 테이블을 참고하여 values.yaml의 `storageClass` 값을 사용하는 클라우드에 맞게 설정합니다.
+
+| 클라우드 | StorageClass (일반) | StorageClass (고성능) | 비고 |
+|---------|--------------------|--------------------|------|
+| AWS EKS | `gp2` | `gp3` | EBS CSI 드라이버 기본 제공 (Auto Mode) |
+| Azure AKS | `managed` | `managed-premium` | AKS Automatic 기본 제공 |
+| GCP GKE | `standard-rwo` | `premium-rwo` | GKE Autopilot 기본 제공 |
 
 ### 1) MongoDB
 
@@ -420,7 +440,7 @@ resources:
 # 스토리지 설정 
 persistence:
   enabled: true
-  storageClass: "managed"
+  storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
   size: 10Gi
 
 # 성능 최적화 설정
@@ -492,46 +512,22 @@ helm upgrade -i mongo -f values.yaml bitnami/mongodb --version 14.3.2
 watch kubectl get po
 ```
 
-#### 외부 접속을 위한 service 생성
-mongo-external.yaml 작성:
+#### 외부 접속 (port-forward)
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: mongo-external
-spec:
-  type: LoadBalancer
-  ports:
-    - name: mongodb
-      port: 27017
-      targetPort: 27017
-  selector:
-    app.kubernetes.io/component: mongodb
-    app.kubernetes.io/name: mongodb
-```
+LoadBalancer Service를 생성하지 않고 `kubectl port-forward`로 로컬에서 접속합니다.
 
-#### Service 객체 생성
 ```bash
-k apply -f mongo-external.yaml
-```
-
-#### L/B IP 확인
-```bash
-k get svc
+kubectl port-forward svc/mongo-mongodb 27017:27017
 ```
 
 #### 로컬에서 접속 테스트
-아래 사이트에서 Compass 설치:  
+아래 사이트에서 Compass 설치:
 https://www.mongodb.com/try/download/compass
 
-실행 후 아래와 같이 연결 문자열 입력하여 연결. IP는 위 service의 L/B IP로 바꿔야 함:
+실행 후 아래와 같이 연결 문자열 입력하여 연결 (port-forward 실행 중):
 ```
-mongodb://root:Hi5Jessica!@20.249.187.207:27017/?directConnection=true&authSource=admin
+mongodb://root:Hi5Jessica!@localhost:27017/?directConnection=true&authSource=admin
 ```
-![](images/2025-07-23-19-43-12.png)
-
-![](images/2025-07-23-19-44-02.png) 
 
 ### 2) Postgres
 
@@ -556,15 +552,15 @@ global:
       database: "telecomdb"
       username: "telecomuser"
       password: "Hi5Jessica!"
-  storageClass: "managed-premium"
-  
+  storageClass: "managed-premium"  # Azure AKS. EKS: "gp3", GKE: "premium-rwo"
+
 # Primary 설정
 primary:
   persistence:
     enabled: true
-    storageClass: "managed-premium"
+    storageClass: "managed-premium"  # Azure AKS. EKS: "gp3", GKE: "premium-rwo"
     size: 10Gi
-  
+
   resources:
     limits:
       memory: "4Gi"
@@ -595,7 +591,7 @@ readReplicas:
  
   persistence:
     enabled: true
-    storageClass: "managed-premium"
+    storageClass: "managed-premium"  # Azure AKS. EKS: "gp3", GKE: "premium-rwo"
     size: 10Gi
 
   resources:
@@ -603,10 +599,10 @@ readReplicas:
       memory: "2Gi"
       cpu: "1"
     requests:
-      memory: "1Gi" 
+      memory: "1Gi"
       cpu: "0.5"
 
-  # 성능 최적화 설정  
+  # 성능 최적화 설정
   extraEnvVars:
     - name: POSTGRESQL_SHARED_BUFFERS
       value: "1GB"
@@ -656,42 +652,17 @@ helm upgrade -i postgres -f values.yaml bitnami/postgresql --version 14.3.2
 watch kubectl get po
 ```
 
-#### 외부 접속을 위한 service 생성
-postgres-external.yaml 작성:
+#### 외부 접속 (port-forward)
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: postgres-external
-spec:
-  ports:
-  - name: tcp-postgresql
-    port: 5432
-    protocol: TCP
-    targetPort: tcp-postgresql
-  selector:
-    app.kubernetes.io/component: primary
-    app.kubernetes.io/instance: postgres
-    app.kubernetes.io/name: postgresql
-  sessionAffinity: None
-  type: LoadBalancer
-```
+LoadBalancer Service를 생성하지 않고 `kubectl port-forward`로 로컬에서 접속합니다.
 
-#### Service 객체 생성
 ```bash
-k apply -f postgres-external.yaml
-```
-
-#### L/B IP 확인
-```bash
-k get svc
+kubectl port-forward svc/postgres-postgresql 5432:5432
 ```
 
 #### 로컬에서 접속 테스트
-DBeaver를 실행하고 Postgres용 연결 설정 파일을 만들어 테스트합니다.  
-Host는 위 service 객체의 L/B IP이고, id와 pw는 values.yaml에 지정한 값을 사용합니다.
-![](images/2025-07-23-19-45-30.png)
+DBeaver를 실행하고 Postgres용 연결 설정 파일을 만들어 테스트합니다.
+Host는 `localhost`, Port는 `5432`, id와 pw는 values.yaml에 지정한 값을 사용합니다 (port-forward 실행 중).
 
 ### 3) Redis
 
@@ -712,7 +683,7 @@ auth:
 master:
   persistence:
     enabled: true
-    storageClass: "managed"
+    storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
     size: 10Gi
 
   configuration: |
@@ -734,7 +705,7 @@ replica:
   replicaCount: 2
   persistence:
     enabled: true
-    storageClass: "managed"
+    storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
     size: 10Gi
   configuration: |
     maxmemory 1610612736
@@ -783,52 +754,23 @@ helm upgrade -i redis -f values.yaml bitnami/redis --version 18.4.0
 watch kubectl get po
 ```
 
-#### 외부 접속을 위한 service 생성
-redis-external.yaml 작성:
+#### 외부 접속 (port-forward)
 
-```yaml
-apiVersion: v1
-kind: Service
-metadata:
-  name: redis-external
-spec:
-  ports:
-  - name: tcp-redis
-    port: 6379
-    protocol: TCP
-    targetPort: redis
-  - name: tcp-sentinel
-    port: 26379
-    protocol: TCP
-    targetPort: redis-sentinel
-  publishNotReadyAddresses: true
-  selector:
-    app.kubernetes.io/instance: redis
-    app.kubernetes.io/name: redis
-  sessionAffinity: None
-  type: LoadBalancer
-```
+LoadBalancer Service를 생성하지 않고 `kubectl port-forward`로 로컬에서 접속합니다.
 
-#### Service 객체 생성
 ```bash
-k apply -f redis-external.yaml
-```
-
-#### L/B IP 확인
-```bash
-k get svc
+kubectl port-forward svc/redis-master 6379:6379
 ```
 
 #### 로컬에서 접속 테스트
-아래 사이트에서 redis insight를 다운로드하여 설치합니다:  
+아래 사이트에서 redis insight를 다운로드하여 설치합니다:
 https://redis.io/insight/
 
-아래와 같이 셋팅하고 연결 테스트를 합니다.  
-IP는 위에서 생성한 L/B IP이고, 암호는 values.yaml에 지정한 값입니다:
+아래와 같이 셋팅하고 연결 테스트를 합니다 (port-forward 실행 중).
+암호는 values.yaml에 지정한 값입니다:
 ```
-redis://:Password@20.249.200.253:6379
+redis://:Password@localhost:6379
 ```
-![](images/2025-07-23-19-46-00.png) 
 
 ---
 
