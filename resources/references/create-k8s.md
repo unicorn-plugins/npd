@@ -17,6 +17,15 @@
   - [테스트](#테스트)
   - [비용절감을 위한 팁](#비용절감을-위한-팁)
 - [Azure](#azure)
+  - [시작](#시작-1)
+  - [클러스터 생성](#클러스터-생성-1)
+    - [Portal에서 생성](#portal에서-생성)
+  - [Credential 획득](#credential-획득-1)
+  - [Ingress 설정](#ingress-설정)
+  - [커스텀 노드풀(NodePool) 생성](#커스텀-노드풀nodepool-생성-1)
+  - [테스트](#테스트-1)
+  - [비용절감을 위한 팁](#비용절감을-위한-팁-1)
+    - [클러스터 삭제](#클러스터-삭제)
 
 
 ---
@@ -578,7 +587,267 @@ k delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/mai
 ---
 
 # Azure
+## 시작
+- https://portal.azure.com 로그인
+- 상단 검색바에 'AKS'입력하여 'Kubernetes 서비스 - 자동' 선택
+- '만들기' 클릭 후 **'자동 Kubernetes 클러스터'** 선택
 
+## 클러스터 생성
+AKS Automatic으로 AKS를 생성합니다.
+AKS Automatic은 k8s Control Plane과 Worker 노드를 Azure가 알아서 관리해주는 모드입니다.
+```
+AKS Automatic = "인프라는 Azure가, 앱은 내가"
+
+기존 AKS                        AKS Automatic
+──────────────────────────────────────────────
+노드 직접 생성/관리      →      Azure가 자동 생성/관리(NAP)
+CNI 직접 설치           →      Azure CNI Overlay + Cilium 자동
+Ingress Controller 설치  →      app-routing addon 내장
+노드 스케일링 설정       →      Pod 배포하면 자동 스케일
+OS 패치/업데이트        →      Azure가 자동 처리
+
+사용자가 할 일: Pod 배포만! (IngressClass도 자동 생성됨)
+```
+> AKS의 Control Plane은 과금되지 않음  
+  
+### Portal에서 생성
+- 사전작업: Control Plane 노드에서 사용할 vCPU 할당
+  - 홈에서 '구독' 아이콘 클릭 후 구독 선택 
+  - 좌측 메뉴에서 '설정 > 사용량 및 할당량' 클릭
+  - 우측 목록 상단에서 '지역'을 'Korea Central'로 변경하고 '검색'바에 '표준 DLDSv5 제품군 vCPU'을 입력 
+  - 체크하고 상단의 '새 할당량 요청' 수행  
+  - 선택이 안되는 제품군은 할당량 조정이 안되는것임. DADSv5, DDSv5, DDv5순으로 찾아서 할당량 조정 시도 
+
+- 기본탭
+  - 구독: 본인 구독 선택
+  - 리소스그룹: 본인 리소스 그룹 선택 또는 새로 만들기
+  - 클러스터 이름: 팀 프로젝트 수행 시는 'aks-{Team ID}'로 개인 프로젝트 수행 시는 'aks-{개인ID}'
+  - 지역: Korea Central
+- 모니터링탭: 
+  - 컨테이너 로그 사용: 체크. 비용 사전 설정을 '비용 최적화'로 변경
+  - Prometheus 메트릭 사용: 언체크
+  - Grafana 사용: 언체크
+  - ACNS를 사용하여 컨테이너 네트워크 가시성 사용: 언체크
+  - 권장 경고 규칙 사용: 체크
+- 고급탭: 
+  - ACNS를 사용하여 컨테이너 네트워크 보안 사용: 언체크
+- '만들기' 클릭 (생성까지 약 5~10분 소요)
+  
+## Credential 획득 
+
+**1.kubelogin CLI 설치**    
+Window Powershell
+```
+winget install --id Microsoft.Azure.Kubelogin
+```
+
+Mac:
+```
+brew install Azure/kubelogin/kubelogin
+```
+
+Linux:
+```
+curl -LO https://github.com/Azure/kubelogin/releases/latest/download/kubelogin-linux-amd64.zip
+unzip kubelogin-linux-amd64.zip
+sudo mv bin/linux_amd64/kubelogin /usr/local/bin/
+```
+
+**2.로그인**     
+```
+az login
+```
+> 최초 실행 시 브라우저에서 Device Login 인증이 필요합니다. https://microsoft.com/devicelogin 접속하여 표시된 코드를 입력합니다.
+  
+**3.Credential 취득**     
+```
+az aks get-credentials \
+  --resource-group {리소스그룹명} \
+  --name {AKS-name}
+```
+```
+kubelogin convert-kubeconfig -l azurecli
+```
+
+**4.확인**       
+아래 명령으로 정상 접근 확인
+```
+kubectl get nodes
+```
+
+## Ingress 설정
+AKS Automatic에는 app-routing addon(관리형 NGINX Ingress Controller)이 기본 내장되어 있습니다.
+IngressClass `webapprouting.kubernetes.azure.com`이 자동 생성되므로 **별도 설정이 필요없습니다**.
+AWS EKS Auto Mode와 다르게 Subnet 태그 등록이나 IngressClass 수동 생성이 필요없습니다.
+
+확인:
+```
+kubectl get ingressclass
+```
+결과예시:
+```
+NAME                                    CONTROLLER                                   PARAMETERS   AGE
+webapprouting.kubernetes.azure.com      webapprouting.kubernetes.azure.com/nginx      <none>       5m
+```
+
+---
+
+## 커스텀 노드풀(NodePool) 생성
+AKS Automatic은 NAP(Node Auto Provisioning)을 사용하며 이는 Karpenter 기반입니다.
+기본 NodePool이 자동 생성되지만, 커스텀 NodePool을 추가로 만들 수 있습니다.
+'CAPACITY_TYPE'을 spot으로 지정하면 Azure가 자원이 부족하면 노드가 없어질 위험이 있습니다.
+하지만 비용이 평균 60~90% 싸기 때문에 교육시에 잠깐 쓰는 목적으로는 권장됩니다.
+```
+# ============================================================
+# 변수 설정
+# ============================================================
+NODEPOOL_NAME="service"          # 노드풀 이름
+CAPACITY_TYPE="spot"             # spot 또는 on-demand
+
+# ============================================================
+# NodePool 생성
+# ============================================================
+cat <<EOF | kubectl apply -f -
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: ${NODEPOOL_NAME}
+  labels:
+    agentpool: ${NODEPOOL_NAME}
+spec:
+  limits:
+    cpu: 32
+    memory: 128Gi
+  disruption:
+    consolidationPolicy: WhenEmptyOrUnderutilized
+    consolidateAfter: 1m
+  template:
+    metadata:
+      labels:
+        agentpool: ${NODEPOOL_NAME}
+    spec:
+      nodeClassRef:
+        group: karpenter.azure.com
+        kind: AKSNodeClass
+        name: default
+      requirements:
+        - key: karpenter.azure.com/sku-family
+          operator: In
+          values: ["D"]
+        - key: karpenter.azure.com/sku-version
+          operator: In
+          values: ["5"]
+        - key: karpenter.sh/capacity-type
+          operator: In
+          values: ["${CAPACITY_TYPE}"]
+        - key: kubernetes.io/arch
+          operator: In
+          values: ["amd64"]
+EOF
+```
+
+## 테스트
+**1.Ingress 테스트**
+Ingress, Service, Deployment 배포
+AKS Automatic의 IngressClass인 `webapprouting.kubernetes.azure.com`을 사용합니다.
+```
+
+```
+아래 명령으로 URL 확인
+```
+kubectl get ing
+```
+약 2~3분 후에 ADDRESS의 IP로 접근하여 nginx 페이지 열리는지 확인
+
+**2.SSL Proxying 테스트**
+~/.ssh/config 파일에 있는 Alias로 Web서버를 접근합니다.
+```
+ssh {alias}
+```
+
+SERVER_NAME과 PROXY_TARGET 값을 변경합니다.
+SERVER_NAME은 Host명이고 web.{VM IP}.nip.io 형식입니다.
+PROXY_TARGET은 Ingress ADDRESS값입니다.
+
+```
+# 변수 설정
+SERVER_NAME="web.20.249.211.13.nip.io"
+PROXY_TARGET="http://{Ingress ADDRESS IP}"
+
+cat << EOF | sudo tee /etc/nginx/sites-available/default
+# 80 → 443 리다이렉트
+server {
+  listen 80;
+  server_name ${SERVER_NAME};
+  return 301 https://\$host\$request_uri;
+}
+
+# 443 Proxy
+server {
+  listen 443 ssl;
+  server_name ${SERVER_NAME};
+  ssl_certificate /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+  ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+  ssl_protocols TLSv1.2 TLSv1.3;
+  ssl_ciphers HIGH:!aNULL:!MD5;
+  root /var/www/html;
+  index index.html;
+
+  location / {
+    proxy_pass ${PROXY_TARGET};
+    proxy_ssl_verify off;
+    proxy_buffer_size 64k;
+    proxy_buffers 4 64k;
+    proxy_busy_buffers_size 64k;
+    proxy_set_header Host \$host;
+    proxy_set_header X-Real-IP \$remote_addr;
+    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto \$scheme;
+    proxy_read_timeout 60s;
+    proxy_connect_timeout 60s;
+    proxy_send_timeout 60s;
+  }
+}
+EOF
+```
+
+nginx 서버 재시작
+```
+sudo nginx -t
+sudo systemctl reload nginx
+```
+
+웹브라우저에서 'https://{domain}'로 접근하여 정상적으로 표시되는지 확인합니다.
+
+**3.리소스 삭제**
+확인 후 리소스 삭제
+```
+kubectl delete deploy test-app
+kubectl delete svc my-service
+kubectl delete ing my-ingress
+```
+
+## 비용절감을 위한 팁
+AWS EKS와 달리 AKS는 클러스터 자체를 정지시킬 수 있습니다.
+Control plane과 Worker 노드를 모두 정지하여 비용을 최소화 할 수 있습니다.
+
+- 클러스터 정지
+  ```
+  az aks stop --resource-group {리소스그룹명} --name {AKS-name}
+  ```
+- 클러스터 시작
+  ```
+  az aks start --resource-group {리소스그룹명} --name {AKS-name}
+  ```
+
+> 주의: 정지된 클러스터의 상태는 최대 12개월까지 유지됩니다. 12개월 이상 정지 시 상태가 삭제될 수 있습니다.
+> 정지 중에도 디스크 스토리지 비용은 발생합니다.
+
+### 클러스터 삭제
+더 이상 사용하지 않는 경우 리소스 그룹을 삭제합니다.
+```
+az group delete --name {리소스그룹명} --yes --no-wait
+```
 
 ---
 
