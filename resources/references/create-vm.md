@@ -107,11 +107,15 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
   확실하게 확인   
   - 'VM 인스턴스'목록의 '연결'컬럼의 SSH 우측 클릭하고 '브라우저 창에서 열기' 선택 
   - '@'앞에 있는것이 OS User명 
-- SSH Key: 
-	SSH Key 생성: ~/.ssh에 gcp_key, gcp_key.pub 파일 생성  	
+- SSH Key:
+	SSH Key 생성: ~/.ssh에 gcp_key(개인키), gcp_key.pub(공개키) 파일 생성
+	```
+	ssh-keygen -t rsa -b 4096 -f ~/.ssh/gcp_key -C "{USER}" -N ""
+	```
+	접속 테스트:
 	```
 	ssh {USER}@{외부IP} -i ~/.ssh/gcp_key
-	``` 
+	```
 - SSH Key 업데이트   
 	```
 	gcloud compute instances add-metadata VM_NAME \
