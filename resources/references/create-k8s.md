@@ -821,12 +821,19 @@ kubectl delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/hea
 ```
 
 ## 비용절감을 위한 팁
-AKS Automatic 모드는 `az aks stop`을 지원하지 않습니다.
-따라서 사용하지 않을 때는 클러스터를 삭제하는 것이 유일한 비용절감 방법입니다.
+AKS Automatic 모드는 중단 시킬수가 없습니다.  
+따라서 사용하지 않을 때는 배포된 Pod를 모두 삭제하여 워커 노드를 없애야 합니다.  
+또한 더 이상 사용하지 않으면 클러스터를 삭제하는 것이 가장 좋은 비용절감 방법입니다.
 
 - 배포한 리소스 삭제
   배포한 Pod가 모두 사라지면 커스텀 노드풀(service)의 노드도 자동으로 삭제됩니다.
   하지만 시스템 노드풀은 유지되므로 비용이 계속 발생합니다.
+
+- 시스템 노드풀 스케일링
+  시스템 노드풀을 1개로 줄여 비용을 절감할 수 있습니다. (0개는 불가)
+  ```
+  az aks nodepool scale --resource-group {리소스그룹명} --cluster-name {AKS-name} --name systempool --node-count 1
+  ```
 
 - 클러스터 삭제
   더 이상 사용하지 않는 경우 클러스터를 삭제합니다.
