@@ -112,9 +112,9 @@ ex) ssh azureuser@20.249.211.13 -i ~/workspace/ssh-key/my-vm.pem
 	```
 	ssh-keygen -t rsa -b 4096 -f ~/.ssh/gcp_key -C "{USER}" -N ""
 	```
-	접속 테스트:
+	Read Only로 변경:
 	```
-	ssh {USER}@{외부IP} -i ~/.ssh/gcp_key
+	chmod 400 ~/.ssh/gcp_key
 	```
 - SSH Key 업데이트   
 	```
@@ -140,6 +140,7 @@ ex) ssh hiondal@34.64.192.123 -i ~/.ssh/gcp_key
 - 'VM 인스턴스'목록의 '내부IP'컬럼의 'nic0' 클릭
 - VPC 방화벽 규칙의 'VPC 방화벽 규칙 만들기' 클릭 
 - 소스 IPv4범위: 0.0.0.0/0
+- 대상 태그: any
 - 프로토콜 및 포트: 모두 허용  
   필요한 포트만 오픈하는게 맞으나 교육용이므로 모든 포트 오픈 
 
