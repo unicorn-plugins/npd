@@ -25,7 +25,6 @@
   - [커스텀 노드풀(NodePool) 생성](#커스텀-노드풀nodepool-생성-1)
   - [테스트](#테스트-1)
   - [비용절감을 위한 팁](#비용절감을-위한-팁-1)
-    - [클러스터 삭제](#클러스터-삭제)
 
 
 ---
@@ -274,7 +273,7 @@ Web서버 VM에서 수행합니다.
     index index.html;
 
     location / {
-      //proxy_pass ${PROXY_TARGET};
+      #proxy_pass ${PROXY_TARGET};
       proxy_ssl_verify off;
       proxy_buffer_size 64k;
       proxy_buffers 4 64k;
@@ -818,32 +817,22 @@ sudo systemctl reload nginx
 **3.리소스 삭제**
 확인 후 리소스 삭제
 ```
-kubectl delete deploy test-app
-kubectl delete svc my-service
-kubectl delete ing my-ingress
+kubectl delete -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/k8s/sample-webapprouting-test.yaml
 ```
 
 ## 비용절감을 위한 팁
-AWS EKS와 달리 AKS는 클러스터 자체를 정지시킬 수 있습니다.
-Control plane과 Worker 노드를 모두 정지하여 비용을 최소화 할 수 있습니다.
+AKS Automatic 모드는 `az aks stop`을 지원하지 않습니다.
+따라서 사용하지 않을 때는 클러스터를 삭제하는 것이 유일한 비용절감 방법입니다.
 
-- 클러스터 정지
-  ```
-  az aks stop --resource-group {리소스그룹명} --name {AKS-name}
-  ```
-- 클러스터 시작
-  ```
-  az aks start --resource-group {리소스그룹명} --name {AKS-name}
-  ```
+- 배포한 리소스 삭제
+  배포한 Pod가 모두 사라지면 커스텀 노드풀(service)의 노드도 자동으로 삭제됩니다.
+  하지만 시스템 노드풀은 유지되므로 비용이 계속 발생합니다.
 
-> 주의: 정지된 클러스터의 상태는 최대 12개월까지 유지됩니다. 12개월 이상 정지 시 상태가 삭제될 수 있습니다.
-> 정지 중에도 디스크 스토리지 비용은 발생합니다.
-
-### 클러스터 삭제
-더 이상 사용하지 않는 경우 리소스 그룹을 삭제합니다.
-```
-az group delete --name {리소스그룹명} --yes --no-wait
-```
+- 클러스터 삭제
+  더 이상 사용하지 않는 경우 클러스터를 삭제합니다.
+  ```
+  az aks delete --resource-group {리소스그룹명} --name {AKS-name} --yes --no-wait
+  ```
 
 ---
 
