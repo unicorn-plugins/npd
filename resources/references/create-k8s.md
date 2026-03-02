@@ -695,14 +695,13 @@ webapprouting.kubernetes.azure.com      webapprouting.kubernetes.azure.com/nginx
 ## 커스텀 노드풀(NodePool) 생성
 AKS Automatic은 NAP(Node Auto Provisioning)을 사용하며 이는 Karpenter 기반입니다.
 기본 NodePool이 자동 생성되지만, 커스텀 NodePool을 추가로 만들 수 있습니다.
-'CAPACITY_TYPE'을 spot으로 지정하면 Azure가 자원이 부족하면 노드가 없어질 위험이 있습니다.
-하지만 비용이 평균 60~90% 싸기 때문에 교육시에 잠깐 쓰는 목적으로는 권장됩니다.
+'CAPACITY_TYPE'은 on-demand만 지원합니다.  
 ```
 # ============================================================
 # 변수 설정
 # ============================================================
 NODEPOOL_NAME="service"          # 노드풀 이름
-CAPACITY_TYPE="spot"             # spot 또는 on-demand
+CAPACITY_TYPE="on-demand"             # on-demand만 지원
 
 # ============================================================
 # NodePool 생성
@@ -734,9 +733,6 @@ spec:
         - key: karpenter.azure.com/sku-family
           operator: In
           values: ["D"]
-        - key: karpenter.azure.com/sku-version
-          operator: In
-          values: ["5"]
         - key: karpenter.sh/capacity-type
           operator: In
           values: ["${CAPACITY_TYPE}"]
@@ -751,13 +747,13 @@ EOF
 Ingress, Service, Deployment 배포
 AKS Automatic의 IngressClass인 `webapprouting.kubernetes.azure.com`을 사용합니다.
 ```
-
+kubectl apply -f https://raw.githubusercontent.com/unicorn-plugins/npd/refs/heads/main/resources/samples/k8s/sample-webapprouting-test.yaml
 ```
 아래 명령으로 URL 확인
 ```
 kubectl get ing
 ```
-약 2~3분 후에 ADDRESS의 IP로 접근하여 nginx 페이지 열리는지 확인
+약 3~5분 후에 ADDRESS의 IP로 접근하여 nginx 페이지 열리는지 확인
 
 **2.SSL Proxying 테스트**
 ~/.ssh/config 파일에 있는 Alias로 Web서버를 접근합니다.
