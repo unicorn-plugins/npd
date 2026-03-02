@@ -774,6 +774,8 @@ kubectl get nodes
 ```
 
 ## Ingress 설정
+![](images/azure-aks-ingress-architecture.png)
+
 AKS Automatic에는 app-routing addon(관리형 NGINX Ingress Controller)이 기본 내장되어 있습니다.
 IngressClass `webapprouting.kubernetes.azure.com`이 자동 생성되므로 **별도 설정이 필요없습니다**.
 AWS EKS Auto Mode와 다르게 Subnet 태그 등록이나 IngressClass 수동 생성이 필요없습니다.
@@ -1013,6 +1015,8 @@ kubectl get nodes
 > Autopilot 모드에서는 Pod를 배포하기 전에는 노드가 표시되지 않습니다. 이는 정상입니다.
 
 ## Ingress 설정
+![](images/gcp-gke-ingress-architecture.png)
+
 GKE Autopilot에는 GCE Ingress Controller가 기본 내장되어 있습니다.
 AWS EKS Auto Mode와 다르게 Subnet 태그 등록이나 IngressClass 수동 생성이 필요없습니다.
 IngressClass 리소스는 별도로 생성되지 않지만, Ingress를 생성하면 GCE 컨트롤러가 자동으로 처리합니다.
