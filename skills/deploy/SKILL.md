@@ -89,7 +89,7 @@ Kubernetes 배포 순서로 배포 환경을 구축함.
 
 <!--ASK_USER-->
 {"title":"배포 대상 VM 사전 선택 (자동 진행용)","questions":[
-  {"question":"자동 진행 모드입니다. ~/.ssh/config에 VM Host가 여러 개 감지되었습니다. 배포에 사용할 VM을 선택하세요.","type":"radio","options":["{파싱된 Host alias 목록}"]}
+  {"question":"자동 진행 모드입니다. ~/.ssh/config에 VM Host가 여러 개 감지되었습니다.\n배포에 사용할 VM을 선택하세요.\n\n※ 용도: 컨테이너 빌드·실행 + Web Server (Nginx Proxy)","type":"radio","options":["{파싱된 Host alias 목록}"]}
 ]}
 <!--/ASK_USER-->
 
@@ -140,7 +140,7 @@ Kubernetes 배포 순서로 배포 환경을 구축함.
 
 <!--ASK_USER-->
 {"title":"VM 준비 확인","questions":[
-  {"question":"컨테이너를 실행할 VM이 {CLOUD}에 준비되어 있나요?\n\nVM이 있고 ~/.ssh/config에 접속 정보가 등록되어 있어야 합니다.","type":"radio","options":["준비 완료","아직 없음"]}
+  {"question":"배포용 VM이 {CLOUD}에 준비되어 있나요?\n\n※ 용도: 컨테이너 빌드·실행 + Web Server (Nginx Proxy)\n\nVM이 있고 ~/.ssh/config에 접속 정보가 등록되어 있어야 합니다.","type":"radio","options":["준비 완료","아직 없음"]}
 ]}
 <!--/ASK_USER-->
 
@@ -158,7 +158,7 @@ Kubernetes 배포 순서로 배포 환경을 구축함.
 
 <!--ASK_USER-->
 {"title":"배포 대상 VM 선택","questions":[
-  {"question":"~/.ssh/config에서 배포 대상 VM의 Host를 선택하세요.","type":"radio","options":["{파싱된 Host alias 목록}"]}
+  {"question":"~/.ssh/config에서 배포 대상 VM의 Host를 선택하세요.\n\n※ 용도: 컨테이너 빌드·실행 + Web Server (Nginx Proxy)","type":"radio","options":["{파싱된 Host alias 목록}"]}
 ]}
 <!--/ASK_USER-->
 
@@ -627,7 +627,7 @@ git pull
 
 > **자동 진행 모드 동작**: 아래 사용자 확인 단계(1~3)의 `<!--ASK_USER-->`를 생략하고 자동 처리한다.
 > - **1. Web Server 설치 확인**: `ssh {VM.HOST} 'nginx -v'`로 자동 확인 → 미설치면 에러 중단
-> - **2. VM 선택**: Step 1에서 수집한 `{VM.HOST}`를 `{WEB_SERVER_SSH_HOST}`로 재사용
+> - **2. VM 접속 정보**: `{VM.HOST}`를 `{WEB_SERVER_SSH_HOST}`로 재사용 (동일 VM 전제)
 > - **3. SSL 도메인**: `ssh {WEB_SERVER_SSH_HOST}`로 `/etc/nginx/sites-available/default`의 `server_name` 값을 읽어 자동 사용 → 감지 실패 시 에러 중단
 
 **[사용자 확인 단계]** (스킬이 직접 수행, 자동 진행 모드에서는 위 규칙으로 대체)
@@ -642,17 +642,9 @@ git pull
 
 **"아직 없음"** 선택 시: 가이드 링크를 안내하고 설치 완료 대기.
 
-**2. VM 접속 정보 확인:**
+**2. VM 접속 정보:**
 
-`~/.ssh/config` 파일을 읽어 Host 목록을 파싱한 후 사용자에게 제시:
-
-<!--ASK_USER-->
-{"title":"Web Server VM 선택","questions":[
-  {"question":"Web Server(Nginx)가 설치된 VM을 선택하세요. (K8s 관리 VM과 동일)","type":"radio","options":["{~/.ssh/config에서 파싱된 Host alias 목록}"]}
-]}
-<!--/ASK_USER-->
-
-선택된 값을 `{WEB_SERVER_SSH_HOST}`로 저장.
+Step 1에서 수집한 `{VM.HOST}`를 `{WEB_SERVER_SSH_HOST}`로 재사용한다 (컨테이너 실행 VM = Web Server VM 동일 전제).
 
 **3. SSL 도메인 확인:**
 
