@@ -83,6 +83,26 @@ kubectl get sc
 
 > 교육/실습 환경에서는 일반 StorageClass를 사용한다.
 
+### AKS 환경: Deployment Safeguards 예외 처리
+
+AKS에는 [Deployment Safeguards](https://learn.microsoft.com/en-us/azure/aks/deployment-safeguards)가 기본 활성화되어 있다.
+Bitnami Helm 차트(PostgreSQL, Kafka 등)는 **ClusterIP Service와 Headless Service를 동일한 selector로 생성**하므로,
+`UniqueServiceSelector` Gatekeeper 정책에 의해 설치가 차단될 수 있다.
+
+> **AWS EKS / GCP GKE**에는 이 정책이 기본 활성화되어 있지 않으므로, 아래 조치 없이 Helm 설치가 가능하다.
+
+**해결**: 백킹서비스 네임스페이스를 Deployment Safeguards에서 제외한다.
+
+```bash
+# {CLOUD}가 Azure(AKS)인 경우에만 실행
+az aks update -g <resource-group> -n <cluster-name> \
+  --safeguards-level Warning \
+  --safeguards-excluded-ns {K8S_NAMESPACE}
+```
+
+> `--safeguards-level Warning`은 정책 위반 시 차단하지 않고 경고만 표시한다.
+> AKS Automatic 클러스터에서는 네임스페이스 제외가 불가하므로, raw 매니페스트(StatefulSet + 단일 Service)로 대체 설치한다.
+
 ### 백킹서비스별 Helm 설치
 
 프로젝트에서 사용하는 백킹서비스만 설치한다.

@@ -596,10 +596,89 @@ git pull
 **"직접 입력"** 선택 시: 사용자에게 SSL 도메인을 입력받음 (예: `mydomain.com`, `app.example.co.kr`, `{ID}.{VM Public IP}.nip.io` 등). 확인된 값을 `{SSL_DOMAIN}`으로 저장.
 
 **[자동 실행 단계]** (Agent 위임 가능)
+
 4. **Ingress ADDRESS 확인**: `kubectl get ing -n {K8S_NAMESPACE}`로 Ingress ADDRESS 취득
-5. **Proxy 설정**: Web Server VM(`{WEB_SERVER_SSH_HOST}`)에서 Nginx conf 재생성 (가이드의 "Nginx Web Server Proxy 설정" 섹션 참조)
-6. **Nginx 재시작**: `sudo nginx -t && sudo systemctl reload nginx`
-7. **CORS 확인**: 공통 ConfigMap의 `CORS_ALLOWED_ORIGINS`에 `https://{SSL_DOMAIN}` 포함 여부 확인
+
+5. **API 도메인 SSL 인증서 발급**: K8s Ingress는 프론트엔드(`{SSL_DOMAIN}`)와 백엔드 API(`api.{SSL_DOMAIN}`)를 별도 Host로 분리하므로, API 도메인용 SSL 인증서도 필요하다.
+   ```bash
+   ssh {WEB_SERVER_SSH_HOST} "sudo certbot certonly --nginx -d api.{SSL_DOMAIN} --non-interactive --agree-tos --email noreply@example.com"
+   ```
+   > 이미 `api.{SSL_DOMAIN}` 인증서가 존재하면 이 단계는 건너뛴다.
+
+6. **Proxy 설정**: Web Server VM(`{WEB_SERVER_SSH_HOST}`)에서 Nginx conf를 **프론트엔드 + API 두 개 server 블록**으로 재생성한다.
+   ```bash
+   ssh {WEB_SERVER_SSH_HOST} 'SERVER_NAME="{SSL_DOMAIN}"
+   API_SERVER_NAME="api.{SSL_DOMAIN}"
+   PROXY_TARGET="http://{INGRESS_ADDRESS}"
+
+   cat << EOF | sudo tee /etc/nginx/sites-available/default
+   # 80 → 443 리다이렉트 (Frontend)
+   server {
+     listen 80;
+     server_name ${SERVER_NAME};
+     return 301 https://\$host\$request_uri;
+   }
+   # 80 → 443 리다이렉트 (API)
+   server {
+     listen 80;
+     server_name ${API_SERVER_NAME};
+     return 301 https://\$host\$request_uri;
+   }
+   # 443 Frontend Proxy
+   server {
+     listen 443 ssl;
+     server_name ${SERVER_NAME};
+     ssl_certificate /etc/letsencrypt/live/${SERVER_NAME}/fullchain.pem;
+     ssl_certificate_key /etc/letsencrypt/live/${SERVER_NAME}/privkey.pem;
+     ssl_protocols TLSv1.2 TLSv1.3;
+     ssl_ciphers HIGH:!aNULL:!MD5;
+     root /var/www/html;
+     index index.html;
+     location / {
+       proxy_pass ${PROXY_TARGET};
+       proxy_ssl_verify off;
+       proxy_buffer_size 64k;
+       proxy_buffers 4 64k;
+       proxy_busy_buffers_size 64k;
+       proxy_set_header Host \$host;
+       proxy_set_header X-Real-IP \$remote_addr;
+       proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto \$scheme;
+       proxy_read_timeout 60s;
+       proxy_connect_timeout 60s;
+       proxy_send_timeout 60s;
+     }
+   }
+   # 443 API Proxy
+   server {
+     listen 443 ssl;
+     server_name ${API_SERVER_NAME};
+     ssl_certificate /etc/letsencrypt/live/${API_SERVER_NAME}/fullchain.pem;
+     ssl_certificate_key /etc/letsencrypt/live/${API_SERVER_NAME}/privkey.pem;
+     ssl_protocols TLSv1.2 TLSv1.3;
+     ssl_ciphers HIGH:!aNULL:!MD5;
+     location / {
+       proxy_pass ${PROXY_TARGET};
+       proxy_ssl_verify off;
+       proxy_buffer_size 64k;
+       proxy_buffers 4 64k;
+       proxy_busy_buffers_size 64k;
+       proxy_set_header Host \$host;
+       proxy_set_header X-Real-IP \$remote_addr;
+       proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+       proxy_set_header X-Forwarded-Proto \$scheme;
+       proxy_read_timeout 60s;
+       proxy_connect_timeout 60s;
+       proxy_send_timeout 60s;
+     }
+   }
+   EOF'
+   ```
+   > 두 server 블록 모두 동일한 Ingress ADDRESS로 `proxy_pass`하되, `Host` 헤더를 `$host`로 전달하여 Ingress Controller가 Host 기반 라우팅을 수행한다.
+
+7. **Nginx 재시작**: `sudo nginx -t && sudo systemctl reload nginx`
+
+8. **CORS 확인**: 공통 ConfigMap의 `CORS_ALLOWED_ORIGINS`에 `https://{SSL_DOMAIN}` 포함 여부 확인
 
 ### Step 5. CI/CD 파이프라인 구성 → Agent: devops-engineer (`/ralph` 활용)
 

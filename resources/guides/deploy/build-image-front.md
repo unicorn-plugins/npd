@@ -259,7 +259,7 @@ docker build \
   --build-arg PROJECT_FOLDER="{프론트엔드-디렉토리}" \
   --build-arg BUILD_FOLDER="deployment/container" \
   -f ${DOCKER_FILE} \
-  -t {서비스명}:latest .
+  -t {서비스명}:v1.0.0 .
 ```
 
 > **Flutter Web의 경우**: 동일한 명령을 사용한다. Dockerfile 내부에서 Flutter SDK 빌드가 수행되므로 호스트에 Flutter SDK가 설치되어 있지 않아도 된다.
@@ -349,12 +349,13 @@ gcloud artifacts repositories describe ${GCR_REPO} \
 
 ```bash
 service={서비스명}
-docker tag ${service}:latest ${REGISTRY_URL}/${service}:latest
-docker push ${REGISTRY_URL}/${service}:latest
+docker tag ${service}:v1.0.0 ${REGISTRY_URL}/${service}:v1.0.0
+docker push ${REGISTRY_URL}/${service}:v1.0.0
 ```
 
 > `${REGISTRY_URL}`은 `[실행정보]`에서 조립된 값을 사용한다.
 > `${ROOT}`는 CLAUDE.md의 시스템명을 참조한다.
+> AKS 환경에서는 `:latest` 태그가 Deployment Safeguards 정책에 의해 차단되므로 시맨틱 버전 태그(`v1.0.0`)를 사용한다.
 
 ## 출력 형식
 `docs/deploy/build-image-front.md` 파일에 수행한 명령어를 포함하여 컨테이너 이미지 작성 과정을 단계별로 기록한다.
@@ -401,6 +402,6 @@ docker push ${REGISTRY_URL}/${service}:latest
 - shell 파일을 생성하지 말고 command로 직접 수행
 - 빌드 실패 시 반드시 원인을 파악하고 해결한 후 다음 단계 진행
 - Dockerfile의 ARG 이름(`PROJECT_FOLDER`, `BUILD_FOLDER`)은 CI/CD 파이프라인 가이드와 공유되므로 변경 금지
-- 이미지 태그는 로컬 빌드 시 `:latest`를 사용. CI/CD 환경에서의 태그 전략은 CI/CD 파이프라인 가이드에서 관리
+- 이미지 태그는 `:v1.0.0`을 사용한다. AKS Deployment Safeguards가 `:latest` 태그를 차단하므로 시맨틱 버전 태그를 부여한다. CI/CD 환경에서의 태그 전략은 CI/CD 파이프라인 가이드에서 관리
 - VM에서 빌드 시 Docker가 설치되어 있어야 한다 (Node.js/Flutter 설치는 불필요)
 - VM 최소 스펙: 4GB RAM 이상 권장 (메모리 부족 시 OOM으로 SSH 끊김 발생)

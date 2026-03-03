@@ -160,7 +160,7 @@ docker build \
   --build-arg BUILD_LIB_DIR="${service}/build/libs" \
   --build-arg ARTIFACTORY_FILE="${service}.jar" \
   -f ${DOCKER_FILE} \
-  -t ${service}:latest .
+  -t ${service}:v1.0.0 .
 ```
 
 #### Maven 분기
@@ -173,7 +173,7 @@ docker build \
   --build-arg BUILD_LIB_DIR="${service}/target" \
   --build-arg ARTIFACTORY_FILE="${service}.jar" \
   -f ${DOCKER_FILE} \
-  -t ${service}:latest .
+  -t ${service}:v1.0.0 .
 ```
 
 ### 이미지 레지스트리 푸시
@@ -263,12 +263,13 @@ gcloud artifacts repositories describe ${GCR_REPO} \
 각 서비스별로 수행한다. 서브에이전트를 활용하여 병렬 실행 가능.
 ```bash
 service={서비스명}
-docker tag ${service}:latest ${REGISTRY_URL}/${service}:latest
-docker push ${REGISTRY_URL}/${service}:latest
+docker tag ${service}:v1.0.0 ${REGISTRY_URL}/${service}:v1.0.0
+docker push ${REGISTRY_URL}/${service}:v1.0.0
 ```
 
 > `${REGISTRY_URL}`은 `[실행정보]`에서 조립된 값을 사용한다.
 > `${ROOT}`는 CLAUDE.md의 시스템명을 참조한다.
+> AKS 환경에서는 `:latest` 태그가 Deployment Safeguards 정책에 의해 차단되므로 시맨틱 버전 태그(`v1.0.0`)를 사용한다.
 
 ## 출력 형식
 `docs/deploy/build-image-back.md` 파일에 수행한 명령어를 포함하여 컨테이너 이미지 작성 과정을 단계별로 기록한다.
@@ -304,6 +305,6 @@ docker push ${REGISTRY_URL}/${service}:latest
 - 각 서비스는 서브에이전트를 생성하여 병렬로 빌드
 - 빌드 실패 시 반드시 원인을 파악하고 해결한 후 다음 단계 진행
 - Dockerfile의 ARG 이름(`BUILD_LIB_DIR`, `ARTIFACTORY_FILE`)은 CI/CD 파이프라인 가이드와 공유되므로 변경 금지
-- 이미지 태그는 로컬 빌드 시 `:latest`를 사용. CI/CD 환경에서의 태그 전략은 CI/CD 파이프라인 가이드에서 관리
+- 이미지 태그는 `:v1.0.0`을 사용한다. AKS Deployment Safeguards가 `:latest` 태그를 차단하므로 시맨틱 버전 태그를 부여한다. CI/CD 환경에서의 태그 전략은 CI/CD 파이프라인 가이드에서 관리
 - VM에서 빌드 시 Docker와 JDK가 설치되어 있어야 한다
 - VM 최소 스펙: 4GB RAM 이상 권장 (메모리 부족 시 OOM으로 SSH 끊김 발생)
