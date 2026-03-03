@@ -161,7 +161,7 @@ resources:
 # 스토리지 설정
 persistence:
   enabled: true
-  storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+  storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
   size: 10Gi
 
 # 네트워크 설정
@@ -206,13 +206,13 @@ global:
       database: "{결과서의 Database}"
       username: "{결과서의 User}"
       password: "{결과서의 Password}"
-  storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+  storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
 
 # Primary 설정
 primary:
   persistence:
     enabled: true
-    storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+    storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
     size: 10Gi
 
   resources:
@@ -265,7 +265,7 @@ auth:
 master:
   persistence:
     enabled: true
-    storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+    storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
     size: 10Gi
 
   resources:
@@ -391,7 +391,7 @@ kraft:
 
 # 글로벌 스토리지 설정
 global:
-  storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+  storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
 
 # 인증 비활성화 (교육/실습 환경)
 auth:

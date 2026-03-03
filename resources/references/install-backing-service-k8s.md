@@ -440,7 +440,7 @@ resources:
 # 스토리지 설정 
 persistence:
   enabled: true
-  storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+  storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
   size: 10Gi
 
 # 성능 최적화 설정
@@ -683,7 +683,7 @@ auth:
 master:
   persistence:
     enabled: true
-    storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+    storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
     size: 10Gi
 
   configuration: |
@@ -705,7 +705,7 @@ replica:
   replicaCount: 2
   persistence:
     enabled: true
-    storageClass: "managed"  # Azure AKS. EKS: "gp2", GKE: "standard-rwo"
+    storageClass: "managed"  # Azure AKS. EKS: "gp2-eks-auto", GKE: "standard-rwo"
     size: 10Gi
   configuration: |
     maxmemory 1610612736
