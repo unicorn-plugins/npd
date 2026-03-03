@@ -1,7 +1,7 @@
 # 프론트엔드 GitHub Actions 파이프라인 작성 가이드
 
 ## 목적
-GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성. 환경별(dev/staging/prod) 매니페스트 관리 및 자동 배포 구현. SonarQube 코드 품질 분석과 Quality Gate 포함. Node.js 기반 빌드 및 컨테이너 이미지 생성.
+GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로, CI는 빌드·푸시·매니페스트 레포지토리 image tag 업데이트까지 수행하고, CD는 ArgoCD가 매니페스트 레포지토리 변경을 감지하여 자동 배포한다. AWS EKS(ECR), Azure AKS(ACR), GCP GKE(Artifact Registry) 전 클라우드를 지원한다.
 
 ## 입력 (이전 단계 산출물)
 
@@ -23,20 +23,18 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
 
 - 사전 준비사항 확인
   프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-  - {SYSTEM_NAME}: 시스템명 (phonebill)
-  - {ACR_NAME}: Azure Container Registry 이름
-  - {RESOURCE_GROUP}: Azure 리소스 그룹명
-  - {AKS_CLUSTER}: AKS 클러스터명
+  - {CLOUD}: 클라우드 서비스 (AWS/Azure/GCP)
+  - {IMG_REG}: 컨테이너 이미지 레지스트리 주소
+  - {IMG_ORG}: 이미지 조직명
   - {NAMESPACE}: Namespace명
-    예시)
-    ```
-    [실행정보]
-    - SYSTEM_NAME: phonebill
-    - ACR_NAME: acrdigitalgarage01
-    - RESOURCE_GROUP: rg-digitalgarage-01
-    - AKS_CLUSTER: aks-digitalgarage-01
-    - NAMESPACE: phonebill-dg0500
-    ```
+  - {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
+  - {MANIFEST_SECRET_GIT_USERNAME}: 매니페스트 레포지토리 접근용 GitHub Secret (Username)
+  - {MANIFEST_SECRET_GIT_PASSWORD}: 매니페스트 레포지토리 접근용 GitHub Secret (Password/Token)
+
+  클라우드별 추가 변수:
+  - AWS: {ECR_ACCOUNT}, {ECR_REGION}, {EKS_CLUSTER}
+  - Azure: {ACR_NAME}, {RESOURCE_GROUP}, {AKS_CLUSTER}
+  - GCP: {GCR_REGION}, {GCR_PROJECT}, {GCR_REPO}, {GKE_CLUSTER}, {GKE_ZONE}
 
 - 서비스명 확인
   package.json에서 확인.
@@ -63,11 +61,20 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
 
 - GitHub 저장소 환경 구성 안내
   - GitHub Repository Secrets 설정
-    - Azure 접근 인증정보 설정
+    - 클라우드별 인증정보 설정
+    ```
+    Repository Settings > Secrets and variables > Actions > Repository secrets에 등록
+    ```
+
+    **AWS (CLOUD=AWS):**
+    ```
+    AWS_ACCESS_KEY_ID: {AWS 액세스 키 ID}
+    AWS_SECRET_ACCESS_KEY: {AWS 시크릿 액세스 키}
+    ```
+
+    **Azure (CLOUD=Azure):**
     ```
     # Azure Service Principal
-    Repository Settings > Secrets and variables > Actions > Repository secrets에 등록
-
     AZURE_CREDENTIALS:
     {
       "clientId": "{클라이언트ID}",
@@ -75,16 +82,9 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
       "subscriptionId": "{구독ID}",
       "tenantId": "{테넌트ID}"
     }
-    예시)
-    {
-      "clientId": "{클라이언트ID}",
-      "clientSecret": "{클라이언트시크릿}",
-      "subscriptionId": "{구독ID}",
-      "tenantId": "{테넌트ID}"
-    }
     ```
 
-    - ACR Credentials
+    - ACR Credentials (Azure)
       Credential 구하는 방법 안내
       az acr credential show --name {acr 이름}
       예) az acr credential show --name acrdigitalgarage01
@@ -92,6 +92,18 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
       ACR_USERNAME: {ACR_NAME}
       ACR_PASSWORD: {ACR패스워드}
       ```
+
+    **GCP (CLOUD=GCP):**
+    ```
+    GCP_SA_KEY: {GCP 서비스 계정 키 JSON}
+    ```
+
+    **공통 (매니페스트 레포지토리 접근용):**
+    ```
+    MANIFEST_SECRET_GIT_USERNAME: {GitHub 사용자명을 저장한 Secret명}
+    MANIFEST_SECRET_GIT_PASSWORD: {GitHub Token을 저장한 Secret명}
+    ```
+
     - SonarQube URL과 인증 토큰
       SONAR_HOST_URL 구하는 방법과 SONAR_TOKEN 작성법 안내
       SONAR_HOST_URL: 아래 명령 수행 후 http://{External IP}를 지정
@@ -122,6 +134,9 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
     # Workflow 제어 변수
     Repository Settings > Secrets and variables > Actions > Variables > Repository variables에 등록
 
+    CLOUD: Azure (클라우드 서비스: AWS/Azure/GCP)
+    REGISTRY: {IMG_REG} (컨테이너 이미지 레지스트리 주소)
+    IMAGE_ORG: {IMG_ORG} (이미지 조직명)
     ENVIRONMENT: dev (기본값: dev/staging/prod)
     SKIP_SONARQUBE: true (기본값: true/false)
     ```
@@ -254,7 +269,7 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
     - ingress.yaml
 
   images:
-    - name: {ACR_NAME}.azurecr.io/{SYSTEM_NAME}/{SERVICE_NAME}
+    - name: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}
       newTag: latest
   ```
 
@@ -339,7 +354,7 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
         name: {SERVICE_NAME}
 
   images:
-    - name: {ACR_NAME}.azurecr.io/{SYSTEM_NAME}/{SERVICE_NAME}
+    - name: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}
       newTag: latest
 
   ```
@@ -351,7 +366,7 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
   - **Build & Test**: Node.js 기반 빌드 및 단위 테스트, ESLint 검사
   - **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate
   - **Container Build & Push**: 환경별 이미지 태그로 빌드 및 푸시
-  - **Kustomize Deploy**: 환경별 매니페스트 적용
+  - **Update Manifest Repository**: 매니페스트 레포지토리 image tag 업데이트 (ArgoCD GitOps)
 
   ```yaml
   name: Frontend CI/CD
@@ -370,13 +385,29 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
     pull_request:
       branches: [ main ]
     workflow_dispatch:
+      inputs:
+        ENVIRONMENT:
+          description: 'Target environment'
+          required: true
+          default: 'dev'
+          type: choice
+          options:
+            - dev
+            - staging
+            - prod
+        SKIP_SONARQUBE:
+          description: 'Skip SonarQube Analysis'
+          required: false
+          default: 'true'
+          type: choice
+          options:
+            - 'true'
+            - 'false'
 
   env:
-    REGISTRY: {ACR_NAME}.azurecr.io
-    IMAGE_ORG: {SYSTEM_NAME}
-    RESOURCE_GROUP: {RESOURCE_GROUP}
-    AKS_CLUSTER: {AKS_CLUSTER}
-    NAMESPACE: {NAMESPACE}
+    CLOUD: ${{ vars.CLOUD || 'Azure' }}
+    REGISTRY: ${{ vars.REGISTRY }}
+    IMAGE_ORG: ${{ vars.IMAGE_ORG }}
 
   jobs:
     build:
@@ -399,7 +430,7 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
         - name: Determine environment
           id: determine_env
           run: |
-            ENVIRONMENT="${{ vars.ENVIRONMENT || 'dev' }}"
+            ENVIRONMENT="${{ github.event.inputs.ENVIRONMENT || vars.ENVIRONMENT || 'dev' }}"
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
 
         - name: Load environment variables
@@ -408,10 +439,10 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
             ENV=${{ steps.determine_env.outputs.environment }}
 
             # Initialize variables with defaults
-            REGISTRY="{ACR_NAME}.azurecr.io"
-            IMAGE_ORG="{SYSTEM_NAME}"
-            RESOURCE_GROUP="{RESOURCE_GROUP}"
-            AKS_CLUSTER="{AKS_CLUSTER}"
+            REGISTRY="${{ vars.REGISTRY }}"
+            IMAGE_ORG="${{ vars.IMAGE_ORG }}"
+            RESOURCE_GROUP="${{ vars.RESOURCE_GROUP }}"
+            AKS_CLUSTER="${{ vars.AKS_CLUSTER }}"
 
             # Read environment variables from .github/config file
             if [[ -f ".github/config/deploy_env_vars_${ENV}" ]]; then
@@ -514,12 +545,44 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
             username: ${{ secrets.DOCKERHUB_USERNAME }}
             password: ${{ secrets.DOCKERHUB_PASSWORD }}
 
+        # Cloud-conditional registry login
+        # === AWS ECR ===
+        # (CLOUD == AWS일 때 사용)
+        - name: Configure AWS credentials
+          if: ${{ env.CLOUD == 'AWS' }}
+          uses: aws-actions/configure-aws-credentials@v4
+          with:
+            aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+            aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+            aws-region: ${{ vars.ECR_REGION }}
+
+        - name: Login to Amazon ECR
+          if: ${{ env.CLOUD == 'AWS' }}
+          run: |
+            aws ecr get-login-password --region ${{ vars.ECR_REGION }} | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
+
+        # === Azure ACR ===
+        # (CLOUD == Azure일 때 사용)
         - name: Login to Azure Container Registry
+          if: ${{ env.CLOUD == 'Azure' }}
           uses: docker/login-action@v3
           with:
             registry: ${{ env.REGISTRY }}
             username: ${{ secrets.ACR_USERNAME }}
             password: ${{ secrets.ACR_PASSWORD }}
+
+        # === GCP Artifact Registry ===
+        # (CLOUD == GCP일 때 사용)
+        - name: Authenticate to Google Cloud
+          if: ${{ env.CLOUD == 'GCP' }}
+          uses: google-github-actions/auth@v2
+          with:
+            credentials_json: ${{ secrets.GCP_SA_KEY }}
+
+        - name: Login to Google Artifact Registry
+          if: ${{ env.CLOUD == 'GCP' }}
+          run: |
+            gcloud auth configure-docker ${{ vars.GCR_REGION }}-docker.pkg.dev
 
         - name: Build and push Docker image
           run: |
@@ -531,60 +594,37 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
 
             docker push ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }}
 
-    deploy:
-      name: Deploy to Kubernetes
+    update-manifest:
+      name: Update Frontend Manifest Repository
       needs: [build, release]
       runs-on: ubuntu-latest
 
       steps:
-        - name: Check out code
-          uses: actions/checkout@v4
+      - name: Set image tag environment variable
+        run: |
+          echo "IMAGE_TAG=${{ needs.build.outputs.image_tag }}" >> $GITHUB_ENV
+          echo "ENVIRONMENT=${{ needs.build.outputs.environment }}" >> $GITHUB_ENV
 
-        - name: Set image tag environment variable
-          run: |
-            echo "IMAGE_TAG=${{ needs.build.outputs.image_tag }}" >> $GITHUB_ENV
-            echo "ENVIRONMENT=${{ needs.build.outputs.environment }}" >> $GITHUB_ENV
+      - name: Update Frontend Manifest Repository
+        run: |
+          REPO_URL=$(echo "{MANIFEST_REPO_URL}" | sed 's|https://||')
+          git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@${REPO_URL} manifest-repo
+          cd manifest-repo
 
-        - name: Install Azure CLI
-          run: |
-            curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          sudo mv kustomize /usr/local/bin/
 
-        - name: Azure Login
-          uses: azure/login@v1
-          with:
-            creds: ${{ secrets.AZURE_CREDENTIALS }}
+          cd {SERVICE_NAME}/kustomize/overlays/${{ env.ENVIRONMENT }}
+          kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${{ env.ENVIRONMENT }}-${{ env.IMAGE_TAG }}
 
-        - name: Setup kubectl
-          uses: azure/setup-kubectl@v3
+          cd ../../../..
+          git config user.name "GitHub Actions"
+          git config user.email "actions@github.com"
+          git add .
+          git commit -m "Update {SERVICE_NAME} ${{ env.ENVIRONMENT }} image to ${{ env.ENVIRONMENT }}-${{ env.IMAGE_TAG }}"
+          git push origin main
 
-        - name: Get AKS Credentials
-          run: |
-            az aks get-credentials --resource-group ${{ env.RESOURCE_GROUP }} --name ${{ env.AKS_CLUSTER }} --overwrite-existing
-
-        - name: Create namespace
-          run: |
-            kubectl create namespace ${{ env.NAMESPACE }} --dry-run=client -o yaml | kubectl apply -f -
-
-        - name: Install Kustomize
-          run: |
-            curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-            sudo mv kustomize /usr/local/bin/
-
-        - name: Update Kustomize images and deploy
-          run: |
-            # 환경별 디렉토리로 이동
-            cd .github/kustomize/overlays/${{ env.ENVIRONMENT }}
-
-            # 이미지 태그 업데이트
-            kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ env.ENVIRONMENT }}-${{ env.IMAGE_TAG }}
-
-            # 매니페스트 적용
-            kubectl apply -k .
-
-        - name: Wait for deployments to be ready
-          run: |
-            echo "Waiting for deployments to be ready..."
-            kubectl -n ${{ env.NAMESPACE }} wait --for=condition=available deployment/{SERVICE_NAME} --timeout=300s
+          echo "매니페스트 업데이트 완료. ArgoCD가 자동으로 배포합니다."
 
   ```
 
@@ -637,18 +677,20 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
     1. GitHub > Actions > 성공한 이전 워크플로우 선택
     2. Re-run all jobs 클릭
     ```
-  - kubectl을 이용한 롤백:
+  - 매니페스트 레포지토리를 이용한 롤백 (GitOps):
     ```bash
-    # 특정 버전으로 롤백
-    kubectl rollout undo deployment/{SERVICE_NAME} -n {NAMESPACE} --to-revision=2
-
-    # 롤백 상태 확인
-    kubectl rollout status deployment/{SERVICE_NAME} -n {NAMESPACE}
+    # 매니페스트 레포에서 이전 커밋으로 되돌리기 (ArgoCD가 자동 감지하여 배포)
+    cd {MANIFEST_REPO}
+    git log --oneline -5   # 되돌릴 커밋 확인
+    git revert HEAD --no-edit
+    git push origin main
     ```
-  - 수동 스크립트를 이용한 롤백:
+  - 이미지 태그 기반 롤백 (GitOps):
     ```bash
-    # 이전 안정 버전 이미지 태그로 배포
-    ./.github/scripts/deploy-actions-frontend.sh {환경} {이전태그}
+    # 매니페스트 레포에서 이전 안정 버전 이미지 태그로 업데이트 후 push (ArgoCD 자동 반영)
+    cd {MANIFEST_REPO}/{FRONTEND_SERVICE}/kustomize/overlays/{환경}
+    kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:{환경}-{이전태그}
+    git add . && git commit -m "rollback: {SERVICE_NAME} to {이전태그}" && git push origin main
     ```
 
 ## 출력 형식
@@ -660,16 +702,19 @@ GitHub Actions + Kustomize 기반 CI/CD 파이프라인 구축 가이드 작성.
 
 ## 품질 기준
 
+- [ ] CI/CD 분리 원칙 준수 (CI: 빌드·푸시·매니페스트 tag 업데이트, CD: ArgoCD 자동 배포)
 - [ ] 시크릿 하드코딩 금지
 - [ ] 환경별 Kustomize overlay 구성
+- [ ] 매니페스트 레포지토리 업데이트 정상 동작 확인
 
 ## 주의사항
 
-GitHub Actions CI/CD 파이프라인 구축 작업을 누락 없이 진행하기 위한 체크리스트입니다.
+GitHub Actions CI 파이프라인 구축 작업을 누락 없이 진행하기 위한 체크리스트입니다.
 
 ### 사전 준비 체크리스트
 - [ ] package.json에서 시스템명과 서비스명 확인 완료
-- [ ] 실행정보 섹션에서 ACR명, 리소스 그룹, AKS 클러스터명 확인 완료
+- [ ] 실행정보 섹션에서 CLOUD, IMG_REG, IMG_ORG, NAMESPACE 확인 완료
+- [ ] MANIFEST_REPO_URL, MANIFEST_SECRET_GIT_USERNAME, MANIFEST_SECRET_GIT_PASSWORD 확인 완료
 
 ### GitHub Actions 전용 Kustomize 구조 생성 체크리스트
 - [ ] 디렉토리 구조 생성: `.github/kustomize/{base,overlays/{dev,staging,prod}}`
@@ -708,15 +753,20 @@ GitHub Actions CI/CD 파이프라인 구축 작업을 누락 없이 진행하기
 - [ ] `.github/kustomize/overlays/prod/deployment-patch.yaml` 생성 완료 (replicas=3, prod 리소스)
 
 ### GitHub Actions 설정 및 스크립트 체크리스트
-- [ ] 환경별 설정 파일 생성: `.github/config/deploy_env_vars_{dev,staging,prod}`
 - [ ] GitHub Actions 워크플로우 파일 `.github/workflows/frontend-cicd.yaml` 생성 완료
 - [ ] 워크플로우 주요 내용 확인
-  - Build, SonarQube, Docker Build & Push, Deploy 단계 포함
+  - Build, SonarQube, Docker Build & Push, Update Frontend Manifest Repository 단계 포함
   - Node.js 버전 확인: `node-version: '{NODE_VERSION}'`
   - 변수 참조 문법 확인: `${{ needs.build.outputs.* }}` 사용
   - 서비스명이 실제 프로젝트 서비스명으로 치환되었는지 확인
   - **vars.ENVIRONMENT, vars.SKIP_SONARQUBE 사용 확인**
-  - **플레이스홀더 사용 확인**: {ACR_NAME}, {SYSTEM_NAME}, {SERVICE_NAME} 등
-
-- [ ] 수동 배포 스크립트 `.github/scripts/deploy-actions-frontend.sh` 생성 완료
-- [ ] 스크립트 실행 권한 설정 완료 (`chmod +x .github/scripts/*.sh`)
+  - **클라우드별 조건부 registry login 확인**: CLOUD 변수 기반 (AWS/Azure/GCP)
+  - **플레이스홀더 사용 확인**: {IMG_REG}, {IMG_ORG}, {SERVICE_NAME} 등
+- [ ] Repository Variables 설정 확인: CLOUD, REGISTRY, IMAGE_ORG
+- [ ] Repository Secrets 설정 확인
+  - AWS: AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY
+  - Azure: ACR_USERNAME, ACR_PASSWORD, AZURE_CREDENTIALS
+  - GCP: GCP_SA_KEY
+  - 공통: MANIFEST_SECRET_GIT_USERNAME, MANIFEST_SECRET_GIT_PASSWORD
+- [ ] 매니페스트 레포지토리 업데이트 job (update-manifest) 정상 동작 확인
+- [ ] ArgoCD가 매니페스트 레포지토리 변경을 감지하여 자동 배포되는지 확인

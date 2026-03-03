@@ -1,7 +1,7 @@
 # 프론트엔드 Jenkins 파이프라인 작성 가이드
 
 ## 목적
-Jenkins + Kustomize 기반 프론트엔드 CI/CD 파이프라인을 구축한다. Node.js 기반 빌드 및 컨테이너 이미지 생성, 환경별(dev/staging/prod) 매니페스트 관리, SonarQube 코드 품질 분석과 Quality Gate를 포함한 자동 배포 파이프라인을 구현한다.
+Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. CI/CD 분리 구조로, CI는 빌드·푸시·매니페스트 레포지토리 image tag 업데이트까지 수행하고, CD는 ArgoCD가 매니페스트 레포지토리 변경을 감지하여 자동 배포한다.
 
 ## 입력 (이전 단계 산출물)
 
@@ -28,6 +28,8 @@ Jenkins + Kustomize 기반 프론트엔드 CI/CD 파이프라인을 구축한다
 - {IMG_ORG}: container IMG_ORG
 - {JENKINS_CLOUD_NAME}: Jenkins에 설정한 k8s Cloud 이름
 - {NAMESPACE}: 네임스페이스
+- {JENKINS_GIT_CREDENTIALS}: 매니페스트 레포지토리 접근용 Jenkins Credential ID
+- {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
 
 예시)
 ```
@@ -36,6 +38,8 @@ Jenkins + Kustomize 기반 프론트엔드 CI/CD 파이프라인을 구축한다
 - IMG_ORG: phonebill
 - JENKINS_CLOUD_NAME: k8s
 - NAMESPACE: phonebill
+- JENKINS_GIT_CREDENTIALS: github-credentials
+- MANIFEST_REPO_URL: https://github.com/org/manifest-repo.git
 ```
 
 ### 서비스명 확인
@@ -61,22 +65,10 @@ Jenkins 필수 플러그인 목록:
 - Docker Pipeline
 - GitHub
 - SonarQube Scanner
-- Azure Credentials
 - EnvInject Plugin
 ```
 
 - Jenkins Credentials 등록
-  - Azure Service Principal
-  ```
-  Manage Jenkins > Credentials > Add Credentials
-  - Kind: Microsoft Azure Service Principal
-  - ID: azure-credentials
-  - Subscription ID: {구독ID}
-  - Client ID: {클라이언트ID}
-  - Client Secret: {클라이언트시크릿}
-  - Tenant ID: {테넌트ID}
-  - Azure Environment: Azure
-  ```
 
   - Image Credentials
   ```
@@ -323,11 +315,11 @@ namespace={namespace}
 `deployment/cicd/Jenkinsfile` 파일 생성 방법을 안내합니다.
 
 주요 구성 요소:
-- **Pod Template**: Node.js, Podman, Azure-CLI 컨테이너
+- **Pod Template**: Node.js, Podman, Git 컨테이너
 - **Build & Test**: Node.js 기반 빌드 및 단위 테스트
 - **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate
 - **Container Build & Push**: 30분 timeout 설정과 함께 환경별 이미지 태그로 빌드 및 푸시
-- **Kustomize Deploy**: 환경별 매니페스트 적용
+- **Manifest Repository Update**: 매니페스트 레포지토리 image tag 업데이트 (ArgoCD GitOps)
 - **Pod Cleanup**: 파이프라인 완료 시 에이전트 파드 자동 정리
 
 **⚠️ 중요: Pod 자동 정리 설정**
@@ -364,11 +356,6 @@ podTemplate(
         spec:
           terminationGracePeriodSeconds: 3
           restartPolicy: Never
-          tolerations:
-          - effect: NoSchedule
-            key: dedicated
-            operator: Equal
-            value: cicd
     ''',
     containers: [
         containerTemplate(
@@ -393,14 +380,14 @@ podTemplate(
             resourceLimitMemory: '4Gi'
         ),
         containerTemplate(
-            name: 'kubectl',
-            image: 'hiondal/azure-kubectl:latest',
+            name: 'git',
+            image: 'alpine/git:latest',
             command: 'cat',
             ttyEnabled: true,
-            resourceRequestCpu: '200m',
-            resourceRequestMemory: '512Mi',
-            resourceLimitCpu: '500m',
-            resourceLimitMemory: '1Gi'
+            resourceRequestCpu: '100m',
+            resourceRequestMemory: '256Mi',
+            resourceLimitCpu: '300m',
+            resourceLimitMemory: '512Mi'
         ),
         containerTemplate(
             name: 'sonar-scanner',
@@ -414,7 +401,6 @@ podTemplate(
         )
     ],
     volumes: [
-        emptyDirVolume(mountPath: '/root/.azure', memory: false),
         emptyDirVolume(mountPath: '/opt/sonar-scanner/.sonar/cache', memory: false),
         emptyDirVolume(mountPath: '/root/.npm', memory: false)
     ]
@@ -432,15 +418,6 @@ podTemplate(
                 props = readProperties file: "deployment/cicd/config/deploy_env_vars_${environment}"
             }
 
-            stage("Setup Kubernetes") {
-                container('kubectl') {
-                      sh """
-                        kubectl create namespace ${props.namespace} --dry-run=client -o yaml | kubectl apply -f -
-                      """
-
-                }
-            }
-
             stage('Build & Test') {
                 container('node') {
                     sh """
@@ -452,7 +429,7 @@ podTemplate(
             }
 
             stage('SonarQube Analysis & Quality Gate') {
-                if (skipSonarQube) {
+                if (skipSonarQube == 'true') {
                     echo "⏭️ Skipping SonarQube Analysis (SKIP_SONARQUBE=${params.SKIP_SONARQUBE})"
                 } else {
                     container('sonar-scanner') {
@@ -507,7 +484,7 @@ podTemplate(
                             // Docker Hub 로그인 (rate limit 해결)
                             sh "podman login docker.io --username \$DOCKERHUB_USERNAME --password \$DOCKERHUB_PASSWORD"
 
-                            // ACR 로그인
+                            // 이미지 레지스트리 로그인
                             sh "podman login {IMG_REG} --username \$IMG_USERNAME --password \$IMG_PASSWORD"
 
                             sh """
@@ -524,28 +501,33 @@ podTemplate(
                 }
             }
 
-            stage('Update Kustomize & Deploy') {
-                container('kubectl') {
-                    sh """
-                        # Kustomize 설치 (sudo 없이 사용자 디렉토리에 설치)
-                        curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
-                        mkdir -p \$HOME/bin
-                        mv kustomize \$HOME/bin/
-                        export PATH=\$PATH:\$HOME/bin
+            stage('Update Manifest Repository') {
+                container('git') {
+                    withCredentials([usernamePassword(
+                        credentialsId: '{JENKINS_GIT_CREDENTIALS}',
+                        usernameVariable: 'GIT_USERNAME',
+                        passwordVariable: 'GIT_TOKEN'
+                    )]) {
+                        sh """
+                            # 매니페스트 레포지토리 클론
+                            REPO_URL=\$(echo "{MANIFEST_REPO_URL}" | sed 's|https://||')
+                            git clone https://\${GIT_USERNAME}:\${GIT_TOKEN}@\${REPO_URL} manifest-repo
+                            cd manifest-repo
 
-                        # 환경별 디렉토리로 이동
-                        cd deployment/cicd/kustomize/overlays/${environment}
+                            echo "Updating {SERVICE_NAME} image tag..."
+                            sed -i "s|image: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:.*|image: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}|g" \\
+                                {SERVICE_NAME}/kustomize/base/deployment.yaml
 
-                        # 이미지 태그 업데이트
-                        \$HOME/bin/kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}
+                            # Git 설정 및 푸시
+                            git config user.name "Jenkins CI"
+                            git config user.email "jenkins@example.com"
+                            git add .
+                            git commit -m "Update {SERVICE_NAME} ${environment} image to ${environment}-${imageTag}"
+                            git push origin main
 
-                        # 매니페스트 적용
-                        kubectl apply -k .
-
-                        # 배포 상태 확인
-                        echo "Waiting for deployments to be ready..."
-                        kubectl -n {NAMESPACE} wait --for=condition=available deployment/{SERVICE_NAME} --timeout=300s
-                    """
+                            echo "매니페스트 업데이트 완료. ArgoCD가 자동으로 배포합니다."
+                        """
+                    }
                 }
             }
 
@@ -651,17 +633,18 @@ Vulnerabilities: = 0
 - 이전 버전으로 롤백:
   ```bash
   # 특정 버전으로 롤백
-  kubectl rollout undo deployment/{SERVICE_NAME} -n {NAMESPACE} --to-revision=2
-
-  # 롤백 상태 확인
-  kubectl rollout status deployment/{SERVICE_NAME} -n {NAMESPACE}
+  # 매니페스트 레포지토리에서 이전 커밋으로 되돌리기 (ArgoCD가 자동 감지하여 배포)
+  cd {MANIFEST_REPO}
+  git log --oneline -5   # 되돌릴 커밋 확인
+  git revert HEAD --no-edit
+  git push origin main
   ```
 - 이미지 태그 기반 롤백:
   ```bash
-  # 이전 안정 버전 이미지 태그로 업데이트
-  cd deployment/cicd/kustomize/overlays/{환경}
+  # 매니페스트 레포에서 이전 안정 버전 이미지 태그로 업데이트 후 push (ArgoCD 자동 반영)
+  cd {MANIFEST_REPO}/{FRONTEND_SERVICE}/kustomize/overlays/{환경}
   kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:{환경}-{이전태그}
-  kubectl apply -k .
+  git add . && git commit -m "rollback: {SERVICE_NAME} to {이전태그}" && git push origin main
   ```
 
 ## 출력 형식
@@ -718,6 +701,7 @@ Vulnerabilities: = 0
   - 서비스명이 실제 {SERVICE_NAME}으로 치환되었는지 확인
   - **파드 자동 정리 설정 확인**: podRetention: never(), idleMinutes: 1, terminationGracePeriodSeconds: 3
   - **try-catch-finally 블록 포함**: 예외 상황에서도 정리 로직 실행 보장
+  - **매니페스트 레포지토리 업데이트 확인**: git container로 manifest repo clone 및 image tag 업데이트 후 push
 - [ ] 수동 배포 스크립트 `scripts/deploy.sh` 생성 완료
 - [ ] **리소스 검증 스크립트 `scripts/validate-resources.sh` 생성 완료**
 - [ ] 스크립트 실행 권한 설정 완료 (`chmod +x scripts/*.sh`)
