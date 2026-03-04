@@ -817,8 +817,8 @@ kubectl apply -f ~/install/jenkins/rbac.yaml
 System Configurations > Clouds 선택
 ![](images/2026-03-04-00-02-38.png)
 
-Cloud name은 아무거나 입력
-![](images/2026-03-04-00-03-02.png)
+Cloud name은 아무거나 입력. k8s cloud 이름과 동일하게 하는것이 관리상 좋음  
+![](images/2026-03-04-16-36-49.png)
 
 Kubernetes URL과 Kubernetes Namespace를 그림과 같이 입력
 ![](images/2026-03-04-00-03-27.png)
@@ -864,15 +864,15 @@ mkdir -p ~/install && cd ~/install
 ```
 helm search repo sonarqube
 NAME                    CHART VERSION   APP VERSION     DESCRIPTION
-bitnami/sonarqube       8.0.3           25.2.0
+bitnami/sonarqube       8.1.17           25.2.0
 ```
 
 ```
-helm pull bitnami/sonarqube --version 8.0.3
+helm pull bitnami/sonarqube --version 8.1.17
 ```
 
 ```
-tar xvf {helm chart 압축파일명}
+tar xvf sonarqube-8.1.17.tgz
 
 cd sonarqube
 ```
@@ -1075,12 +1075,9 @@ EOF
 > 3. 위 방법으로 해결되지 않으면 **GKE Standard 모드 사용**을 권장합니다
 
 
-charts/postgresql/values.yaml을 열어 아래 값으로 이미지 repository와 tag를 변경
+charts/postgresql/values.yaml의 이미지 repository와 tag를 변경합니다.
 ```
-image:
-  registry: docker.io
-  repository: bitnamilegacy/postgresql
-  tag: 17.4.0-debian-12-r17
+sed -i 's|repository: bitnami/postgresql|repository: bitnamilegacy/postgresql|' charts/postgresql/values.yaml
 ```
 
 **3.설치하기**
@@ -1103,7 +1100,7 @@ kubectl patch deploy sonar-sonarqube --type=json -p='[{"op": "remove", "path": "
 
 Pod 실행까지 기다립니다. 약 3~4분 걸립니다.
 ```
-watch kubectl get po
+kubectl get po -w
 ```
 
 **4.접속하기**
