@@ -704,12 +704,16 @@ Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
 위에서 확인한 Ingress Address를 환경변수로 설정합니다.
 ```
 export WEB_SERVER_SSH_HOST={Web Server SSH Host}
-export JENKINS_ADDRESS={Ingress Address}
 ```
 
 접근:
 ```
 ssh ${WEB_SERVER_SSH_HOST}
+```
+
+위에서 확인한 Ingress Address를 환경변수로 설정합니다.
+```
+export JENKINS_ADDRESS={Ingress Address}
 ```
 
 dummy 인증서 생성 (HTTPS catch-all용, 최초 1회):
@@ -1124,17 +1128,16 @@ kubectl get ing -n sonarqube
 ```
 
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
-위에서 확인한 Ingress Address를 환경변수로 설정합니다.
-`JENKINS_ADDRESS`는 Jenkins 설치 시 확인한 Ingress Address입니다.
-```
-export WEB_SERVER_SSH_HOST={Web Server SSH Host}
-export JENKINS_ADDRESS={Jenkins Ingress Address}
-export SONAR_ADDRESS={SonarQube Ingress Address}
-```
 
 Web Server 접속:
 ```
 ssh ${WEB_SERVER_SSH_HOST}
+```
+
+위에서 확인한 Ingress Address를 환경변수로 설정합니다.
+```
+export JENKINS_ADDRESS={Jenkins Ingress Address}
+export SONAR_ADDRESS={SonarQube Ingress Address}
 ```
 
 Config 수정:
@@ -1176,26 +1179,51 @@ Nginx 재시작:
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
-브라우저에서 `http://mysonar.io`로 접근합니다.
-로그인 ID는 지정한 'admin'이지만 초기 암호는 지정한 암호가 아니라 'admin'입니다.
-지정한 암호는 DB접속 암호로만 사용됩니다.
-초기 암호로 로그인하면 암호 변경 페이지가 나타납니다.
-12자 이상의 대문자, 특수문자, 숫자가 혼합된 암호(예: sonarP@ssw0rd$)로 지정합니다.
+브라우저에서 `http://mysonar.io`로 접근합니다.   
+지정한 ID(admin)와 초기 암호(sonarP@ssword$)로 로그인 하세요.   
 
 **5.환경설정**
 1)User Token 발급
 MyAccount > Security에서 User Token발급
-![](images/2025-09-12-14-09-55.png)
+![](images/2026-03-04-17-12-51.png)
+![](images/2026-03-04-17-13-03.png)
 
-![](images/2025-09-12-14-13-51.png).
 
 생성된 토큰값을 클립보드에 복사합니다.
 
-2)Jenkins Credential 등록
-Jenkins에 Credential을 위에서 만든 Token으로 만듭니다.
-![](images/2025-09-12-14-16-09.png).
+2)Jenkins 통보 Webhook 작성
+SonarQube 품질 검사 결과를 Jenkins로 보내기 위해 Webhook을 만듭니다.
+![](images/2026-03-04-17-14-16.png)
 
-3)SonarQube Server설정
+- name: 적절히 지정. 예) jenkins-webhook.
+- url: Jenkins 서버의 주소
+  Jenkins를 k8s에 설치한 경우 http://jenkins.jenkins.svc.cluster.local/sonarqube-webhook/ 으로 하고,
+  그냥 설치한 경우는 http://{IP 또는 host}/sonarqube-webhook/ 으로 함   
+  (주의) 맨 마지막에 '/'를 반드시 입력해야 함
+
+  ![](images/2026-03-04-17-14-54.png)
+
+
+3)Quality Gate 작성
+SonarQube의 Quality Gate 복사하여 Custom 만들고 New code의 code coverage를 조정함.
+![](images/2026-03-04-17-15-44.png)
+
+'Sonar way'선택 후 우측 상단에서 '[Copy]'버튼 클릭
+![](images/2026-03-04-17-16-09.png)
+
+적절한 이름을 부여합니다. 
+![](images/2026-03-04-17-16-24.png)
+
+작성한 Quality Gate를 선택하고 Code Coverage를 조정함.
+실습에서는 테스트 코드가 없는 서비스도 많으므로 일단 '0'으로 함.
+![](images/2026-03-04-17-16-38.png)  
+
+
+4)Jenkins Credential 등록
+Jenkins에 Credential을 위에서 만든 Token으로 만듭니다.
+![](images/2026-03-04-17-13-14.png)
+
+5)SonarQube Server설정
 System설정에서 SonarQube 서버 설정을 합니다.
 Jenkins에 플러그인 'SonarQube Scanner'를 먼저 설치 해야 합니다.
 
@@ -1203,34 +1231,9 @@ Jenkins에 플러그인 'SonarQube Scanner'를 먼저 설치 해야 합니다.
 - Server URL: Jenkins Pod에서 접근할 SonarQube 서비스의 주소. kubectl get svc -n sonarqube로 확인하고 다른 네임스페이스에 있으므로 전체 주소를 입력합니다.
 - Authentication Token: 위에서 만든 credential 'sonarqube-access-token'을 선택
 
-![](images/2025-09-12-14-19-08.png).
+![](images/2026-03-04-17-13-41.png)  
 
-4)Jenkins 통보 Webhook 작성
-SonarQube 품질 검사 결과를 Jenkins로 보내기 위해 Webhook을 만듭니다.
-![](images/2025-09-12-14-20-20.png)
-
-- name: 적절히 지정. 예) jenkins-webhook.
-- url: Jenkins 서버의 주소
-  Jenkins를 k8s에 설치한 경우 http://{service name}/sonarqube-webhook/ 으로 하고,
-  그냥 설치한 경우는 http://{IP 또는 host}/sonarqube-webhook/ 으로 함 (후행 슬래시 필수)
-
-  ![](images/2025-09-12-14-21-01.png)
-
-
-5)Quality Gate 작성
-SonarQube의 Quality Gate 복사하여 Custom 만들고 New code의 code coverage를 조정함.
-![](images/2025-09-12-14-23-24.png)
-
-'Sonar way'선택 후 우측 상단에서 '[Copy]'버튼 클릭
-![](images/2025-09-12-14-24-21.png)
-
-적절한 이름을 부여합니다.
-![](images/2025-09-12-14-25-43.png)
-
-작성한 Quality Gate를 선택하고 Code Coverage를 조정함.
-실습에서는 테스트 코드가 없으므로 '0'으로 함.
-![](images/2025-09-12-14-29-29.png)
-
+  
 | [Top](#목차) |
 
 ---
