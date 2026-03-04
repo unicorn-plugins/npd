@@ -77,11 +77,32 @@ kubectl get sc
 
 | 클라우드 | 일반 | 고성능 | 비고 |
 |---------|------|-------|------|
-| AWS EKS | `gp2` | `gp3` | EBS CSI 드라이버 기본 제공 (Auto Mode) |
+| AWS EKS | `gp2-eks-auto` | - | EKS Auto Mode 전용 (수동 생성 필요, 아래 참조) |
 | Azure AKS | `managed` | `managed-premium` | AKS Automatic 기본 제공 |
 | GCP GKE | `standard-rwo` | `premium-rwo` | GKE Autopilot 기본 제공 |
 
 > 교육/실습 환경에서는 일반 StorageClass를 사용한다.
+
+**[AWS EKS] StorageClass 생성**
+
+EKS Auto Mode는 기본 `gp2` StorageClass의 in-tree provisioner(`kubernetes.io/aws-ebs`)를 지원하지 않습니다.
+아래 명령으로 `gp2-eks-auto` StorageClass를 생성합니다. (이미 생성되어 있으면 생략)
+
+```bash
+cat <<'EOF' | kubectl apply -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2-eks-auto
+provisioner: ebs.csi.eks.amazonaws.com
+parameters:
+  type: gp3
+  fsType: ext4
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+EOF
+```
 
 ### AKS 환경: Deployment Safeguards 예외 처리
 

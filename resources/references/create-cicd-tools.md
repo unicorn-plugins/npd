@@ -50,6 +50,65 @@ Mac사용자는 맥 기본 터미널에서 작업합니다.
 
 ### [AWS EKS] 사전작업
 
+EKS Auto Mode 전용 StorageClass를 생성합니다.
+기본 제공되는 `gp2` StorageClass는 in-tree provisioner(`kubernetes.io/aws-ebs`)를 사용하여 EKS Auto Mode에서 지원되지 않습니다.
+
+```
+cat <<'EOF' | kubectl apply -f -
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: gp2-eks-auto
+provisioner: ebs.csi.eks.amazonaws.com
+parameters:
+  type: gp3
+  fsType: ext4
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete
+allowVolumeExpansion: true
+EOF
+```
+
+ALB(Application Load Balancer) 설정을 합니다.
+`create-k8s.md`의 'ALB 설정' 섹션을 이미 수행했다면 이 단계는 건너뜁니다.
+
+Subnet에 `kubernetes.io/role/elb` 태그를 등록합니다. ALB가 어떤 Subnet에 생성될지 지정하는 태그입니다.
+```
+export EKS_NAME={EKS 클러스터 이름}
+
+aws ec2 describe-subnets \
+  --subnet-ids $(aws eks describe-cluster --name ${EKS_NAME} \
+  --query "cluster.resourcesVpcConfig.subnetIds" --output text) \
+  --query "Subnets[*].{ID:SubnetId,AZ:AvailabilityZone,Public:MapPublicIpOnLaunch}" \
+  --output table
+```
+
+위 결과의 모든 Subnet ID를 아래 명령에 넣어 태그를 추가합니다.
+```
+aws ec2 create-tags \
+  --resources {subnet-1} {subnet-2} {subnet-3} {subnet-4} \
+  --tags Key=kubernetes.io/role/elb,Value=1
+```
+
+IngressClass 객체를 생성합니다.
+```
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: alb
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: eks.amazonaws.com/alb
+EOF
+```
+
+확인:
+```
+kubectl get ingressclass
+```
+
 Karpenter NodePool CRD로 **cicd** 노드풀을 생성합니다.
 
 ```
