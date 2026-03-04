@@ -1304,39 +1304,14 @@ tar xvf {helm chart 압축파일명}
 cd argo-cd
 ```
 
-**3.Ingress External IP 확인 및 도메인 설정**
-
-**[AWS EKS]** ALB 주소 확인:  
-ALB는 Ingress 생성 시 자동으로 프로비저닝되므로, 설치 후 Ingress ADDRESS에서 확인함.  
-도메인은 nip.io를 사용함.
-```
-export ARGO_DOMAIN=argo.{nip.io 도메인}
-```
-
-**[Azure AKS]** app-routing Ingress IP 확인:
-```
-kubectl get svc -n app-routing-system nginx -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
-```
-```
-export ING_IP={위에서 구한 IP}
-export ARGO_DOMAIN=argo.$ING_IP.nip.io
-```
-
-**[GCP GKE]** GCE Ingress IP 확인:  
-GCE Ingress는 생성 시 자동으로 외부 IP를 할당함. 설치 후 Ingress ADDRESS에서 확인함.
-```
-export ARGO_DOMAIN=argo.{nip.io 도메인}
-```
-
-
-**4.설치 manifest 파일 작성**  
+**3.설치 manifest 파일 작성**
 사용하는 CLOUD에 해당하는 argocd.yaml을 작성함.
 
 **[AWS EKS]** argocd.yaml:
 ```
 cat > argocd.yaml << EOF
 global:
-  domain: ${ARGO_DOMAIN}
+  domain: myargocd.io
   nodeSelector:
     agentpool: cicd
   tolerations:
@@ -1348,6 +1323,7 @@ global:
 server:
   ingress:
     enabled: true
+    hostname: myargocd.io
     pathType: Prefix
     ingressClassName: alb
     annotations:
@@ -1370,7 +1346,7 @@ EOF
 ```
 cat > argocd.yaml << EOF
 global:
-  domain: argo.$ING_IP.nip.io
+  domain: myargocd.io
   nodeSelector:
     agentpool: cicd
   tolerations:
@@ -1382,6 +1358,7 @@ global:
 server:
   ingress:
     enabled: true
+    hostname: myargocd.io
     ingressClassName: webapprouting.kubernetes.azure.com
   extraArgs:
     - --insecure
@@ -1398,12 +1375,13 @@ EOF
 ```
 cat > argocd.yaml << EOF
 global:
-  domain: ${ARGO_DOMAIN}
+  domain: myargocd.io
   # nodeSelector, tolerations 없음 (Autopilot)
 
 server:
   ingress:
     enabled: true
+    hostname: myargocd.io
     annotations:
       kubernetes.io/ingress.class: "gce"
   extraArgs:
@@ -1425,7 +1403,7 @@ EOF
 > TLS 종료가 필요하면 외부 Nginx Web Server에서 HTTPS 프록시로 처리.
 
 
-**5.namespace 작성 및 설치**
+**4.namespace 작성 및 설치**
 
 ```
 k create ns argocd
@@ -1437,7 +1415,7 @@ helm upgrade -i argocd -f argocd.yaml .
 ```
 
 
-**6.접속하기**
+**5.접속하기**
 
 Ingress Address 확인.
 
