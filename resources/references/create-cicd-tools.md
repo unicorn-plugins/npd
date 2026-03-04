@@ -784,8 +784,10 @@ http://myjenkins.io를 브라우저에서 엽니다.
 ![](images/2026-03-04-00-01-47.png)
 
 **7.Kubernetes 연결 설정**
-아래 yaml을 'rbac.yaml'로 생성하고 적용합니다.
+Jenkins설치 시 생성된 Service Account 'jenkins'에 cluster-admin 역할을 부여하여
+클러스터의 모든 객체를 관리할 수 있는 권한을 부여합니다.
 ```
+cat > ~/install/jenkins/rbac.yaml << 'EOF'
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRoleBinding
 metadata:
@@ -798,11 +800,9 @@ subjects:
 - kind: ServiceAccount
   name: jenkins
   namespace: jenkins
-```
-Jenkins설치 시 생성된 Service Account 'jenkins'에 cluster-admin 역할을 부여하여
-클러스터의 모든 객체를 관리할 수 있는 권한을 부여합니다.
-```
-k apply -f rbac.yaml
+EOF
+
+kubectl apply -f ~/install/jenkins/rbac.yaml
 ```
 
 'Dashboard > Manage Jenkins'메뉴에서 'Clouds'를 선택하고, 새로운 Cloud 프로파일을 작성합니다.
