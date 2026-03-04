@@ -207,10 +207,9 @@ spec:
 EOF
 ```
 
-Node 생성 및 Taint를 확인합니다.
+NodePool 생성을 확인합니다. (Node는 Pod 배포 시 자동 생성됩니다.)
 ```
-k get nodes --show-labels | grep cicd
-k describe node -l agentpool=cicd | grep -i taint
+kubectl get nodepool
 ```
 
 | [Top](#목차) |
@@ -310,10 +309,9 @@ spec:
 EOF
 ```
 
-Node 생성 및 Taint를 확인합니다.
+NodePool 생성을 확인합니다. (Node는 Pod 배포 시 자동 생성됩니다.)
 ```
-k get nodes --show-labels | grep cicd
-k describe node -l agentpool=cicd | grep -i taint
+kubectl get nodepool
 ```
 
 | [Top](#목차) |
