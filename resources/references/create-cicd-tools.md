@@ -701,11 +701,15 @@ kubectl get ing -n jenkins
 ```
 
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
-`{JENKINS_ADDRESS}`를 위에서 확인한 Ingress Address로 교체하여 실행합니다.    
-   
-접근:   
+위에서 확인한 Ingress Address를 환경변수로 설정합니다.
 ```
-ssh {WEB_SERVER_SSH_HOST}
+export WEB_SERVER_SSH_HOST={Web Server SSH Host}
+export JENKINS_ADDRESS={Ingress Address}
+```
+
+접근:
+```
+ssh ${WEB_SERVER_SSH_HOST}
 ```
 
 dummy 인증서 생성 (HTTPS catch-all용, 최초 1회):
@@ -718,14 +722,14 @@ sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
 
 프록시 설정 (`/etc/nginx/sites-available/cicd` 파일 생성):
 ```
-cat << 'EOF' | sudo tee /etc/nginx/sites-available/cicd
+cat << EOF | sudo tee /etc/nginx/sites-available/cicd
 server {
     listen 80 default_server;
     server_name myjenkins.io;
     location / {
-        proxy_pass http://{JENKINS_ADDRESS};
+        proxy_pass http://${JENKINS_ADDRESS};
         proxy_set_header Host myjenkins.io;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 
@@ -735,14 +739,14 @@ server {
     server_name _;
     ssl_certificate /etc/nginx/ssl/dummy.crt;
     ssl_certificate_key /etc/nginx/ssl/dummy.key;
-    return 301 http://$host$request_uri;
+    return 301 http://\$host\$request_uri;
 }
 EOF
 
 sudo ln -sf /etc/nginx/sites-available/cicd /etc/nginx/sites-enabled/cicd
 ```
-  
-nginx 재시작:   
+
+nginx 재시작:
 ```
 sudo nginx -t && sudo systemctl reload nginx
 ```
@@ -1120,19 +1124,29 @@ kubectl get ing -n sonarqube
 ```
 
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
-`{SONAR_ADDRESS}`를 위에서 확인한 Ingress Address로 교체하여 실행합니다.
-`{JENKINS_ADDRESS}`는 Jenkins 설치 시 확인한 Ingress Address입니다.
+위에서 확인한 Ingress Address를 환경변수로 설정합니다.
+`JENKINS_ADDRESS`는 Jenkins 설치 시 확인한 Ingress Address입니다.
 ```
-ssh {WEB_SERVER_SSH_HOST}
+export WEB_SERVER_SSH_HOST={Web Server SSH Host}
+export JENKINS_ADDRESS={Jenkins Ingress Address}
+export SONAR_ADDRESS={SonarQube Ingress Address}
+```
 
-cat << 'EOF' | sudo tee /etc/nginx/sites-available/cicd
+Web Server 접속:
+```
+ssh ${WEB_SERVER_SSH_HOST}
+```
+
+Config 수정:
+```
+cat << EOF | sudo tee /etc/nginx/sites-available/cicd
 server {
     listen 80 default_server;
     server_name myjenkins.io;
     location / {
-        proxy_pass http://{JENKINS_ADDRESS};
+        proxy_pass http://${JENKINS_ADDRESS};
         proxy_set_header Host myjenkins.io;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 
@@ -1140,9 +1154,9 @@ server {
     listen 80;
     server_name mysonar.io;
     location / {
-        proxy_pass http://{SONAR_ADDRESS};
+        proxy_pass http://${SONAR_ADDRESS};
         proxy_set_header Host mysonar.io;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 
@@ -1152,10 +1166,13 @@ server {
     server_name _;
     ssl_certificate /etc/nginx/ssl/dummy.crt;
     ssl_certificate_key /etc/nginx/ssl/dummy.key;
-    return 301 http://$host$request_uri;
+    return 301 http://\$host\$request_uri;
 }
 EOF
+```
 
+Nginx 재시작:
+```
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
@@ -1422,19 +1439,26 @@ kubectl get ing -n argocd
 ```
 
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
-`{ARGOCD_ADDRESS}`를 위에서 확인한 Ingress Address로 교체하여 실행합니다.
-`{JENKINS_ADDRESS}`, `{SONAR_ADDRESS}`는 이전 단계에서 확인한 Ingress Address입니다.
+위에서 확인한 Ingress Address를 환경변수로 설정합니다.
+`JENKINS_ADDRESS`, `SONAR_ADDRESS`는 이전 단계에서 확인한 Ingress Address입니다.
 ```
-ssh {WEB_SERVER_SSH_HOST}
+export WEB_SERVER_SSH_HOST={Web Server SSH Host}
+export JENKINS_ADDRESS={Jenkins Ingress Address}
+export SONAR_ADDRESS={SonarQube Ingress Address}
+export ARGOCD_ADDRESS={ArgoCD Ingress Address}
+```
 
-cat << 'EOF' | sudo tee /etc/nginx/sites-available/cicd
+```
+ssh ${WEB_SERVER_SSH_HOST}
+
+cat << EOF | sudo tee /etc/nginx/sites-available/cicd
 server {
     listen 80 default_server;
     server_name myjenkins.io;
     location / {
-        proxy_pass http://{JENKINS_ADDRESS};
+        proxy_pass http://${JENKINS_ADDRESS};
         proxy_set_header Host myjenkins.io;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 
@@ -1442,9 +1466,9 @@ server {
     listen 80;
     server_name mysonar.io;
     location / {
-        proxy_pass http://{SONAR_ADDRESS};
+        proxy_pass http://${SONAR_ADDRESS};
         proxy_set_header Host mysonar.io;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 
@@ -1452,9 +1476,9 @@ server {
     listen 80;
     server_name myargocd.io;
     location / {
-        proxy_pass http://{ARGOCD_ADDRESS};
+        proxy_pass http://${ARGOCD_ADDRESS};
         proxy_set_header Host myargocd.io;
-        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Real-IP \$remote_addr;
     }
 }
 
@@ -1464,7 +1488,7 @@ server {
     server_name _;
     ssl_certificate /etc/nginx/ssl/dummy.crt;
     ssl_certificate_key /etc/nginx/ssl/dummy.key;
-    return 301 http://$host$request_uri;
+    return 301 http://\$host\$request_uri;
 }
 EOF
 
