@@ -288,6 +288,32 @@ primary:
       memory: "1Gi"
       cpu: "0.5"
 
+  # 다중 DB/스키마 초기화 (필요 시 주석 해제)
+  # global.postgresql.auth.database는 1개 DB만 생성한다.
+  # 여러 DB나 커스텀 스키마가 필요하면 initdb 스크립트로 생성한다.
+  # Spring JPA DDL_AUTO=update는 테이블만 자동 생성하며, 스키마는 생성하지 않는다.
+  initdb:
+    scripts:
+      init-databases.sh: |
+        #!/bin/bash
+        set -e
+        # docs/develop/backing-service-container-result.md의 DB/스키마 목록 참조
+        # 예: DB별로 CREATE DATABASE + CREATE SCHEMA 수행
+        # DATABASES="recommendation payment"
+        # SCHEMAS="lunchpick_member:member lunchpick_recommendation:recommendation lunchpick_payment:payment"
+        for db in ${DATABASES:-}; do
+          echo "Creating database: $db"
+          psql -v ON_ERROR_STOP=1 -U postgres -c "SELECT 1 FROM pg_database WHERE datname='$db'" | grep -q 1 || \
+            psql -v ON_ERROR_STOP=1 -U postgres -c "CREATE DATABASE $db OWNER ${POSTGRES_USER:-lunchpick};"
+        done
+        for entry in ${SCHEMAS:-}; do
+          schema="${entry%%:*}"
+          db="${entry##*:}"
+          echo "Creating schema: $schema in database: $db"
+          psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "CREATE SCHEMA IF NOT EXISTS $schema;"
+          psql -v ON_ERROR_STOP=1 -U postgres -d "$db" -c "GRANT ALL ON SCHEMA $schema TO ${POSTGRES_USER:-lunchpick};"
+        done
+
 # 네트워크 설정
 service:
   type: ClusterIP
@@ -729,6 +755,7 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 | `helm repo add` 실패 | 네트워크 또는 DNS 문제 | 프록시 설정 확인, `helm repo add bitnami https://charts.bitnami.com/bitnami` 재시도 |
 | `ImagePullBackOff` | `docker.io/bitnami` 이미지 삭제됨 (2025.09) | values.yaml에 `image.repository: bitnamilegacy/{서비스명}` 오버라이드 추가 후 재설치 |
 | `kubectl exec` 명령 실패 | 리소스 타입 오류 (`deploy/` 사용) | Bitnami는 StatefulSet이므로 `sts/{릴리즈명}-{서비스명}-0` 형식으로 변경 |
+| `relation "xxx.yyy" does not exist` | 커스텀 스키마 미생성. `global.postgresql.auth.database`는 DB 1개만 생성하며, 스키마는 생성하지 않음. Spring JPA `DDL_AUTO=update`도 스키마는 자동 생성하지 않음 | values.yaml의 `primary.initdb.scripts`에 `CREATE SCHEMA IF NOT EXISTS` 추가 후 재설치, 또는 `kubectl exec`로 수동 생성 후 Pod 재시작 |
 
 ## 주의사항
 
@@ -736,6 +763,7 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 - 교육/실습 환경에서는 `architecture: standalone`으로 설치하여 비용을 절감한다. 운영 환경에서는 `architecture: replicaset`(MongoDB) 또는 `architecture: replication`(PostgreSQL/Redis) 사용을 검토한다.
 - `helm uninstall` 시 PVC(데이터)는 자동 삭제되지 않는다. 데이터 초기화가 필요하면 `kubectl delete pvc -l app.kubernetes.io/instance={릴리즈명}`으로 수동 삭제한다.
 - 백킹서비스는 애플리케이션과 동일한 네임스페이스에 배포한다. 따라서 앱 Pod에서 서비스명만으로 접속 가능하다 (예: `postgres-postgresql:5432`).
+- PostgreSQL의 `global.postgresql.auth.database`는 **1개 DB만 생성**한다. 여러 서비스가 각각 다른 DB(예: member, recommendation, payment)를 사용하는 경우 `primary.initdb.scripts`로 추가 DB를 생성해야 한다. 또한 앱이 커스텀 스키마(예: `lunchpick_member`)를 사용하는 경우, Spring JPA `DDL_AUTO=update`는 **테이블만 자동 생성**하며 스키마는 생성하지 않으므로, initdb 스크립트에 `CREATE SCHEMA IF NOT EXISTS`를 포함해야 한다.
 - Cloud MQ(Azure Service Bus, AWS SQS, GCP Pub/Sub)는 Helm으로 설치하지 않는다. 클라우드 관리형 서비스를 프로비저닝한다. 프로비저닝 방법은 `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md`의 Cloud MQ 섹션을 참조한다.
 - values.yaml의 storageClass는 반드시 해당 클라우드에 맞는 값으로 설정한다 (위 StorageClass 테이블 참조). 잘못된 storageClass는 Pod `Pending` 상태의 주된 원인이다.
 - Bitnami Helm 차트는 StatefulSet으로 배포된다. `kubectl exec` 시 리소스 타입을 `sts/`로 지정하고, Pod 인덱스(`-0`)를 붙인다 (예: `sts/postgres-postgresql-0`).

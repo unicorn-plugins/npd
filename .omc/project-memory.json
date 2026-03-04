@@ -92,64 +92,184 @@
   },
   "hotPaths": [
     {
+      "path": "resources\\references\\create-cicd-tools.md",
+      "accessCount": 229,
+      "lastAccessed": 1772630725411,
+      "type": "file"
+    },
+    {
       "path": "skills\\cicd\\SKILL.md",
-      "accessCount": 41,
-      "lastAccessed": 1772569769978,
+      "accessCount": 227,
+      "lastAccessed": 1772646081462,
       "type": "file"
     },
     {
       "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-front.md",
-      "accessCount": 40,
-      "lastAccessed": 1772569771515,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-actions-cicd-front.md",
-      "accessCount": 39,
-      "lastAccessed": 1772569760756,
+      "accessCount": 88,
+      "lastAccessed": 1772641185770,
       "type": "file"
     },
     {
       "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-back.md",
-      "accessCount": 38,
-      "lastAccessed": 1772569493722,
+      "accessCount": 73,
+      "lastAccessed": 1772641662643,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-actions-cicd-front.md",
+      "accessCount": 68,
+      "lastAccessed": 1772641662876,
       "type": "file"
     },
     {
       "path": "resources\\guides\\cicd\\deploy-actions-cicd-back.md",
-      "accessCount": 37,
-      "lastAccessed": 1772569768618,
+      "accessCount": 63,
+      "lastAccessed": 1772640588936,
       "type": "file"
     },
     {
       "path": "resources\\guides\\cicd\\deploy-argocd-cicd.md",
-      "accessCount": 27,
-      "lastAccessed": 1772569769037,
+      "accessCount": 61,
+      "lastAccessed": 1772641658226,
       "type": "file"
     },
     {
-      "path": "resources\\references\\create-cicd-tools.md",
-      "accessCount": 19,
-      "lastAccessed": 1772569494964,
+      "path": "",
+      "accessCount": 57,
+      "lastAccessed": 1772646088345,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\cicd\\cicd-pre-setup.md",
+      "accessCount": 41,
+      "lastAccessed": 1772646096081,
+      "type": "file"
+    },
+    {
+      "path": "skills\\deploy\\SKILL.md",
+      "accessCount": 28,
+      "lastAccessed": 1772639495566,
+      "type": "file"
+    },
+    {
+      "path": ".temp\\plan-cicd-pre-setup.md",
+      "accessCount": 25,
+      "lastAccessed": 1772629034697,
       "type": "file"
     },
     {
       "path": "resources\\guides\\cicd",
-      "accessCount": 12,
-      "lastAccessed": 1772569771047,
+      "accessCount": 20,
+      "lastAccessed": 1772640788376,
       "type": "directory"
     },
     {
-      "path": "",
-      "accessCount": 11,
-      "lastAccessed": 1772568488726,
+      "path": "skills",
+      "accessCount": 8,
+      "lastAccessed": 1772632107690,
       "type": "directory"
+    },
+    {
+      "path": "CLAUDE.md",
+      "accessCount": 7,
+      "lastAccessed": 1772632207055,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-k8s-ai.md",
+      "accessCount": 7,
+      "lastAccessed": 1772640763929,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-actions-cicd-ai.md",
+      "accessCount": 6,
+      "lastAccessed": 1772641839623,
+      "type": "file"
+    },
+    {
+      "path": "skills\\design\\SKILL.md",
+      "accessCount": 5,
+      "lastAccessed": 1772632208022,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-ai.md",
+      "accessCount": 5,
+      "lastAccessed": 1772641839308,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-pre-setup.md",
+      "accessCount": 4,
+      "lastAccessed": 1772631959919,
+      "type": "file"
+    },
+    {
+      "path": "skills\\develop\\SKILL.md",
+      "accessCount": 4,
+      "lastAccessed": 1772632208692,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\backing-service\\backing-service-k8s.md",
+      "accessCount": 4,
+      "lastAccessed": 1772635116761,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\create-k8s.md",
+      "accessCount": 3,
+      "lastAccessed": 1772608469291,
+      "type": "directory"
+    },
+    {
+      "path": ".temp\\fix-trailing-spaces.py",
+      "accessCount": 3,
+      "lastAccessed": 1772615289721,
+      "type": "file"
+    },
+    {
+      "path": "resources\\tools\\customs\\general\\fix-trailing-spaces.py",
+      "accessCount": 3,
+      "lastAccessed": 1772628891243,
+      "type": "file"
+    },
+    {
+      "path": "skills\\plan\\SKILL.md",
+      "accessCount": 3,
+      "lastAccessed": 1772632200812,
+      "type": "file"
+    },
+    {
+      "path": "skills\\create\\SKILL.md",
+      "accessCount": 3,
+      "lastAccessed": 1772639495138,
+      "type": "file"
     },
     {
       "path": "commands\\cicd.md",
       "accessCount": 2,
       "lastAccessed": 1772565217397,
       "type": "file"
+    },
+    {
+      "path": "skills\\deploy",
+      "accessCount": 2,
+      "lastAccessed": 1772631954149,
+      "type": "directory"
+    },
+    {
+      "path": "skills\\cicd",
+      "accessCount": 2,
+      "lastAccessed": 1772639329267,
+      "type": "directory"
+    },
+    {
+      "path": "resources\\guides\\deploy",
+      "accessCount": 2,
+      "lastAccessed": 1772640537702,
+      "type": "directory"
     },
     {
       "path": ".temp\\backup.md",
@@ -170,10 +290,82 @@
       "type": "file"
     },
     {
-      "path": "skills",
+      "path": ".temp\\check_long_lines.py",
       "accessCount": 1,
-      "lastAccessed": 1772568480433,
-      "type": "directory"
+      "lastAccessed": 1772613801613,
+      "type": "file"
+    },
+    {
+      "path": ".temp\\check_long_lines2.py",
+      "accessCount": 1,
+      "lastAccessed": 1772613832430,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\AGENT.md",
+      "accessCount": 1,
+      "lastAccessed": 1772617646071,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1772617646134,
+      "type": "file"
+    },
+    {
+      "path": ".temp\\plan-setup-cicd-tools.md",
+      "accessCount": 1,
+      "lastAccessed": 1772630665019,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\setup-cicd-tools.md",
+      "accessCount": 1,
+      "lastAccessed": 1772630818880,
+      "type": "file"
+    },
+    {
+      "path": "skills\\prepare\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772631959575,
+      "type": "file"
+    },
+    {
+      "path": "skills\\setup\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772631959957,
+      "type": "file"
+    },
+    {
+      "path": "skills\\help\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772631961476,
+      "type": "file"
+    },
+    {
+      "path": "skills\\add-ext-skill\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772631961823,
+      "type": "file"
+    },
+    {
+      "path": "skills\\remove-ext-skill\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772631962211,
+      "type": "file"
+    },
+    {
+      "path": "skills\\ext-github-release-manager\\SKILL.md",
+      "accessCount": 1,
+      "lastAccessed": 1772631962538,
+      "type": "file"
+    },
+    {
+      "path": ".claude\\plan.md",
+      "accessCount": 1,
+      "lastAccessed": 1772639485496,
+      "type": "file"
     }
   ],
   "userDirectives": []
