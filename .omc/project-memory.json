@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772204920811,
+  "lastScanned": 1772565174747,
   "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -36,27 +36,27 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772204920798,
+      "lastAccessed": 1772565174729,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
-      "fileCount": 11,
-      "lastAccessed": 1772204920799,
+      "fileCount": 12,
+      "lastAccessed": 1772565174729,
       "keyFiles": [
         "add-ext-skill.md",
+        "cicd.md",
         "create.md",
         "deploy.md",
-        "design.md",
-        "develop.md"
+        "design.md"
       ]
     },
     "gateway": {
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1772204920799,
+      "lastAccessed": 1772565174729,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1772204920800,
+      "lastAccessed": 1772565174730,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -77,7 +77,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772204920800,
+      "lastAccessed": 1772565174731,
       "keyFiles": [
         "resource.md"
       ]
@@ -86,310 +86,94 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772204920800,
+      "lastAccessed": 1772565174732,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 93,
-      "lastAccessed": 1772259113342,
+      "path": "skills\\cicd\\SKILL.md",
+      "accessCount": 41,
+      "lastAccessed": 1772569769978,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\deploy",
+      "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-front.md",
+      "accessCount": 40,
+      "lastAccessed": 1772569771515,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-actions-cicd-front.md",
       "accessCount": 39,
-      "lastAccessed": 1772257691427,
+      "lastAccessed": 1772569760756,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-back.md",
+      "accessCount": 38,
+      "lastAccessed": 1772569493722,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-actions-cicd-back.md",
+      "accessCount": 37,
+      "lastAccessed": 1772569768618,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\deploy-argocd-cicd.md",
+      "accessCount": 27,
+      "lastAccessed": 1772569769037,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\create-cicd-tools.md",
+      "accessCount": 19,
+      "lastAccessed": 1772569494964,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd",
+      "accessCount": 12,
+      "lastAccessed": 1772569771047,
       "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-guide-back.md",
-      "accessCount": 34,
-      "lastAccessed": 1772257667955,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-guide-front.md",
-      "accessCount": 31,
-      "lastAccessed": 1772257852021,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backing-service-setup.md",
-      "accessCount": 30,
-      "lastAccessed": 1772251325407,
-      "type": "file"
     },
     {
       "path": "",
-      "accessCount": 30,
-      "lastAccessed": 1772254582440,
+      "accessCount": 11,
+      "lastAccessed": 1772568488726,
       "type": "directory"
     },
     {
-      "path": "resources\\guides\\deploy\\backing-service-deploy.md",
-      "accessCount": 29,
-      "lastAccessed": 1772254767290,
-      "type": "file"
-    },
-    {
-      "path": ".claude\\plan.md",
-      "accessCount": 27,
-      "lastAccessed": 1772255146967,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-guide-ai.md",
-      "accessCount": 27,
-      "lastAccessed": 1772259016479,
-      "type": "file"
-    },
-    {
-      "path": "skills\\develop\\SKILL.md",
-      "accessCount": 16,
-      "lastAccessed": 1772251291207,
-      "type": "file"
-    },
-    {
-      "path": "resources\\resource.md",
-      "accessCount": 13,
-      "lastAccessed": 1772259145180,
-      "type": "file"
-    },
-    {
-      "path": "skills\\create\\SKILL.md",
-      "accessCount": 8,
-      "lastAccessed": 1772209450826,
-      "type": "file"
-    },
-    {
-      "path": "resources\\references\\java-config-manifest-standard.md",
-      "accessCount": 8,
-      "lastAccessed": 1772250095125,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides",
-      "accessCount": 6,
-      "lastAccessed": 1772251313673,
-      "type": "directory"
-    },
-    {
-      "path": "resources/guides/deploy",
-      "accessCount": 4,
-      "lastAccessed": 1772236858675,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\setup\\deploy-pre-setup.md",
-      "accessCount": 4,
-      "lastAccessed": 1772241299408,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backing-mq-setup.md",
-      "accessCount": 4,
-      "lastAccessed": 1772251409752,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\setup\\prepare.md",
-      "accessCount": 3,
-      "lastAccessed": 1772245630229,
-      "type": "file"
-    },
-    {
-      "path": "resources\\references\\백킹서비스설치방법.md",
-      "accessCount": 3,
-      "lastAccessed": 1772249569826,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\backing-rdb-setup.md",
-      "accessCount": 3,
-      "lastAccessed": 1772251305332,
-      "type": "file"
-    },
-    {
-      "path": "resources\\tools\\create-repo.md",
+      "path": "commands\\cicd.md",
       "accessCount": 2,
-      "lastAccessed": 1772208912492,
+      "lastAccessed": 1772565217397,
       "type": "file"
     },
     {
-      "path": "resources\\tools\\customs\\git\\create_repo.py",
-      "accessCount": 2,
-      "lastAccessed": 1772208913254,
+      "path": ".temp\\backup.md",
+      "accessCount": 1,
+      "lastAccessed": 1772568288716,
+      "type": "file"
+    },
+    {
+      "path": ".temp\\backup2.md",
+      "accessCount": 1,
+      "lastAccessed": 1772568289052,
+      "type": "file"
+    },
+    {
+      "path": "resources\\references\\temp.md",
+      "accessCount": 1,
+      "lastAccessed": 1772568289362,
       "type": "file"
     },
     {
       "path": "skills",
-      "accessCount": 2,
-      "lastAccessed": 1772249153033,
+      "accessCount": 1,
+      "lastAccessed": 1772568480433,
       "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\develop\\backing-nosql-setup.md",
-      "accessCount": 2,
-      "lastAccessed": 1772251287697,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\backing-rdb-deploy.md",
-      "accessCount": 2,
-      "lastAccessed": 1772251288715,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\backing-nosql-deploy.md",
-      "accessCount": 2,
-      "lastAccessed": 1772251288959,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\backing-mq-deploy.md",
-      "accessCount": 2,
-      "lastAccessed": 1772251289392,
-      "type": "file"
-    },
-    {
-      "path": "commands\\create.md",
-      "accessCount": 1,
-      "lastAccessed": 1772208825449,
-      "type": "file"
-    },
-    {
-      "path": "skills\\create",
-      "accessCount": 1,
-      "lastAccessed": 1772208872452,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\references\\create-vm.md",
-      "accessCount": 1,
-      "lastAccessed": 1772208889033,
-      "type": "file"
-    },
-    {
-      "path": "skills\\plan\\SKILL.md",
-      "accessCount": 1,
-      "lastAccessed": 1772209962645,
-      "type": "file"
-    },
-    {
-      "path": "skills\\design\\SKILL.md",
-      "accessCount": 1,
-      "lastAccessed": 1772209962874,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guide\\setup\\plan-settings.env",
-      "accessCount": 1,
-      "lastAccessed": 1772210030821,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guide\\setup\\design-settings.env",
-      "accessCount": 1,
-      "lastAccessed": 1772210039575,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guide\\setup\\develop-settings.env",
-      "accessCount": 1,
-      "lastAccessed": 1772210048404,
-      "type": "file"
-    },
-    {
-      "path": "gateway\\runtime-mapping.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1772229976107,
-      "type": "file"
-    },
-    {
-      "path": "skills/design",
-      "accessCount": 1,
-      "lastAccessed": 1772236340991,
-      "type": "directory"
-    },
-    {
-      "path": "skills/create",
-      "accessCount": 1,
-      "lastAccessed": 1772236341724,
-      "type": "directory"
-    },
-    {
-      "path": "skills/develop",
-      "accessCount": 1,
-      "lastAccessed": 1772236342398,
-      "type": "directory"
-    },
-    {
-      "path": "resources/guides/design",
-      "accessCount": 1,
-      "lastAccessed": 1772236359367,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\design\\architecture-highlevel.md",
-      "accessCount": 1,
-      "lastAccessed": 1772236363731,
-      "type": "file"
-    },
-    {
-      "path": "resources/guides/develop/dev-plan.md",
-      "accessCount": 1,
-      "lastAccessed": 1772236818814,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\setup",
-      "accessCount": 1,
-      "lastAccessed": 1772241300472,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\setup\\prepare-deploy.md",
-      "accessCount": 1,
-      "lastAccessed": 1772241308105,
-      "type": "file"
-    },
-    {
-      "path": "gateway",
-      "accessCount": 1,
-      "lastAccessed": 1772249087859,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\samples\\sample-MQ설치계획서.md",
-      "accessCount": 1,
-      "lastAccessed": 1772249143893,
-      "type": "file"
-    },
-    {
-      "path": "commands\\deploy.md",
-      "accessCount": 1,
-      "lastAccessed": 1772250945439,
-      "type": "file"
-    },
-    {
-      "path": "resources",
-      "accessCount": 1,
-      "lastAccessed": 1772254209843,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-back.md",
-      "accessCount": 1,
-      "lastAccessed": 1772263927433,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-front.md",
-      "accessCount": 1,
-      "lastAccessed": 1772263927709,
-      "type": "file"
     }
   ],
   "userDirectives": []

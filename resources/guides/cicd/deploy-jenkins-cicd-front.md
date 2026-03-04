@@ -18,12 +18,14 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 | 파이프라인 가이드 | `deployment/cicd/jenkins-pipeline-guide.md` |
 | 환경별 설정 파일 | `deployment/cicd/config/*` |
 | Kustomize 파일 | `deployment/cicd/kustomize/*` |
-| Jenkins 스크립트 | `deployment/cicd/Jenkinsfile` |
+| Jenkins 스크립트 | `deployment/cicd/Jenkinsfile` (모노레포 시 `Jenkinsfile-frontend`) |
 
 ## 방법론
 
 ### 프롬프트 제공정보 확인
 프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
+- {CLOUD}: 클라우드 서비스 (AWS/Azure/GCP) — 레지스트리 로그인 분기에 사용
+- {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME}, package.json의 name 필드)
 - {IMG_REG}: container 컨테이너 이미지 레지스트리 주소
 - {IMG_ORG}: container IMG_ORG
 - {JENKINS_CLOUD_NAME}: Jenkins에 설정한 k8s Cloud 이름
@@ -34,6 +36,32 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 예시)
 ```
 [실행정보]
+- CLOUD: Azure
+- FRONTEND_SERVICE: phonebill-front
+- IMG_REG: docker.io
+- IMG_ORG: phonebill
+- JENKINS_CLOUD_NAME: k8s
+- NAMESPACE: phonebill
+- JENKINS_GIT_CREDENTIALS: github-credentials
+- MANIFEST_REPO_URL: https://github.com/org/manifest-repo.git
+```
+
+### 사전 준비사항 확인
+프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
+- {CLOUD}: 클라우드 서비스 (AWS/Azure/GCP) — 레지스트리 로그인 분기에 사용
+- {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME}, package.json의 name 필드)
+- {IMG_REG}: container 컨테이너 이미지 레지스트리 주소
+- {IMG_ORG}: container IMG_ORG
+- {JENKINS_CLOUD_NAME}: Jenkins에 설정한 k8s Cloud 이름
+- {NAMESPACE}: 네임스페이스
+- {JENKINS_GIT_CREDENTIALS}: 매니페스트 레포지토리 접근용 Jenkins Credential ID
+- {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
+
+예시)
+```
+[실행정보]
+- CLOUD: Azure
+- FRONTEND_SERVICE: phonebill-front
 - IMG_REG: docker.io
 - IMG_ORG: phonebill
 - JENKINS_CLOUD_NAME: k8s
@@ -55,6 +83,17 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 }
 ```
 
+### Node.js 버전 확인
+package.json에서 Node.js 버전 확인.
+{NODE_VERSION}: "engines" 섹션에서 Node.js 버전 확인. 없으면 20 버전 사용.
+```json
+{
+  "engines": {
+    "node": "20.x"
+  }
+}
+```
+
 ### Jenkins 서버 환경 구성 안내
 - Jenkins 설치 및 필수 플러그인
 
@@ -65,17 +104,18 @@ Jenkins 필수 플러그인 목록:
 - Docker Pipeline
 - GitHub
 - SonarQube Scanner
-- EnvInject Plugin
 ```
 
 - Jenkins Credentials 등록
 
   - Image Credentials
   ```
+  # 레지스트리별 Username: Docker Hub → Docker Hub 사용자명, ACR → ACR 이름, ECR → AWS, GCR → _json_key
+  # 상세 설정은 create-cicd-tools.md의 Image Registry Credential 섹션 참조
   - Kind: Username with password
   - ID: imagereg-credentials
-  - Username: {IMG_NAME}
-  - Password: {IMG_PASSWORD}
+  - Username: {레지스트리 사용자명}
+  - Password: {레지스트리 비밀번호}
   ```
 
   - Docker Hub Credentials (Rate Limit 해결용)
@@ -165,7 +205,7 @@ module.exports = {
 
 **필수 ESLint 관련 devDependencies 설치**:
 ```bash
-npm install --save-dev eslint-plugin-react
+npm install --save-dev eslint-plugin-react-refresh @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-react-hooks
 ```
 
 **package.json lint 스크립트 수정** (max-warnings 20으로 설정):
@@ -205,9 +245,6 @@ npm install --save-dev eslint-plugin-react
 ```yaml
 apiVersion: kustomize.config.k8s.io/v1beta1
 kind: Kustomization
-
-metadata:
-  name: {SERVICE_NAME}-base
 
 resources:
   # Frontend resources
@@ -308,7 +345,7 @@ images:
 `deployment/cicd/config/deploy_env_vars_{환경}` 파일 생성 방법
 ```bash
 # {환경} Environment Configuration
-namespace={namespace}
+namespace={NAMESPACE}
 ```
 
 ### Jenkinsfile 작성
@@ -335,6 +372,8 @@ Jenkins Groovy에서 bash shell로 변수 전달 시:
 - **올바른 문법**: `${variable}` (Groovy 문자열 보간)
 - **잘못된 문법**: `\${variable}` (bash 특수문자 이스케이프로 인한 "syntax error: bad substitution" 오류)
 
+> **참고**: `git` 컨테이너(`alpine/git`)의 기본 쉘은 `/bin/sh`(ash)이므로 Bash 전용 문법(배열 등) 사용 불가. 프론트엔드는 단일 서비스이므로 루프가 불필요하지만, 쉘 스크립트 작성 시 POSIX 호환 문법을 사용하세요.
+
 ```groovy
 def PIPELINE_ID = "${env.BUILD_NUMBER}"
 
@@ -345,7 +384,7 @@ def getImageTag() {
 }
 
 podTemplate(
-    cloud: {JENKINS_CLOUD_NAME},
+    cloud: '{JENKINS_CLOUD_NAME}',
     label: "${PIPELINE_ID}",
     serviceAccount: 'jenkins',
     slaveConnectTimeout: 300,
@@ -360,7 +399,7 @@ podTemplate(
     containers: [
         containerTemplate(
             name: 'node',
-            image: 'node:slim',
+            image: 'node:{NODE_VERSION}-slim',
             ttyEnabled: true,
             command: 'cat',
             resourceRequestCpu: '400m',
@@ -455,7 +494,7 @@ podTemplate(
                                 timeout(time: 5, unit: 'MINUTES') {
                                     def qg = waitForQualityGate()
                                     if (qg.status != 'OK') {
-                                        echo "⚠️ Quality Gate failed: ${qg.status}, but continuing pipeline..."
+                                        echo "⚠️ Quality Gate failed: ${qg.status}, but continuing pipeline... (프론트엔드는 초기 단계에서 커버리지가 낮을 수 있어 경고만 출력)"
                                     }
                                 }
                             } catch (Exception e) {
@@ -484,8 +523,20 @@ podTemplate(
                             // Docker Hub 로그인 (rate limit 해결)
                             sh "podman login docker.io --username \$DOCKERHUB_USERNAME --password \$DOCKERHUB_PASSWORD"
 
-                            // 이미지 레지스트리 로그인
+                            // 이미지 레지스트리 로그인 (클라우드별 조건 분기)
+                            // [실행정보]의 CLOUD 값에 따라 해당하는 섹션만 사용
+                            // --- DockerHub (CLOUD 무관, 레지스트리유형=DockerHub) ---
                             sh "podman login {IMG_REG} --username \$IMG_USERNAME --password \$IMG_PASSWORD"
+
+                            // --- AWS ECR (CLOUD=AWS, 레지스트리유형=ECR) ---
+                            // sh "aws ecr get-login-password --region {ECR_REGION} | podman login --username AWS --password-stdin {IMG_REG}"
+
+                            // --- Azure ACR (CLOUD=Azure, 레지스트리유형=ACR) ---
+                            // sh "podman login {IMG_REG} --username \$IMG_USERNAME --password \$IMG_PASSWORD"
+
+                            // --- GCP Artifact Registry (CLOUD=GCP, 레지스트리유형=GCR) ---
+                            // sh "gcloud auth configure-docker {GCR_REGION}-docker.pkg.dev --quiet"
+                            // sh "gcloud auth print-access-token | podman login -u oauth2accesstoken --password-stdin {GCR_REGION}-docker.pkg.dev"
 
                             sh """
                                 podman build \\
@@ -514,11 +565,18 @@ podTemplate(
                             git clone https://\${GIT_USERNAME}:\${GIT_TOKEN}@\${REPO_URL} manifest-repo
                             cd manifest-repo
 
+                            # Kustomize 설치
+                            curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | sh
+                            mv kustomize /usr/local/bin/ 2>/dev/null || export PATH=\$PATH:\$(pwd)
+
+                            # 매니페스트 업데이트 (kustomize 방식)
+                            cd {FRONTEND_SERVICE}/kustomize/overlays/${environment}
+
                             echo "Updating {SERVICE_NAME} image tag..."
-                            sed -i "s|image: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:.*|image: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}|g" \\
-                                {SERVICE_NAME}/kustomize/base/deployment.yaml
+                            kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}={IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}
 
                             # Git 설정 및 푸시
+                            cd ../../../..
                             git config user.name "Jenkins CI"
                             git config user.email "jenkins@example.com"
                             git add .
@@ -591,6 +649,7 @@ SKIP_SONARQUBE: String Parameter
   - 언어: JavaScript/TypeScript
 
 - Quality Gate 설정
+  > **참고**: 프론트엔드는 초기 단계에서 테스트 커버리지 확보가 어려워 백엔드(80%)보다 완화된 70%를 적용합니다. Quality Gate 실패 시에도 경고만 출력하고 파이프라인을 계속 진행합니다.
 ```
 Coverage: >= 70%
 Duplicated Lines: <= 3%
@@ -617,18 +676,6 @@ Vulnerabilities: = 0
   kubectl get ingress -n {NAMESPACE}
   ```
 
-### 수동 배포 실행 방법
-```bash
-# 개발환경 배포
-./deployment/cicd/scripts/deploy.sh dev
-
-# 스테이징환경 배포
-./deployment/cicd/scripts/deploy.sh staging
-
-# 운영환경 배포
-./deployment/cicd/scripts/deploy.sh prod latest
-```
-
 ### 롤백 방법
 - 이전 버전으로 롤백:
   ```bash
@@ -651,7 +698,7 @@ Vulnerabilities: = 0
 
 ### 📋 사전 준비 체크리스트
 - [ ] package.json에서 프로젝트명 확인 완료
-- [ ] 실행정보 섹션에서 ACR명, 리소스 그룹, AKS 클러스터명 확인 완료
+- [ ] 실행정보 섹션에서 CLOUD, IMG_REG, IMG_ORG, NAMESPACE 확인 완료
 - [ ] **ESLint 설정 파일 `.eslintrc.cjs` 생성 완료**
 - [ ] **package.json lint 스크립트 max-warnings 20으로 수정 완료**
 
@@ -702,10 +749,6 @@ Vulnerabilities: = 0
   - **파드 자동 정리 설정 확인**: podRetention: never(), idleMinutes: 1, terminationGracePeriodSeconds: 3
   - **try-catch-finally 블록 포함**: 예외 상황에서도 정리 로직 실행 보장
   - **매니페스트 레포지토리 업데이트 확인**: git container로 manifest repo clone 및 image tag 업데이트 후 push
-- [ ] 수동 배포 스크립트 `scripts/deploy.sh` 생성 완료
-- [ ] **리소스 검증 스크립트 `scripts/validate-resources.sh` 생성 완료**
-- [ ] 스크립트 실행 권한 설정 완료 (`chmod +x scripts/*.sh`)
-- [ ] **검증 스크립트 실행하여 누락 리소스 확인 완료** (`./scripts/validate-resources.sh`)
 - [ ] Dockerfile 및 Nginx 설정 파일 생성 완료
 
 ## 품질 기준
