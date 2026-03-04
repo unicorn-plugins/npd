@@ -45,9 +45,11 @@ ArgoCD GitOps 방식으로 CD를 분리하는 파이프라인을 구축한다.
 | 플레이스홀더 | 출처 | 설명 |
 |------------|------|------|
 | `{SYSTEM_NAME}` | `[실행정보]` | 백엔드 시스템명 (settings.gradle의 rootProject.name) |
-| `{FRONTEND_SERVICE}` | `[실행정보]` | 프론트엔드 서비스명 (package.json의 name) |
+| `{FRONTEND_SERVICE}` | `[실행정보]` | 프론트엔드 서비스명 (package.json의 name). `package.json` 감지 시에만 포함 |
+| `{AI_SERVICE}` | `[실행정보]` | AI 서비스명 (pyproject.toml의 [tool.poetry] name). `pyproject.toml` 감지 시에만 포함 |
 | `{SERVICE_NAMES}` | `settings.gradle` 파싱 | 백엔드 서비스명 목록 (include 'common' 하위). `[실행정보]`에 포함되지 않으며, 에이전트가 settings.gradle에서 직접 파싱 |
 | `{서비스명1}`, `{서비스명2}` ... | `{SERVICE_NAMES}`의 개별 항목 | 가이드 내 예시에서 사용하는 반복 표기 |
+| `{PYTHON_VERSION}` | `pyproject.toml` 파싱 | Python 버전. `[tool.poetry.dependencies]`의 python 필드. 미감지 시 3.11 |
 
 > **주의**: 가이드 파일마다 `{SERVICE_NAME1}` (밑줄 없음), `{SERVICE_NAME_1}` (밑줄 있음), `{서비스명1}` (한글), `{SERVICE_NAMEN}` (N번째를 의미하는 말줄임) 등이 혼용됩니다. 모두 동일하게 `{SERVICE_NAMES}`의 개별 항목을 의미합니다.
 
@@ -61,10 +63,10 @@ ArgoCD GitOps 방식으로 CD를 분리하는 파이프라인을 구축한다.
 
 CI 도구에 따라 참조할 가이드 파일이 결정된다. **클라우드별 분기 불필요** — CI/CD 분리 후 클라우드별 차이는 registry login 1개 step뿐이므로, 가이드 내 조건부 섹션으로 처리한다. 모든 가이드는 `resources/guides/cicd/` 경로에 위치한다.
 
-| CI 도구 | 백엔드 가이드 | 프론트엔드 가이드 |
-|---------|-------------|----------------|
-| Jenkins | `deploy-jenkins-cicd-back.md` | `deploy-jenkins-cicd-front.md` |
-| GitHub Actions | `deploy-actions-cicd-back.md` | `deploy-actions-cicd-front.md` |
+| CI 도구 | 백엔드 가이드 | 프론트엔드 가이드 | AI 서비스 가이드 |
+|---------|-------------|----------------|----------------|
+| Jenkins | `deploy-jenkins-cicd-back.md` | `deploy-jenkins-cicd-front.md` | `deploy-jenkins-cicd-ai.md` |
+| GitHub Actions | `deploy-actions-cicd-back.md` | `deploy-actions-cicd-front.md` | `deploy-actions-cicd-ai.md` |
 
 > **Step 1 가이드**: CI/CD 도구 사전 설치는 `cicd-pre-setup.md` 가이드를 참조한다 (CI 도구·클라우드 무관 공통).
 
@@ -166,7 +168,8 @@ ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new {VM_HOST} exit
 
 - **백엔드 감지**: `settings.gradle` 또는 `build.gradle` 존재
 - **프론트엔드 감지**: `package.json` 존재 (settings.gradle 없음)
-- **둘 다 있는 경우 (모노레포)**: 사용자에게 확인 후 양쪽 모두 생성
+- **AI 서비스 감지**: `pyproject.toml` 존재 (settings.gradle, package.json 없음)
+- **복합 프로젝트 (여러 유형 파일 공존)**: 사용자에게 확인 후 해당하는 파이프라인 모두 생성
 
 #### 기존 K8s 매니페스트 존재 검증
 
@@ -181,6 +184,7 @@ ls deployment/k8s/
 
 - **SYSTEM_NAME**: `settings.gradle` 파일에서 `rootProject.name` 값을 파싱하여 자동 감지
 - **FRONTEND_SERVICE**: `package.json` 파일에서 `name` 필드를 파싱하여 자동 감지
+- **AI_SERVICE**: `pyproject.toml` 파일에서 `[tool.poetry] name` 필드를 파싱하여 자동 감지. `pyproject.toml`이 없으면 AI 서비스 디렉토리명 사용
 - 감지 실패 시 ASK_USER로 수동 입력
 
 ```bash
@@ -189,6 +193,9 @@ grep "rootProject.name" settings.gradle | sed "s/rootProject.name = '//;s/'//"
 
 # FRONTEND_SERVICE 자동 감지
 cat package.json | python3 -c "import sys,json; print(json.load(sys.stdin)['name'])"
+
+# AI_SERVICE 자동 감지
+grep -A5 '^\[tool\.poetry\]' pyproject.toml | grep 'name' | sed 's/.*= *"//;s/"//'
 ```
 
 ### 5) 매니페스트 레포지토리 URL 결정
@@ -222,6 +229,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: {CLOUD}
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: DockerHub
 - IMG_REG: docker.io
 - IMG_ORG: {Organization/Username}
@@ -241,6 +249,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: AWS
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: ECR
 - IMG_REG: {ECR_ACCOUNT}.dkr.ecr.{ECR_REGION}.amazonaws.com
 - IMG_ORG: {SYSTEM_NAME}
@@ -260,6 +269,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: Azure
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: ACR
 - IMG_REG: {ACR명}.azurecr.io
 - IMG_ORG: {SYSTEM_NAME}
@@ -279,6 +289,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: GCP
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: GCR  # Google Artifact Registry (구 GCR 약칭 사용)
 - IMG_REG: {GCR_REGION}-docker.pkg.dev/{GCR_PROJECT}/{GCR_REPO}
 - IMG_ORG: {SYSTEM_NAME}
@@ -298,6 +309,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: Azure
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: ACR
 - IMG_REG: {ACR_NAME}.azurecr.io
 - IMG_ORG: {SYSTEM_NAME}
@@ -320,6 +332,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: AWS
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: ECR
 - IMG_REG: {ECR_ACCOUNT}.dkr.ecr.{ECR_REGION}.amazonaws.com
 - IMG_ORG: {SYSTEM_NAME}
@@ -342,6 +355,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CLOUD: GCP
 - SYSTEM_NAME: {SYSTEM_NAME}
 - FRONTEND_SERVICE: {FRONTEND_SERVICE}
+- AI_SERVICE: {AI_SERVICE}
 - 레지스트리유형: GCR  # Google Artifact Registry (구 GCR 약칭 사용)
 - IMG_REG: {GCR_REGION}-docker.pkg.dev/{GCR_PROJECT}/{GCR_REPO}
 - IMG_ORG: {SYSTEM_NAME}
@@ -366,7 +380,9 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - Step 0의 진행 모드·CI 도구 선택은 자동 진행 모드에서도 수행
 - deploy 환경 정보는 `### deploy` 상태에서 자동 복원 (질문 없음)
 - Step 1~3 실행 중에는 `<!--ASK_USER-->` 호출하지 않음
-- 자동 감지 가능 항목: SYSTEM_NAME (settings.gradle), FRONTEND_SERVICE (package.json)
+- 자동 감지 가능 항목: SYSTEM_NAME (settings.gradle), FRONTEND_SERVICE (package.json), AI_SERVICE (pyproject.toml)
+
+> **조건부 필드**: `FRONTEND_SERVICE`는 `package.json` 감지 시에만, `AI_SERVICE`는 `pyproject.toml` 감지 시에만 `[실행정보]`에 포함. 순수 AI 프로젝트는 FRONTEND_SERVICE 없이 AI_SERVICE만 포함 가능.
 
 ### 상태 기록 (`/clear` 대비)
 
@@ -380,6 +396,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - CI_TOOL: {Jenkins/GitHubActions}
 - CLOUD: {선택값}
 - 레지스트리유형: {DockerHub/ECR/ACR/GCR}
+- AI_SERVICE: {값}
 - MANIFEST_REPO_URL: {값}
 - VM_HOST: {값}
 - K8S_CLUSTER: {값}
@@ -451,7 +468,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 #### 매니페스트 레포 구성
 
 - Kustomize base/overlays(dev/staging/prod) 디렉토리 구조를 매니페스트 레포지토리에 생성
-- 디렉토리 구조: `{SYSTEM_NAME}/kustomize/` (백엔드), `{FRONTEND_SERVICE}/kustomize/` (프론트엔드)
+- 디렉토리 구조: `{SYSTEM_NAME}/kustomize/` (백엔드), `{FRONTEND_SERVICE}/kustomize/` (프론트엔드), `{AI_SERVICE}/kustomize/` (AI 서비스)
 - 각 서비스별 base에 deployment.yaml, service.yaml 등 기본 매니페스트 포함
 - overlays에 환경별(dev/staging/prod) kustomization.yaml 포함
 
@@ -474,7 +491,7 @@ spec:
   source:
     repoURL: {MANIFEST_REPO_URL}
     targetRevision: HEAD
-    path: {SYSTEM_NAME}/kustomize/overlays/{env}   # 또는 {FRONTEND_SERVICE}/kustomize/overlays/{env}
+    path: {SYSTEM_NAME}/kustomize/overlays/{env}   # 또는 {FRONTEND_SERVICE}/... 또는 {AI_SERVICE}/...
   destination:
     server: https://kubernetes.default.svc
     namespace: {NAMESPACE}
@@ -488,8 +505,9 @@ spec:
 
 - **백엔드**: Kustomize overlay가 모든 서비스를 포함하므로, **환경별 1개 Application** 생성 (시스템 단위). Application 이름: `{SYSTEM_NAME}-{env}`
 - **프론트엔드**: `{FRONTEND_SERVICE}` 환경별 1개 Application 생성. Application 이름: `{FRONTEND_SERVICE}-{env}`
+- **AI 서비스**: `{AI_SERVICE}` 환경별 1개 Application 생성. Application 이름: `{AI_SERVICE}-{env}`
 - 환경(env): `dev`, `staging`, `prod` 3개
-- **총 생성 수**: (백엔드 1 + 프론트엔드 1) x 3환경 = 6개
+- **총 생성 수**: (백엔드 1 + 프론트엔드 1 + AI 1) x 3환경 = 9개 (AI 서비스 없는 경우 6개)
 
 #### ArgoCD Application 등록
 
@@ -550,9 +568,11 @@ kubectl apply -f argocd/
 IF CI_TOOL == Jenkins:
     백엔드 -> resources/guides/cicd/deploy-jenkins-cicd-back.md
     프론트엔드 -> resources/guides/cicd/deploy-jenkins-cicd-front.md
+    AI 서비스 -> resources/guides/cicd/deploy-jenkins-cicd-ai.md
 ELSE IF CI_TOOL == GitHubActions:
     백엔드 -> resources/guides/cicd/deploy-actions-cicd-back.md
     프론트엔드 -> resources/guides/cicd/deploy-actions-cicd-front.md
+    AI 서비스 -> resources/guides/cicd/deploy-actions-cicd-ai.md
 ```
 
 > 클라우드별 분기 불필요. 가이드 내 조건부 섹션이 `[실행정보]`의 CLOUD 값에 따라 registry login 방식을 분기.
@@ -565,8 +585,8 @@ ELSE IF CI_TOOL == GitHubActions:
 - **CONTEXT**: 조립된 `[실행정보]` 블록 포함
 - **TASK**: 가이드를 참조하여 CI/CD 파이프라인 파일 생성 (빌드+푸시+manifest tag 업데이트)
 - **EXPECTED OUTCOME**:
-  - Jenkins: `deployment/cicd/Jenkinsfile`, `deployment/cicd/kustomize/*`, `deployment/cicd/config/*`, `deployment/cicd/jenkins-pipeline-guide.md`
-  - GitHub Actions: `.github/workflows/backend-cicd.yaml`, `.github/kustomize/*`, `.github/config/*`, `deployment/cicd/actions-pipeline-guide.md`
+  - Jenkins: `deployment/cicd/Jenkinsfile-backend`, `deployment/cicd/deploy-jenkins-cicd-back-result.md`
+  - GitHub Actions: `.github/workflows/backend-cicd.yaml`, `deployment/cicd/deploy-actions-cicd-back-result.md`
 
 #### 프론트엔드 CI/CD 파이프라인 작성 (에이전트 호출)
 
@@ -574,21 +594,29 @@ ELSE IF CI_TOOL == GitHubActions:
 - **CONTEXT**: 조립된 `[실행정보]` 블록 포함
 - **TASK**: 가이드를 참조하여 CI/CD 파이프라인 파일 생성 (빌드+푸시+manifest tag 업데이트)
 - **EXPECTED OUTCOME**:
-  - Jenkins: `deployment/cicd/Jenkinsfile` (프론트엔드용), `deployment/cicd/kustomize/*`, `deployment/cicd/config/*`, `deployment/cicd/jenkins-pipeline-guide.md`
-  - GitHub Actions: `.github/workflows/frontend-cicd.yaml`, `.github/kustomize/*`, `.github/config/*`, `deployment/cicd/actions-pipeline-guide.md`
+  - Jenkins: `deployment/cicd/Jenkinsfile-frontend`, `deployment/cicd/deploy-jenkins-cicd-front-result.md`
+  - GitHub Actions: `.github/workflows/frontend-cicd.yaml`, `deployment/cicd/deploy-actions-cicd-front-result.md`
 
-#### 백엔드/프론트엔드 감지 로직
+#### AI 서비스 CI/CD 파이프라인 작성 (에이전트 호출)
 
-> 백엔드와 프론트엔드는 별도 프로젝트(리포지토리)에 있을 수 있다. 스킬은 현재 프로젝트의 유형을 자동 감지하여 해당하는 파이프라인만 생성한다.  
+- **GUIDE**: 위 로직에서 결정된 AI 서비스 가이드 + ArgoCD 가이드 (manifest 업데이트 스크립트)
+- **CONTEXT**: 조립된 `[실행정보]` 블록 포함
+- **TASK**: 가이드를 참조하여 CI/CD 파이프라인 파일 생성 (빌드+푸시+manifest tag 업데이트)
+- **EXPECTED OUTCOME**:
+  - Jenkins: `deployment/cicd/Jenkinsfile-ai`, `deployment/cicd/deploy-jenkins-cicd-ai-result.md`
+  - GitHub Actions: `.github/workflows/ai-cicd.yaml`, `deployment/cicd/deploy-actions-cicd-ai-result.md`
+
+#### 백엔드/프론트엔드/AI 감지 로직
+
+> 백엔드, 프론트엔드, AI 서비스는 별도 프로젝트(리포지토리)에 있을 수 있다. 스킬은 현재 프로젝트의 유형을 자동 감지하여 해당하는 파이프라인만 생성한다.
 > - **백엔드 감지**: `settings.gradle` 또는 `build.gradle` 존재
 > - **프론트엔드 감지**: `package.json` 존재 (settings.gradle 없음)
-> - **둘 다 있는 경우**: 사용자에게 확인 후 양쪽 모두 생성
+> - **AI 서비스 감지**: `pyproject.toml` 존재
+> - **여러 유형이 공존하는 경우**: 사용자에게 확인 후 해당하는 파이프라인 모두 생성
 >
-> **⚠️ 모노레포(둘 다 있는 경우) 파일 충돌 방지:**  
-> - Jenkins: 백엔드 `deployment/cicd/Jenkinsfile-backend`, 프론트엔드 `deployment/cicd/Jenkinsfile-frontend`로 분리
-> - Jenkins Kustomize: 백엔드 `deployment/cicd/kustomize-backend/`, 프론트엔드 `deployment/cicd/kustomize-frontend/`로 분리
-> - GitHub Actions: 워크플로우 파일명이 이미 분리됨 (`backend-cicd.yaml`, `frontend-cicd.yaml`)
-> - GitHub Actions Kustomize: 백엔드 `.github/kustomize-backend/`, 프론트엔드 `.github/kustomize-frontend/`로 분리
+> **⚠️ 모노레포(여러 유형 공존) 파일 충돌 방지:**
+> - Jenkins: 백엔드 `Jenkinsfile-backend`, 프론트엔드 `Jenkinsfile-frontend`, AI `Jenkinsfile-ai`로 분리
+> - GitHub Actions: 워크플로우 파일명이 이미 분리됨 (`backend-cicd.yaml`, `frontend-cicd.yaml`, `ai-cicd.yaml`)
 
 ### Step 4. 완료 보고
 
@@ -620,6 +648,7 @@ ELSE IF CI_TOOL == GitHubActions:
 ### Step 3: CI/CD 파이프라인 산출물
 - 백엔드: {파이프라인 파일 경로} (빌드+푸시+manifest tag 업데이트)
 - 프론트엔드: {파이프라인 파일 경로} (빌드+푸시+manifest tag 업데이트)
+- AI 서비스: {파이프라인 파일 경로} (빌드+푸시+manifest tag 업데이트)
 
 ### 다음 단계
 1. 매니페스트 레포지토리를 원격에 push
@@ -647,6 +676,7 @@ ELSE IF CI_TOOL == GitHubActions:
 - [ ] 매니페스트 레포지토리 구조가 생성됨 (Kustomize base/overlays)
 - [ ] ArgoCD Application YAML이 서비스별 x 환경별로 생성·등록됨
 - [ ] CI/CD 파이프라인 파일이 생성됨 (Jenkinsfile 또는 GitHub Actions Workflow) — kubectl apply 없이 manifest repo image tag 업데이트 포함
+- [ ] AI 서비스 감지 시, AI CI/CD 파이프라인 파일이 생성됨 (Jenkinsfile-ai 또는 ai-cicd.yaml)
 - [ ] 완료 보고서가 작성됨
 - [ ] 에러 0건
 

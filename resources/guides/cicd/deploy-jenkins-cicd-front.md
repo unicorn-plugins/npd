@@ -7,7 +7,6 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| K8s 클러스터 정보 | `(런타임 결정)` | 배포 대상 |
 | Jenkins 인증 정보 | `(런타임 결정)` | 파이프라인 설정 |
 | 컨테이너 레지스트리 | `(런타임 결정)` | 이미지 푸시 대상 |
 
@@ -15,10 +14,8 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 
 | 산출물 | 파일 경로 |
 |--------|----------|
-| 파이프라인 가이드 | `deployment/cicd/jenkins-pipeline-guide.md` |
-| 환경별 설정 파일 | `deployment/cicd/config/*` |
-| Kustomize 파일 | `deployment/cicd/kustomize/*` |
-| Jenkins 스크립트 | `deployment/cicd/Jenkinsfile` (모노레포 시 `Jenkinsfile-frontend`) |
+| 파이프라인 결과서 | `deployment/cicd/deploy-jenkins-cicd-front-result.md` |
+| Jenkins 스크립트 | `deployment/cicd/Jenkinsfile-frontend` |
 
 ## 방법론
 
@@ -29,7 +26,6 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 - {IMG_REG}: container 컨테이너 이미지 레지스트리 주소
 - {IMG_ORG}: container IMG_ORG
 - {JENKINS_CLOUD_NAME}: Jenkins에 설정한 k8s Cloud 이름
-- {NAMESPACE}: 네임스페이스
 - {JENKINS_GIT_CREDENTIALS}: 매니페스트 레포지토리 접근용 Jenkins Credential ID
 - {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
 
@@ -41,31 +37,6 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 - IMG_REG: docker.io
 - IMG_ORG: phonebill
 - JENKINS_CLOUD_NAME: k8s
-- NAMESPACE: phonebill
-- JENKINS_GIT_CREDENTIALS: github-credentials
-- MANIFEST_REPO_URL: https://github.com/org/manifest-repo.git
-```
-
-### 사전 준비사항 확인
-프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-- {CLOUD}: 클라우드 서비스 (AWS/Azure/GCP) — 레지스트리 로그인 분기에 사용
-- {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME}, package.json의 name 필드)
-- {IMG_REG}: container 컨테이너 이미지 레지스트리 주소
-- {IMG_ORG}: container IMG_ORG
-- {JENKINS_CLOUD_NAME}: Jenkins에 설정한 k8s Cloud 이름
-- {NAMESPACE}: 네임스페이스
-- {JENKINS_GIT_CREDENTIALS}: 매니페스트 레포지토리 접근용 Jenkins Credential ID
-- {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
-
-예시)
-```
-[실행정보]
-- CLOUD: Azure
-- FRONTEND_SERVICE: phonebill-front
-- IMG_REG: docker.io
-- IMG_ORG: phonebill
-- JENKINS_CLOUD_NAME: k8s
-- NAMESPACE: phonebill
 - JENKINS_GIT_CREDENTIALS: github-credentials
 - MANIFEST_REPO_URL: https://github.com/org/manifest-repo.git
 ```
@@ -94,262 +65,8 @@ package.json에서 Node.js 버전 확인.
 }
 ```
 
-### Jenkins 서버 환경 구성 안내
-- Jenkins 설치 및 필수 플러그인
-
-Jenkins 필수 플러그인 목록:
-```
-- Kubernetes
-- Pipeline Utility Steps
-- Docker Pipeline
-- GitHub
-- SonarQube Scanner
-```
-
-- Jenkins Credentials 등록
-
-  - Image Credentials
-  ```
-  # 레지스트리별 Username: Docker Hub → Docker Hub 사용자명, ACR → ACR 이름, ECR → AWS, GCR → _json_key
-  # 상세 설정은 setup-cicd-tools.md의 Image Registry Credential 섹션 참조
-  - Kind: Username with password
-  - ID: imagereg-credentials
-  - Username: {레지스트리 사용자명}
-  - Password: {레지스트리 비밀번호}
-  ```
-
-  - Docker Hub Credentials (Rate Limit 해결용)
-  ```
-  - Kind: Username with password
-  - ID: dockerhub-credentials
-  - Username: {DOCKERHUB_USERNAME}
-  - Password: {DOCKERHUB_PASSWORD}
-  참고: Docker Hub 무료 계정 생성 (https://hub.docker.com)
-  ```
-
-  - SonarQube Token
-  ```
-  - Kind: Secret text
-  - ID: sonarqube-token
-  - Secret: {SonarQube토큰}
-  ```
-
-### ESLint 설정 파일 작성
-TypeScript React 프로젝트를 위한 `.eslintrc.cjs` 파일을 프로젝트 루트에 생성합니다.
-
-**⚠️ 중요**: ES 모듈 프로젝트에서는 `.eslintrc.cjs` 확장자 사용 필수
-
-```javascript
-module.exports = {
-  root: true,
-  env: {
-    browser: true,
-    es2020: true,
-    node: true
-  },
-  extends: [
-    'eslint:recommended',
-    'plugin:@typescript-eslint/recommended',
-    'plugin:react-hooks/recommended'
-  ],
-  ignorePatterns: [
-    'dist',
-    '.eslintrc.cjs',
-    'node_modules',
-    'build',
-    'coverage'
-  ],
-  parser: '@typescript-eslint/parser',
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    ecmaFeatures: {
-      jsx: true
-    }
-  },
-  plugins: [
-    'react-refresh',
-    '@typescript-eslint'
-  ],
-  rules: {
-    // React 관련 규칙
-    'react-refresh/only-export-components': [
-      'warn',
-      { allowConstantExport: true },
-    ],
-
-    // TypeScript 관련 규칙
-    '@typescript-eslint/no-unused-vars': ['error', {
-      argsIgnorePattern: '^_',
-      varsIgnorePattern: '^_'
-    }],
-    '@typescript-eslint/no-explicit-any': 'warn',
-
-    // 일반 규칙
-    'no-unused-vars': 'off', // TypeScript 규칙을 사용
-
-    // Hooks 규칙
-    'react-hooks/rules-of-hooks': 'error',
-    'react-hooks/exhaustive-deps': 'warn'
-  },
-  overrides: [
-    {
-      files: ['**/*.test.ts', '**/*.test.tsx', '**/*.spec.ts', '**/*.spec.tsx'],
-      env: {
-        jest: true
-      }
-    }
-  ]
-}
-```
-
-**필수 ESLint 관련 devDependencies 설치**:
-```bash
-npm install --save-dev eslint-plugin-react-refresh @typescript-eslint/parser @typescript-eslint/eslint-plugin eslint-plugin-react-hooks
-```
-
-**package.json lint 스크립트 수정** (max-warnings 20으로 설정):
-```json
-{
-  "scripts": {
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 20"
-  }
-}
-```
-
-### Kustomize 디렉토리 구조 생성
-- 프로젝트 루트에 CI/CD 디렉토리 생성
-  ```
-  mkdir -p deployment/cicd/kustomize/{base,overlays/{dev,staging,prod}}
-  mkdir -p deployment/cicd/kustomize/base
-  mkdir -p deployment/cicd/{config,scripts}
-  ```
-- 기존 k8s 매니페스트를 base로 복사
-  ```
-  # 기존 deployment/k8s/* 파일들을 base로 복사
-  cp deployment/k8s/* deployment/cicd/kustomize/base/
-
-  # 네임스페이스 하드코딩 제거
-  find deployment/cicd/kustomize/base -name "*.yaml" -exec sed -i 's/namespace: .*//' {} \;
-  ```
-
-### Base Kustomization 작성
-`deployment/cicd/kustomize/base/kustomization.yaml` 파일 생성 방법 안내
-
-**⚠️ 중요: 리소스 누락 방지 가이드**
-1. **디렉토리별 파일 확인**: base 디렉토리의 모든 yaml 파일을 확인
-2. **일관성 체크**: 모든 리소스가 동일한 파일 구조를 가지는지 확인
-3. **누락 검증**: `ls deployment/cicd/kustomize/base/` 명령으로 실제 파일과 kustomization.yaml 리스트 비교
-4. **명명 규칙 준수**: ConfigMap은 `configmap.yaml`, Service는 `service.yaml` 패턴 확인
-
-```yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-resources:
-  # Frontend resources
-  - deployment.yaml
-  - service.yaml
-  - configmap.yaml
-  - ingress.yaml
-
-images:
-  - name: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}
-    newTag: latest
-```
-
-**검증 명령어**:
-```bash
-# base 디렉토리의 파일 확인
-ls deployment/cicd/kustomize/base/
-
-# kustomization.yaml 유효성 검사
-kubectl kustomize deployment/cicd/kustomize/base/
-```
-
-### 환경별 Patch 파일 생성
-각 환경별로 필요한 patch 파일들을 생성합니다.
-**중요원칙**:
-- **base 매니페스트에 없는 항목은 추가 않함**
-- **base 매니페스트와 항목이 일치해야 함**
-
-**1. ConfigMap Patch 파일 생성**
-`deployment/cicd/kustomize/overlays/{환경}/configmap-patch.yaml`
-
-- base 매니페스트를 환경별로 복사
-  ```
-  cp deployment/cicd/kustomize/base/configmap.yaml deployment/cicd/kustomize/overlays/{환경}/configmap-patch.yaml
-  ```
-
-- 환경별 API 엔드포인트 설정
-- dev: 개발 API 서버 주소, staging/prod: 운영 API 서버 주소
-
-**2. Ingress Patch 파일 생성**
-`deployment/cicd/kustomize/overlays/{환경}/ingress-patch.yaml`
-- base의 ingress.yaml을 환경별로 오버라이드
-- **⚠️ 중요**: 개발환경 Ingress Host의 기본값은 base의 ingress.yaml과 **정확히 동일하게** 함
-- Staging/Prod 환경별 도메인 설정: {SERVICE_NAME}-{환경}.도메인 형식
-- Staging/prod 환경은 HTTPS 강제 적용 및 SSL 인증서 설정
-- staging/prod는 nginx.ingress.kubernetes.io/ssl-redirect: "true"
-- dev는 nginx.ingress.kubernetes.io/ssl-redirect: "false"
-
-**3. Deployment Patch 파일 생성** ⚠️ **중요**
-`deployment/cicd/kustomize/overlays/{환경}/deployment-patch.yaml`
-
-**필수 포함 사항:**
-- ✅ **replicas 설정**: Deployment의 replica 수를 환경별로 설정
-  - dev: 1 replica (리소스 절약)
-  - staging: 2 replicas
-  - prod: 3 replicas
-- ✅ **resources 설정**: Deployment의 resources를 환경별로 설정
-  - dev: requests(256m CPU, 256Mi Memory), limits(1024m CPU, 1024Mi Memory)
-  - staging: requests(512m CPU, 512Mi Memory), limits(2048m CPU, 2048Mi Memory)
-  - prod: requests(1024m CPU, 1024Mi Memory), limits(4096m CPU, 4096Mi Memory)
-
-**작성 형식:**
-- **Strategic Merge Patch 형식** 사용 (JSON Patch 아님)
-- replicas와 resources를 **반드시 모두** 포함
-
-### 환경별 Overlay 작성
-각 환경별로 `overlays/{환경}/kustomization.yaml` 생성
-```yaml
-apiVersion: kustomize.config.k8s.io/v1beta1
-kind: Kustomization
-
-namespace: {NAMESPACE}
-
-resources:
-  - ../../base
-
-patches:
-  - path: configmap-patch.yaml
-    target:
-      kind: ConfigMap
-      name: cm-{SERVICE_NAME}
-  - path: deployment-patch.yaml
-    target:
-      kind: Deployment
-      name: {SERVICE_NAME}
-  - path: ingress-patch.yaml
-    target:
-      kind: Ingress
-      name: {SERVICE_NAME}
-
-images:
-  - name: {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}
-    newTag: latest
-
-```
-
-### 환경별 설정 파일 작성
-`deployment/cicd/config/deploy_env_vars_{환경}` 파일 생성 방법
-```bash
-# {환경} Environment Configuration
-namespace={NAMESPACE}
-```
-
 ### Jenkinsfile 작성
-`deployment/cicd/Jenkinsfile` 파일 생성 방법을 안내합니다.
+`deployment/cicd/Jenkinsfile-frontend` 파일 생성 방법을 안내합니다.
 
 주요 구성 요소:
 - **Pod Template**: Node.js, Podman, Git 컨테이너
@@ -445,7 +162,6 @@ podTemplate(
     ]
 ) {
     node(PIPELINE_ID) {
-        def props
         def imageTag = getImageTag()
         def environment = params.ENVIRONMENT ?: 'dev'
         def skipSonarQube = params.SKIP_SONARQUBE ?: 'true'
@@ -454,7 +170,6 @@ podTemplate(
         try {
             stage("Get Source") {
                 checkout scm
-                props = readProperties file: "deployment/cicd/config/deploy_env_vars_${environment}"
             }
 
             stage('Build & Test') {
@@ -613,137 +328,59 @@ podTemplate(
 }
 ```
 
-### Jenkins Pipeline Job 생성 안내
+### 결과서 작성
+`deployment/cicd/deploy-jenkins-cicd-front-result.md` 파일 생성.
+아래 템플릿에 실제 치환값을 채워 작성.
 
-- Pipeline Job 설정
-1. Jenkins 웹 UI에서 **New Item > Pipeline** 선택
-2. **Pipeline script from SCM** 설정:
-   ```
-   SCM: Git
-   Repository URL: {Git저장소URL}
-   Branch: main (또는 develop)
-   Script Path: deployment/cicd/Jenkinsfile
-   ```
+```markdown
+# {FRONTEND_SERVICE} 프론트엔드 Jenkins CI 파이프라인 결과서
 
-- Pipeline Parameters 설정
+## 실행 환경 정보
+| 항목 | 값 |
+|------|-----|
+| CLOUD | {값} |
+| IMG_REG | {값} |
+| IMG_ORG | {값} |
+| JENKINS_CLOUD_NAME | {값} |
+| MANIFEST_REPO_URL | {값} |
+| JENKINS_GIT_CREDENTIALS | {값} |
+
+## 서비스 정보
+| 항목 | 값 |
+|------|-----|
+| FRONTEND_SERVICE | {값} |
+| SERVICE_NAME | {값} |
+| NODE_VERSION | {값} |
+
+## 생성 파일
+| 파일 | 설명 |
+|------|------|
+| `deployment/cicd/Jenkinsfile-frontend` | Jenkins 파이프라인 스크립트 |
+
+## 파이프라인 구성
+Get Source → Build & Test → SonarQube Analysis → Build & Push Images → Update Manifest Repository → Pipeline Complete
+
+## 변수 치환 내역
+| 플레이스홀더 | 치환값 |
+|-------------|--------|
+| {FRONTEND_SERVICE} | {값} |
+| {SERVICE_NAME} | {값} |
+| {NODE_VERSION} | {값} |
+| {IMG_REG} | {값} |
+| {IMG_ORG} | {값} |
+| {JENKINS_CLOUD_NAME} | {값} |
+| {JENKINS_GIT_CREDENTIALS} | {값} |
+| {MANIFEST_REPO_URL} | {값} |
 ```
-ENVIRONMENT: Choice Parameter
-- Choices: dev, staging, prod
-- Default: dev
-- Description: 배포 환경 선택
-
-IMAGE_TAG: String Parameter
-- Default: latest
-- Description: 컨테이너 이미지 태그 (선택사항)
-
-SKIP_SONARQUBE: String Parameter
-- Default: true
-- Description: SonarQube 코드 분석 스킵 여부 (true/false)
-```
-
-### SonarQube 프로젝트 설정 안내
-
-- SonarQube 프로젝트 생성
-  - SonarQube에서 프론트엔드 프로젝트 생성
-  - 프로젝트 키: `{SERVICE_NAME}-{환경}`
-  - 언어: JavaScript/TypeScript
-
-- Quality Gate 설정
-  > **참고**: 프론트엔드는 초기 단계에서 테스트 커버리지 확보가 어려워 백엔드(80%)보다 완화된 70%를 적용합니다. Quality Gate 실패 시에도 경고만 출력하고 파이프라인을 계속 진행합니다.
-```
-Coverage: >= 70%
-Duplicated Lines: <= 3%
-Maintainability Rating: <= A
-Reliability Rating: <= A
-Security Rating: <= A
-Code Smells: <= 50
-Bugs: = 0
-Vulnerabilities: = 0
-```
-
-### 배포 실행 방법
-- Jenkins 파이프라인 실행:
-  ```
-  1. Jenkins > {프로젝트명} > Build with Parameters
-  2. ENVIRONMENT 선택 (dev/staging/prod)
-  3. IMAGE_TAG 입력 (선택사항)
-  4. Build 클릭
-  ```
-- 배포 상태 확인:
-  ```
-  kubectl get pods -n {NAMESPACE}
-  kubectl get services -n {NAMESPACE}
-  kubectl get ingress -n {NAMESPACE}
-  ```
-
-### 롤백 방법
-- 이전 버전으로 롤백:
-  ```bash
-  # 특정 버전으로 롤백
-  # 매니페스트 레포지토리에서 이전 커밋으로 되돌리기 (ArgoCD가 자동 감지하여 배포)
-  cd {MANIFEST_REPO}
-  git log --oneline -5   # 되돌릴 커밋 확인
-  git revert HEAD --no-edit
-  git push origin main
-  ```
-- 이미지 태그 기반 롤백:
-  ```bash
-  # 매니페스트 레포에서 이전 안정 버전 이미지 태그로 업데이트 후 push (ArgoCD 자동 반영)
-  cd {MANIFEST_REPO}/{FRONTEND_SERVICE}/kustomize/overlays/{환경}
-  kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:{환경}-{이전태그}
-  git add . && git commit -m "rollback: {SERVICE_NAME} to {이전태그}" && git push origin main
-  ```
 
 ## 출력 형식
 
 ### 📋 사전 준비 체크리스트
 - [ ] package.json에서 프로젝트명 확인 완료
-- [ ] 실행정보 섹션에서 CLOUD, IMG_REG, IMG_ORG, NAMESPACE 확인 완료
-- [ ] **ESLint 설정 파일 `.eslintrc.cjs` 생성 완료**
-- [ ] **package.json lint 스크립트 max-warnings 20으로 수정 완료**
-
-### 📂 Kustomize 구조 생성 체크리스트
-- [ ] 디렉토리 구조 생성: `deployment/cicd/kustomize/{base,overlays/{dev,staging,prod}}`
-- [ ] 기존 k8s 매니페스트를 base로 복사 완료
-- [ ] 네임스페이스 하드코딩 제거 완료
-- [ ] **리소스 누락 방지 검증 완료**:
-  - [ ] `ls deployment/cicd/kustomize/base/` 명령으로 모든 파일 확인
-  - [ ] 필수 파일 존재 확인 (deployment.yaml, service.yaml, configmap.yaml, ingress.yaml 필수)
-- [ ] Base kustomization.yaml 파일 생성 완료
-  - [ ] 모든 리소스 파일 포함 확인
-- [ ] **검증 명령어 실행 완료**:
-  - [ ] `kubectl kustomize deployment/cicd/kustomize/base/` 정상 실행 확인
-  - [ ] 에러 메시지 없이 모든 리소스 출력 확인
-
-### 🔧 환경별 Overlay 구성 체크리스트
-
-#### 공통 체크 사항
-- **base 매니페스트에 없는 항목을 추가하지 않았는지 체크**
-- **base 매니페스트와 항목이 일치 하는지 체크**
-- **⚠️ Kustomize patch 방법**: `patches` (target 명시)
-
-#### DEV 환경
-- [ ] `overlays/dev/kustomization.yaml` 생성 완료
-- [ ] `overlays/dev/configmap-patch.yaml` 생성 완료 (개발 API 엔드포인트)
-- [ ] `overlays/dev/ingress-patch.yaml` 생성 완료 (**Host 기본값은 base의 ingress.yaml과 동일**)
-- [ ] `overlays/dev/deployment-patch.yaml` 생성 완료 (replicas=1, dev 리소스)
-
-#### STAGING 환경
-- [ ] `overlays/staging/kustomization.yaml` 생성 완료
-- [ ] `overlays/staging/configmap-patch.yaml` 생성 완료 (스테이징 API 엔드포인트)
-- [ ] `overlays/staging/ingress-patch.yaml` 생성 완료 (staging 도메인, HTTPS)
-- [ ] `overlays/staging/deployment-patch.yaml` 생성 완료 (replicas=2, staging 리소스)
-
-#### PROD 환경
-- [ ] `overlays/prod/kustomization.yaml` 생성 완료
-- [ ] `overlays/prod/configmap-patch.yaml` 생성 완료 (운영 API 엔드포인트)
-- [ ] `overlays/prod/ingress-patch.yaml` 생성 완료 (prod 도메인, HTTPS, SSL 인증서)
-- [ ] `overlays/prod/deployment-patch.yaml` 생성 완료 (replicas=3, prod 리소스)
-
+- [ ] 실행정보 섹션에서 CLOUD, IMG_REG, IMG_ORG 확인 완료
 ### ⚙️ 설정 및 스크립트 체크리스트
-- [ ] 환경별 설정 파일 생성: `config/deploy_env_vars_{dev,staging,prod}`
-- [ ] `Jenkinsfile` 생성 완료
-- [ ] `Jenkinsfile` 주요 내용 확인
+- [ ] `Jenkinsfile-frontend` 생성 완료
+- [ ] `Jenkinsfile-frontend` 주요 내용 확인
   - 변수 참조 문법 확인: `${variable}` 사용, `\${variable}` 사용 금지
   - 서비스명이 실제 {SERVICE_NAME}으로 치환되었는지 확인
   - **파드 자동 정리 설정 확인**: podRetention: never(), idleMinutes: 1, terminationGracePeriodSeconds: 3
@@ -754,11 +391,7 @@ Vulnerabilities: = 0
 ## 품질 기준
 - [ ] 시크릿 하드코딩 금지
 - [ ] Podman 기반 빌드 구성
-- [ ] 환경별 Kustomize overlay 구성
 
 ## 주의사항
-- dev 환경 Ingress Host는 base의 ingress.yaml과 정확히 동일하게 설정 (변경 금지)
-- Kustomize patch 방법: `patchesStrategicMerge` 대신 `patches` (target 명시) 사용
 - Jenkins Groovy에서 bash 변수 전달 시 `\${variable}` 사용 금지, `${variable}` 사용
-- ES 모듈 프로젝트에서 ESLint 설정 파일은 `.eslintrc.cjs` 확장자 사용
 - podRetention: never() 는 문자열 'never'가 아닌 함수 호출 형태로 작성

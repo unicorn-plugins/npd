@@ -552,6 +552,7 @@ tls:
 ingress:
   enabled: true
   hostname: myjenkins.io
+  pathType: Prefix
   ingressClassName: webapprouting.kubernetes.azure.com
 EOF
 ```
@@ -630,6 +631,7 @@ tls:
 ingress:
   enabled: true
   hostname: myjenkins.io
+  pathType: Prefix
   annotations:
     kubernetes.io/ingress.class: "gce"
 EOF
@@ -841,6 +843,7 @@ sysctl:
 ingress:
   enabled: true
   hostname: mysonar.io
+  pathType: Prefix
   ingressClassName: webapprouting.kubernetes.azure.com
 EOF
 ```
@@ -895,6 +898,7 @@ sysctl:
 ingress:
   enabled: true
   hostname: mysonar.io
+  pathType: Prefix
   annotations:
     kubernetes.io/ingress.class: "gce"
 EOF
@@ -1046,6 +1050,7 @@ server:
   ingress:
     enabled: true
     hostname: myargocd.io
+    pathType: Prefix
     ingressClassName: webapprouting.kubernetes.azure.com
   extraArgs:
     - --insecure
@@ -1069,6 +1074,7 @@ server:
   ingress:
     enabled: true
     hostname: myargocd.io
+    pathType: Prefix
     annotations:
       kubernetes.io/ingress.class: "gce"
   extraArgs:
