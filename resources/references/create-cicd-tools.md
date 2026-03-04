@@ -20,6 +20,8 @@
     - [\[GCP GKE\] Artifact Registry Credential 생성](#gcp-gke-artifact-registry-credential-생성)
   - [DockerHub Credentials 생성](#dockerhub-credentials-생성)
   - [GitHub Actions Repository Secrets/Variables 설정](#github-actions-repository-secretsvariables-설정)
+    - [Repository Secrets (인증정보)](#repository-secrets-인증정보)
+    - [Repository Variables (워크플로우 제어)](#repository-variables-워크플로우-제어)
 
 
 | [Top](#목차) |
@@ -305,6 +307,14 @@ Web Server VM의 Public IP를 확인하고 로컬 PC의 hosts 파일에 등록�
 > **주의**: Nginx는 시작/reload 시 `proxy_pass`에 지정된 모든 hostname을 DNS resolve합니다.
 > 삭제된 ALB 등 더 이상 존재하지 않는 주소가 설정에 남아있으면 resolve 실패로 **전체 Nginx 설정이 거부**됩니다.
 > 사용하지 않는 서비스의 server 블록은 반드시 삭제하세요.
+> 수정 대상 파일은 `/etc/nginx/sites-available/` 디렉토리 하위의 설정 파일입니다.
+>
+> **설정 확인 방법**:
+> ```
+> ssh {WEB_SERVER_SSH_HOST}
+> sudo nginx -t                # 기존 Nginx 설정이 유효한지 검증
+> ```
+> `nginx -t` 결과가 실패하면 기존 설정에 문제가 있는 것이므로, 서비스를 추가하기 전에 먼저 해결해야 합니다.
 
 | [Top](#목차) |
 
@@ -326,7 +336,7 @@ helm search repo jenkins
 
 helm pull bitnami/jenkins --version 13.6.17
 
-tar xvf {helm chart 압축파일명}
+tar xvf jenkins-13.6.17.tgz
 
 cd jenkins
 ```
@@ -649,10 +659,9 @@ sudo openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
   -subj '/CN=localhost'
 ```
 
-프록시 설정:
+프록시 설정 (`/etc/nginx/sites-available/cicd` 파일 생성):
 ```
-cat << 'EOF' | sudo tee -a /etc/nginx/sites-available/default
-
+cat << 'EOF' | sudo tee /etc/nginx/sites-available/cicd
 server {
     listen 80 default_server;
     server_name myjenkins.io;
@@ -672,6 +681,8 @@ server {
     return 301 http://$host$request_uri;
 }
 EOF
+
+sudo ln -sf /etc/nginx/sites-available/cicd /etc/nginx/sites-enabled/cicd
 ```
   
 nginx 재시작:   
@@ -1056,10 +1067,20 @@ kubectl get ing -n sonarqube
 
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
 `{SONAR_ADDRESS}`를 위에서 확인한 Ingress Address로 교체하여 실행합니다.
+`{JENKINS_ADDRESS}`는 Jenkins 설치 시 확인한 Ingress Address입니다.
 ```
 ssh {WEB_SERVER_SSH_HOST}
 
-cat << 'EOF' | sudo tee -a /etc/nginx/sites-available/default
+cat << 'EOF' | sudo tee /etc/nginx/sites-available/cicd
+server {
+    listen 80 default_server;
+    server_name myjenkins.io;
+    location / {
+        proxy_pass http://{JENKINS_ADDRESS};
+        proxy_set_header Host myjenkins.io;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 
 server {
     listen 80;
@@ -1069,6 +1090,15 @@ server {
         proxy_set_header Host mysonar.io;
         proxy_set_header X-Real-IP $remote_addr;
     }
+}
+
+# HTTPS 요청을 HTTP로 리다이렉트
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    ssl_certificate /etc/nginx/ssl/dummy.crt;
+    ssl_certificate_key /etc/nginx/ssl/dummy.key;
+    return 301 http://$host$request_uri;
 }
 EOF
 
@@ -1339,10 +1369,30 @@ kubectl get ing -n argocd
 
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가합니다.
 `{ARGOCD_ADDRESS}`를 위에서 확인한 Ingress Address로 교체하여 실행합니다.
+`{JENKINS_ADDRESS}`, `{SONAR_ADDRESS}`는 이전 단계에서 확인한 Ingress Address입니다.
 ```
 ssh {WEB_SERVER_SSH_HOST}
 
-cat << 'EOF' | sudo tee -a /etc/nginx/sites-available/default
+cat << 'EOF' | sudo tee /etc/nginx/sites-available/cicd
+server {
+    listen 80 default_server;
+    server_name myjenkins.io;
+    location / {
+        proxy_pass http://{JENKINS_ADDRESS};
+        proxy_set_header Host myjenkins.io;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
+
+server {
+    listen 80;
+    server_name mysonar.io;
+    location / {
+        proxy_pass http://{SONAR_ADDRESS};
+        proxy_set_header Host mysonar.io;
+        proxy_set_header X-Real-IP $remote_addr;
+    }
+}
 
 server {
     listen 80;
@@ -1352,6 +1402,15 @@ server {
         proxy_set_header Host myargocd.io;
         proxy_set_header X-Real-IP $remote_addr;
     }
+}
+
+# HTTPS 요청을 HTTP로 리다이렉트
+server {
+    listen 443 ssl default_server;
+    server_name _;
+    ssl_certificate /etc/nginx/ssl/dummy.crt;
+    ssl_certificate_key /etc/nginx/ssl/dummy.key;
+    return 301 http://$host$request_uri;
 }
 EOF
 
