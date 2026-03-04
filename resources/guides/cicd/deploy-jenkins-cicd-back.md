@@ -88,7 +88,7 @@ java {
   ```
   # Image Credentials
   # 레지스트리별 Username: Docker Hub → Docker Hub 사용자명, ACR → ACR 이름, ECR → AWS, GCR → _json_key
-  # 상세 설정은 create-cicd-tools.md의 Image Registry Credential 섹션 참조
+  # 상세 설정은 setup-cicd-tools.md의 Image Registry Credential 섹션 참조
   - Kind: Username with password
   - ID: imagereg-credentials
   - Username: {레지스트리 사용자명}

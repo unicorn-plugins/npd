@@ -452,19 +452,40 @@ kubectx {선택된 컨텍스트}
 
 > `{ROOT}`는 CLAUDE.md의 시스템명을 참조하여 결정한다.
 
+#### CLAUDE.md 상태 기록 (`/clear` 대비)
+
+`[실행정보]` 조립 완료 후, 프로젝트 루트 `CLAUDE.md`의 `## NPD 워크플로우 상태` 섹션 하위에
+`### deploy` 서브섹션을 생성(이미 있으면 갱신):
+
+```
+## NPD 워크플로우 상태
+### deploy
+- 진행 모드: {선택값}
+- CLOUD: {선택값}
+- 레지스트리유형: {DockerHub/ECR/ACR/GCR}
+- IMG_REG: {값}
+- IMG_ORG: {값}
+- ECR_ACCOUNT: {값}  ← ECR인 경우
+- ECR_REGION: {값}  ← ECR인 경우
+- ACR명: {값}  ← ACR인 경우
+- GCR_PROJECT: {값}  ← GCR인 경우
+- GCR_REGION: {값}  ← GCR인 경우
+- GCR_REPO: {값}  ← GCR인 경우
+- VM_HOST: {값}
+- K8S_CLUSTER: {값}
+- K8S_NAMESPACE: {값}
+- 마지막 완료 Step: {Step명}
+```
+
+클라우드별 전용 필드는 해당 레지스트리유형 선택 시에만 기록하고, 나머지는 생략.
+각 Step 완료 시 `마지막 완료 Step` 값을 갱신.
+VM_HOST는 Step 1-5(`~/.ssh/config` 파싱) 완료 후 기록.
+이 기록은 이후 `/npd:cicd` 스킬에서 중복 질문 없이 환경 정보를 재사용하기 위한 목적.
+
 ### 환경 선택 분기 규칙
 1. `[실행정보]`의 `레지스트리유형` 필드에 따라 해당 유형에 맞는 이미지 경로 체계(`REGISTRY_URL`)를 사용한다
 2. 중간 Step 시작으로 레지스트리 정보가 없는 경우, 배포 환경 선택에서 수집하여 보충한다
 
-### Phase 2 다운스트림 영향 (별도 계획 필요)
-
-이미지 레지스트리 4유형 확대에 따라 아래 가이드의 후속 수정이 필요하다:
-
-| 가이드 | 현재 상태 | 필요 작업 |
-|--------|----------|----------|
-| `deploy-k8s-back.md` | ACR 전용 (`{ACR명}.azurecr.io`) | 4유형 이미지 경로 + ImagePullSecret 분기 |
-| `deploy-k8s-front.md` | ACR 전용 | 동일 |
-| `deploy-k8s-ai.md` | ACR 전용 | 동일 |
 
 ### Step 2. 컨테이너 이미지 빌드 & 푸시 → Agent: devops-engineer (`/ralph` 활용)
 
@@ -797,3 +818,12 @@ Step 1에서 수집한 `{VM.HOST}`를 `{WEB_SERVER_SSH_HOST}`로 재사용한다
 ## 재개
 
 마지막 완료된 Step부터 재시작. 이전 산출물이 존재하면 해당 단계는 건너뜀.
+
+1. `CLAUDE.md`의 `## NPD 워크플로우 상태 > ### deploy` 섹션에서 변수를 복원:
+   - `진행 모드` → 승인/자동 모드 결정
+   - `CLOUD` → Cloud 서비스
+   - `레지스트리유형`, `IMG_REG`, `IMG_ORG` + 클라우드별 필드 → [실행정보] 복원
+   - `VM_HOST` → VM 접속 정보
+   - `K8S_CLUSTER`, `K8S_NAMESPACE` → K8s 배포 대상
+   - `마지막 완료 Step` → 재개 시작점 결정
+2. 상태 섹션이 없으면 **Step 0. 진행 모드 선택**부터 시작

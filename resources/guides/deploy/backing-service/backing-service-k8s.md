@@ -104,6 +104,50 @@ allowVolumeExpansion: true
 EOF
 ```
 
+### [AWS EKS] ALB 설정
+
+> {CLOUD} == AWS인 경우에만 수행.
+
+**ALB Subnet 태그 등록**
+
+`create-k8s.md`의 'ALB 설정' 섹션을 이미 수행했다면 이 단계는 건너뜀.
+
+Subnet 목록 확인:
+```bash
+aws ec2 describe-subnets \
+  --subnet-ids $(aws eks describe-cluster --name ${EKS_NAME} \
+  --query "cluster.resourcesVpcConfig.subnetIds" --output text) \
+  --query "Subnets[*].{ID:SubnetId,AZ:AvailabilityZone,Public:MapPublicIpOnLaunch}" \
+  --output table
+```
+
+위 결과의 모든 Subnet ID를 아래 명령에 넣어 태그 등록:
+```bash
+aws ec2 create-tags \
+  --resources {subnet-1} {subnet-2} {subnet-3} {subnet-4} \
+  --tags Key=kubernetes.io/role/elb,Value=1
+```
+
+**IngressClass 생성 (alb)**
+
+```bash
+cat <<EOF | kubectl apply -f -
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: alb
+  annotations:
+    ingressclass.kubernetes.io/is-default-class: "true"
+spec:
+  controller: eks.amazonaws.com/alb
+EOF
+```
+
+확인:
+```bash
+kubectl get ingressclass
+```
+
 ### AKS 환경: Deployment Safeguards 예외 처리
 
 AKS에는 [Deployment Safeguards](https://learn.microsoft.com/en-us/azure/aks/deployment-safeguards)가 기본 활성화되어 있다.

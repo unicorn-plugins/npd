@@ -1048,7 +1048,7 @@ spec:
               memory: 512Mi
 EOF
 ```
-> 배포 후 Pod가 Pending 상태인 것은 정상입니다. Autopilot이 Spot VM 노드를 프로비저닝하는데 1~2분 소요됩니다.
+> 배포 후 Pod가 Pending 상태인 것은 정상입니다. Autopilot이 Spot VM 노드를 프로비저닝하는데 '1~2'분 소요됩니다.
 > Spot VM은 Google이 자원이 부족하면 노드가 없어질 위험이 있습니다.
   하지만 비용이 평균 60~90% 싸기 때문에 교육시에 잠깐 쓰는 목적으로는 권장됩니다.
 
