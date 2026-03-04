@@ -1293,13 +1293,13 @@ argo/argo-cd                    3.35.4          v2.2.5
 ```
 
 ```
-helm pull argo/argo-cd --version 7.8.13
+helm pull argo/argo-cd --version 3.35.4
 ```
 
 > **참고**: 재현성을 위해 버전을 고정함. 최신 버전은 `helm search repo argo/argo-cd`로 확인.
 
 ```
-tar xvf {helm chart 압축파일명}
+tar xvf argo-cd-3.35.4.tgz
 
 cd argo-cd
 ```
@@ -1434,19 +1434,25 @@ kubectl get ing -n argocd
 kubectl get ing -n argocd
 ```
 
+
+Web서버 접근:  
+
+```
+export WEB_SERVER_SSH_HOST={Web Server SSH Host}
+ssh ${WEB_SERVER_SSH_HOST}
+```
+
 Web Server VM에 SSH 접속하여 Nginx 프록시 설정을 추가함.  
 위에서 확인한 Ingress Address를 환경변수로 설정함.  
 `JENKINS_ADDRESS`, `SONAR_ADDRESS`는 이전 단계에서 확인한 Ingress Address임.
 ```
-export WEB_SERVER_SSH_HOST={Web Server SSH Host}
 export JENKINS_ADDRESS={Jenkins Ingress Address}
 export SONAR_ADDRESS={SonarQube Ingress Address}
 export ARGOCD_ADDRESS={ArgoCD Ingress Address}
 ```
 
+Config 수정:  
 ```
-ssh ${WEB_SERVER_SSH_HOST}
-
 cat << EOF | sudo tee /etc/nginx/sites-available/cicd
 server {
     listen 80 default_server;
@@ -1487,7 +1493,10 @@ server {
     return 301 http://\$host\$request_uri;
 }
 EOF
+```
 
+nginx 서버 재시작:  
+```
 sudo nginx -t && sudo systemctl reload nginx
 ```
 
