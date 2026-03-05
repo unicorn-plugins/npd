@@ -505,73 +505,22 @@ Phase B의 모든 에이전트 완료 후:
 
 ### Step 2. 매니페스트 레포지토리 + ArgoCD 구성 → Agent: devops-engineer (/ralph 활용)
 
-- **GUIDE**: `resources/guides/cicd/deploy-argocd-cicd.md` (매니페스트 레포 구성 부분만 참조)
-- **에이전트 프롬프트 필수 지시**: "ArgoCD 가이드의 '매니페스트 레포지토리 구성' 및 'ArgoCD Application YAML 생성' 섹션을 참조하세요. 'CI 파이프라인의 매니페스트 업데이트 스크립트 참조' 섹션은 Step 3에서 처리합니다."
-
-> **Kustomize 파일 관리 원칙**: Step 2에서 매니페스트 레포지토리에 직접 Kustomize 파일을 생성합니다 (ArgoCD가 감시하는 "라이브" 매니페스트). Step 3에서 소스 레포지토리에도 동일 구조의 Kustomize 파일을 생성하지만, 이는 CI 파이프라인 초기 설정 및 가이드 참조용 "소스 템플릿"입니다. 실제 배포에 사용되는 것은 매니페스트 레포지토리의 Kustomize 파일이며, CI 파이프라인은 매니페스트 레포의 image tag만 업데이트합니다.
-
-#### 매니페스트 레포 구성
-
-- Kustomize base/overlays(dev/staging/prod) 디렉토리 구조를 매니페스트 레포지토리에 생성
-- 디렉토리 구조: `{SYSTEM_NAME}/kustomize/` (백엔드), `{FRONTEND_SERVICE}/kustomize/` (프론트엔드), `{AI_SERVICE}/kustomize/` (AI 서비스)
-- 각 서비스별 base에 deployment.yaml, service.yaml 등 기본 매니페스트 포함
-- overlays에 환경별(dev/staging/prod) kustomization.yaml 포함
-
-#### ArgoCD Application YAML 자동 생성
-
-서비스별 x 환경별 ArgoCD Application CRD YAML 파일을 자동 생성한다.
-
-**생성 위치**: 매니페스트 레포지토리 루트의 `argocd/` 디렉토리  
-**생성 파일 예시**: `argocd/{service}-{env}.yaml`
-
-**Application YAML 템플릿:**
-```yaml
-apiVersion: argoproj.io/v1alpha1
-kind: Application
-metadata:
-  name: {service}-{env}
-  namespace: argocd
-spec:
-  project: default
-  source:
-    repoURL: {MANIFEST_REPO_URL}
-    targetRevision: HEAD
-    path: {SYSTEM_NAME}/kustomize/overlays/{env}   # 또는 {FRONTEND_SERVICE}/... 또는 {AI_SERVICE}/...
-  destination:
-    server: https://kubernetes.default.svc
-    namespace: {NAMESPACE}
-  syncPolicy:
-    automated:
-      prune: true
-      selfHeal: true
-    syncOptions:
-    - CreateNamespace=true
-```
-
-- **백엔드**: Kustomize overlay가 모든 서비스를 포함하므로, **환경별 1개 Application** 생성 (시스템 단위). Application 이름: `{SYSTEM_NAME}-{env}`
-- **프론트엔드**: `{FRONTEND_SERVICE}` 환경별 1개 Application 생성. Application 이름: `{FRONTEND_SERVICE}-{env}`
-- **AI 서비스**: `{AI_SERVICE}` 환경별 1개 Application 생성. Application 이름: `{AI_SERVICE}-{env}`
-- 환경(env): `dev`, `staging`, `prod` 3개
-- **총 생성 수**: (백엔드 1 + 프론트엔드 1 + AI 1) x 3환경 = 9개 (AI 서비스 없는 경우 6개)
-
-#### ArgoCD Application 등록
-
-생성된 YAML을 K8s 클러스터에 적용하여 ArgoCD Application을 등록한다.
-
-```bash
-kubectl apply -f argocd/
-```
-
-> 이 `kubectl apply`는 ArgoCD Application CRD 등록용이며, 애플리케이션 배포용 kubectl apply가 아님.
-
+- **GUIDE**: `resources/guides/cicd/deploy-argocd-cicd.md`
+- **에이전트 프롬프트 필수 지시**: "ArgoCD 가이드의 '매니페스트 레포지토리 구성', 'ArgoCD Application YAML 생성', 'ArgoCD 매니페스트 레포지토리 인증 등록', 'ArgoCD Application 등록' 섹션을 참조하세요. 'CI 파이프라인의 매니페스트 업데이트 스크립트 참조' 섹션은 Step 3에서 처리합니다."
 - **CONTEXT**: 조립된 `[실행정보]` 블록 포함
+
+> **Kustomize 파일 관리 원칙**: Step 2에서 매니페스트 레포지토리에 Kustomize 파일을 생성합니다 (ArgoCD가 감시하는 "라이브" 매니페스트). Step 3에서는 CI/CD 파이프라인 파일(Jenkinsfile/GitHub Actions workflow)을 생성하며, 파이프라인의 마지막 단계에서 매니페스트 레포의 image tag만 업데이트합니다.
+
+#### 가이드에 없는 보충 정보
+
 - **ArgoCD Private 레포 인증**: 매니페스트 레포지토리가 Private인 경우, ArgoCD 인증 등록에 Git 크리덴셜이 필요합니다. Jenkins 선택 시 `JENKINS_GIT_CREDENTIALS`에 등록된 Username/Password를 사용하고, GitHub Actions 선택 시 `MANIFEST_SECRET_GIT_USERNAME`/`MANIFEST_SECRET_GIT_PASSWORD`에 해당하는 값을 사용자에게 확인하여 전달하세요.
-- **EXPECTED OUTCOME**:
-  - 매니페스트 레포지토리 구조 생성 (Kustomize base/overlays)
-  - ArgoCD 매니페스트 레포지토리 인증 등록 (Private 레포인 경우)
-  - ArgoCD Application YAML 파일 생성 (`argocd/*.yaml`)
-  - ArgoCD Application 등록 완료
-  - `deploy-argocd-prepare.md` 결과 보고서 작성 (프로젝트 루트)
+
+#### EXPECTED OUTCOME
+- 매니페스트 레포지토리 구조 생성 (Kustomize base/overlays)
+- ArgoCD 매니페스트 레포지토리 인증 등록 (Private 레포인 경우)
+- ArgoCD Application YAML 파일 생성 (`argocd/*.yaml`)
+- ArgoCD Application 등록 완료
+- `deploy-argocd-prepare.md` 결과 보고서 작성 (프로젝트 루트)
 
 ### Step 2.5) CI 도구별 추가 정보 수집 + [실행정보] 보완
 
@@ -586,20 +535,15 @@ kubectl apply -f argocd/
 ]}
 <!--/ASK_USER-->
 
-- `JENKINS_CLOUD_NAME`: 기본값 `k8s` 제안
+- `JENKINS_CLOUD_NAME`: 기본값은 K8s 클러스터명(`{K8S_CLUSTER}`)과 동일하게 제안
 - `JENKINS_GIT_CREDENTIALS`: ArgoCD 매니페스트 레포지토리 접근용
 
 **GitHub Actions 선택 시:**
 
-<!--ASK_USER-->
-{"title":"GitHub Actions 설정 정보","questions":[
-  {"question":"매니페스트 레포지토리 접근용 GitHub Secret 이름 (Username)을 입력하세요.","type":"text","placeholder":"GIT_USERNAME"},
-  {"question":"매니페스트 레포지토리 접근용 GitHub Secret 이름 (Password/Token)을 입력하세요.","type":"text","placeholder":"GIT_PASSWORD"}
-]}
-<!--/ASK_USER-->
+- `MANIFEST_SECRET_GIT_USERNAME`: `GIT_USERNAME` (고정)
+- `MANIFEST_SECRET_GIT_PASSWORD`: `GIT_PASSWORD` (고정)
 
-- `MANIFEST_SECRET_GIT_USERNAME`: GitHub Secret 이름
-- `MANIFEST_SECRET_GIT_PASSWORD`: GitHub Secret 이름
+> 매니페스트 레포지토리 접근용 Secret은 `setup-cicd-tools.md`에서 `GIT_USERNAME`/`GIT_PASSWORD`로 등록하도록 안내하므로 별도 질문 불필요.
 
 수집된 필드를 [실행정보]에 보완하여 Step 3에 전달.
 
