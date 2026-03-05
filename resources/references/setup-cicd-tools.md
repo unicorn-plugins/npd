@@ -444,6 +444,8 @@ GitHub Actions는 별도 서버 설치가 불필요하지만,
 
 **등록 위치**: Repository Settings > Secrets and variables > Actions
 
+![](images/2026-03-05-10-16-44.png) 
+  
 ### Repository Secrets (인증정보)
 
 **레지스트리별 인증 Secrets:**
@@ -498,7 +500,7 @@ GitHub Actions는 별도 서버 설치가 불필요하지만,
 | `GIT_USERNAME` | 매니페스트 레포지토리 접근용 GitHub 사용자명 | ArgoCD GitOps |
 | `GIT_PASSWORD` | 매니페스트 레포지토리 접근용 GitHub Token | ArgoCD GitOps |
 
-> SONAR_HOST_URL에 DNS에 없는 'http://mysonar.io'을 등록할 수 있는 이유
+> SONAR_HOST_URL에 DNS에 없는 'http://mysonar.io'을 등록할 수 있는 이유    
 > GitHub Actions Workflow에서 hosts에 mysonar.io를 등록하는 절차가 있기 때문에 가능   
   
 > **참고**: `GIT_USERNAME`/`GIT_PASSWORD`는 기본 이름임.  
@@ -510,7 +512,8 @@ GitHub Actions는 별도 서버 설치가 불필요하지만,
 ---
 
 ### Repository Variables (워크플로우 제어)
-
+![](images/2026-03-05-10-17-07.png) 
+  
 | Variable 이름 | 값 예시 | 설명 |
 |-------------|--------|------|
 | `CLOUD` | `Azure` | 클라우드 서비스 (AWS/Azure/GCP) |
