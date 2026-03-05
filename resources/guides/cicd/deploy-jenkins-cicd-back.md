@@ -84,7 +84,7 @@ java {
 `deployment/cicd/Jenkinsfile-backend` 파일 생성 방법을 안내합니다.
 
 주요 구성 요소:
-- **Pod Template**: Gradle, Podman, Git 컨테이너
+- **Pod Template**: Gradle, Podman(또는 AKS 환경에서는 Kaniko), Git 컨테이너
 - **Build**: Gradle 기반 빌드 (테스트 제외)
 - **SonarQube Analysis & Quality Gate**: 항상 표시되는 단계, 내부에서 조건부 실행으로 테스트, 코드 품질 분석, Quality Gate 처리
 - **Container Build & Push**: 30분 timeout 설정과 함께 환경별 이미지 태그로 빌드 및 푸시
@@ -136,6 +136,7 @@ podTemplate(
           restartPolicy: Never
     ''',
     containers: [
+        // --- 기본 (EKS/GKE 등) ---
         containerTemplate(
             name: 'podman',
             image: "mgoltzsche/podman",
@@ -147,6 +148,18 @@ podTemplate(
             resourceLimitCpu: '2000m',
             resourceLimitMemory: '4Gi'
         ),
+        // --- AKS 환경 (privileged 컨테이너 차단 시) ---
+        // AKS ValidatingAdmissionPolicy가 privileged: true를 차단하므로 Kaniko 사용
+        // containerTemplate(
+        //     name: 'kaniko',
+        //     image: 'gcr.io/kaniko-project/executor:debug',
+        //     ttyEnabled: true,
+        //     command: '/busybox/cat',
+        //     resourceRequestCpu: '500m',
+        //     resourceRequestMemory: '2Gi',
+        //     resourceLimitCpu: '2000m',
+        //     resourceLimitMemory: '4Gi'
+        // ),
         containerTemplate(
             name: 'gradle',
             image: 'gradle:jdk{JDK버전}',
@@ -157,14 +170,17 @@ podTemplate(
             resourceLimitCpu: '1000m',
             resourceLimitMemory: '2Gi',
             envVars: [
+                // --- 기본 (EKS/GKE 등): Podman 소켓 연동 ---
                 envVar(key: 'DOCKER_HOST', value: 'unix:///run/podman/podman.sock'),
                 envVar(key: 'TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE', value: '/run/podman/podman.sock'),
                 envVar(key: 'TESTCONTAINERS_RYUK_DISABLED', value: 'true')
+                // --- AKS 환경: Podman 소켓 불필요, RYUK_DISABLED만 유지 ---
+                // envVar(key: 'TESTCONTAINERS_RYUK_DISABLED', value: 'true')
             ]
         ),
         containerTemplate(
             name: 'git',
-            image: 'alpine/git:latest',
+            image: 'alpine/git:latest', // AKS 환경에서는 :latest 대신 특정 버전 사용 (예: 'alpine/git:2.47.2') — Gatekeeper latest 태그 차단 정책
             command: 'cat',
             ttyEnabled: true,
             resourceRequestCpu: '100m',
@@ -175,7 +191,9 @@ podTemplate(
     ],
     volumes: [
         emptyDirVolume(mountPath: '/home/gradle/.gradle', memory: false),
+        // --- 기본 (EKS/GKE 등): Podman 소켓용 ---
         emptyDirVolume(mountPath: '/run/podman', memory: false)
+        // --- AKS 환경: /run/podman volume 불필요 (Kaniko 사용 시 제거) ---
     ]
 ) {
     node(PIPELINE_ID) {
@@ -243,6 +261,7 @@ podTemplate(
                 }
             }
 
+            // --- 기본 (EKS/GKE 등): Podman 방식 ---
             stage('Build & Push Images') {
                 timeout(time: 30, unit: 'MINUTES') {
                     container('podman') {
@@ -292,6 +311,35 @@ podTemplate(
                     }
                 }
             }
+            // --- AKS 환경: Kaniko 방식 (privileged 컨테이너 차단 시) ---
+            // ⚠️ 주의: Kaniko executor는 실행 후 컨테이너 파일시스템(/bin/sh 포함)을 변경하므로,
+            //    서비스별로 별도의 sh 블록을 사용하면 두 번째 서비스 빌드부터 실패함.
+            //    --cleanup 플래그 제거로도 해결 불가. 반드시 모든 빌드를 단일 sh 블록에서 실행할 것.
+            // stage('Build & Push Images') {
+            //     timeout(time: 30, unit: 'MINUTES') {
+            //         container('kaniko') {
+            //             withCredentials([
+            //                 usernamePassword(
+            //                     credentialsId: 'dockerhub-credentials',
+            //                     usernameVariable: 'IMG_USERNAME',
+            //                     passwordVariable: 'IMG_PASSWORD'
+            //                 )
+            //             ]) {
+            //                 def kanikoCommands = "echo '{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"'\$IMG_USERNAME'\",\"password\":\"'\$IMG_PASSWORD'\"}}}' > /kaniko/.docker/config.json\n"
+            //                 targetMap.each { service, imgName ->
+            //                     kanikoCommands += """/kaniko/executor \\
+            //                         --dockerfile=deployment/container/Dockerfile-backend \\
+            //                         --context=dir://. \\
+            //                         --build-arg BUILD_LIB_DIR=${service}/build/libs \\
+            //                         --build-arg ARTIFACTORY_FILE=${service}.jar \\
+            //                         --destination=${imgName}:${environment}-${imageTag} \\
+            //                         --cache=false\n"""
+            //                 }
+            //                 sh kanikoCommands
+            //             }
+            //         }
+            //     }
+            // }
 
             stage('Update Manifest Repository') {
                 container('git') {
@@ -375,10 +423,22 @@ CRUMB=$(curl -s -c /tmp/jenkins-cookies.txt \
   python3 -c "import sys,json; print(json.load(sys.stdin)['crumb'])")
 ```
 
+> **주의**: Crumb 발급 시 `-c` 옵션으로 저장한 쿠키 파일을 Job 생성 요청 시 반드시 `-b` 옵션으로 함께 전달해야 한다.
+> Crumb 헤더만 보내고 쿠키를 누락하면 `403 No valid crumb was included in the request` 에러가 발생한다.
+
 #### 2) Job 생성
 
 ```bash
 JOB_NAME="{SYSTEM_NAME}-backend"
+
+# Job 존재 여부 확인 (이미 존재하면 생성 건너뜀)
+HTTP_CHECK=$(curl -s -o /dev/null -w "%{http_code}" \
+  -u "${JENKINS_USER}:${JENKINS_TOKEN}" \
+  "${JENKINS_URL}/job/${JOB_NAME}/api/json")
+
+if [ "$HTTP_CHECK" = "200" ]; then
+  echo "Job '${JOB_NAME}' already exists. Skipping creation."
+else
 
 curl -s -o /dev/null -w "%{http_code}" \
   -b /tmp/jenkins-cookies.txt \
@@ -434,7 +494,7 @@ curl -s -o /dev/null -w "%{http_code}" \
       </userRemoteConfigs>
       <branches>
         <hudson.plugins.git.BranchSpec>
-          <name>*/main</name>
+          <name>*/${BRANCH}</name>
         </hudson.plugins.git.BranchSpec>
       </branches>
     </scm>
@@ -443,9 +503,11 @@ curl -s -o /dev/null -w "%{http_code}" \
   </definition>
 </flow-definition>
 XMLEOF
+
+fi
 ```
 
-> 응답 코드 `200`이면 Job 생성 성공.
+> 응답 코드 `200`이면 Job 생성 성공. `400`이면 동일 이름의 Job이 이미 존재할 수 있다.
 
 ### 결과서 작성
 `docs/cicd/deploy-jenkins-cicd-back-result.md` 파일 생성.
@@ -518,9 +580,19 @@ Get Source → Build & Test → SonarQube Analysis → Build & Push Images → U
 
 ### 품질
 - [ ] 시크릿 하드코딩 금지
-- [ ] Podman 기반 빌드 구성
+- [ ] Podman 기반 빌드 구성 (AKS 환경에서는 Kaniko 기반)
 
 ## 주의사항
+
+**AKS 환경**
+- AKS ValidatingAdmissionPolicy가 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
+- AKS Gatekeeper가 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`)
+- Kaniko는 Docker config.json으로 인증하며, 레지스트리 키는 `docker.io`가 아닌 **`https://index.docker.io/v1/`** 사용
+- Kaniko 사용 시 gradle 컨테이너의 Podman 관련 envVars(`DOCKER_HOST`, `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE`)와 `/run/podman` volume 제거
+- Kaniko executor는 실행 후 컨테이너 파일시스템(`/bin/sh` 포함)을 변경하므로, 멀티 서비스 빌드 시 **반드시 모든 빌드를 단일 `sh` 블록에서 실행**할 것. 서비스별 별도 `sh` 블록이나 `--cleanup` 플래그 사용 시 두 번째 서비스부터 실패함
+- Jenkins Cloud 설정에서 `jenkins-agent-listener` 서비스가 없으면 Jenkins tunnel을 **`jenkins:50000`**으로 변경
+
+**공통**
 - Jenkins Groovy에서 bash 변수 전달 시 `\${variable}` 사용 금지, `${variable}` 사용
 - Bash 배열 대신 공백 구분 문자열 사용 (POSIX 쉘 호환)
 - `podRetention: never()`는 문자열 `'never'`가 아닌 함수 호출 형태로 작성

@@ -20,7 +20,7 @@
     - [\[AWS EKS\] ECR Credential 생성](#aws-eks-ecr-credential-생성)
     - [\[Azure AKS\] ACR Credential 생성](#azure-aks-acr-credential-생성)
     - [\[GCP GKE\] Artifact Registry Credential 생성](#gcp-gke-artifact-registry-credential-생성)
-  - [DockerHub Credentials 생성](#dockerhub-credentials-생성)
+    - [DockerHub Credentials 생성](#dockerhub-credentials-생성)
   - [GitHub Credentials 생성 (Jenkins)](#github-credentials-생성-jenkins)
     - [Credential 등록](#credential-등록)
     - [파이프라인에서의 사용](#파이프라인에서의-사용)
@@ -343,11 +343,15 @@ Jenkins credential에 등록: 이름은 'imagereg-credentials'으로 등록
 
 ### [GCP GKE] Artifact Registry Credential 생성
 
-GCP Console에서 Artifact Registry 접근용 Service Account를 생성함.  
-1. Service Account 생성
-2. Role 부여: **Artifact Registry 관리자** (Kubernetes Engine 역할은 불필요)
+GCP Console의 햄버거 메뉴 > IAM 및 관리자 > 서비스 계정 클릭 후 상단의 '서비스 계정 만들기' 
+1. Service Account 명: 적절히 입력. 예) sa-artifact-registry
+2. 권한 부여: 'Artifact Registry 작성자'로 검색하여 지정
 3. JSON Key 다운로드
-
+   - 생성된 서비스 계정 클릭
+   - 상단의 '키' 탭 클릭
+   - '키 추가' 선택 후 '새 키 만들기'
+   - JSON 선택하고 만들기 클릭
+  
 Jenkins credential에 등록: 이름은 'imagereg-credentials'으로 등록
 ```
 - Kind: Username with password
@@ -359,7 +363,7 @@ Jenkins credential에 등록: 이름은 'imagereg-credentials'으로 등록
 
 ---
 
-## DockerHub Credentials 생성
+### DockerHub Credentials 생성
 
 > CI 도구로 Jenkins를 선택한 경우에만 수행.
 
@@ -382,6 +386,8 @@ Personal Access Token을 생성함.
 username은 Docker Hub 로그인 id 이고 암호는 위에서 만든 토큰을 입력함.
 ![](images/2026-03-04-18-34-47.png)
 
+'imagereg-credentials'라는 이름으로 동일한 값을 등록함.  
+  
 | [Top](#목차) |
 
 ---
@@ -518,20 +524,7 @@ GitHub Actions는 별도 서버 설치가 불필요하지만,
 |-----------|-----|----------|
 | `GCP_SA_KEY` | GCP 서비스 계정 키 JSON | 아래 참조 |
 
-> Artifact Registry Writer 역할이 부여된 서비스 계정이 필요.
-> ```bash
-> # 1) SA 생성 (없는 경우)
-> gcloud iam service-accounts create cicd-sa --display-name="CI/CD SA" --project={GCR_PROJECT}
-> # 2) 역할 부여
-> gcloud projects add-iam-policy-binding {GCR_PROJECT} \
->   --member="serviceAccount:cicd-sa@{GCR_PROJECT}.iam.gserviceaccount.com" \
->   --role="roles/artifactregistry.writer"
-> # 3) 키 생성
-> gcloud iam service-accounts keys create gcp-sa-key.json \
->   --iam-account=cicd-sa@{GCR_PROJECT}.iam.gserviceaccount.com
-> # 4) JSON 내용을 GitHub Secret에 등록
-> cat gcp-sa-key.json
-> ```
+'[GCP GKE] Artifact Registry Credential 생성' 에서 생성한 JSON파일의 내용 입력  
 
 **공통 Secrets:**
 

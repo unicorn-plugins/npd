@@ -440,11 +440,11 @@ agent:
   enabled: true
   resources:
     limits:
-      cpu: "1"
-      memory: "1Gi"
+      cpu: "4"
+      memory: "6Gi"
     requests:
-      cpu: "500m"
-      memory: "512Mi"
+      cpu: "2"
+      memory: "4Gi"
   image:
     registry: docker.io
     repository: bitnamilegacy/jenkins-agent
@@ -532,11 +532,11 @@ agent:
   enabled: true
   resources:
     limits:
-      cpu: "1"
-      memory: "1Gi"
+      cpu: "4"
+      memory: "10Gi"
     requests:
-      cpu: "500m"
-      memory: "512Mi"
+      cpu: "2"
+      memory: "8Gi"
   image:
     registry: docker.io
     repository: bitnamilegacy/jenkins-agent
@@ -611,11 +611,11 @@ agent:
   enabled: true
   resources:
     limits:
-      cpu: "1"
-      memory: "1Gi"
+      cpu: "4"
+      memory: "6Gi"
     requests:
-      cpu: "500m"
-      memory: "512Mi"
+      cpu: "2"
+      memory: "4Gi"
   image:
     registry: docker.io
     repository: bitnamilegacy/jenkins-agent
@@ -760,11 +760,11 @@ postgresql:
 
 resources:
   limits:
-    cpu: "4"
-    memory: "5Gi"
+    cpu: "6"
+    memory: "6Gi"
   requests:
-    cpu: "3"
-    memory: "4Gi"
+    cpu: "5"
+    memory: "5Gi"
 
 image:
   registry: docker.io
@@ -827,10 +827,10 @@ postgresql:
 
 resources:
   limits:
-    cpu: "4"
+    cpu: "6"
     memory: "5Gi"
   requests:
-    cpu: "3"
+    cpu: "5"
     memory: "4Gi"
 
 image:
@@ -881,10 +881,10 @@ postgresql:
 
 resources:
   limits:
-    cpu: "4"
+    cpu: "6"
     memory: "5Gi"
   requests:
-    cpu: "3"
+    cpu: "5"
     memory: "4Gi"
 
 image:
