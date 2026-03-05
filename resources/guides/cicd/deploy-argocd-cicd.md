@@ -87,7 +87,7 @@ name = "ai-service"
 
 ### 매니페스트 레포지토리 초기화 (신규 생성 시)
 
-매니페스트 레포지토리가 아직 없는 경우(`[실행정보]`에서 "없으면 새로 생성"을 선택한 경우) 아래 단계를 먼저 수행한다.
+매니페스트 레포지토리가 아직 없는 경우 아래 단계를 먼저 수행한다.
 
 > **{MANIFEST_REPO_NAME}**: `{MANIFEST_REPO_URL}`에서 레포지토리 이름을 추출한다. 예) `https://github.com/org/phonebill-manifest.git` → `phonebill-manifest`
 

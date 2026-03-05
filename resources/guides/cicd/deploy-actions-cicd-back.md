@@ -146,6 +146,9 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
           run: |
             ./gradlew build -x test
 
+        - name: Add SonarQube host entry
+          run: echo "${{ secrets.SONAR_HOST_IP }} mysonar.io" | sudo tee -a /etc/hosts
+
         - name: SonarQube Analysis & Quality Gate
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

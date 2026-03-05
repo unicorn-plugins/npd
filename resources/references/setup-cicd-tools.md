@@ -14,13 +14,16 @@
     - [User Token 발급](#user-token-발급)
     - [Jenkins Webhook 작성](#jenkins-webhook-작성)
     - [Quality Gate 작성](#quality-gate-작성)
-    - [Jenkins Credential 등록](#jenkins-credential-등록)
+    - [Jenkins에 User Token Credential 등록](#jenkins에-user-token-credential-등록)
     - [SonarQube Server 설정](#sonarqube-server-설정)
   - [Image Registry Credential 설정](#image-registry-credential-설정)
     - [\[AWS EKS\] ECR Credential 생성](#aws-eks-ecr-credential-생성)
     - [\[Azure AKS\] ACR Credential 생성](#azure-aks-acr-credential-생성)
     - [\[GCP GKE\] Artifact Registry Credential 생성](#gcp-gke-artifact-registry-credential-생성)
   - [DockerHub Credentials 생성](#dockerhub-credentials-생성)
+  - [GitHub Webhook 설정 (Jenkins)](#github-webhook-설정-jenkins)
+    - [Payload URL 결정](#payload-url-결정)
+    - [Webhook 등록 절차](#webhook-등록-절차)
   - [GitHub Actions Repository Secrets/Variables 설정](#github-actions-repository-secretsvariables-설정)
     - [Repository Secrets (인증정보)](#repository-secrets-인증정보)
     - [Repository Variables (워크플로우 제어)](#repository-variables-워크플로우-제어)
@@ -105,7 +108,7 @@ http://myjenkins.io를 브라우저에서 열기.
 |---------|-------------|------|
 | AWS EKS | Amazon ECR | ECR 토큰 자동 갱신에 유용 (선택, 설치 후 동작 검증 필요) |
 
-> **참고**: CI에서 CD를 ArgoCD가 처리하므로  
+> **참고**: CI 단계에서는 k8s 클러스터를 접근하지 않으므로    
 > k8s 접근용 플러그인(Azure Credentials, Pipeline: AWS Steps, Google OAuth Credentials)은 불필요함.  
 > ECR 토큰 자동 갱신이 필요 없다면  
 > 클라우드별 추가 플러그인 없이 공통 플러그인만으로 충분함.
@@ -228,17 +231,31 @@ SonarQube의 Quality Gate 복사하여 Custom 만들고 New code의 code coverag
 적절한 이름을 부여함.
 ![](images/2026-03-04-17-16-24.png)
 
-작성한 Quality Gate를 선택하고 Code Coverage를 조정함.  
+작성한 Quality Gate를 선택하고 Code Coverage를 조정함.
 실습에서는 테스트 코드가 없는 서비스도 많으므로 일단 '0'으로 함.
 ![](images/2026-03-04-17-16-38.png)
+
+작성한 Quality Gate 선택 후 우측 상단 **Actions** > **Set as Default** 클릭하여 기본 Quality Gate로 지정함.
+파이프라인에서 자동 생성되는 프로젝트가 이 Quality Gate를 자동 적용받음.
 
 | [Top](#목차) |
 
 ---
 
-### Jenkins Credential 등록
+### Jenkins에 User Token Credential 등록
 
-Jenkins에 Credential을 위에서 만든 Token으로 만듦.
+Jenkins에 Credential을 위에서 만든 Token으로 만듦.  
+
+Credentials 클릭:   
+![](images/2026-03-05-08-28-56.png)     
+
+global 클릭:  
+![](images/2026-03-05-08-30-02.png)  
+
+'adding some credentials' 클릭         
+![](images/2026-03-05-08-31-05.png)    
+
+'Secret text' 타입으로 SonarQube User Token 등록   
 ![](images/2026-03-04-17-13-14.png)
 
 | [Top](#목차) |
@@ -248,11 +265,11 @@ Jenkins에 Credential을 위에서 만든 Token으로 만듦.
 ### SonarQube Server 설정
 
 System설정에서 SonarQube 서버 설정을 함.  
-Jenkins에 플러그인 'SonarQube Scanner'를 먼저 설치 필요.
+![](images/2026-03-05-08-33-55.png)   
 
-- Name: CI/CD파이프라인에서 참조할 이름임. 보통 SonarQube라고 함.
-- Server URL: Jenkins Pod에서 접근할 SonarQube 서비스의 주소.
-  kubectl get svc -n sonarqube로 확인하고 다른 네임스페이스에 있으므로 전체 주소를 입력함.  
+CTRL-F로 'Sonar' 입력 하여 SonarQube 섹션을 이동 => 'Add SonarQube' 버튼 클릭   
+- Name: CI/CD파이프라인에서 참조할 이름임. SonarQube로 입력 
+- Server URL: Jenkins Pod에서 접근할 SonarQube 서비스의 주소. http://sonar-sonarqube.sonarqube.svc.cluster.local
 - Authentication Token: 위에서 만든 credential 'sonarqube-access-token'을 선택
 
 ![](images/2026-03-04-17-13-41.png)
@@ -264,13 +281,6 @@ Jenkins에 플러그인 'SonarQube Scanner'를 먼저 설치 필요.
 ## Image Registry Credential 설정
 
 > CI 도구로 Jenkins를 선택한 경우에만 수행.
-
-> **CI/CD 아키텍처**: CI(Jenkins/GitHub Actions)는 이미지 빌드 및 Push만 수행하고,  
-> CD는 ArgoCD가 담당함.  
-> 따라서 k8s 클러스터 접근 Credential(Service Principal, IAM Role, GCP SA)은 불필요하며  
-> Image Registry Credential만 등록함.  
-> Jenkins의 Kubernetes 연결은 빌드 Agent Pod 프로비저닝용이며  
-> 인-클러스터 ServiceAccount로 처리됨.
 
 
 ### [AWS EKS] ECR Credential 생성
@@ -373,6 +383,57 @@ username은 Docker Hub 로그인 id 이고 암호는 위에서 만든 토큰을 
 
 ---
 
+## GitHub Webhook 설정 (Jenkins)
+
+> CI 도구로 **Jenkins**를 선택한 경우에만 수행.
+> GitHub Actions 사용자는 이 섹션을 건너뜀.
+
+Git push 시 자동으로 Jenkins 파이프라인이 실행되도록 GitHub Repository에 Webhook을 설정함.
+
+### Payload URL 결정
+
+Jenkins는 Nginx 프록시 뒤에서 `default_server`로 설정되어 있으므로,
+Nginx VM의 Public IP로 직접 요청하면 Jenkins로 라우팅됨.
+
+```
+GitHub → http://{VM_PUBLIC_IP}/github-webhook/
+       → Nginx (Host 헤더 매칭 없음 → default_server = Jenkins)
+       → proxy_set_header Host myjenkins.io
+       → Ingress → Jenkins Pod
+```
+
+> Jenkins 서비스를 LoadBalancer로 별도 노출할 필요 없음.
+> Nginx `default_server` 설정 덕분에 host-based 라우팅 문제가 발생하지 않음.
+
+VM Public IP 확인:
+```bash
+ssh {VM_HOST} 'curl -s ifconfig.me'
+```
+
+### Webhook 등록 절차
+
+1. GitHub Repository > **Settings** > **Webhooks** > **Add webhook**
+2. 아래 정보 입력:
+
+| 항목 | 값 |
+|------|-----|
+| Payload URL | `http://{VM_PUBLIC_IP}/github-webhook/` |
+| Content type | `application/json` |
+| Secret | (비워둠 또는 Jenkins에 설정한 Secret) |
+| Which events | `Just the push event` |
+| SSL verification | Disable |
+
+![](images/2026-03-05-09-48-12.png) 
+  
+3. **Add webhook** 클릭 후, Recent Deliveries 탭에서 초록색 체크 표시 확인
+
+> 등록 직후 GitHub가 ping 이벤트를 전송함.
+> 응답 코드 `200`이면 정상, `502`이면 Nginx → Ingress → Jenkins 경로를 점검.
+
+| [Top](#목차) |
+
+---
+
 ## GitHub Actions Repository Secrets/Variables 설정
 
 > CI 도구로 **GitHub Actions**를 선택한 경우에만 수행.  
@@ -385,28 +446,61 @@ GitHub Actions는 별도 서버 설치가 불필요하지만,
 
 ### Repository Secrets (인증정보)
 
-**클라우드별 레지스트리 인증:**
+**레지스트리별 인증 Secrets:**
 
-| CLOUD | Secret 이름 | 값 |
-|-------|-----------|-----|
-| AWS | `AWS_ACCESS_KEY_ID` | AWS 액세스 키 ID |
-| AWS | `AWS_SECRET_ACCESS_KEY` | AWS 시크릿 액세스 키 |
-| Azure | `AZURE_CREDENTIALS` | Service Principal JSON (`az ad sp create-for-rbac` 출력) |
-| Azure | `ACR_USERNAME` | ACR 관리자 사용자명 (`az acr credential show -n {ACR명}`) |
-| Azure | `ACR_PASSWORD` | ACR 관리자 패스워드 |
-| GCP | `GCP_SA_KEY` | GCP 서비스 계정 키 JSON |
+> **DockerHub** 사용 시 별도 레지스트리 인증 Secret 등록 불필요.
+> 공통 Secrets의 `DOCKERHUB_USERNAME`/`DOCKERHUB_PASSWORD`만 등록하면 됨.
+
+**ECR (AWS):**
+
+| Secret 이름 | 값 | 확인 명령 |
+|-----------|-----|----------|
+| `AWS_ACCESS_KEY_ID` | AWS 액세스 키 ID | `aws configure get aws_access_key_id` |
+| `AWS_SECRET_ACCESS_KEY` | AWS 시크릿 액세스 키 | `aws configure get aws_secret_access_key` |
+
+**ACR (Azure):**
+
+| Secret 이름 | 값 | 확인 명령 |
+|-----------|-----|----------|
+| `ACR_USERNAME` | ACR 관리자 사용자명 | `az acr credential show -n {ACR명} --query username -o tsv` |
+| `ACR_PASSWORD` | ACR 관리자 패스워드 | `az acr credential show -n {ACR명} --query "passwords[0].value" -o tsv` |
+
+**Google Artifact Registry (GCP):**
+
+| Secret 이름 | 값 | 확인 명령 |
+|-----------|-----|----------|
+| `GCP_SA_KEY` | GCP 서비스 계정 키 JSON | 아래 참조 |
+
+> Artifact Registry Writer 역할이 부여된 서비스 계정이 필요.
+> ```bash
+> # 1) SA 생성 (없는 경우)
+> gcloud iam service-accounts create cicd-sa --display-name="CI/CD SA" --project={GCR_PROJECT}
+> # 2) 역할 부여
+> gcloud projects add-iam-policy-binding {GCR_PROJECT} \
+>   --member="serviceAccount:cicd-sa@{GCR_PROJECT}.iam.gserviceaccount.com" \
+>   --role="roles/artifactregistry.writer"
+> # 3) 키 생성
+> gcloud iam service-accounts keys create gcp-sa-key.json \
+>   --iam-account=cicd-sa@{GCR_PROJECT}.iam.gserviceaccount.com
+> # 4) JSON 내용을 GitHub Secret에 등록
+> cat gcp-sa-key.json
+> ```
 
 **공통 Secrets:**
 
 | Secret 이름 | 값 | 용도 |
 |-----------|-----|------|
 | `SONAR_TOKEN` | SonarQube 사용자 토큰 | 코드 품질 분석 |
-| `SONAR_HOST_URL` | SonarQube 서버 URL (예: `http://20.249.187.69`) | 코드 품질 분석 |
+| `SONAR_HOST_URL` | SonarQube 서버 URL (예: `http://mysonar.io`) | 코드 품질 분석 |
+| `SONAR_HOST_IP` | Nginx VM의 Public IP (예: `20.249.187.69`) | SonarQube hosts 엔트리 등록 |
 | `DOCKERHUB_USERNAME` | Docker Hub 사용자명 | Rate Limit 해결 |
 | `DOCKERHUB_PASSWORD` | Docker Hub Personal Access Token | Rate Limit 해결 |
 | `GIT_USERNAME` | 매니페스트 레포지토리 접근용 GitHub 사용자명 | ArgoCD GitOps |
 | `GIT_PASSWORD` | 매니페스트 레포지토리 접근용 GitHub Token | ArgoCD GitOps |
 
+> SONAR_HOST_URL에 DNS에 없는 'http://mysonar.io'을 등록할 수 있는 이유
+> GitHub Actions Workflow에서 hosts에 mysonar.io를 등록하는 절차가 있기 때문에 가능   
+  
 > **참고**: `GIT_USERNAME`/`GIT_PASSWORD`는 기본 이름임.  
 > 다른 이름을 사용하려면 워크플로우 YAML의  
 > `secrets.GIT_USERNAME`/`secrets.GIT_PASSWORD` 참조를 해당 이름으로 변경 필요.

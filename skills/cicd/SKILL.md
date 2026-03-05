@@ -437,16 +437,41 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 #### 실행 조건
 - 항상 수행. 이미 설치된 도구는 자동 건너뜀 (idempotent).
 
-#### 자동 수행 범위
+#### 실행 순서 (병렬화)
+
+Step 1은 3단계로 나뉘며, **Phase B는 병렬 실행**한다:
+
+```
+Phase A (순차) → Phase B (병렬) → Phase C (순차)
+```
+
+**Phase A: 사전작업 (순차, 에이전트 1개)**
 1. 클라우드별 사전작업 (StorageClass, IngressClass, NodePool)
-2. Jenkins Helm 설치 + RBAC 설정 (CI_TOOL == Jenkins인 경우)
-3. SonarQube Helm 설치 + affinity 패치
-4. ArgoCD Helm 설치 + 초기 비밀번호 조회
-5. Nginx 프록시 설정 (SSH로 Web Server VM에 자동 설정)
-6. 매니페스트 레포지토리 생성 (`gh repo create {org}/{SYSTEM_NAME}-manifest --private`, 이미 존재 시 건너뜀)
+2. 매니페스트 레포지토리 생성 (`gh repo create {org}/{SYSTEM_NAME}-manifest --private`, 이미 존재 시 건너뜀)
+
+**Phase B: 도구 설치 (병렬, 에이전트 최대 3개 동시)**
+
+Phase A 완료 후, 아래 도구를 **병렬로 설치** (각각 독립 에이전트 호출):
+
+| 에이전트 | 가이드 섹션 | 설치 내용 |
+|----------|-----------|----------|
+| devops-engineer #1 | Phase 2 | Jenkins Helm 설치 + RBAC (CI_TOOL == Jenkins인 경우) |
+| devops-engineer #2 | Phase 3 | SonarQube Helm 설치 + affinity 패치 + scale 재시작 |
+| devops-engineer #3 | Phase 4 | ArgoCD Helm 설치 + --insecure 검증 |
+
+> Jenkins와 ArgoCD는 cicd NodePool을, SonarQube는 sonarqube NodePool을 사용.
+> NodePool 리밋(cpu:16, mem:64Gi)이 충분하므로 동시 스케줄링 가능.
+> CI_TOOL == GitHubActions이면 Jenkins 에이전트는 건너뜀 (2개만 병렬).
+
+**Phase C: Nginx 프록시 + 보고서 (순차, 에이전트 1개)**
+
+Phase B의 모든 에이전트 완료 후:
+1. Nginx 프록시 설정 (SSH로 Web Server VM에 자동 설정)
+2. 프록시 연결 검증 (curl)
+3. `docs/cicd/cicd-pre-setup-report.md` 결과 보고서 작성 (접속정보 + 암호 포함)
 
 #### 수동 후속 작업 안내
-에이전트가 자동 설치 완료 후, 사용자에게 수동 후속 작업 목록 안내:  
+에이전트가 자동 설치 완료 후, 사용자에게 수동 후속 작업 목록 안내:
 - hosts 파일 등록
 - Jenkins 플러그인 설치 및 K8s Cloud 연결
 - SonarQube Token/Webhook/Quality Gate 설정
@@ -460,7 +485,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 - Jenkins Pod 정상 실행 (CI_TOOL == Jenkins인 경우)
 - SonarQube Pod 정상 실행
 - ArgoCD Pod 정상 실행
-- Nginx 프록시 설정 완료 (SSH 자동, `nginx -t` 성공)
+- Nginx 프록시 설정 완료 (SSH 자동, `nginx -t` 성공, curl 검증 통과)
 - 수동 후속 작업 안내 메시지 출력
 - `docs/cicd/cicd-pre-setup-report.md` 결과 보고서 작성 (프로젝트 루트)
 
