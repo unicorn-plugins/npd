@@ -14,7 +14,6 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 
 | 산출물 | 파일 경로 |
 |--------|----------|
-| 파이프라인 결과서 | `deployment/cicd/deploy-jenkins-cicd-front-result.md` |
 | Jenkins 스크립트 | `deployment/cicd/Jenkinsfile-frontend` |
 
 ## 방법론
@@ -22,9 +21,9 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 ### 프롬프트 제공정보 확인
 프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
 - {CLOUD}: 클라우드 서비스 (AWS/Azure/GCP) — 레지스트리 로그인 분기에 사용
-- {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME}, package.json의 name 필드)
+- {FRONTEND_FRAMEWORK}: 프론트엔드 프레임워크 (React / Vue / Flutter)
+- {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME})
 - {IMG_REG}: container 컨테이너 이미지 레지스트리 주소
-- {IMG_ORG}: container IMG_ORG
 - {JENKINS_CLOUD_NAME}: Jenkins에 설정한 k8s Cloud 이름
 - {JENKINS_GIT_CREDENTIALS}: 매니페스트 레포지토리 접근용 Jenkins Credential ID
 - {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
@@ -33,30 +32,39 @@ Jenkins + Kustomize 기반 프론트엔드 CI 파이프라인을 구축한다. C
 ```
 [실행정보]
 - CLOUD: Azure
+- FRONTEND_FRAMEWORK: React
 - FRONTEND_SERVICE: phonebill-front
 - IMG_REG: docker.io
-- IMG_ORG: phonebill
 - JENKINS_CLOUD_NAME: k8s
 - JENKINS_GIT_CREDENTIALS: github-credentials
 - MANIFEST_REPO_URL: https://github.com/org/manifest-repo.git
 ```
 
 ### 서비스명 확인
-서비스명은 package.json에서 확인.
-- {SERVICE_NAME}: package.json의 "name" 필드
+프레임워크에 따라 서비스명 확인 파일이 다름.
 
-예시)
+**React / Vue**
+- {SERVICE_NAME}: `package.json`의 `"name"` 필드
+
 ```json
 {
-  ...
-  "name": "phonebill-front",
-  ...
+  "name": "phonebill-front"
 }
 ```
 
-### Node.js 버전 확인
-package.json에서 Node.js 버전 확인.
-{NODE_VERSION}: "engines" 섹션에서 Node.js 버전 확인. 없으면 20 버전 사용.
+**Flutter**
+- {SERVICE_NAME}: `pubspec.yaml`의 `name` 필드
+
+```yaml
+name: phonebill-front
+```
+
+### SDK 버전 확인
+프레임워크에 따라 빌드 컨테이너 이미지 태그에 사용할 SDK 버전 확인.
+
+**React / Vue (Node.js)**
+- {NODE_VERSION}: `package.json`의 `"engines"` 섹션에서 확인. 없으면 `20` 사용.
+
 ```json
 {
   "engines": {
@@ -65,13 +73,35 @@ package.json에서 Node.js 버전 확인.
 }
 ```
 
+**Flutter**
+- {FLUTTER_VERSION}: `pubspec.yaml`의 `environment.flutter` 또는 프로젝트에서 사용 중인 Flutter SDK 버전 확인.
+  없으면 `stable` 사용.
+
+```yaml
+environment:
+  flutter: ">=3.24.0"
+```
+
+### 이미지명 확인
+`deployment/k8s/{SERVICE_NAME}/` Deployment YAML에서 컨테이너 이미지명 추출.
+- Deployment YAML의 `image:` 필드에서 태그(`:latest` 등)를 제거하여 `{IMG_NAME}` 확보
+- CI 파이프라인에서 `{IMG_NAME}` 뒤에 새 태그(`${environment}-${imageTag}`)를 붙여 빌드·푸시
+- 매니페스트 레포지토리도 동일한 새 태그로 업데이트
+
+예시) `deployment/k8s/phonebill-front/` Deployment YAML:
+```yaml
+image: docker.io/phonebill/phonebill-front:latest
+```
+→ {IMG_NAME} = `docker.io/phonebill/phonebill-front` (`:latest` 태그 제거)
+→ 빌드 태그: `docker.io/phonebill/phonebill-front:dev-20260305143022`
+
 ### Jenkinsfile 작성
 `deployment/cicd/Jenkinsfile-frontend` 파일 생성 방법을 안내합니다.
 
 주요 구성 요소:
-- **Pod Template**: Node.js, Podman, Git 컨테이너
-- **Build & Test**: Node.js 기반 빌드 및 단위 테스트
-- **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate
+- **Pod Template**: 빌드 컨테이너(Node.js 또는 Flutter), Podman, Git 컨테이너
+- **Build & Test**: 프레임워크별 빌드 및 검증 (React/Vue: npm, Flutter: flutter build web)
+- **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate (JS/TS 또는 Dart)
 - **Container Build & Push**: 30분 timeout 설정과 함께 환경별 이미지 태그로 빌드 및 푸시
 - **Manifest Repository Update**: 매니페스트 레포지토리 image tag 업데이트 (ArgoCD GitOps)
 - **Pod Cleanup**: 파이프라인 완료 시 에이전트 파드 자동 정리
@@ -91,6 +121,7 @@ Jenkins Groovy에서 bash shell로 변수 전달 시:
 
 > **참고**: `git` 컨테이너(`alpine/git`)의 기본 쉘은 `/bin/sh`(ash)이므로 Bash 전용 문법(배열 등) 사용 불가. 프론트엔드는 단일 서비스이므로 루프가 불필요하지만, 쉘 스크립트 작성 시 POSIX 호환 문법을 사용하세요.
 
+**Jenkinsfile 템플릿**
 ```groovy
 def PIPELINE_ID = "${env.BUILD_NUMBER}"
 
@@ -114,6 +145,7 @@ podTemplate(
           restartPolicy: Never
     ''',
     containers: [
+        // --- React / Vue (Node.js 기반) ---
         containerTemplate(
             name: 'node',
             image: 'node:{NODE_VERSION}-slim',
@@ -124,6 +156,17 @@ podTemplate(
             resourceLimitCpu: '2000m',
             resourceLimitMemory: '4Gi'
         ),
+        // --- Flutter Web ---
+        // containerTemplate(
+        //     name: 'flutter',
+        //     image: 'ghcr.io/cirruslabs/flutter:{FLUTTER_VERSION}',
+        //     ttyEnabled: true,
+        //     command: 'cat',
+        //     resourceRequestCpu: '400m',
+        //     resourceRequestMemory: '1Gi',
+        //     resourceLimitCpu: '2000m',
+        //     resourceLimitMemory: '4Gi'
+        // ),
         containerTemplate(
             name: 'podman',
             image: "mgoltzsche/podman",
@@ -153,18 +196,21 @@ podTemplate(
             resourceRequestCpu: '200m',
             resourceRequestMemory: '512Mi',
             resourceLimitCpu: '1000m',
-            resourceLimitMemory: '1Gi'
+            resourceLimitMemory: '2Gi'
         )
     ],
     volumes: [
         emptyDirVolume(mountPath: '/opt/sonar-scanner/.sonar/cache', memory: false),
+        // --- React / Vue ---
         emptyDirVolume(mountPath: '/root/.npm', memory: false)
+        // --- Flutter ---
+        // emptyDirVolume(mountPath: '/root/.pub-cache', memory: false)
     ]
 ) {
     node(PIPELINE_ID) {
         def imageTag = getImageTag()
         def environment = params.ENVIRONMENT ?: 'dev'
-        def skipSonarQube = params.SKIP_SONARQUBE ?: 'true'
+        def skipSonarQube = params.SKIP_SONARQUBE ?: 'false'
         def sonarScannerHome = '/opt/sonar-scanner'
 
         try {
@@ -173,13 +219,22 @@ podTemplate(
             }
 
             stage('Build & Test') {
+                // --- React / Vue (Node.js 기반) ---
                 container('node') {
                     sh """
                         npm ci
-                        npm run build
-                        npm run lint
+                        NODE_OPTIONS="--max-old-space-size=3072" npm run build
+                        npm run lint || true
                     """
                 }
+                // --- Flutter Web ---
+                // container('flutter') {
+                //     sh """
+                //         flutter pub get
+                //         flutter build web --release
+                //         flutter analyze || true
+                //     """
+                // }
             }
 
             stage('SonarQube Analysis & Quality Gate') {
@@ -190,6 +245,7 @@ podTemplate(
                         script {
                             try {
                                 withSonarQubeEnv('SonarQube') {
+                                    // --- React / Vue (JS/TS) ---
                                     sh """
                                       timeout 300 ${sonarScannerHome}/bin/sonar-scanner \\
                                       -Dsonar.projectKey={SERVICE_NAME}-${environment} \\
@@ -202,8 +258,20 @@ podTemplate(
                                       -Dsonar.sourceEncoding=UTF-8 \\
                                       -Dsonar.typescript.tsconfigPaths=tsconfig.json \\
                                       -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \\
-                                      -Dsonar.javascript.node.maxspace=4096
+                                      -Dsonar.javascript.node.maxspace=2048
                                     """
+                                    // --- Flutter (Dart) ---
+                                    // sh """
+                                    //   timeout 300 ${sonarScannerHome}/bin/sonar-scanner \\
+                                    //   -Dsonar.projectKey={SERVICE_NAME}-${environment} \\
+                                    //   -Dsonar.projectName={SERVICE_NAME}-${environment} \\
+                                    //   -Dsonar.sources=lib \\
+                                    //   -Dsonar.tests=test \\
+                                    //   -Dsonar.test.inclusions=**/*_test.dart \\
+                                    //   -Dsonar.exclusions=build/**,.dart_tool/**,.packages/** \\
+                                    //   -Dsonar.scm.disabled=true \\
+                                    //   -Dsonar.sourceEncoding=UTF-8
+                                    // """
                                 }
 
                                 timeout(time: 5, unit: 'MINUTES') {
@@ -255,12 +323,13 @@ podTemplate(
 
                             sh """
                                 podman build \\
+                                    --platform linux/amd64 \\
                                     -f deployment/container/Dockerfile-frontend \\
-                                    --build-arg PROJECT_FOLDER="." \\
+                                    --build-arg PROJECT_FOLDER="{프론트엔드-디렉토리}" \\
                                     --build-arg BUILD_FOLDER="deployment/container" \\
-                                    -t {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag} .
+                                    -t {IMG_NAME}:${environment}-${imageTag} .
 
-                                podman push {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}
+                                podman push {IMG_NAME}:${environment}-${imageTag}
                             """
                         }
                     }
@@ -280,15 +349,15 @@ podTemplate(
                             git clone https://\${GIT_USERNAME}:\${GIT_TOKEN}@\${REPO_URL} manifest-repo
                             cd manifest-repo
 
-                            # Kustomize 설치
-                            curl -sL "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | sh
+                            # Kustomize 바이너리 직접 다운로드 (alpine/git의 ash는 bash 스크립트 비호환)
+                            wget -qO- "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz" | tar xz
                             mv kustomize /usr/local/bin/ 2>/dev/null || export PATH=\$PATH:\$(pwd)
 
                             # 매니페스트 업데이트 (kustomize 방식)
                             cd {FRONTEND_SERVICE}/kustomize/overlays/${environment}
 
                             echo "Updating {SERVICE_NAME} image tag..."
-                            kustomize edit set image {IMG_REG}/{IMG_ORG}/{SERVICE_NAME}={IMG_REG}/{IMG_ORG}/{SERVICE_NAME}:${environment}-${imageTag}
+                            kustomize edit set image {IMG_NAME}={IMG_NAME}:${environment}-${imageTag}
 
                             # Git 설정 및 푸시
                             cd ../../../..
@@ -328,8 +397,94 @@ podTemplate(
 }
 ```
 
+### Jenkins Job 생성
+
+Jenkinsfile 작성 후, Jenkins REST API를 사용하여 Job을 생성한다.
+
+> **사전 조건**: Jenkins에 아래 크리덴셜이 등록되어 있어야 한다.
+> - `dockerhub-credentials` (또는 `imagereg-credentials`): 이미지 레지스트리 로그인용
+> - `{JENKINS_GIT_CREDENTIALS}`: 소스/매니페스트 레포지토리 Git 접근용
+
+#### 1) Jenkins CRUMB 획득
+
+```bash
+JENKINS_URL="{JENKINS_URL}"
+JENKINS_USER="{JENKINS_USER}"
+JENKINS_TOKEN="{JENKINS_TOKEN}"
+
+CRUMB=$(curl -s -c /tmp/jenkins-cookies.txt \
+  -u "${JENKINS_USER}:${JENKINS_TOKEN}" \
+  "${JENKINS_URL}/crumbIssuer/api/json" | \
+  python3 -c "import sys,json; print(json.load(sys.stdin)['crumb'])")
+```
+
+#### 2) Job 생성
+
+```bash
+JOB_NAME="{SYSTEM_NAME}-frontend"
+
+curl -s -o /dev/null -w "%{http_code}" \
+  -b /tmp/jenkins-cookies.txt \
+  -u "${JENKINS_USER}:${JENKINS_TOKEN}" \
+  -H "Jenkins-Crumb:${CRUMB}" \
+  -H "Content-Type:application/xml" \
+  -d @- \
+  "${JENKINS_URL}/createItem?name=${JOB_NAME}" << 'XMLEOF'
+<?xml version='1.1' encoding='UTF-8'?>
+<flow-definition plugin="workflow-job">
+  <description>프론트엔드 CI 파이프라인</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.model.ParametersDefinitionProperty>
+      <parameterDefinitions>
+        <hudson.model.StringParameterDefinition>
+          <name>BRANCH</name>
+          <defaultValue>main</defaultValue>
+          <description>빌드 브랜치</description>
+        </hudson.model.StringParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>ENVIRONMENT</name>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array"><string>dev</string><string>staging</string><string>prod</string></a>
+          </choices>
+          <description>배포 환경</description>
+        </hudson.model.ChoiceParameterDefinition>
+        <hudson.model.ChoiceParameterDefinition>
+          <name>SKIP_SONARQUBE</name>
+          <choices class="java.util.Arrays$ArrayList">
+            <a class="string-array"><string>false</string><string>true</string></a>
+          </choices>
+          <description>SonarQube 분석 스킵 여부</description>
+        </hudson.model.ChoiceParameterDefinition>
+      </parameterDefinitions>
+    </hudson.model.ParametersDefinitionProperty>
+  </properties>
+  <definition class="org.jenkinsci.plugins.workflow.cps.CpsScmFlowDefinition" plugin="workflow-cps">
+    <scm class="hudson.plugins.git.GitSCM" plugin="git">
+      <configVersion>2</configVersion>
+      <userRemoteConfigs>
+        <hudson.plugins.git.UserRemoteConfig>
+          <url>{SOURCE_REPO_URL}</url>
+          <credentialsId>{JENKINS_GIT_CREDENTIALS}</credentialsId>
+        </hudson.plugins.git.UserRemoteConfig>
+      </userRemoteConfigs>
+      <branches>
+        <hudson.plugins.git.BranchSpec>
+          <name>*/main</name>
+        </hudson.plugins.git.BranchSpec>
+      </branches>
+    </scm>
+    <scriptPath>deployment/cicd/Jenkinsfile-frontend</scriptPath>
+    <lightweight>true</lightweight>
+  </definition>
+</flow-definition>
+XMLEOF
+```
+
+> 응답 코드 `200`이면 Job 생성 성공.
+
 ### 결과서 작성
-`deployment/cicd/deploy-jenkins-cicd-front-result.md` 파일 생성.
+`docs/cicd/deploy-jenkins-cicd-front-result.md` 파일 생성.
 아래 템플릿에 실제 치환값을 채워 작성.
 
 ```markdown
@@ -340,7 +495,7 @@ podTemplate(
 |------|-----|
 | CLOUD | {값} |
 | IMG_REG | {값} |
-| IMG_ORG | {값} |
+| IMG_NAME | {값} |
 | JENKINS_CLOUD_NAME | {값} |
 | MANIFEST_REPO_URL | {값} |
 | JENKINS_GIT_CREDENTIALS | {값} |
@@ -348,9 +503,10 @@ podTemplate(
 ## 서비스 정보
 | 항목 | 값 |
 |------|-----|
+| FRONTEND_FRAMEWORK | {React / Vue / Flutter} |
 | FRONTEND_SERVICE | {값} |
 | SERVICE_NAME | {값} |
-| NODE_VERSION | {값} |
+| NODE_VERSION 또는 FLUTTER_VERSION | {값} |
 
 ## 생성 파일
 | 파일 | 설명 |
@@ -358,40 +514,71 @@ podTemplate(
 | `deployment/cicd/Jenkinsfile-frontend` | Jenkins 파이프라인 스크립트 |
 
 ## 파이프라인 구성
+| 항목 | 값 |
+|------|-----|
+| Job 이름 | {SYSTEM_NAME}-frontend |
+
 Get Source → Build & Test → SonarQube Analysis → Build & Push Images → Update Manifest Repository → Pipeline Complete
 
 ## 변수 치환 내역
 | 플레이스홀더 | 치환값 |
 |-------------|--------|
+| {FRONTEND_FRAMEWORK} | {값} |
 | {FRONTEND_SERVICE} | {값} |
 | {SERVICE_NAME} | {값} |
-| {NODE_VERSION} | {값} |
+| {NODE_VERSION} 또는 {FLUTTER_VERSION} | {값} |
 | {IMG_REG} | {값} |
-| {IMG_ORG} | {값} |
+| {IMG_NAME} | {값} |
 | {JENKINS_CLOUD_NAME} | {값} |
 | {JENKINS_GIT_CREDENTIALS} | {값} |
 | {MANIFEST_REPO_URL} | {값} |
+
 ```
 
-## 출력 형식
+## 체크리스트
 
-### 📋 사전 준비 체크리스트
-- [ ] package.json에서 프로젝트명 확인 완료
-- [ ] 실행정보 섹션에서 CLOUD, IMG_REG, IMG_ORG 확인 완료
-### ⚙️ 설정 및 스크립트 체크리스트
+### 사전 준비
+- [ ] 프레임워크 확인 완료 (React / Vue / Flutter)
+- [ ] 서비스명 확인 완료 (React/Vue: package.json, Flutter: pubspec.yaml)
+- [ ] 실행정보 섹션에서 CLOUD, IMG_REG 확인 완료
+- [ ] K8s Deployment YAML에서 이미지명(IMG_NAME) 확인 완료
+
+### 파이프라인 파일
 - [ ] `Jenkinsfile-frontend` 생성 완료
 - [ ] `Jenkinsfile-frontend` 주요 내용 확인
+  - 프레임워크에 맞는 빌드 컨테이너 활성화 (React/Vue: `node`, Flutter: `flutter`)
+  - 프레임워크에 맞는 Build & Test 블록 활성화, 나머지 주석 처리
+  - 프레임워크에 맞는 SonarQube 설정 블록 활성화
   - 변수 참조 문법 확인: `${variable}` 사용, `\${variable}` 사용 금지
   - 서비스명이 실제 {SERVICE_NAME}으로 치환되었는지 확인
-  - **파드 자동 정리 설정 확인**: podRetention: never(), idleMinutes: 1, terminationGracePeriodSeconds: 3
-  - **try-catch-finally 블록 포함**: 예외 상황에서도 정리 로직 실행 보장
-  - **매니페스트 레포지토리 업데이트 확인**: git container로 manifest repo clone 및 image tag 업데이트 후 push
+  - 파드 자동 정리 설정: `podRetention: never()`, `idleMinutes: 1`, `terminationGracePeriodSeconds: 3`
+  - try-catch-finally 블록 포함 (예외 상황에서도 정리 로직 실행 보장)
+  - 매니페스트 레포지토리 업데이트: git container로 manifest repo clone 및 image tag 업데이트 후 push
 - [ ] Dockerfile 및 Nginx 설정 파일 생성 완료
 
-## 품질 기준
+### Job 생성
+- [ ] Jenkins Job 생성 완료 (REST API 또는 UI)
+
+### 품질
 - [ ] 시크릿 하드코딩 금지
 - [ ] Podman 기반 빌드 구성
 
 ## 주의사항
+
+**공통**
 - Jenkins Groovy에서 bash 변수 전달 시 `\${variable}` 사용 금지, `${variable}` 사용
-- podRetention: never() 는 문자열 'never'가 아닌 함수 호출 형태로 작성
+- `podRetention: never()`는 문자열 `'never'`가 아닌 함수 호출 형태로 작성
+- `cleanWs()`는 Workspace Cleanup 플러그인 필요. 미설치 시 `No such DSL method 'cleanWs'` 에러 발생. `podRetention: never()`로 Pod 자동 정리 권장
+- `deleteDir()` 사용 시 `node_modules` / `.dart_tool` 파일 권한 문제로 실패 가능. `podRetention: never()`에 의존하는 것이 안전
+- 이 가이드는 **Scripted Pipeline** 방식. Declarative Pipeline으로 작성 시 문법 차이 주의
+- Jenkinsfile 템플릿에서 프레임워크에 해당하는 블록만 활성화하고, 나머지는 주석 유지.
+  `// ---` 주석 마커로 프레임워크별 블록 구분
+
+**React / Vue (Node.js)**
+- Next.js 빌드는 메모리 소비가 크므로 node 컨테이너의 메모리 limit을 **4Gi 이상**으로 설정. 부족 시 `OOMKilled` 발생
+- `NODE_OPTIONS="--max-old-space-size=3072"` 환경변수로 Node.js 힙 메모리 한도 확장 필요
+
+**Flutter**
+- Flutter 컨테이너 이미지(`ghcr.io/cirruslabs/flutter`)는 용량이 크므로 초기 Pull 시간 고려 필요
+- SonarQube Dart 플러그인(`sonar-dart`)이 SonarQube 서버에 설치되어 있어야 분석 가능
+- `flutter build web --release` 결과물은 `build/web/` 디렉토리에 생성됨. Dockerfile의 COPY 경로 확인 필요

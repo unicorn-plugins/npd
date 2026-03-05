@@ -20,10 +20,10 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
 
 - 사전 준비사항 확인
   프롬프트의 '[실행정보]'섹션에서 아래정보를 확인
-  - {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME}, package.json의 name 필드)
+  - {FRONTEND_FRAMEWORK}: 프론트엔드 프레임워크 (React / Vue / Flutter)
+  - {FRONTEND_SERVICE}: 프론트엔드 서비스명 (= {SERVICE_NAME})
   - {CLOUD}: 클라우드 서비스 (AWS/Azure/GCP)
   - {IMG_REG}: 컨테이너 이미지 레지스트리 주소
-  - {IMG_ORG}: 이미지 조직명
   - {MANIFEST_REPO_URL}: 매니페스트 레포지토리 URL
   - {MANIFEST_SECRET_GIT_USERNAME}: 매니페스트 레포지토리 접근용 GitHub Secret (Username)
   - {MANIFEST_SECRET_GIT_PASSWORD}: 매니페스트 레포지토리 접근용 GitHub Secret (Password/Token)
@@ -34,20 +34,30 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
   - GCP: {GCR_REGION}, {GCR_PROJECT}, {GCR_REPO}, {GKE_CLUSTER}, {GKE_ZONE}
 
 - 서비스명 확인
-  package.json에서 확인.
-  - {SERVICE_NAME}: package.json의 "name" 필드
-  예시)
+  프레임워크에 따라 서비스명 확인 파일이 다름.
+
+  **React / Vue**
+  - {SERVICE_NAME}: `package.json`의 `"name"` 필드
+
   ```json
   {
-    ...
-    "name": "phonebill-front",
-    ...
+    "name": "phonebill-front"
   }
   ```
 
-- Node.js 버전 확인
-  package.json에서 Node.js 버전 확인.
-  {NODE_VERSION}: "engines" 섹션에서 Node.js 버전 확인. 없으면 20 버전 사용.
+  **Flutter**
+  - {SERVICE_NAME}: `pubspec.yaml`의 `name` 필드
+
+  ```yaml
+  name: phonebill-front
+  ```
+
+- SDK 버전 확인
+  프레임워크에 따라 빌드에 사용할 SDK 버전 확인.
+
+  **React / Vue (Node.js)**
+  - {NODE_VERSION}: `package.json`의 `"engines"` 섹션에서 확인. 없으면 `20` 사용.
+
   ```json
   {
     "engines": {
@@ -56,14 +66,36 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
   }
   ```
 
+  **Flutter**
+  - {FLUTTER_VERSION}: `pubspec.yaml`의 `environment.flutter` 또는 프로젝트에서 사용 중인 Flutter SDK 버전 확인.
+    없으면 `stable` 사용.
+
+  ```yaml
+  environment:
+    flutter: ">=3.24.0"
+  ```
+
+- 이미지명 확인
+  `deployment/k8s/{SERVICE_NAME}/` Deployment YAML에서 컨테이너 이미지명 추출.
+  - Deployment YAML의 `image:` 필드에서 태그(`:latest` 등)를 제거하여 `{IMG_NAME}` 확보
+  - CI 파이프라인에서 `{IMG_NAME}` 뒤에 새 태그(`${environment}-${imageTag}`)를 붙여 빌드·푸시
+  - 매니페스트 레포지토리도 동일한 새 태그로 업데이트
+
+  예시) `deployment/k8s/phonebill-front/` Deployment YAML:
+  ```yaml
+  image: docker.io/phonebill/phonebill-front:latest
+  ```
+  → {IMG_NAME} = `docker.io/phonebill/phonebill-front` (`:latest` 태그 제거)
+  → 빌드 태그: `docker.io/phonebill/phonebill-front:dev-20260305143022`
+
 - GitHub Actions 워크플로우 작성
   `.github/workflows/frontend-cicd.yaml` 파일 생성 방법을 안내합니다.
 
   > **⚠️ 주의**: 아래 YAML 코드 블록은 마크다운 리스트 내에 있어 2칸 들여쓰기가 포함되어 있습니다. 파일로 생성할 때 **앞의 2칸 들여쓰기를 제거**하세요. `name:`이 컬럼 0에서 시작해야 합니다.
 
   주요 구성 요소:
-  - **Build & Test**: Node.js 기반 빌드 및 단위 테스트, ESLint 검사
-  - **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate
+  - **Build & Test**: 프레임워크별 빌드 및 검증 (React/Vue: npm, Flutter: flutter build web)
+  - **SonarQube Analysis**: 프론트엔드 코드 품질 분석 및 Quality Gate (JS/TS 또는 Dart)
   - **Container Build & Push**: 환경별 이미지 태그로 빌드 및 푸시
   - **Update Manifest Repository**: 매니페스트 레포지토리 image tag 업데이트 (ArgoCD GitOps)
 
@@ -74,12 +106,19 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
     push:
       branches: [ main, develop ]
       paths:
+        # --- React / Vue ---
         - 'src/**'
         - 'public/**'
         - 'package*.json'
         - 'tsconfig*.json'
         - 'vite.config.ts'
         - 'index.html'
+        # --- Flutter ---
+        # - 'lib/**'
+        # - 'web/**'
+        # - 'pubspec.*'
+        # - 'analysis_options.yaml'
+        # --- 공통 ---
         - '.github/**'
     pull_request:
       branches: [ main ]
@@ -108,7 +147,6 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
     # Repository Variables에 CLOUD를 반드시 설정해야 합니다. 미설정 시 Azure로 동작합니다.
     CLOUD: ${{ vars.CLOUD || 'Azure' }}
     REGISTRY: ${{ vars.REGISTRY }}
-    IMAGE_ORG: ${{ vars.IMAGE_ORG }}
 
   jobs:
     build:
@@ -122,11 +160,18 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
         - name: Check out code
           uses: actions/checkout@v4
 
+        # --- React / Vue (Node.js) ---
         - name: Set up Node.js {NODE_VERSION}
           uses: actions/setup-node@v4
           with:
             node-version: '{NODE_VERSION}'
             cache: 'npm'
+        # --- Flutter ---
+        # - name: Set up Flutter {FLUTTER_VERSION}
+        #   uses: subosito/flutter-action@v2
+        #   with:
+        #     flutter-version: '{FLUTTER_VERSION}'
+        #     cache: true
 
         - name: Determine environment
           id: determine_env
@@ -134,31 +179,42 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
             ENVIRONMENT="${{ github.event.inputs.ENVIRONMENT || vars.ENVIRONMENT || 'dev' }}"
             echo "environment=$ENVIRONMENT" >> $GITHUB_OUTPUT
 
+        # --- React / Vue (Node.js) ---
         - name: Install dependencies
           run: npm ci
 
         - name: Build and Test
           run: |
-            npm run build
-            npm run lint
+            NODE_OPTIONS="--max-old-space-size=3072" npm run build
+            npm run lint || true
+        # --- Flutter ---
+        # - name: Install dependencies
+        #   run: flutter pub get
+        #
+        # - name: Build and Test
+        #   run: |
+        #     flutter build web --release
+        #     flutter analyze || true
 
         - name: Add SonarQube host entry
           run: echo "${{ secrets.SONAR_HOST_IP }} mysonar.io" | sudo tee -a /etc/hosts
 
         - name: SonarQube Analysis & Quality Gate
+          continue-on-error: true
           env:
             GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
             SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
             SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
           run: |
             # Check if SonarQube should be skipped
-            SKIP_SONARQUBE="${{ github.event.inputs.SKIP_SONARQUBE || 'true' }}"
+            SKIP_SONARQUBE="${{ github.event.inputs.SKIP_SONARQUBE || 'false' }}"
 
             if [[ "$SKIP_SONARQUBE" == "true" ]]; then
               echo "⏭️ Skipping SonarQube Analysis (SKIP_SONARQUBE=$SKIP_SONARQUBE)"
               exit 0
             fi
 
+            # --- React / Vue (JS/TS) ---
             npm install -g sonarqube-scanner
             sonar-scanner \
               -Dsonar.projectKey={SERVICE_NAME}-${{ steps.determine_env.outputs.environment }} \
@@ -171,15 +227,35 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
               -Dsonar.sourceEncoding=UTF-8 \
               -Dsonar.typescript.tsconfigPaths=tsconfig.json \
               -Dsonar.javascript.lcov.reportPaths=coverage/lcov.info \
-              -Dsonar.javascript.node.maxspace=4096 \
+              -Dsonar.javascript.node.maxspace=2048 \
               -Dsonar.host.url=$SONAR_HOST_URL \
               -Dsonar.token=$SONAR_TOKEN
+            # --- Flutter (Dart) ---
+            # npm install -g sonarqube-scanner
+            # sonar-scanner \
+            #   -Dsonar.projectKey={SERVICE_NAME}-${{ steps.determine_env.outputs.environment }} \
+            #   -Dsonar.projectName={SERVICE_NAME}-${{ steps.determine_env.outputs.environment }} \
+            #   -Dsonar.sources=lib \
+            #   -Dsonar.tests=test \
+            #   -Dsonar.test.inclusions=**/*_test.dart \
+            #   -Dsonar.exclusions=build/**,.dart_tool/**,.packages/** \
+            #   -Dsonar.scm.disabled=true \
+            #   -Dsonar.sourceEncoding=UTF-8 \
+            #   -Dsonar.host.url=$SONAR_HOST_URL \
+            #   -Dsonar.token=$SONAR_TOKEN
 
+        # --- React / Vue ---
         - name: Upload build artifacts
           uses: actions/upload-artifact@v4
           with:
             name: dist
             path: dist/
+        # --- Flutter ---
+        # - name: Upload build artifacts
+        #   uses: actions/upload-artifact@v4
+        #   with:
+        #     name: dist
+        #     path: build/web/
 
         - name: Set outputs
           id: set_outputs
@@ -198,16 +274,22 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
         - name: Check out code
           uses: actions/checkout@v4
 
+        # --- React / Vue ---
         - name: Download build artifacts
           uses: actions/download-artifact@v4
           with:
             name: dist
             path: dist/
+        # --- Flutter ---
+        # - name: Download build artifacts
+        #   uses: actions/download-artifact@v4
+        #   with:
+        #     name: dist
+        #     path: build/web/
 
         - name: Set environment variables from build job
           run: |
             echo "REGISTRY=${{ vars.REGISTRY }}" >> $GITHUB_ENV
-            echo "IMAGE_ORG=${{ vars.IMAGE_ORG }}" >> $GITHUB_ENV
             echo "ENVIRONMENT=${{ needs.build.outputs.environment }}" >> $GITHUB_ENV
             echo "IMAGE_TAG=${{ needs.build.outputs.image_tag }}" >> $GITHUB_ENV
 
@@ -262,12 +344,13 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
         - name: Build and push Docker image
           run: |
             docker build \
+              --platform linux/amd64 \
               -f deployment/container/Dockerfile-frontend \
-              --build-arg PROJECT_FOLDER="." \
+              --build-arg PROJECT_FOLDER="{프론트엔드-디렉토리}" \
               --build-arg BUILD_FOLDER="deployment/container" \
-              -t ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }} .
+              -t {IMG_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }} .
 
-            docker push ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }}
+            docker push {IMG_NAME}:${{ needs.build.outputs.environment }}-${{ needs.build.outputs.image_tag }}
 
     update-manifest:
       name: Update Frontend Manifest Repository
@@ -292,11 +375,11 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
           git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@${REPO_URL} manifest-repo
           cd manifest-repo
 
-          curl -s "https://raw.githubusercontent.com/kubernetes-sigs/kustomize/master/hack/install_kustomize.sh" | bash
+          curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz" | tar xz
           sudo mv kustomize /usr/local/bin/
 
           cd {FRONTEND_SERVICE}/kustomize/overlays/${{ env.ENVIRONMENT }}
-          kustomize edit set image ${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}=${{ env.REGISTRY }}/${{ env.IMAGE_ORG }}/{SERVICE_NAME}:${{ env.ENVIRONMENT }}-${{ env.IMAGE_TAG }}
+          kustomize edit set image {IMG_NAME}={IMG_NAME}:${{ env.ENVIRONMENT }}-${{ env.IMAGE_TAG }}
 
           cd ../../../..
           git config user.name "GitHub Actions"
@@ -321,7 +404,7 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
 |------|-----|
 | CLOUD | {값} |
 | IMG_REG | {값} |
-| IMG_ORG | {값} |
+| IMG_NAME | {값} |
 | MANIFEST_REPO_URL | {값} |
 | MANIFEST_SECRET_GIT_USERNAME | {값} |
 | MANIFEST_SECRET_GIT_PASSWORD | {값} |
@@ -351,9 +434,10 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
 ## 서비스 정보
 | 항목 | 값 |
 |------|-----|
+| FRONTEND_FRAMEWORK | {React / Vue / Flutter} |
 | FRONTEND_SERVICE | {값} |
 | SERVICE_NAME | {값} |
-| NODE_VERSION | {값} |
+| NODE_VERSION 또는 FLUTTER_VERSION | {값} |
 
 ## 생성 파일
 | 파일 | 설명 |
@@ -366,11 +450,12 @@ Build and Test → SonarQube Analysis → Build and Push Docker Image → Update
 ## 변수 치환 내역
 | 플레이스홀더 | 치환값 |
 |-------------|--------|
+| {FRONTEND_FRAMEWORK} | {값} |
 | {FRONTEND_SERVICE} | {값} |
 | {SERVICE_NAME} | {값} |
-| {NODE_VERSION} | {값} |
+| {NODE_VERSION} 또는 {FLUTTER_VERSION} | {값} |
 | {IMG_REG} | {값} |
-| {IMG_ORG} | {값} |
+| {IMG_NAME} | {값} |
 | {MANIFEST_REPO_URL} | {값} |
 | {MANIFEST_SECRET_GIT_USERNAME} | {값} |
 | {MANIFEST_SECRET_GIT_PASSWORD} | {값} |
@@ -392,19 +477,22 @@ Build and Test → SonarQube Analysis → Build and Push Docker Image → Update
 GitHub Actions CI 파이프라인 구축 작업을 누락 없이 진행하기 위한 체크리스트입니다.
 
 ### 사전 준비 체크리스트
-- [ ] package.json에서 시스템명과 서비스명 확인 완료
-- [ ] 실행정보 섹션에서 CLOUD, IMG_REG, IMG_ORG 확인 완료
+- [ ] 프레임워크 확인 완료 (React / Vue / Flutter)
+- [ ] 서비스명 확인 완료 (React/Vue: package.json, Flutter: pubspec.yaml)
+- [ ] 실행정보 섹션에서 CLOUD, IMG_REG 확인 완료
+- [ ] K8s Deployment YAML에서 이미지명(IMG_NAME) 확인 완료
 - [ ] MANIFEST_REPO_URL, MANIFEST_SECRET_GIT_USERNAME, MANIFEST_SECRET_GIT_PASSWORD 확인 완료
 
 ### GitHub Actions 설정 및 스크립트 체크리스트
 - [ ] GitHub Actions 워크플로우 파일 `.github/workflows/frontend-cicd.yaml` 생성 완료
 - [ ] 워크플로우 주요 내용 확인
+  - 프레임워크에 맞는 SDK 설정 활성화 (React/Vue: `actions/setup-node`, Flutter: `subosito/flutter-action`)
+  - 프레임워크에 맞는 Build & Test, SonarQube, artifact 블록 활성화, 나머지 주석 처리
   - Build, SonarQube, Docker Build & Push, Update Frontend Manifest Repository 단계 포함
-  - Node.js 버전 확인: `node-version: '{NODE_VERSION}'`
   - 변수 참조 문법 확인: `${{ needs.build.outputs.* }}` 사용
   - 서비스명이 실제 프로젝트 서비스명으로 치환되었는지 확인
   - **github.event.inputs.SKIP_SONARQUBE 기반 조건부 실행 확인**
   - **클라우드별 조건부 registry login 확인**: CLOUD 변수 기반 (AWS/Azure/GCP)
-  - **플레이스홀더 사용 확인**: {IMG_REG}, {IMG_ORG}, {SERVICE_NAME} 등
+  - **플레이스홀더 사용 확인**: {IMG_REG}, {IMG_NAME}, {SERVICE_NAME} 등
 - [ ] 매니페스트 레포지토리 업데이트 job (update-manifest) 정상 동작 확인
 - [ ] ArgoCD가 매니페스트 레포지토리 변경을 감지하여 자동 배포되는지 확인

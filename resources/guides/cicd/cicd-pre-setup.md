@@ -982,12 +982,142 @@ helm upgrade sonar -f sonarqube.yaml . -n sonarqube \
 
 아래 항목은 웹 UI에서 사람이 수동으로 수행:
 
-**SonarQube 환경설정** (웹 UI: `http://mysonar.io`, admin / sonarP@ssw0rd$):  
+**SonarQube 환경설정** (웹 UI: `http://mysonar.io`, admin / sonarP@ssw0rd$):
 - User Token 발급: MyAccount > Security
 - Jenkins 통보 Webhook 작성: `http://jenkins.jenkins.svc.cluster.local/sonarqube-webhook/`
 - Quality Gate 작성: 'Sonar way' 복사 후 Code Coverage 조정
 - Jenkins Credential 등록: 위에서 발급한 Token으로 등록
 - SonarQube Server 설정: Jenkins System 설정에서 서버 URL 및 Token Credential 등록
+
+**Backend 루트 build.gradle 수정** (SonarQube + JaCoCo 연동):
+
+Backend 프로젝트의 루트 `build.gradle`에 아래 설정을 추가해야 SonarQube 코드 품질 분석이 동작함.
+
+1) 플러그인 `sonarqube` 추가:
+```gradle
+plugins {
+  ...
+  id "org.sonarqube" version "5.0.0.4638" apply false
+}
+```
+
+2) subprojects 블록에 `sonarqube`, `jacoco` 플러그인 적용:
+```gradle
+subprojects {
+  ...
+
+  apply plugin: 'org.sonarqube'
+  apply plugin: 'jacoco'
+
+  jacoco {
+      toolVersion = "0.8.11"
+  }
+
+  ...
+```
+
+3) subprojects 블록의 test 설정 변경 (JaCoCo 리포트 자동 생성):
+```gradle
+subprojects {
+  ...
+
+  test {
+      useJUnitPlatform()
+      include '**/*Test.class'
+      testLogging {
+          events "passed", "skipped", "failed"
+      }
+      finalizedBy jacocoTestReport
+  }
+  jacocoTestReport {
+      dependsOn test
+      reports {
+          xml.required = true
+          csv.required = false
+          html.required = true
+          html.outputLocation = layout.buildDirectory.dir("jacocoHtml").get().asFile
+      }
+
+      afterEvaluate {
+          classDirectories.setFrom(files(classDirectories.files.collect {
+              fileTree(dir: it, exclude: [
+                      "**/config/**",
+                      "**/entity/**",
+                      "**/dto/**",
+                      "**/*Application.class",
+                      "**/exception/**"
+              ])
+          }))
+      }
+  }
+}
+```
+
+#### 백엔드 단위테스트 실행 및 에러 해결
+
+build.gradle에 SonarQube/JaCoCo 설정을 추가한 후, CI 파이프라인 실행 전에 로컬에서 단위테스트를 실행하여 빌드 정상 여부를 확인.
+테스트 실패 시 CI 파이프라인도 실패하므로, 이 단계에서 모든 에러를 해결해야 함.
+
+**1) 전체 빌드 및 테스트 실행**
+
+```bash
+chmod +x gradlew
+./gradlew clean build
+```
+
+> `build` 태스크에 `test`가 포함되어 있으므로 별도 `./gradlew test` 실행 불필요.
+> 빌드 성공 시 각 서비스의 `build/reports/jacoco/test/jacocoTestReport.xml`에 커버리지 리포트가 생성됨.
+
+**2) 테스트 실패 시 개별 서비스 테스트**
+
+전체 빌드 실패 시 서비스별로 테스트를 실행하여 실패 지점을 특정:
+```bash
+./gradlew :{서비스명}:test --info
+```
+
+> `--info` 옵션으로 상세 로그 확인 가능. 실패한 테스트 클래스와 메서드가 출력됨.
+
+**3) 주요 에러 유형 및 해결 방법**
+
+| 에러 유형 | 증상 | 해결 방법 |
+|----------|------|----------|
+| ApplicationContext 로딩 실패 | `Failed to load ApplicationContext` | 테스트용 설정 파일(`application-test.yml`) 누락 확인. `@SpringBootTest` 사용 시 필요한 Bean이 모두 등록되었는지 확인 |
+| DB 연결 실패 | `Connection refused`, `DataSource` 에러 | `src/test/resources/application.yml`에 H2 인메모리 DB 설정 추가. 또는 `@DataJpaTest` 사용 시 `@AutoConfigureTestDatabase(replace = NONE)` 확인 |
+| 포트 충돌 | `Port already in use` | 테스트 설정에 `server.port=0` (랜덤 포트) 지정 |
+| Lombok 관련 | `cannot find symbol` (getter/setter) | `build.gradle`에 `annotationProcessor 'org.projectlombok:lombok'` 확인 |
+| JaCoCo 에러 | `Could not resolve all files for configuration ':jacocoAgent'` | `build.gradle`의 `jacoco { toolVersion }` 버전이 현재 JDK와 호환되는지 확인 |
+| 외부 API 의존 | `ConnectException`, 타임아웃 | 테스트에서 외부 API를 모킹(Mocking) 처리. `@MockBean` 또는 WireMock 사용 |
+
+**4) 테스트 환경 설정 파일 확인**
+
+각 서비스의 `src/test/resources/application.yml` (또는 `application-test.yml`)에 테스트용 DB 설정이 있는지 확인:
+```yaml
+spring:
+  datasource:
+    url: jdbc:h2:mem:testdb
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+```
+
+> H2 의존성이 없으면 서비스의 `build.gradle`에 추가:
+> ```gradle
+> testImplementation 'com.h2database:h2'
+> ```
+
+**5) 테스트 성공 확인**
+
+모든 테스트 통과 후 JaCoCo 리포트 생성 확인:
+```bash
+./gradlew clean build
+
+# JaCoCo 리포트 확인 (각 서비스별)
+ls {서비스명}/build/reports/jacoco/test/jacocoTestReport.xml
+```
+
+> BUILD SUCCESSFUL 메시지와 함께 각 서비스의 `jacocoTestReport.xml`이 존재하면 정상.
+> 이 상태에서 CI 파이프라인(Jenkins/GitHub Actions)을 실행하면 SonarQube 분석까지 정상 동작함.
 
 ---
 
@@ -1421,7 +1551,7 @@ Repository Variables (워크플로우 제어):
 | `REGISTRY` | `acrdigitalgarage01.azurecr.io` | 컨테이너 이미지 레지스트리 주소 |
 | `IMAGE_ORG` | `phonebill` | 이미지 조직명 |
 | `ENVIRONMENT` | `dev` | 기본 배포 환경 (dev/staging/prod) |
-| `SKIP_SONARQUBE` | `true` | SonarQube 분석 스킵 여부 |
+| `SKIP_SONARQUBE` | `false` | SonarQube 분석 스킵 여부 |
 
 ---
 
