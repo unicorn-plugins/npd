@@ -197,10 +197,12 @@ podTemplate(
 
             stage('Build') {
                 container('gradle') {
-                    sh """
-                        chmod +x gradlew
-                        ./gradlew build -x test
-                    """
+                    sh "chmod +x gradlew"
+                    if (targetService == 'all') {
+                        sh "./gradlew build -x test"
+                    } else {
+                        sh "./gradlew :${targetService}:build -x test"
+                    }
                 }
             }
 

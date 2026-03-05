@@ -185,7 +185,9 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
 
         - name: Build and Test
           run: |
-            NODE_OPTIONS="--max-old-space-size=3072" npm run build
+            # npx로 직접 실행하여 prebuild 훅(generate-runtime-env.sh 등) 스킵
+            # CI에서는 K8s ConfigMap이 runtime-env.js를 덮어쓰므로 생성 불필요
+            NODE_OPTIONS="--max-old-space-size=3072" npx next build
             npm run lint || true
         # --- Flutter ---
         # - name: Install dependencies
@@ -306,7 +308,7 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
         # === AWS ECR ===
         # (CLOUD == AWS일 때 사용)
         - name: Configure AWS credentials
-          if: ${{ env.CLOUD == 'AWS' }}
+          if: ${{ contains(env.REGISTRY, 'amazonaws.com') }}
           uses: aws-actions/configure-aws-credentials@v4
           with:
             aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -314,14 +316,14 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
             aws-region: ${{ vars.ECR_REGION }}
 
         - name: Login to Amazon ECR
-          if: ${{ env.CLOUD == 'AWS' }}
+          if: ${{ contains(env.REGISTRY, 'amazonaws.com') }}
           run: |
             aws ecr get-login-password --region ${{ vars.ECR_REGION }} | docker login --username AWS --password-stdin ${{ env.REGISTRY }}
 
         # === Azure ACR ===
         # (CLOUD == Azure일 때 사용)
         - name: Login to Azure Container Registry
-          if: ${{ env.CLOUD == 'Azure' }}
+          if: ${{ contains(env.REGISTRY, 'azurecr.io') }}
           uses: docker/login-action@v3
           with:
             registry: ${{ env.REGISTRY }}
@@ -331,13 +333,13 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
         # === GCP Artifact Registry ===
         # (CLOUD == GCP일 때 사용)
         - name: Authenticate to Google Cloud
-          if: ${{ env.CLOUD == 'GCP' }}
+          if: ${{ contains(env.REGISTRY, 'pkg.dev') }}
           uses: google-github-actions/auth@v2
           with:
             credentials_json: ${{ secrets.GCP_SA_KEY }}
 
         - name: Login to Google Artifact Registry
-          if: ${{ env.CLOUD == 'GCP' }}
+          if: ${{ contains(env.REGISTRY, 'pkg.dev') }}
           run: |
             gcloud auth configure-docker ${{ vars.GCR_REGION }}-docker.pkg.dev
 
@@ -371,8 +373,9 @@ GitHub Actions 기반 CI 파이프라인을 구축한다. CI/CD 분리 구조로
         #   예) MANIFEST_SECRET_GIT_USERNAME=MY_GIT_USER이면
         #       ${{ secrets.GIT_USERNAME }} → ${{ secrets.MY_GIT_USER }}로 변경
         run: |
-          REPO_URL=$(echo "{MANIFEST_REPO_URL}" | sed 's|https://||')
-          git clone https://${{ secrets.GIT_USERNAME }}:${{ secrets.GIT_PASSWORD }}@${REPO_URL} manifest-repo
+          # x-access-token 방식으로 PAT 인증 (특수문자 이슈 방지)
+          MANIFEST_REPO_PATH=$(echo "{MANIFEST_REPO_URL}" | sed 's|https://github.com/||')
+          git clone https://x-access-token:${{ secrets.GIT_PASSWORD }}@github.com/${MANIFEST_REPO_PATH} manifest-repo
           cd manifest-repo
 
           curl -sL "https://github.com/kubernetes-sigs/kustomize/releases/download/kustomize%2Fv5.6.0/kustomize_v5.6.0_linux_amd64.tar.gz" | tar xz

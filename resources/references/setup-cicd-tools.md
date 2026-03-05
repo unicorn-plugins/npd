@@ -21,6 +21,9 @@
     - [\[Azure AKS\] ACR Credential 생성](#azure-aks-acr-credential-생성)
     - [\[GCP GKE\] Artifact Registry Credential 생성](#gcp-gke-artifact-registry-credential-생성)
   - [DockerHub Credentials 생성](#dockerhub-credentials-생성)
+  - [GitHub Credentials 생성 (Jenkins)](#github-credentials-생성-jenkins)
+    - [Credential 등록](#credential-등록)
+    - [파이프라인에서의 사용](#파이프라인에서의-사용)
   - [GitHub Webhook 설정 (Jenkins)](#github-webhook-설정-jenkins)
     - [Payload URL 결정](#payload-url-결정)
     - [Webhook 등록 절차](#webhook-등록-절차)
@@ -383,6 +386,48 @@ username은 Docker Hub 로그인 id 이고 암호는 위에서 만든 토큰을 
 
 ---
 
+## GitHub Credentials 생성 (Jenkins)
+
+> CI 도구로 Jenkins를 선택한 경우에만 수행.
+
+Jenkins 파이프라인에서 매니페스트 레포지토리를 clone/push하기 위한 Git 인증 정보를 등록.
+Credential ID는 Jenkinsfile의 `credentialsId`에서 참조됨.
+
+### Credential 등록
+
+1. Jenkins 대시보드 > **Manage Jenkins** > **Credentials**
+2. **(global)** 도메인 클릭 > **Add Credentials**
+3. 아래 정보 입력:
+
+| 항목 | 값 |
+|------|-----|
+| Kind | `Username with password` |
+| Scope | `Global` |
+| Username | GitHub 사용자명 |
+| Password | GitHub Personal Access Token (repo 권한 필요) |
+| ID | `github-credentials` (또는 팀별 고유명, 예: `github-credentials-{팀명}`) |
+| Description | `매니페스트 레포지토리 접근용` |
+
+> **Personal Access Token 생성**: GitHub > Settings > Developer settings > Personal access tokens > Tokens (classic) > Generate new token
+> 필요 권한(scope): `repo` (Full control of private repositories)
+
+### 파이프라인에서의 사용
+
+Jenkinsfile의 `Update Manifest Repository` 스테이지에서 다음과 같이 참조:
+```groovy
+withCredentials([usernamePassword(
+    credentialsId: '{JENKINS_GIT_CREDENTIALS}',
+    usernameVariable: 'GIT_USERNAME',
+    passwordVariable: 'GIT_TOKEN'
+)]) {
+    sh "git clone https://${GIT_USERNAME}:${GIT_TOKEN}@github.com/..."
+}
+```
+
+| [Top](#목차) |
+
+---
+
 ## GitHub Webhook 설정 (Jenkins)
 
 > CI 도구로 **Jenkins**를 선택한 경우에만 수행.
@@ -521,6 +566,19 @@ GitHub Actions는 별도 서버 설치가 불필요하지만,
 | `IMAGE_ORG` | `phonebill` | 이미지 조직명 |
 | `ENVIRONMENT` | `dev` | 기본 배포 환경 (dev/staging/prod) |
 | `SKIP_SONARQUBE` | `true` | SonarQube 분석 스킵 여부 |
+| `SERVICE` | `all` | 백엔드 배포 대상 서비스 (`all` = 전체, 개별 서비스명 = 선택 배포) |
+
+> **SERVICE 개별 서비스명 확인 방법**
+> 프로젝트 루트의 `settings.gradle` (또는 `settings.gradle.kts`)에서 `include`된 서비스명을 확인.
+> ```groovy
+> // settings.gradle 예시
+> include 'common'
+> include 'member-service'
+> include 'recommendation-service'
+> include 'payment-service'
+> ```
+> `common`을 제외한 나머지가 배포 가능한 개별 서비스명임.
+> 예) `member-service`, `recommendation-service`, `payment-service`
 
 | [Top](#목차) |
 
