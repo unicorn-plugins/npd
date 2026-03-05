@@ -148,25 +148,22 @@ EOF
 kubectl get ingressclass
 ```
 
-### AKS 환경: Deployment Safeguards 예외 처리
+### AKS 환경: Deployment Safeguards 및 이미지 정책
 
-AKS에는 [Deployment Safeguards](https://learn.microsoft.com/en-us/azure/aks/deployment-safeguards)가 기본 활성화되어 있다.
-Bitnami Helm 차트(PostgreSQL, Kafka 등)는 **ClusterIP Service와 Headless Service를 동일한 selector로 생성**하므로,
-`UniqueServiceSelector` Gatekeeper 정책에 의해 설치가 차단될 수 있다.
+AKS에는 다음 정책이 기본 활성화되어 있어 Helm 차트 설치가 차단될 수 있다.
 
-> **AWS EKS / GCP GKE**에는 이 정책이 기본 활성화되어 있지 않으므로, 아래 조치 없이 Helm 설치가 가능하다.
+1. **[Deployment Safeguards](https://learn.microsoft.com/en-us/azure/aks/deployment-safeguards)**:
+   Bitnami Helm 차트는 ClusterIP Service와 Headless Service를 동일한 selector로 생성하므로,
+   `UniqueServiceSelector` Gatekeeper 정책에 의해 차단됨
+2. **이미지 태그 정책**: `latest` 태그가 차단됨. 모든 이미지에 명시적 버전 태그 필요
 
-**해결**: 백킹서비스 네임스페이스를 Deployment Safeguards에서 제외한다.
+> **AWS EKS / GCP GKE**에는 이 정책이 기본 활성화되어 있지 않으므로, Helm 설치가 가능하다.
 
-```bash
-# {CLOUD}가 Azure(AKS)인 경우에만 실행
-az aks update -g <resource-group> -n <cluster-name> \
-  --safeguards-level Warning \
-  --safeguards-excluded-ns {K8S_NAMESPACE}
-```
+**AKS 해결 방법**: **raw 매니페스트(StatefulSet + 단일 Service)로 대체 설치**한다.
+- Deployment Safeguards 우회: 단일 Service만 생성하여 `UniqueServiceSelector` 정책 회피
+- 이미지 태그: 모든 이미지에 명시적 버전 태그 지정 (`:latest`, `:management` 등 금지)
 
-> `--safeguards-level Warning`은 정책 위반 시 차단하지 않고 경고만 표시한다.
-> AKS Automatic 클러스터에서는 네임스페이스 제외가 불가하므로, raw 매니페스트(StatefulSet + 단일 Service)로 대체 설치한다.
+> AKS에서는 아래 "백킹서비스별 Helm 설치" 섹션 대신 **"AKS 환경: Raw 매니페스트 설치"** 섹션을 따른다.
 
 ### 백킹서비스별 Helm 설치
 
@@ -420,7 +417,7 @@ spec:
       serviceAccountName: default
       containers:
       - name: rabbitmq
-        image: rabbitmq:management
+        image: rabbitmq:3.13-management
         imagePullPolicy: IfNotPresent
         env:
         - name: RABBITMQ_DEFAULT_USER
@@ -563,11 +560,390 @@ Pod Running 확인 (완료되면 CTRL-C):
 kubectl get po -w
 ```
 
+### AKS 환경: Raw 매니페스트 설치
+
+> **AKS({CLOUD}=Azure)인 경우에만** 이 섹션을 사용한다.
+> AWS EKS / GCP GKE는 위의 "백킹서비스별 Helm 설치" 섹션을 따른다.
+
+AKS의 Deployment Safeguards 및 이미지 태그 정책으로 인해,
+Helm 차트 대신 raw 매니페스트(StatefulSet + 단일 Service)로 설치한다.
+
+- 모든 이미지에 **명시적 버전 태그** 지정 (`:latest` 금지)
+- Service는 **단일 ClusterIP**만 생성 (Headless Service 없음 → UniqueServiceSelector 정책 회피)
+- PVC는 `volumeClaimTemplates`로 자동 생성
+
+#### MongoDB (AKS)
+
+```bash
+mkdir -p ~/install/mongodb && cd ~/install/mongodb
+```
+
+`deploy.yaml`을 작성한다.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: mongo
+  labels:
+    app: mongo
+spec:
+  serviceName: mongo
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mongo
+  template:
+    metadata:
+      labels:
+        app: mongo
+    spec:
+      containers:
+      - name: mongodb
+        image: bitnamilegacy/mongodb:7.0
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MONGODB_ROOT_USER
+          value: "root"
+        - name: MONGODB_ROOT_PASSWORD
+          value: "{결과서의 Password}"
+        - name: MONGODB_DATABASE
+          value: "{결과서의 Database}"
+        - name: MONGODB_USERNAME
+          value: "{결과서의 User}"
+        - name: MONGODB_PASSWORD
+          value: "{결과서의 Password}"
+        ports:
+        - containerPort: 27017
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/mongodb
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "managed"
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mongo-mongodb
+spec:
+  type: ClusterIP
+  selector:
+    app: mongo
+  ports:
+  - port: 27017
+    targetPort: 27017
+```
+
+설치:
+```bash
+kubectl apply -f deploy.yaml
+```
+
+#### PostgreSQL (AKS)
+
+```bash
+mkdir -p ~/install/postgres && cd ~/install/postgres
+```
+
+`deploy.yaml`을 작성한다.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: postgres
+  labels:
+    app: postgres
+spec:
+  serviceName: postgres
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres
+  template:
+    metadata:
+      labels:
+        app: postgres
+    spec:
+      containers:
+      - name: postgresql
+        image: bitnamilegacy/postgresql:16
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: POSTGRESQL_POSTGRES_PASSWORD
+          value: "{결과서의 Password}"
+        - name: POSTGRESQL_DATABASE
+          value: "{결과서의 Database}"
+        - name: POSTGRESQL_USERNAME
+          value: "{결과서의 User}"
+        - name: POSTGRESQL_PASSWORD
+          value: "{결과서의 Password}"
+        ports:
+        - containerPort: 5432
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/postgresql
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "managed"
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-postgresql
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres
+  ports:
+  - port: 5432
+    targetPort: 5432
+```
+
+> **다중 DB/스키마 초기화**: Helm의 `initdb.scripts`와 달리, raw 매니페스트에서는 Pod 기동 후 수동으로 생성한다.
+> ```bash
+> kubectl exec -it sts/postgres-0 -- psql -U postgres -c "CREATE DATABASE {DB명} OWNER {User};"
+> kubectl exec -it sts/postgres-0 -- psql -U postgres -d {DB명} -c "CREATE SCHEMA IF NOT EXISTS {스키마명};"
+> ```
+
+설치:
+```bash
+kubectl apply -f deploy.yaml
+```
+
+#### Redis (AKS)
+
+```bash
+mkdir -p ~/install/redis && cd ~/install/redis
+```
+
+`deploy.yaml`을 작성한다.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: redis
+  labels:
+    app: redis
+spec:
+  serviceName: redis
+  replicas: 1
+  selector:
+    matchLabels:
+      app: redis
+  template:
+    metadata:
+      labels:
+        app: redis
+    spec:
+      containers:
+      - name: redis
+        image: bitnamilegacy/redis:7.2
+        imagePullPolicy: IfNotPresent
+        command: ["redis-server"]
+        args: ["--requirepass", "{결과서의 Password}"]
+        ports:
+        - containerPort: 6379
+        resources:
+          requests:
+            cpu: 500m
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/redis/data
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "managed"
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-master
+spec:
+  type: ClusterIP
+  selector:
+    app: redis
+  ports:
+  - port: 6379
+    targetPort: 6379
+```
+
+설치:
+```bash
+kubectl apply -f deploy.yaml
+```
+
+#### RabbitMQ (AKS)
+
+RabbitMQ는 EKS/GKE에서도 raw 매니페스트로 설치하므로 동일하되, **이미지 태그를 명시적 버전으로 지정**한다.
+
+```bash
+mkdir -p ~/install/rabbitmq && cd ~/install/rabbitmq
+```
+
+위 "백킹서비스별 Helm 설치 > RabbitMQ" 섹션의 `deploy.yaml`을 그대로 사용한다.
+이미지는 `rabbitmq:3.13-management`로 명시적 버전 태그가 지정되어 있음.
+
+설치:
+```bash
+kubectl apply -f deploy.yaml
+```
+
+#### Kafka (AKS)
+
+```bash
+mkdir -p ~/install/kafka && cd ~/install/kafka
+```
+
+`deploy.yaml`을 작성한다. KRaft 모드(ZooKeeper 없음), controller + broker 결합 구성.
+
+```yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: kafka
+  labels:
+    app: kafka
+spec:
+  serviceName: kafka
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kafka
+  template:
+    metadata:
+      labels:
+        app: kafka
+    spec:
+      containers:
+      - name: kafka
+        image: bitnamilegacy/kafka:3.7
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: KAFKA_CFG_NODE_ID
+          value: "0"
+        - name: KAFKA_CFG_PROCESS_ROLES
+          value: "controller,broker"
+        - name: KAFKA_CFG_CONTROLLER_QUORUM_VOTERS
+          value: "0@kafka-0.kafka:9093"
+        - name: KAFKA_CFG_LISTENERS
+          value: "PLAINTEXT://:9092,CONTROLLER://:9093"
+        - name: KAFKA_CFG_ADVERTISED_LISTENERS
+          value: "PLAINTEXT://kafka:9092"
+        - name: KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP
+          value: "CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT"
+        - name: KAFKA_CFG_CONTROLLER_LISTENER_NAMES
+          value: "CONTROLLER"
+        - name: KAFKA_CFG_INTER_BROKER_LISTENER_NAME
+          value: "PLAINTEXT"
+        - name: KAFKA_KRAFT_CLUSTER_ID
+          value: "MkU3OEVBNTcwNTJENDM2Qk"
+        - name: KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE
+          value: "false"
+        - name: KAFKA_CFG_DELETE_TOPIC_ENABLE
+          value: "true"
+        - name: KAFKA_HEAP_OPTS
+          value: "-Xmx1g -Xms1g"
+        ports:
+        - name: client
+          containerPort: 9092
+        - name: controller
+          containerPort: 9093
+        resources:
+          requests:
+            cpu: 1
+            memory: 1Gi
+          limits:
+            cpu: 1
+            memory: 2Gi
+        volumeMounts:
+        - name: data
+          mountPath: /bitnami/kafka
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes: ["ReadWriteOnce"]
+      storageClassName: "managed"
+      resources:
+        requests:
+          storage: 10Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kafka
+spec:
+  type: ClusterIP
+  selector:
+    app: kafka
+  ports:
+  - name: client
+    port: 9092
+    targetPort: 9092
+```
+
+설치:
+```bash
+kubectl apply -f deploy.yaml
+```
+
+#### AKS Raw 매니페스트 재구성 / 삭제
+
+```bash
+# 재설치 (deploy.yaml 변경 시)
+kubectl apply -f deploy.yaml
+
+# 완전 삭제 (데이터 포함)
+kubectl delete -f deploy.yaml
+kubectl delete pvc -l app={서비스명}   # 예: app=mongo, app=postgres, app=redis, app=kafka
+```
+
 ### Health Check
 
 서비스별 정상 동작을 확인한다.
 
 > **주의**: Bitnami Helm 차트는 StatefulSet으로 배포된다. `deploy/`가 아닌 `sts/`로 리소스를 지정하고, Pod 이름에 `-0` 인덱스를 붙인다.
+> AKS raw 매니페스트는 StatefulSet 이름이 다르므로 Pod 이름도 다르다 (아래 표 참조).
+
+**EKS/GKE (Helm 설치):**
 
 | 서비스 | 확인 명령 | 정상 응답 |
 |--------|----------|----------|
@@ -577,9 +953,22 @@ kubectl get po -w
 | RabbitMQ | `kubectl exec -it sts/rabbitmq-0 -- rabbitmqctl status` | `Status of node rabbit@rabbitmq-0 ...` |
 | Kafka | `kubectl exec -it kafka-broker-0 -- kafka-broker-api-versions.sh --bootstrap-server localhost:9092` | 버전 목록 출력 (에러 없음) |
 
+**AKS (Raw 매니페스트 설치):**
+
+| 서비스 | 확인 명령 | 정상 응답 |
+|--------|----------|----------|
+| PostgreSQL | `kubectl exec -it postgres-0 -- pg_isready -U postgres` | `accepting connections` |
+| MongoDB | `kubectl exec -it mongo-0 -- mongosh --eval "db.adminCommand('ping')"` | `{ ok: 1 }` |
+| Redis | `kubectl exec -it redis-0 -- redis-cli -a $REDIS_PASSWORD ping` | `PONG` |
+| RabbitMQ | `kubectl exec -it rabbitmq-0 -- rabbitmqctl status` | `Status of node rabbit@rabbitmq-0 ...` |
+| Kafka | `kubectl exec -it kafka-0 -- kafka-broker-api-versions.sh --bootstrap-server localhost:9092` | 버전 목록 출력 (에러 없음) |
+
 **서비스별 database 확인** (PostgreSQL):
 ```bash
+# EKS/GKE (Helm)
 kubectl exec -it sts/postgres-postgresql-0 -- psql -U postgres -l
+# AKS (Raw 매니페스트)
+kubectl exec -it postgres-0 -- psql -U postgres -l
 ```
 
 init 스크립트 또는 values.yaml에 지정한 database가 목록에 존재하는지 확인한다.
@@ -626,7 +1015,7 @@ VM docker-compose와 달리 K8s에서는 서비스 DNS 이름으로 접속한다
 
 ### 재구성 / 삭제 절차
 
-**Helm 설치 서비스 (MongoDB, PostgreSQL, Redis, Kafka):**
+**EKS/GKE: Helm 설치 서비스 (MongoDB, PostgreSQL, Redis, Kafka):**
 ```bash
 # 재설치 (values.yaml 변경 시)
 helm upgrade -i {릴리즈명} -f values.yaml bitnami/{차트명} --version {버전}
@@ -638,13 +1027,26 @@ kubectl delete pvc -l app.kubernetes.io/instance={릴리즈명}
 
 > `helm uninstall` 시 PVC(데이터)는 자동 삭제되지 않는다. 데이터 초기화가 필요하면 위 PVC 삭제 명령을 함께 실행한다.
 
-**Raw manifest 서비스 (RabbitMQ):**
+**EKS/GKE: Raw manifest 서비스 (RabbitMQ):**
 ```bash
 # 재설치 (deploy.yaml 변경 시)
 kubectl apply -f deploy.yaml
 
 # 완전 삭제
 kubectl delete -f deploy.yaml
+```
+
+**AKS: Raw manifest 서비스 (전체 — MongoDB, PostgreSQL, Redis, RabbitMQ, Kafka):**
+
+> AKS에서는 Deployment Safeguards 정책으로 인해 모든 백킹서비스를 raw 매니페스트로 설치한다.
+
+```bash
+# 재설치 (deploy.yaml 변경 시)
+kubectl apply -f deploy.yaml
+
+# 완전 삭제 (데이터 포함)
+kubectl delete -f deploy.yaml
+kubectl delete pvc -l app={서비스명}   # 예: app=mongo, app=postgres, app=redis, app=kafka, app=rabbitmq
 ```
 
 ### 결과 보고서 작성
@@ -715,6 +1117,9 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 | Bootstrap Servers | kafka:9092 |
 
 ## 릴리즈 정보
+
+**EKS/GKE (Helm 설치):**
+
 | 서비스 | 릴리즈명 | 설치 방식 | 버전 |
 |--------|---------|----------|------|
 | PostgreSQL | postgres | Helm bitnami/postgresql | {version} |
@@ -723,6 +1128,16 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 | RabbitMQ | rabbitmq | Raw manifest (kubectl apply) | - |
 | Kafka | kafka | Helm bitnami/kafka | {version} |
 
+**AKS (Raw 매니페스트 설치):**
+
+| 서비스 | StatefulSet명 | 설치 방식 | 이미지 태그 |
+|--------|-------------|----------|-----------|
+| PostgreSQL | postgres | Raw manifest (kubectl apply) | bitnamilegacy/postgresql:16 |
+| MongoDB | mongo | Raw manifest (kubectl apply) | bitnamilegacy/mongodb:7.0 |
+| Redis | redis | Raw manifest (kubectl apply) | bitnamilegacy/redis:7.2 |
+| RabbitMQ | rabbitmq | Raw manifest (kubectl apply) | rabbitmq:3.13-management |
+| Kafka | kafka | Raw manifest (kubectl apply) | bitnamilegacy/kafka:3.7 |
+
 ## Health Check 결과
 - [ ] PostgreSQL: pg_isready 정상 (accepting connections)
 - [ ] MongoDB: ping { ok: 1 } 확인
@@ -730,7 +1145,8 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 - [ ] RabbitMQ: rabbitmqctl status 정상
 - [ ] Kafka: broker-api-versions 정상
 - [ ] 서비스별 database 존재 확인
-- [ ] `helm list`로 Helm 릴리즈 `deployed` 상태 확인
+- [ ] EKS/GKE: `helm list`로 Helm 릴리즈 `deployed` 상태 확인
+- [ ] AKS: `kubectl get sts`로 모든 StatefulSet READY 확인 (Helm 릴리즈 없음)
 - [ ] `kubectl get sts`로 모든 StatefulSet Ready 확인
 ```
 
@@ -738,8 +1154,10 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 
 - [ ] `kubectl get po`로 모든 백킹서비스 Pod가 `Running` 상태
 - [ ] 서비스별 health check 통과 (pg_isready, redis-cli ping, rabbitmqctl status, kafka-broker-api-versions 등)
-- [ ] `helm list`로 Helm 릴리즈가 `deployed` 상태
-- [ ] `kubectl get sts`로 RabbitMQ 등 raw manifest StatefulSet이 Ready 상태
+- [ ] EKS/GKE: `helm list`로 Helm 릴리즈가 `deployed` 상태
+- [ ] EKS/GKE: `kubectl get sts`로 RabbitMQ 등 raw manifest StatefulSet이 Ready 상태
+- [ ] AKS: `kubectl get sts`로 모든 StatefulSet이 Ready 상태 (Helm 미사용, 전체 raw 매니페스트)
+- [ ] AKS: 모든 이미지에 명시적 버전 태그 사용 확인 (`:latest` 금지)
 - [ ] `docs/deploy/backing-service-k8s-result.md`가 작성됨
 - [ ] values.yaml의 storageClass가 해당 클라우드에 맞게 설정됨
 - [ ] Helm 차트의 values.yaml에 `bitnamilegacy` 이미지 오버라이드가 명시됨
@@ -756,6 +1174,9 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 | `ImagePullBackOff` | `docker.io/bitnami` 이미지 삭제됨 (2025.09) | values.yaml에 `image.repository: bitnamilegacy/{서비스명}` 오버라이드 추가 후 재설치 |
 | `kubectl exec` 명령 실패 | 리소스 타입 오류 (`deploy/` 사용) | Bitnami는 StatefulSet이므로 `sts/{릴리즈명}-{서비스명}-0` 형식으로 변경 |
 | `relation "xxx.yyy" does not exist` | 커스텀 스키마 미생성. `global.postgresql.auth.database`는 DB 1개만 생성하며, 스키마는 생성하지 않음. Spring JPA `DDL_AUTO=update`도 스키마는 자동 생성하지 않음 | values.yaml의 `primary.initdb.scripts`에 `CREATE SCHEMA IF NOT EXISTS` 추가 후 재설치, 또는 `kubectl exec`로 수동 생성 후 Pod 재시작 |
+| AKS Helm 설치 시 `admission webhook denied` | Deployment Safeguards의 `UniqueServiceSelector` 정책이 Bitnami Helm 차트의 Headless + ClusterIP 이중 Service를 차단 | Helm 대신 raw 매니페스트(StatefulSet + 단일 ClusterIP Service)로 설치. "AKS 환경: Raw 매니페스트 설치" 섹션 참조 |
+| AKS 이미지 Pull 실패 (`latest tag not allowed`) | AKS 이미지 태그 정책이 `:latest` 태그를 차단 | 모든 이미지에 명시적 버전 태그 지정 (예: `bitnamilegacy/mongodb:7.0`, `rabbitmq:3.13-management`) |
+| AKS Health Check Pod 이름 불일치 | raw 매니페스트의 StatefulSet 이름이 Helm과 다름 (예: `mongo-0` vs `mongo-mongodb-0`) | "Health Check" 섹션의 AKS 전용 테이블 참조. AKS Pod 이름: `{StatefulSet명}-0` (예: `postgres-0`, `mongo-0`, `redis-0`) |
 
 ## 주의사항
 
@@ -767,6 +1188,7 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 - Cloud MQ(Azure Service Bus, AWS SQS, GCP Pub/Sub)는 Helm으로 설치하지 않는다. 클라우드 관리형 서비스를 프로비저닝한다. 프로비저닝 방법은 `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md`의 Cloud MQ 섹션을 참조한다.
 - values.yaml의 storageClass는 반드시 해당 클라우드에 맞는 값으로 설정한다 (위 StorageClass 테이블 참조). 잘못된 storageClass는 Pod `Pending` 상태의 주된 원인이다.
 - Bitnami Helm 차트는 StatefulSet으로 배포된다. `kubectl exec` 시 리소스 타입을 `sts/`로 지정하고, Pod 인덱스(`-0`)를 붙인다 (예: `sts/postgres-postgresql-0`).
-- RabbitMQ는 Helm 차트가 아닌 raw K8s manifest(StatefulSet + Service)로 설치한다. 삭제 시 `kubectl delete -f deploy.yaml`을 사용한다.
+- RabbitMQ는 모든 클라우드에서 Helm 차트가 아닌 raw K8s manifest(StatefulSet + Service)로 설치한다. 삭제 시 `kubectl delete -f deploy.yaml`을 사용한다.
+- AKS에서는 Deployment Safeguards(UniqueServiceSelector) 및 이미지 태그 정책(`latest` 차단)으로 인해 **모든 백킹서비스를 raw 매니페스트로 설치**한다. Helm 차트는 Headless Service + ClusterIP Service를 동시에 생성하여 정책에 위배된다.
 - Kafka는 KRaft 모드(ZooKeeper 없음)로 설치한다. 교육/실습 환경에서는 controller 1, broker 1 replica로 비용을 절감한다.
 - 2025년 9월 이후 `docker.io/bitnami/*` 이미지가 삭제되었다. Helm 차트의 values.yaml에 `image.repository: bitnamilegacy/{서비스명}`을 명시한다. `bitnamilegacy` 이미지는 보안 업데이트가 없으므로 교육/실습 용도로만 사용한다.
