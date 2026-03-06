@@ -217,7 +217,7 @@ SonarQube 품질 검사 결과를 Jenkins로 보내기 위해 Webhook을 만듦.
 
 - name: 적절히 지정. 예) jenkins-webhook.
 - url: Jenkins 서버의 주소
-  - **[AWS EKS / Azure AKS]** SonarQube가 K8s에 설치된 경우:
+  - **[AWS EKS / Azure AKS]** SonarQube가 K8s에 설치된 경우:   
     `http://jenkins.jenkins.svc.cluster.local/sonarqube-webhook/`
   - **[GCP GKE] ⚠️ 주의 — SonarQube가 VM Docker에 설치된 경우:**
     > GCP에서는 SonarQube가 K8s가 아닌 **VM Docker**로 실행되므로
@@ -226,15 +226,16 @@ SonarQube 품질 검사 결과를 Jenkins로 보내기 위해 Webhook을 만듦.
 
     `http://myjenkins.io/sonarqube-webhook/`
 
-    > **⚠️ 필수 사전 조건**: VM의 `/etc/hosts`에 `127.0.0.1 myjenkins.io`가 등록되어 있어야 함.
+    > **⚠️ 필수 사전 조건**: 
+    > 아래 명령으로 myjenkins.io 등록
+    > ```
+    > cat /etc/hosts | grep myjenkins || hostname -I | awk '{print \$1\" myjenkins.io mysonar.io myargocd.io\"}' | sudo tee -a /etc/hosts
+    > ```  
     > (Nginx가 `myjenkins.io` 요청을 Jenkins Ingress IP로 프록싱)
     > 확인: `ssh {VM_HOST} "grep myjenkins /etc/hosts"`
-    > 미등록 시 아래 명령으로 등록:
-    > ```bash
-    > ssh {VM_HOST} "echo '127.0.0.1 myjenkins.io mysonar.io myargocd.io' | sudo tee -a /etc/hosts"
-    > ```
-  - (주의) 맨 마지막에 '/'를 반드시 입력 필요
 
+  - (주의) 맨 마지막에 '/'를 반드시 입력 필요
+  
   ![](images/2026-03-04-17-14-54.png)
 
 | [Top](#목차) |

@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772664517588,
+  "lastScanned": 1772757018675,
   "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772664517566,
+      "lastAccessed": 1772757018658,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 12,
-      "lastAccessed": 1772664517567,
+      "lastAccessed": 1772757018658,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1772664517567,
+      "lastAccessed": 1772757018658,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1772664517567,
+      "lastAccessed": 1772757018659,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -77,7 +77,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772664517567,
+      "lastAccessed": 1772757018659,
       "keyFiles": [
         "resource.md"
       ]
@@ -86,155 +86,10 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772664517568,
+      "lastAccessed": 1772757018659,
       "keyFiles": []
     }
   },
-  "hotPaths": [
-    {
-      "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-back.md",
-      "accessCount": 51,
-      "lastAccessed": 1772713408734,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-front.md",
-      "accessCount": 49,
-      "lastAccessed": 1772716031767,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-actions-cicd-front.md",
-      "accessCount": 46,
-      "lastAccessed": 1772716269208,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-actions-cicd-back.md",
-      "accessCount": 43,
-      "lastAccessed": 1772717453591,
-      "type": "directory"
-    },
-    {
-      "path": "skills\\cicd\\SKILL.md",
-      "accessCount": 36,
-      "lastAccessed": 1772721720489,
-      "type": "file"
-    },
-    {
-      "path": "resources\\references\\setup-cicd-tools.md",
-      "accessCount": 35,
-      "lastAccessed": 1772717641409,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-jenkins-cicd-ai.md",
-      "accessCount": 32,
-      "lastAccessed": 1772712181332,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-actions-cicd-ai.md",
-      "accessCount": 30,
-      "lastAccessed": 1772715438172,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\cicd",
-      "accessCount": 20,
-      "lastAccessed": 1772715444892,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\cicd\\deploy-argocd-cicd.md",
-      "accessCount": 14,
-      "lastAccessed": 1772699362210,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\cicd-pre-setup.md",
-      "accessCount": 12,
-      "lastAccessed": 1772754241259,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-back.md",
-      "accessCount": 6,
-      "lastAccessed": 1772699595303,
-      "type": "file"
-    },
-    {
-      "path": "resources",
-      "accessCount": 5,
-      "lastAccessed": 1772671925527,
-      "type": "directory"
-    },
-    {
-      "path": "",
-      "accessCount": 5,
-      "lastAccessed": 1772699349928,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-front.md",
-      "accessCount": 4,
-      "lastAccessed": 1772699600790,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-k8s-ai.md",
-      "accessCount": 4,
-      "lastAccessed": 1772699601237,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\backing-service\\backing-service-k8s.md",
-      "accessCount": 4,
-      "lastAccessed": 1772721942411,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy",
-      "accessCount": 2,
-      "lastAccessed": 1772699354189,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\deploy\\backing-service",
-      "accessCount": 2,
-      "lastAccessed": 1772721819768,
-      "type": "directory"
-    },
-    {
-      "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 1,
-      "lastAccessed": 1772664708554,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-back.md",
-      "accessCount": 1,
-      "lastAccessed": 1772696105942,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-front.md",
-      "accessCount": 1,
-      "lastAccessed": 1772696106418,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\run-container-ai.md",
-      "accessCount": 1,
-      "lastAccessed": 1772696106547,
-      "type": "file"
-    },
-    {
-      "path": "skills\\deploy",
-      "accessCount": 1,
-      "lastAccessed": 1772721756802,
-      "type": "directory"
-    }
-  ],
+  "hotPaths": [],
   "userDirectives": []
 }

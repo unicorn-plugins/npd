@@ -882,7 +882,7 @@ services:
     restart: unless-stopped
 
   sonarqube:
-    image: sonarqube:26.3.0.120487-community
+    image: sonarqube:25.9.0.112764-community
     container_name: sonarqube
     depends_on:
       - sonarqube-pg
