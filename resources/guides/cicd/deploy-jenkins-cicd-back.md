@@ -84,7 +84,7 @@ java {
 `deployment/cicd/Jenkinsfile-backend` 파일 생성 방법을 안내합니다.
 
 주요 구성 요소:
-- **Pod Template**: Gradle, Podman(또는 AKS 환경에서는 Kaniko), Git 컨테이너
+- **Pod Template**: Gradle, Podman(또는 AKS/GKE 환경에서는 Kaniko), Git 컨테이너
 - **Build**: Gradle 기반 빌드 (테스트 제외)
 - **SonarQube Analysis & Quality Gate**: 항상 표시되는 단계, 내부에서 조건부 실행으로 테스트, 코드 품질 분석, Quality Gate 처리
 - **Container Build & Push**: 30분 timeout 설정과 함께 환경별 이미지 태그로 빌드 및 푸시
@@ -136,7 +136,7 @@ podTemplate(
           restartPolicy: Never
     ''',
     containers: [
-        // --- 기본 (EKS/GKE 등) ---
+        // --- 기본 (EKS 등) ---
         containerTemplate(
             name: 'podman',
             image: "mgoltzsche/podman",
@@ -148,8 +148,8 @@ podTemplate(
             resourceLimitCpu: '2000m',
             resourceLimitMemory: '4Gi'
         ),
-        // --- AKS 환경 (privileged 컨테이너 차단 시) ---
-        // AKS ValidatingAdmissionPolicy가 privileged: true를 차단하므로 Kaniko 사용
+        // --- AKS/GKE 환경 (privileged 컨테이너 차단 시) ---
+        // AKS/GKE에서 privileged: true를 차단하므로 Kaniko 사용
         // containerTemplate(
         //     name: 'kaniko',
         //     image: 'gcr.io/kaniko-project/executor:debug',
@@ -170,17 +170,17 @@ podTemplate(
             resourceLimitCpu: '1000m',
             resourceLimitMemory: '2Gi',
             envVars: [
-                // --- 기본 (EKS/GKE 등): Podman 소켓 연동 ---
+                // --- 기본 (EKS 등): Podman 소켓 연동 ---
                 envVar(key: 'DOCKER_HOST', value: 'unix:///run/podman/podman.sock'),
                 envVar(key: 'TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE', value: '/run/podman/podman.sock'),
                 envVar(key: 'TESTCONTAINERS_RYUK_DISABLED', value: 'true')
-                // --- AKS 환경: Podman 소켓 불필요, RYUK_DISABLED만 유지 ---
+                // --- AKS/GKE 환경: Podman 소켓 불필요, RYUK_DISABLED만 유지 ---
                 // envVar(key: 'TESTCONTAINERS_RYUK_DISABLED', value: 'true')
             ]
         ),
         containerTemplate(
             name: 'git',
-            image: 'alpine/git:latest', // AKS 환경에서는 :latest 대신 특정 버전 사용 (예: 'alpine/git:2.47.2') — Gatekeeper latest 태그 차단 정책
+            image: 'alpine/git:latest', // AKS/GKE 환경에서는 :latest 대신 특정 버전 사용 (예: 'alpine/git:2.47.2') — latest 태그 차단 정책
             command: 'cat',
             ttyEnabled: true,
             resourceRequestCpu: '100m',
@@ -191,9 +191,9 @@ podTemplate(
     ],
     volumes: [
         emptyDirVolume(mountPath: '/home/gradle/.gradle', memory: false),
-        // --- 기본 (EKS/GKE 등): Podman 소켓용 ---
+        // --- 기본 (EKS 등): Podman 소켓용 ---
         emptyDirVolume(mountPath: '/run/podman', memory: false)
-        // --- AKS 환경: /run/podman volume 불필요 (Kaniko 사용 시 제거) ---
+        // --- AKS/GKE 환경: /run/podman volume 불필요 (Kaniko 사용 시 제거) ---
     ]
 ) {
     node(PIPELINE_ID) {
@@ -261,7 +261,7 @@ podTemplate(
                 }
             }
 
-            // --- 기본 (EKS/GKE 등): Podman 방식 ---
+            // --- 기본 (EKS 등): Podman 방식 ---
             stage('Build & Push Images') {
                 timeout(time: 30, unit: 'MINUTES') {
                     container('podman') {
@@ -311,7 +311,7 @@ podTemplate(
                     }
                 }
             }
-            // --- AKS 환경: Kaniko 방식 (privileged 컨테이너 차단 시) ---
+            // --- AKS/GKE 환경: Kaniko 방식 (privileged 컨테이너 차단 시) ---
             // ⚠️ 주의: Kaniko executor는 실행 후 컨테이너 파일시스템(/bin/sh 포함)을 변경하므로,
             //    서비스별로 별도의 sh 블록을 사용하면 두 번째 서비스 빌드부터 실패함.
             //    --cleanup 플래그 제거로도 해결 불가. 반드시 모든 빌드를 단일 sh 블록에서 실행할 것.
@@ -580,13 +580,13 @@ Get Source → Build & Test → SonarQube Analysis → Build & Push Images → U
 
 ### 품질
 - [ ] 시크릿 하드코딩 금지
-- [ ] Podman 기반 빌드 구성 (AKS 환경에서는 Kaniko 기반)
+- [ ] Podman 기반 빌드 구성 (AKS/GKE 환경에서는 Kaniko 기반)
 
 ## 주의사항
 
-**AKS 환경**
-- AKS ValidatingAdmissionPolicy가 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
-- AKS Gatekeeper가 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`)
+**AKS / GKE 환경**
+- AKS/GKE에서 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
+- AKS/GKE에서 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`)
 - Kaniko는 Docker config.json으로 인증하며, 레지스트리 키는 `docker.io`가 아닌 **`https://index.docker.io/v1/`** 사용
 - Kaniko 사용 시 gradle 컨테이너의 Podman 관련 envVars(`DOCKER_HOST`, `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE`)와 `/run/podman` volume 제거
 - Kaniko executor는 실행 후 컨테이너 파일시스템(`/bin/sh` 포함)을 변경하므로, 멀티 서비스 빌드 시 **반드시 모든 빌드를 단일 `sh` 블록에서 실행**할 것. 서비스별 별도 `sh` 블록이나 `--cleanup` 플래그 사용 시 두 번째 서비스부터 실패함

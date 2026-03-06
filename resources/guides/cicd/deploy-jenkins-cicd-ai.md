@@ -75,7 +75,7 @@ image: docker.io/phonebill/phonebill-ai:latest
 `deployment/cicd/Jenkinsfile-ai` 파일 생성 방법을 안내함.
 
 주요 구성 요소:
-- **Pod Template**: Python, Podman(또는 AKS 환경에서는 Kaniko), Git, SonarQube Scanner 컨테이너
+- **Pod Template**: Python, Podman(또는 AKS/GKE 환경에서는 Kaniko), Git, SonarQube Scanner 컨테이너
 - **Build & Test**: Python/Poetry 기반 빌드 및 단위 테스트 (pytest)
 - **SonarQube Analysis**: Python 코드 품질 분석 및 Quality Gate
 - **Container Build & Push**: 30분 timeout 설정과 함께 환경별 이미지 태그로 빌드 및 푸시
@@ -132,7 +132,7 @@ podTemplate(
             resourceLimitCpu: '2000m',
             resourceLimitMemory: '4Gi'
         ),
-        // --- 기본 (EKS/GKE 등) ---
+        // --- 기본 (EKS 등) ---
         containerTemplate(
             name: 'podman',
             image: "mgoltzsche/podman",
@@ -144,8 +144,8 @@ podTemplate(
             resourceLimitCpu: '2000m',
             resourceLimitMemory: '4Gi'
         ),
-        // --- AKS 환경 (privileged 컨테이너 차단 시) ---
-        // AKS ValidatingAdmissionPolicy가 privileged: true를 차단하므로 Kaniko 사용
+        // --- AKS/GKE 환경 (privileged 컨테이너 차단 시) ---
+        // AKS/GKE에서 privileged: true를 차단하므로 Kaniko 사용
         // containerTemplate(
         //     name: 'kaniko',
         //     image: 'gcr.io/kaniko-project/executor:debug',
@@ -158,7 +158,7 @@ podTemplate(
         // ),
         containerTemplate(
             name: 'git',
-            image: 'alpine/git:latest', // AKS 환경에서는 :latest 대신 특정 버전 사용 (예: 'alpine/git:2.47.2') — Gatekeeper latest 태그 차단 정책
+            image: 'alpine/git:latest', // AKS/GKE 환경에서는 :latest 대신 특정 버전 사용 (예: 'alpine/git:2.47.2') — latest 태그 차단 정책
             command: 'cat',
             ttyEnabled: true,
             resourceRequestCpu: '100m',
@@ -168,7 +168,7 @@ podTemplate(
         ),
         containerTemplate(
             name: 'sonar-scanner',
-            image: 'sonarsource/sonar-scanner-cli:latest', // AKS 환경에서는 :latest 대신 :11 사용 (Gatekeeper latest 태그 차단 정책)
+            image: 'sonarsource/sonar-scanner-cli:latest', // AKS/GKE 환경에서는 :latest 대신 :11 사용 (latest 태그 차단 정책)
             command: 'cat',
             ttyEnabled: true,
             resourceRequestCpu: '200m',
@@ -242,7 +242,7 @@ podTemplate(
                 }
             }
 
-            // --- 기본 (EKS/GKE 등): Podman 방식 ---
+            // --- 기본 (EKS 등): Podman 방식 ---
             stage('Build & Push Images') {
                 timeout(time: 30, unit: 'MINUTES') {
                     container('podman') {
@@ -290,7 +290,7 @@ podTemplate(
                     }
                 }
             }
-            // --- AKS 환경: Kaniko 방식 (privileged 컨테이너 차단 시) ---
+            // --- AKS/GKE 환경: Kaniko 방식 (privileged 컨테이너 차단 시) ---
             // stage('Build & Push Images') {
             //     timeout(time: 30, unit: 'MINUTES') {
             //         container('kaniko') {
@@ -549,13 +549,13 @@ Get Source → Build & Test → SonarQube Analysis → Build & Push Images → U
 
 ### 품질
 - [ ] 시크릿 하드코딩 금지
-- [ ] Podman 기반 빌드 구성 (AKS 환경에서는 Kaniko 기반)
+- [ ] Podman 기반 빌드 구성 (AKS/GKE 환경에서는 Kaniko 기반)
 
 ## 주의사항
 
-**AKS 환경**
-- AKS ValidatingAdmissionPolicy가 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
-- AKS Gatekeeper가 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`, `sonarsource/sonar-scanner-cli:11`)
+**AKS / GKE 환경**
+- AKS/GKE에서 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
+- AKS/GKE에서 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`, `sonarsource/sonar-scanner-cli:11`)
 - Kaniko는 Docker config.json으로 인증하며, 레지스트리 키는 `docker.io`가 아닌 **`https://index.docker.io/v1/`** 사용
 - Jenkins Cloud 설정에서 `jenkins-agent-listener` 서비스가 없으면 Jenkins tunnel을 **`jenkins:50000`**으로 변경
 
