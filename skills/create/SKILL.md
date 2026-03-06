@@ -317,13 +317,12 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 
 **6-3. 레포 생성 실행**
 
-1. `resources/tools/customs/git/create_repo.py` 도구 존재 여부 확인
+1. `{PLUGIN_DIR}/resources/tools/customs/git/create_repo.py` 도구 존재 여부 확인
 2. 환경변수 `GITHUB_TOKEN` 설정 여부 확인
 3. 레포 생성 실행
-   - Organization 지정 + Private: `python create_repo.py --name {project} --org {org} --private ...`
-   - Organization 지정 + Public: `python create_repo.py --name {project} --org {org} ...`
-   - 개인 계정 + Private: `python create_repo.py --name {project} --private ...`
-   - 개인 계정 + Public: `python create_repo.py --name {project} ...`
+   ```
+   python3 {PLUGIN_DIR}/resources/tools/customs/git/create_repo.py --name {project} --org {org} --private --token {GITHUB_TOKEN}
+   ```
 4. 생성된 레포 URL 보고
 
 **건너뛰기** 선택 시 → Step 7로 이동
