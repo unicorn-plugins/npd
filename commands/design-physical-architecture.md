@@ -3,7 +3,7 @@ description: 물리아키텍처 설계
 ---
 
 ### 물리 아키텍처 설계 → Agent: architect (`/ralph` 활용)
-- **GUIDE**: `resources/guides/design/physical-architecture-design.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/physical-architecture-design.md` 참조
 - **TASK**: 개발·운영 환경별 K8s 인프라·네트워크·배포 구조를 Mermaid 다이어그램과 함께 설계하고 문법 검증 수행. 
 - **EXPECTED OUTCOME**: `docs/design/physical/physical-architecture.md`, `physical-architecture-dev.md`, `physical-architecture-prod.md`, `physical-architecture-dev.mmd`, `physical-architecture-prod.mmd`, `network-dev.mmd`, `network-prod.mmd`
 

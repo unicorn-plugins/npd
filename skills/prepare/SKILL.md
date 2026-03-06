@@ -45,7 +45,7 @@ uname -s
 ### Step 2. 사전 설치 프로그램 확인
 
 선택한 범위에 따라 사전에 설치해야 할 프로그램 목록을 안내하고 설치 여부를 확인합니다.
-설치 가이드: `resources/guides/setup/prepare.md`
+설치 가이드: `{PLUGIN_DIR}/resources/guides/setup/prepare.md`
 
 #### 2-1. 범위별 필요 프로그램 안내
 

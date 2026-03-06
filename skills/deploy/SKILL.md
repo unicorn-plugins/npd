@@ -101,7 +101,7 @@ Kubernetes 배포 순서로 배포 환경을 구축함.
 
 배포에 필요한 로컬 도구와 VM 원격 도구를 자동으로 설치하고, VM 접속 정보를 수집한다.
 
-- **GUIDE**: `resources/guides/deploy/deploy-pre-setup.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/deploy/deploy-pre-setup.md` 참조
 - **TASK**: CLOUD 판단 → 로컬 도구 설치(kubectl, kubens, helm, Cloud CLI) → Cloud CLI 로그인 확인 → VM 생성 안내 → `~/.ssh/config` 파싱 → SSH 접속 테스트 → VM 원격 도구 설치(Cloud CLI, Docker, kubectl, kubens, helm, JDK)
 - **EXPECTED OUTCOME**: 로컬/VM 도구 설치 완료, VM 접속 정보(`VM.HOST`, `VM.IP`, `VM.USERID`, `VM.KEY파일`) 수집
 
@@ -516,9 +516,9 @@ ssh {VM.HOST} 'if [ -d ~/workspace/{ROOT} ]; then cd ~/workspace/{ROOT} && git p
 
 | 서비스 | GUIDE | 주요 산출물 |
 |--------|-------|-----------|
-| 백엔드 | `resources/guides/deploy/build-image-back.md` | `deployment/container/Dockerfile-backend` |
-| 프론트엔드 | `resources/guides/deploy/build-image-front.md` | `deployment/container/Dockerfile-frontend`, `nginx.conf` |
-| AI | `resources/guides/deploy/build-image-ai.md` | `deployment/container/Dockerfile-ai` |
+| 백엔드 | `{PLUGIN_DIR}/resources/guides/deploy/build-image-back.md` | `deployment/container/Dockerfile-backend` |
+| 프론트엔드 | `{PLUGIN_DIR}/resources/guides/deploy/build-image-front.md` | `deployment/container/Dockerfile-frontend`, `nginx.conf` |
+| AI | `{PLUGIN_DIR}/resources/guides/deploy/build-image-ai.md` | `deployment/container/Dockerfile-ai` |
 
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 각 에이전트 프롬프트에 포함
 - **EXPECTED OUTCOME**: Dockerfile 생성, 이미지 빌드 성공, 이미지 푸시 성공
@@ -576,7 +576,7 @@ scp .env {VM.HOST}:~/workspace/{ROOT}/.env
 
 #### VM 백킹서비스 배포 (선행)
 
-- **GUIDE**: `resources/guides/deploy/backing-service/backing-service-container.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-service-container.md` 참조
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: VM에 SSH 접속하여 docker-compose로 백킹서비스(DB, Redis, MQ)를 기동하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
 - **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-container-result.md` 작성
@@ -589,9 +589,9 @@ scp .env {VM.HOST}:~/workspace/{ROOT}/.env
 
 | 서비스 | GUIDE |
 |--------|-------|
-| 백엔드 | `resources/guides/deploy/run-container-back.md` |
-| 프론트엔드 | `resources/guides/deploy/run-container-front.md` |
-| AI | `resources/guides/deploy/run-container-ai.md` |
+| 백엔드 | `{PLUGIN_DIR}/resources/guides/deploy/run-container-back.md` |
+| 프론트엔드 | `{PLUGIN_DIR}/resources/guides/deploy/run-container-front.md` |
+| AI | `{PLUGIN_DIR}/resources/guides/deploy/run-container-ai.md` |
 
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 각 에이전트 프롬프트에 포함
 - **EXPECTED OUTCOME**: 백엔드·프론트엔드·AI 서비스 컨테이너 정상 실행 확인, `docs/deploy/run-container-{back,front,ai}-result.md` 작성
@@ -626,7 +626,7 @@ git pull
 
 #### K8s 백킹서비스 배포 (선행)
 
-- **GUIDE**: `resources/guides/deploy/backing-service/backing-service-k8s.md` 참조
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-service-k8s.md` 참조
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: K8s 클러스터에 kubectl/helm으로 백킹서비스(DB, Redis)를 Bitnami Helm 차트로 설치하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
 - **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-k8s-result.md` 작성
@@ -635,7 +635,7 @@ git pull
 
 #### TASK: K8s 매니페스트 작성 및 배포
 
-- **GUIDE**: `resources/guides/deploy/deploy-k8s-back.md`, `resources/guides/deploy/deploy-k8s-front.md`, `resources/guides/deploy/deploy-k8s-ai.md`
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/deploy/deploy-k8s-back.md`, `{PLUGIN_DIR}/resources/guides/deploy/deploy-k8s-front.md`, `{PLUGIN_DIR}/resources/guides/deploy/deploy-k8s-ai.md`
 - **CONTEXT**: 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: K8s Deployment, Service, Ingress 매니페스트를 작성하고 배포
 - **EXPECTED OUTCOME**: `deploy/k8s/` 매니페스트 파일 생성, 배포 성공

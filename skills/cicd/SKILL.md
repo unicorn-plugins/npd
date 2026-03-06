@@ -61,7 +61,7 @@ ArgoCD GitOps 방식으로 CD를 분리하는 파이프라인을 구축한다.
 
 ## 가이드 선택 매트릭스
 
-CI 도구에 따라 참조할 가이드 파일이 결정된다. **클라우드별 분기 불필요** — CI/CD 분리 후 클라우드별 차이는 registry login 1개 step뿐이므로, 가이드 내 조건부 섹션으로 처리한다. 모든 가이드는 `resources/guides/cicd/` 경로에 위치한다.
+CI 도구에 따라 참조할 가이드 파일이 결정된다. **클라우드별 분기 불필요** — CI/CD 분리 후 클라우드별 차이는 registry login 1개 step뿐이므로, 가이드 내 조건부 섹션으로 처리한다. 모든 가이드는 `{PLUGIN_DIR}/resources/guides/cicd/` 경로에 위치한다.
 
 | CI 도구 | 백엔드 가이드 | 프론트엔드 가이드 | AI 서비스 가이드 |
 |---------|-------------|----------------|----------------|
@@ -450,7 +450,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 
 ### Step 1. CI/CD 도구 사전 설정 → Agent: devops-engineer (/ralph 활용)
 
-- **GUIDE**: `resources/guides/cicd/cicd-pre-setup.md`
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/cicd/cicd-pre-setup.md`
 - **CONTEXT**: 조립된 `[실행정보]` 블록 포함
 - **TASK**: 가이드를 참조하여 클라우드별 사전작업 수행 및 CI/CD 도구(Jenkins/SonarQube/ArgoCD) 설치
 
@@ -526,7 +526,7 @@ Phase B의 모든 에이전트 완료 후:
 
 ### Step 2. 매니페스트 레포지토리 + ArgoCD 구성 → Agent: devops-engineer (/ralph 활용)
 
-- **GUIDE**: `resources/guides/cicd/deploy-argocd-cicd.md`
+- **GUIDE**: `{PLUGIN_DIR}/resources/guides/cicd/deploy-argocd-cicd.md`
 - **에이전트 프롬프트 필수 지시**: "ArgoCD 가이드의 '매니페스트 레포지토리 구성', 'ArgoCD Application YAML 생성', 'ArgoCD 매니페스트 레포지토리 인증 등록', 'ArgoCD Application 등록' 섹션을 참조하세요. 'CI 파이프라인의 매니페스트 업데이트 스크립트 참조' 섹션은 Step 3에서 처리합니다."
 - **CONTEXT**: 조립된 `[실행정보]` 블록 포함
 
@@ -610,18 +610,18 @@ git push origin main
 
 ```
 IF CI_TOOL == Jenkins:
-    백엔드 -> resources/guides/cicd/deploy-jenkins-cicd-back.md
-    프론트엔드 -> resources/guides/cicd/deploy-jenkins-cicd-front.md
-    AI 서비스 -> resources/guides/cicd/deploy-jenkins-cicd-ai.md
+    백엔드 -> {PLUGIN_DIR}/resources/guides/cicd/deploy-jenkins-cicd-back.md
+    프론트엔드 -> {PLUGIN_DIR}/resources/guides/cicd/deploy-jenkins-cicd-front.md
+    AI 서비스 -> {PLUGIN_DIR}/resources/guides/cicd/deploy-jenkins-cicd-ai.md
 ELSE IF CI_TOOL == GitHubActions:
-    백엔드 -> resources/guides/cicd/deploy-actions-cicd-back.md
-    프론트엔드 -> resources/guides/cicd/deploy-actions-cicd-front.md
-    AI 서비스 -> resources/guides/cicd/deploy-actions-cicd-ai.md
+    백엔드 -> {PLUGIN_DIR}/resources/guides/cicd/deploy-actions-cicd-back.md
+    프론트엔드 -> {PLUGIN_DIR}/resources/guides/cicd/deploy-actions-cicd-front.md
+    AI 서비스 -> {PLUGIN_DIR}/resources/guides/cicd/deploy-actions-cicd-ai.md
 ```
 
 > 클라우드별 분기 불필요. 가이드 내 조건부 섹션이 `[실행정보]`의 CLOUD 값에 따라 registry login 방식을 분기.
 
-**추가 참조 가이드**: `resources/guides/cicd/deploy-argocd-cicd.md` (manifest repo 업데이트 스크립트 부분만)
+**추가 참조 가이드**: `{PLUGIN_DIR}/resources/guides/cicd/deploy-argocd-cicd.md` (manifest repo 업데이트 스크립트 부분만)
 
 #### 백엔드 CI/CD 파이프라인 작성 (에이전트 호출)
 
