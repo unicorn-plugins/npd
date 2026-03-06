@@ -90,6 +90,13 @@
       "keyFiles": []
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "README.md",
+      "accessCount": 3,
+      "lastAccessed": 1772801922897,
+      "type": "directory"
+    }
+  ],
   "userDirectives": []
 }
