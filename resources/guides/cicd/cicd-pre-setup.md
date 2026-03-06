@@ -57,8 +57,14 @@ ssh -o ConnectTimeout=5 -o StrictHostKeyChecking=accept-new ${VM_HOST} exit
 이미 설치된 도구 감지 — 존재하면 해당 도구 설치 단계를 건너뜀:
 ```bash
 kubectl get ns jenkins 2>/dev/null && helm list -n jenkins 2>/dev/null | grep jenkins && echo "Jenkins already installed, skipping"
-kubectl get ns sonarqube 2>/dev/null && helm list -n sonarqube 2>/dev/null | grep sonar && echo "SonarQube already installed, skipping"
 kubectl get ns argocd 2>/dev/null && helm list -n argocd 2>/dev/null | grep argocd && echo "ArgoCD already installed, skipping"
+
+# SonarQube: GKE는 VM Docker로 설치하므로 Docker 컨테이너 존재 여부 확인
+if [ "${CLOUD}" = "GCP" ]; then
+  ssh ${VM_HOST} "sudo docker ps --format '{{.Names}}' | grep sonarqube" 2>/dev/null && echo "SonarQube (Docker) already installed, skipping"
+else
+  kubectl get ns sonarqube 2>/dev/null && helm list -n sonarqube 2>/dev/null | grep sonar && echo "SonarQube already installed, skipping"
+fi
 ```
 
 ---
@@ -351,9 +357,13 @@ kubectl get nodepool
 
 > CLOUD == GCP인 경우 별도 NodePool 생성 불필요.
 
-GKE Autopilot은 커스텀 노드풀을 직접 생성할 수 없음.  
-Pod를 배포하면 Google이 resources.requests 기반으로 노드를 자동 프로비저닝함.  
+GKE Autopilot은 커스텀 노드풀을 직접 생성할 수 없음.
+Pod를 배포하면 Google이 resources.requests 기반으로 노드를 자동 프로비저닝함.
 nodeSelector/tolerations를 사용한 노드 격리 불가이므로 네임스페이스 분리로 논리적 격리 유지.
+
+> **SonarQube 제약사항**: GKE Autopilot에서는 `vm.max_map_count` sysctl 변경이 불가능하여
+> SonarQube 내장 Elasticsearch의 bootstrap check가 실패함.
+> 따라서 GKE에서는 SonarQube를 VM에 Docker Compose로 설치함 (Phase 3 참조).
 
 ---
 
@@ -760,10 +770,10 @@ postgresql:
 
 resources:
   limits:
-    cpu: "6"
+    cpu: "3"
     memory: "6Gi"
   requests:
-    cpu: "5"
+    cpu: "2"
     memory: "5Gi"
 
 image:
@@ -827,10 +837,10 @@ postgresql:
 
 resources:
   limits:
-    cpu: "6"
+    cpu: "3"
     memory: "5Gi"
   requests:
-    cpu: "5"
+    cpu: "2"
     memory: "4Gi"
 
 image:
@@ -852,74 +862,89 @@ ingress:
 EOF
 ```
 
-**[GCP GKE]** sonarqube.yaml:
+**[GCP GKE]** — VM Docker Compose 방식으로 설치 (Helm 사용 불가):
+
+> GKE Autopilot에서는 `vm.max_map_count` sysctl 변경이 불가능하여 SonarQube 내장 Elasticsearch의
+> bootstrap check가 실패함. 따라서 GKE에서는 VM에 Docker Compose로 SonarQube를 설치함.
+
 ```bash
-cat > sonarqube.yaml << EOF
-sonarqubeUsername: admin
-sonarqubePassword: "sonarP@ssw0rd$"
+ssh ${VM_HOST} "mkdir -p ~/sonarqube && cat > ~/sonarqube/docker-compose.yml << 'DCEOF'
+services:
+  sonarqube-pg:
+    image: postgres:15-alpine
+    container_name: sonarqube-pg
+    environment:
+      POSTGRES_USER: sonar
+      POSTGRES_PASSWORD: "P@ssw0rd$"
+      POSTGRES_DB: sonarqube
+    volumes:
+      - sonarqube-pg-data:/var/lib/postgresql/data
+    restart: unless-stopped
 
-service:
-  type: ClusterIP
-  ports:
-    http: 80
-    elastic: 9001
+  sonarqube:
+    image: sonarqube:26.3.0.120487-community
+    container_name: sonarqube
+    depends_on:
+      - sonarqube-pg
+    ports:
+      - '9000:9000'
+    environment:
+      SONAR_JDBC_URL: jdbc:postgresql://sonarqube-pg:5432/sonarqube
+      SONAR_JDBC_USERNAME: sonar
+      SONAR_JDBC_PASSWORD: "P@ssw0rd$"
+    volumes:
+      - sonarqube-data:/opt/sonarqube/data
+      - sonarqube-extensions:/opt/sonarqube/extensions
+      - sonarqube-logs:/opt/sonarqube/logs
+    restart: unless-stopped
 
-persistence:
-  enabled: true
-  storageClass: "standard-rwo"
-  accessModes:
-    - ReadWriteOnce
-  size: 2Gi
-
-postgresql:
-  auth:
-    password: "P@ssw0rd$"
-    username: bn_sonarqube
-  primary:
-    persistence:
-      storageClass: "standard-rwo"
-
-resources:
-  limits:
-    cpu: "6"
-    memory: "5Gi"
-  requests:
-    cpu: "5"
-    memory: "4Gi"
-
-image:
-  registry: docker.io
-  repository: bitnamilegacy/sonarqube
-  tag: 25.5.0-debian-12-r0
-
-sysctl:
-  enabled: false
-  image:
-    registry: docker.io
-    repository: bitnamilegacy/os-shell
-    tag: 12-debian-12-r51
-
-ingress:
-  enabled: true
-  hostname: mysonar.io
-  pathType: Prefix
-  annotations:
-    kubernetes.io/ingress.class: "gce"
-EOF
+volumes:
+  sonarqube-pg-data:
+  sonarqube-data:
+  sonarqube-extensions:
+  sonarqube-logs:
+DCEOF"
 ```
 
-> GKE Autopilot: nodeSelector와 tolerations 없음. `sysctl.enabled: false`로 설정됨.  
-> Autopilot은 privileged init container를 허용하지 않으므로 sysctl 초기화 컨테이너가 차단됨.
+Docker Compose 실행:
+```bash
+ssh ${VM_HOST} "cd ~/sonarqube && sudo docker compose up -d"
+```
+
+SonarQube 기동 대기 및 상태 확인 (최대 2분):
+```bash
+for i in $(seq 1 12); do
+  STATUS=$(ssh ${VM_HOST} "curl -s http://localhost:9000/api/system/status" 2>/dev/null | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
+  if [ "${STATUS}" = "UP" ]; then
+    echo "SonarQube is UP"
+    break
+  fi
+  echo "Waiting for SonarQube... (${STATUS:-not ready})"
+  sleep 10
+done
+```
+
+SonarQube admin 비밀번호 변경:
+```bash
+ssh ${VM_HOST} "curl -s -u admin:admin -X POST 'http://localhost:9000/api/users/change_password?login=admin&previousPassword=admin&password=sonarP%40ssw0rd%24'"
+```
+
+> GKE에서 SonarQube는 K8s Ingress 없이 VM의 9000 포트로 직접 서비스됨.
+> Nginx 프록시에서 `mysonar.io` → `localhost:9000`으로 프록싱함.
 
 #### postgresql 이미지 변경 (sed)
 
+> GKE에서는 SonarQube를 Docker로 설치하므로 이 단계 불필요. AWS/Azure만 해당.
+
 ```bash
-# 파일 존재 확인 후 실행
+# 파일 존재 확인 후 실행 (AWS/Azure만)
 ls charts/postgresql/values.yaml && \
   sed -i 's|repository: bitnami/postgresql|repository: bitnamilegacy/postgresql|' charts/postgresql/values.yaml
 ```
 
 #### namespace 생성 및 helm install
+
+> GKE에서는 SonarQube를 Docker로 설치하므로 이 단계 불필요. AWS/Azure만 해당.
 
 ```bash
 kubectl create ns sonarqube
@@ -933,7 +958,9 @@ helm upgrade -i sonar -f sonarqube.yaml . -n sonarqube
 
 #### affinity 패치
 
-sonarqube Pod에서 affinity 설정을 삭제함.  
+> GKE에서는 SonarQube를 Docker로 설치하므로 이 단계 불필요. AWS/Azure만 해당.
+
+sonarqube Pod에서 affinity 설정을 삭제함.
 postgresql DB와 동일 노드에 설치하는 affinity인데 DB Pod가 다른 노드에 설치되어 Pod가 배포되지 않음.
 
 Deployment 존재 확인 후 패치 실행:
@@ -954,29 +981,14 @@ kubectl scale deploy sonar-sonarqube -n sonarqube --replicas=1
 
 #### Pod 실행 대기 및 확인
 
+> GKE에서는 SonarQube를 Docker로 설치하므로 이 단계 불필요. AWS/Azure만 해당.
+
 ```bash
 kubectl wait --for=condition=Ready pod -l app.kubernetes.io/name=sonarqube \
   -n sonarqube --timeout=300s
 
 kubectl get po -n sonarqube
 ```
-
-#### [GKE 전용] sysctl.enabled: false 및 vm.max_map_count 대응
-
-GKE Autopilot에서 SonarQube Pod가 시작되지 않는 경우 아래 순서로 대응:
-
-1. Pod 상태 확인:
-```bash
-kubectl get po -n sonarqube -w
-```
-
-2. 실패 시 sonarqubeProperties 추가 (Helm upgrade):
-```bash
-helm upgrade sonar -f sonarqube.yaml . -n sonarqube \
-  --set 'sonarqubeProperties.sonar\.search\.javaAdditionalOpts=-Dnode.store.allow_mmap=false'
-```
-
-3. 위 방법으로 해결되지 않으면 GKE Standard 모드 사용 권장.
 
 #### [수동 안내] SonarQube 후속 설정
 
@@ -1339,7 +1351,8 @@ ARGOCD_ADDRESS=${INGRESS_IP}
 **[GCP GKE]**:
 ```bash
 JENKINS_ADDRESS=$(kubectl get ing -n jenkins -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}' 2>/dev/null)
-SONAR_ADDRESS=$(kubectl get ing -n sonarqube -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}' 2>/dev/null)
+# GKE: SonarQube는 VM Docker로 설치되므로 localhost:9000 사용
+SONAR_ADDRESS="localhost:9000"
 ARGOCD_ADDRESS=$(kubectl get ing -n argocd -o jsonpath='{.items[0].status.loadBalancer.ingress[0].ip}' 2>/dev/null)
 ```
 
@@ -1574,11 +1587,11 @@ Repository Variables (워크플로우 제어):
 
 ## 2. 도구 설치 결과
 
-| 도구 | 네임스페이스 | 상태 | Ingress Address |
-|------|-----------|------|----------------|
-| Jenkins | jenkins | 완료/건너뜀 | {address} |
-| SonarQube | sonarqube | 완료/건너뜀 | {address} |
-| ArgoCD | argocd | 완료/건너뜀 | {address} |
+| 도구 | 설치 위치 | 상태 | 접속 주소 |
+|------|----------|------|----------|
+| Jenkins | K8s jenkins NS | 완료/건너뜀 | {ingress address} |
+| SonarQube | K8s sonarqube NS / VM Docker | 완료/건너뜀 | {ingress address 또는 VM_HOST:9000} |
+| ArgoCD | K8s argocd NS | 완료/건너뜀 | {ingress address} |
 
 ## 3. 접속 정보
 
@@ -1590,7 +1603,8 @@ Repository Variables (워크플로우 제어):
 
 > 암호 조회 명령:
 > - Jenkins: `kubectl get secret jenkins -n jenkins -o jsonpath='{.data.jenkins-password}' | base64 -d`
-> - SonarQube: `kubectl get secret sonar-sonarqube -n sonarqube -o jsonpath='{.data.sonarqube-password}' | base64 -d`
+> - SonarQube (K8s Helm): `kubectl get secret sonar-sonarqube -n sonarqube -o jsonpath='{.data.sonarqube-password}' | base64 -d`
+> - SonarQube (GKE VM Docker): 초기 admin/admin → 설치 시 `sonarP@ssw0rd$`로 변경됨
 > - ArgoCD: `kubectl get secret argocd-initial-admin-secret -n argocd -o jsonpath='{.data.password}' | base64 -d`
 
 ## 4. Nginx 프록시
@@ -1614,7 +1628,8 @@ Repository Variables (워크플로우 제어):
 | Pod 미기동 | `kubectl wait --timeout=300s` 타임아웃 시 `kubectl describe pod -n {ns}` |
 | SonarQube affinity 패치 실패 | Deployment 존재 확인 후 10초 대기 재시도 |
 | 리소스 부족 | NodePool 생성 후 최대 5분 대기 |
-| 이미 설치된 도구 감지 | `kubectl get ns` + `helm list`로 확인. 존재 시 건너뜀 |
+| GKE SonarQube VM Docker 실패 | `ssh ${VM_HOST} "sudo docker logs sonarqube --tail=30"`으로 로그 확인. 디스크 부족 시 `sudo docker system prune -f`로 정리 후 재시작 |
+| 이미 설치된 도구 감지 | `kubectl get ns` + `helm list`로 확인. GKE SonarQube는 `ssh ${VM_HOST} "sudo docker ps"` 확인. 존재 시 건너뜀 |
 | AWS CLI 실패 | `aws sts get-caller-identity` 사전 검증 |
 | sed 대상 파일 미존재 | `ls charts/postgresql/values.yaml` 확인 후 건너뜀 |
 
@@ -1622,7 +1637,7 @@ Repository Variables (워크플로우 제어):
 
 - [ ] 클라우드별 사전작업 완료 (AWS: StorageClass, ALB, NodePool / Azure: NodePool / GCP: 없음)
 - [ ] Jenkins 설치 완료 및 Pod Ready 상태 확인 (CI_TOOL=Jenkins인 경우)
-- [ ] SonarQube 설치 완료 및 Pod Ready 상태 확인
+- [ ] SonarQube 설치 완료 및 상태 확인 (K8s: Pod Ready / GKE: `curl localhost:9000/api/system/status` → UP)
 - [ ] ArgoCD 설치 완료 및 Pod Ready 상태 확인
 - [ ] 각 도구 RBAC 설정 완료 (Jenkins ClusterRoleBinding)
 - [ ] Nginx 프록시 설정 완료 (SSH 자동, `nginx -t` 성공)
