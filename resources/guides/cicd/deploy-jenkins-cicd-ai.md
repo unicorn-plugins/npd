@@ -120,6 +120,19 @@ podTemplate(
         spec:
           terminationGracePeriodSeconds: 3
           restartPolicy: Never
+          containers:
+          - name: kaniko
+            resources:
+              requests:
+                ephemeral-storage: "5Gi"
+              limits:
+                ephemeral-storage: "20Gi"
+          - name: python
+            resources:
+              requests:
+                ephemeral-storage: "2Gi"
+              limits:
+                ephemeral-storage: "10Gi"
     ''',
     containers: [
         containerTemplate(
@@ -296,22 +309,38 @@ podTemplate(
             //         container('kaniko') {
             //             withCredentials([
             //                 usernamePassword(
-            //                     credentialsId: 'dockerhub-credentials',
+            //                     credentialsId: 'imagereg-credentials',
             //                     usernameVariable: 'IMG_USERNAME',
             //                     passwordVariable: 'IMG_PASSWORD'
+            //                 ),
+            //                 usernamePassword(
+            //                     credentialsId: 'dockerhub-credentials',
+            //                     usernameVariable: 'DOCKERHUB_USERNAME',
+            //                     passwordVariable: 'DOCKERHUB_PASSWORD'
             //                 )
             //             ]) {
-            //                 sh """
-            //                     echo '{"auths":{"https://index.docker.io/v1/":{"username":"'\$IMG_USERNAME'","password":"'\$IMG_PASSWORD'"}}}' > /kaniko/.docker/config.json
-            //
-            //                     /kaniko/executor \\
-            //                         --dockerfile=deployment/container/Dockerfile-ai \\
-            //                         --context=dir://. \\
-            //                         --build-arg PROJECT_FOLDER="{ai-서비스-디렉토리}" \\
-            //                         --build-arg EXPORT_PORT=8000 \\
-            //                         --destination={IMG_NAME}:${environment}-${imageTag} \\
-            //                         --cache=false
-            //                 """
+            //                 // --- DockerHub / ACR / ECR: config.json에 직접 인증 ---
+            //                 // sh """
+            //                 //     echo '{"auths":{"https://index.docker.io/v1/":{"username":"'\$DOCKERHUB_USERNAME'","password":"'\$DOCKERHUB_PASSWORD'"},"{IMG_REG}":{"username":"'\$IMG_USERNAME'","password":"'\$IMG_PASSWORD'"}}}' > /kaniko/.docker/config.json
+            //                 // """
+            //                 // --- GCP Artifact Registry: GOOGLE_APPLICATION_CREDENTIALS 방식 ---
+            //                 // SA JSON을 파일로 저장 후 GOOGLE_APPLICATION_CREDENTIALS 환경변수로 GCR 인증
+            //                 // config.json에는 DockerHub 인증만 포함
+            //                 // sh '''
+            //                 //     printf '%s' "$IMG_PASSWORD" > /kaniko/sa.json
+            //                 //     export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/sa.json
+            //                 //     printf '{"auths":{"https://index.docker.io/v1/":{"username":"%s","password":"%s"}}}' "$DOCKERHUB_USERNAME" "$DOCKERHUB_PASSWORD" > /kaniko/.docker/config.json
+            //                 // '''
+            //                 // sh """
+            //                 //     export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/sa.json
+            //                 //     /kaniko/executor \\
+            //                 //         --dockerfile=deployment/container/Dockerfile-ai \\
+            //                 //         --context=dir://. \\
+            //                 //         --build-arg PROJECT_FOLDER="{ai-서비스-디렉토리}" \\
+            //                 //         --build-arg EXPORT_PORT=8000 \\
+            //                 //         --destination={IMG_NAME}:${environment}-${imageTag} \\
+            //                 //         --cache=false
+            //                 // """
             //             }
             //         }
             //     }
@@ -557,6 +586,8 @@ Get Source → Build & Test → SonarQube Analysis → Build & Push Images → U
 - AKS/GKE에서 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
 - AKS/GKE에서 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`, `sonarsource/sonar-scanner-cli:11`)
 - Kaniko는 Docker config.json으로 인증하며, 레지스트리 키는 `docker.io`가 아닌 **`https://index.docker.io/v1/`** 사용
+- **GCP Artifact Registry**: SA JSON 키를 config.json password에 직접 넣으면 JSON 특수문자로 파싱 에러 발생. 반드시 **GOOGLE_APPLICATION_CREDENTIALS** 환경변수 방식 사용. SA JSON을 파일(`/kaniko/sa.json`)로 저장 후 `export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/sa.json`으로 인증. config.json에는 DockerHub 인증만 포함
+- **Kaniko ephemeral-storage**: Kaniko는 이미지 빌드 시 많은 임시 스토리지를 사용함. 기본 1Gi 제한 시 `Container kaniko exceeded its local ephemeral storage limit` 에러로 Pod Evicted 발생. yaml spec에서 kaniko 컨테이너에 `ephemeral-storage` requests/limits 설정 필요 (권장: requests 5Gi, limits 20Gi). 빌드 컨테이너(node/gradle/python)도 2Gi/10Gi 설정 권장
 - Jenkins Cloud 설정에서 `jenkins-agent-listener` 서비스가 없으면 Jenkins tunnel을 **`jenkins:50000`**으로 변경
 
 **공통**

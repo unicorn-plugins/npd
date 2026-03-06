@@ -134,6 +134,19 @@ podTemplate(
         spec:
           terminationGracePeriodSeconds: 3
           restartPolicy: Never
+          containers:
+          - name: kaniko
+            resources:
+              requests:
+                ephemeral-storage: "5Gi"
+              limits:
+                ephemeral-storage: "20Gi"
+          - name: gradle
+            resources:
+              requests:
+                ephemeral-storage: "2Gi"
+              limits:
+                ephemeral-storage: "10Gi"
     ''',
     containers: [
         // --- 기본 (EKS 등) ---
@@ -320,12 +333,25 @@ podTemplate(
             //         container('kaniko') {
             //             withCredentials([
             //                 usernamePassword(
-            //                     credentialsId: 'dockerhub-credentials',
+            //                     credentialsId: 'imagereg-credentials',
             //                     usernameVariable: 'IMG_USERNAME',
             //                     passwordVariable: 'IMG_PASSWORD'
+            //                 ),
+            //                 usernamePassword(
+            //                     credentialsId: 'dockerhub-credentials',
+            //                     usernameVariable: 'DOCKERHUB_USERNAME',
+            //                     passwordVariable: 'DOCKERHUB_PASSWORD'
             //                 )
             //             ]) {
-            //                 def kanikoCommands = "echo '{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"'\$IMG_USERNAME'\",\"password\":\"'\$IMG_PASSWORD'\"}}}' > /kaniko/.docker/config.json\n"
+            //                 // --- DockerHub / ACR / ECR: config.json에 직접 인증 ---
+            //                 // def kanikoCommands = "echo '{\"auths\":{\"https://index.docker.io/v1/\":{\"username\":\"'\$DOCKERHUB_USERNAME'\",\"password\":\"'\$DOCKERHUB_PASSWORD'\"},\"{IMG_REG}\":{\"username\":\"'\$IMG_USERNAME'\",\"password\":\"'\$IMG_PASSWORD'\"}}}' > /kaniko/.docker/config.json\n"
+            //                 // --- GCP Artifact Registry: GOOGLE_APPLICATION_CREDENTIALS 방식 ---
+            //                 // SA JSON을 파일로 저장 후 GOOGLE_APPLICATION_CREDENTIALS 환경변수로 GCR 인증
+            //                 // config.json에는 DockerHub 인증만 포함
+            //                 def kanikoCommands = """printf '%s' "\$IMG_PASSWORD" > /kaniko/sa.json
+            // export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/sa.json
+            // printf '{"auths":{"https://index.docker.io/v1/":{"username":"%s","password":"%s"}}}' "\$DOCKERHUB_USERNAME" "\$DOCKERHUB_PASSWORD" > /kaniko/.docker/config.json
+            // """
             //                 targetMap.each { service, imgName ->
             //                     kanikoCommands += """/kaniko/executor \\
             //                         --dockerfile=deployment/container/Dockerfile-backend \\
@@ -588,6 +614,8 @@ Get Source → Build & Test → SonarQube Analysis → Build & Push Images → U
 - AKS/GKE에서 `privileged: true`를 차단하므로 Podman 대신 **Kaniko** 사용
 - AKS/GKE에서 `:latest` 태그를 차단하므로 모든 컨테이너 이미지에 **명시적 버전 태그** 사용 (예: `alpine/git:2.47.2`)
 - Kaniko는 Docker config.json으로 인증하며, 레지스트리 키는 `docker.io`가 아닌 **`https://index.docker.io/v1/`** 사용
+- **GCP Artifact Registry**: SA JSON 키를 config.json password에 직접 넣으면 JSON 특수문자로 파싱 에러 발생. 반드시 **GOOGLE_APPLICATION_CREDENTIALS** 환경변수 방식 사용. SA JSON을 파일(`/kaniko/sa.json`)로 저장 후 `export GOOGLE_APPLICATION_CREDENTIALS=/kaniko/sa.json`으로 인증. config.json에는 DockerHub 인증만 포함
+- **Kaniko ephemeral-storage**: Kaniko는 이미지 빌드 시 많은 임시 스토리지를 사용함. 기본 1Gi 제한 시 `Container kaniko exceeded its local ephemeral storage limit` 에러로 Pod Evicted 발생. yaml spec에서 kaniko 컨테이너에 `ephemeral-storage` requests/limits 설정 필요 (권장: requests 5Gi, limits 20Gi). 빌드 컨테이너(node/gradle/python)도 2Gi/10Gi 설정 권장
 - Kaniko 사용 시 gradle 컨테이너의 Podman 관련 envVars(`DOCKER_HOST`, `TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE`)와 `/run/podman` volume 제거
 - Kaniko executor는 실행 후 컨테이너 파일시스템(`/bin/sh` 포함)을 변경하므로, 멀티 서비스 빌드 시 **반드시 모든 빌드를 단일 `sh` 블록에서 실행**할 것. 서비스별 별도 `sh` 블록이나 `--cleanup` 플래그 사용 시 두 번째 서비스부터 실패함
 - Jenkins Cloud 설정에서 `jenkins-agent-listener` 서비스가 없으면 Jenkins tunnel을 **`jenkins:50000`**으로 변경

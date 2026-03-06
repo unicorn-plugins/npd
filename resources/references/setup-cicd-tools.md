@@ -417,6 +417,8 @@ Personal Access Token을 생성함.
 username은 Docker Hub 로그인 id 이고 암호는 위에서 만든 토큰을 입력함.
 ![](images/2026-03-04-18-34-47.png)
 
+중요: 
+DockerHub 레지스트리만 쓰는 경우 
 'imagereg-credentials'라는 이름으로 동일한 값을 등록함.  
   
 | [Top](#목차) |
