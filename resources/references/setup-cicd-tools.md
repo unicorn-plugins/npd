@@ -132,13 +132,17 @@ http://myjenkins.io를 브라우저에서 열기.
 ### Kubernetes Cloud 연결
 
 'Dashboard > Manage Jenkins'메뉴에서 'Clouds'를 선택하고, 새로운 Cloud 프로파일을 작성함.  
-아래 항목의 값만 입력함.
+아래 항목의 값만 입력함.   
+주의) Azure는 AKS Automatic 사용 시 정책 상 동일 Pod를 가리키는 Service를 만들 수 없어 'jenkins:50000'번으로 지정   
 ```
 - Kubernetes URL: https://kubernetes.default
 - Kubernetes Namespace: jenkins
 - Jenkins URL: http://jenkins
-- Jenkins tunnel: jenkins-agent-listener:50000
+- Jenkins tunnel: 
+  - EKS, GCP: jenkins-agent-listener:50000
+  - Azure: jenkins:50000
 ```
+
 
 System Configurations > Clouds 선택
 ![](images/2026-03-04-00-02-38.png)
