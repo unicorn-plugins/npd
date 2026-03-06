@@ -213,9 +213,23 @@ SonarQube 품질 검사 결과를 Jenkins로 보내기 위해 Webhook을 만듦.
 
 - name: 적절히 지정. 예) jenkins-webhook.
 - url: Jenkins 서버의 주소
-  Jenkins를 k8s에 설치한 경우 http://jenkins.jenkins.svc.cluster.local/sonarqube-webhook/ 으로 하고,  
-  그냥 설치한 경우는 http://{IP 또는 host}/sonarqube-webhook/ 으로 함  
-  (주의) 맨 마지막에 '/'를 반드시 입력 필요
+  - **[AWS EKS / Azure AKS]** SonarQube가 K8s에 설치된 경우:
+    `http://jenkins.jenkins.svc.cluster.local/sonarqube-webhook/`
+  - **[GCP GKE] ⚠️ 주의 — SonarQube가 VM Docker에 설치된 경우:**
+    > GCP에서는 SonarQube가 K8s가 아닌 **VM Docker**로 실행되므로
+    > K8s 내부 주소(`svc.cluster.local`)를 사용할 수 없습니다.
+    > VM의 Nginx 프록시를 경유하여 Jenkins에 접근해야 합니다.
+
+    `http://myjenkins.io/sonarqube-webhook/`
+
+    > **⚠️ 필수 사전 조건**: VM의 `/etc/hosts`에 `127.0.0.1 myjenkins.io`가 등록되어 있어야 함.
+    > (Nginx가 `myjenkins.io` 요청을 Jenkins Ingress IP로 프록싱)
+    > 확인: `ssh {VM_HOST} "grep myjenkins /etc/hosts"`
+    > 미등록 시 아래 명령으로 등록:
+    > ```bash
+    > ssh {VM_HOST} "echo '127.0.0.1 myjenkins.io mysonar.io myargocd.io' | sudo tee -a /etc/hosts"
+    > ```
+  - (주의) 맨 마지막에 '/'를 반드시 입력 필요
 
   ![](images/2026-03-04-17-14-54.png)
 
@@ -271,8 +285,20 @@ System설정에서 SonarQube 서버 설정을 함.
 ![](images/2026-03-05-08-33-55.png)   
 
 CTRL-F로 'Sonar' 입력 하여 SonarQube 섹션을 이동 => 'Add SonarQube' 버튼 클릭   
-- Name: CI/CD파이프라인에서 참조할 이름임. SonarQube로 입력 
-- Server URL: Jenkins Pod에서 접근할 SonarQube 서비스의 주소. http://sonar-sonarqube.sonarqube.svc.cluster.local
+- Name: CI/CD파이프라인에서 참조할 이름임. SonarQube로 입력
+- Server URL: Jenkins Pod에서 접근할 SonarQube 서비스의 주소
+  - **[AWS EKS / Azure AKS]** SonarQube가 K8s에 설치된 경우:
+    `http://sonar-sonarqube.sonarqube.svc.cluster.local`
+  - **[GCP GKE] ⚠️ 주의 — SonarQube가 VM Docker에 설치된 경우:**
+    > GCP에서는 SonarQube가 K8s가 아닌 **VM Docker**로 실행되므로
+    > K8s 내부 서비스 주소(`svc.cluster.local`)를 사용할 수 없습니다.
+    > Jenkins Pod에서 VM의 **내부 IP + 9000 포트**로 직접 접근해야 합니다.
+
+    `http://{VM_INTERNAL_IP}:9000`
+
+    > **⚠️ VM 내부 IP 확인**: `ssh {VM_HOST} "hostname -I | awk '{print \$1}'"`
+    > 예) `http://10.178.0.7:9000`
+    > (같은 GCP VPC 내에 있으므로 GKE Pod에서 접근 가능)
 - Authentication Token: 위에서 만든 credential 'sonarqube-access-token'을 선택
 
 ![](images/2026-03-04-17-13-41.png)
