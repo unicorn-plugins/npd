@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772757018675,
+  "lastScanned": 1772787404587,
   "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772757018658,
+      "lastAccessed": 1772787404571,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 12,
-      "lastAccessed": 1772757018658,
+      "lastAccessed": 1772787404572,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1772757018658,
+      "lastAccessed": 1772787404572,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 3,
-      "lastAccessed": 1772757018659,
+      "lastAccessed": 1772787404573,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -77,7 +77,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772757018659,
+      "lastAccessed": 1772787404573,
       "keyFiles": [
         "resource.md"
       ]
@@ -86,7 +86,7 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772757018659,
+      "lastAccessed": 1772787404573,
       "keyFiles": []
     }
   },
