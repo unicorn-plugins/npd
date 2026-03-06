@@ -7,7 +7,7 @@
 ## 개요
 
 NPD는 PO·서비스기획자·아키텍트·도메인전문가·AI엔지니어·백엔드·프론트엔드·QA·DevOps 등 9개 전문가 AI 에이전트가 협업하여
-새로운 소프트웨어 제품의 전체 개발 수명주기를 지원하는 DMAP 플러그인임.
+새로운 소프트웨어 제품의 전체 개발 수명주기를 지원하는 플러그인임.
 
 MVP 주제를 입력하면 도메인 전문가 에이전트를 자동 생성하고,
 모노레포 기반 프로젝트 구조를 생성하며, 기획→설계→개발→배포 전 과정을 AI와 함께 수행함.
@@ -86,6 +86,7 @@ claude plugin update npd
 4. /npd:design   → 설계 단계 (아키텍트·AI엔지니어 협업)
 5. /npd:develop  → 개발 단계 (백엔드·프론트엔드·AI엔지니어·QA 협업)
 6. /npd:deploy   → 배포 단계 (DevOps 엔지니어)
+7. /npd:cicd     → CI/CD 파이프라인 구축 단계 (DevOps 엔지니어)
 ```
 
 ### 명령어 목록
@@ -100,6 +101,7 @@ claude plugin update npd
 | `/npd:design` | Orchestrator | 설계 단계 AI 협업 |
 | `/npd:develop` | Orchestrator | 개발 단계 AI 협업 |
 | `/npd:deploy` | Orchestrator | 배포 단계 AI 협업 |
+| `/npd:cicd` | Orchestrator | CI/CD 파이프라인 구축 단계 AI 협업 |
 | `/npd:add-ext-skill` | Utility | 외부 플러그인 연동 스킬 추가 |
 | `/npd:remove-ext-skill` | Utility | 외부 플러그인 연동 스킬 제거 |
 
