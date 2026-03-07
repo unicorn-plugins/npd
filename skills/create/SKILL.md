@@ -271,6 +271,13 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 ### 교훈 목록
 - [HIGH] `<!--ASK_USER-->` 발견 시 AskUserQuestion 도구를 호출할 것 - 공통
 
+## PLUGIN_DIR 변수 해석 
+**`{PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
+오케스트레이터는 실행 시작 시 다음 순서로 `{PLUGIN_DIR}`를 결정
+1. `~/.claude/plugins/cache/npd/npd/` 하위에서 최신 버전 디렉토리를 탐색
+2. 해당 디렉토리의 절대 경로를 `{PLUGIN_DIR}`에 바인딩
+3. 이후 모든 `{PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
+
 ````
 
 **멤버 구성 규칙:**
