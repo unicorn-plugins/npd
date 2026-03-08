@@ -34,12 +34,19 @@ Mock API 연동이 완성된 상태로 실제 백엔드 전환을 준비한다.
 
 1. 준비: 설계 문서 분석 및 Prism Mock 서버 기동 확인
 2. 공통 컴포넌트/위젯 개발
-3. 페이지별 구현 (dev-plan.md의 섹션5 참조)
-4. 빌드 및 에러 해결
+3. API 서비스 함수 구현
+4. 페이지별 구현 (dev-plan.md의 섹션5 참조)
+5. 빌드 및 에러 해결
 
 ---
 
 ### 1단계. 준비
+
+> **[체크포인트] 1단계 완료 조건**
+> - 페이지 전수 목록 테이블 작성 완료 (1.2.1)
+> - 레이아웃 그룹 분류 완료 (1.2.2)
+> - Public/Protected 라우트 분류 완료 (1.2.3)
+> - Prism Mock 서버 정상 기동 확인 (1.3)
 
 #### 1.1 설계 문서 분석
 
@@ -62,6 +69,88 @@ OpenAPI 명세에서 각 엔드포인트의 응답 스키마를 파악하여 컴
 - 각 화면의 레이아웃 구조 (헤더, 사이드바, 콘텐츠 영역)
 - 반복 등장하는 공통 UI 패턴
 - 모달, 폼, 테이블 등 복잡한 컴포넌트
+```
+
+#### 1.2.1 페이지 전수 목록 작성
+
+프로토타입 디렉토리의 모든 HTML 파일을 열거하고, 각각을 구현 대상 페이지로 등록한다.
+
+규칙:
+- 프로토타입의 HTML 파일 1개 = 구현해야 할 페이지 1개 (예외 없음)
+- `common.html`, `index.html`(목차용) 등 유틸리티 파일은 제외하되, 제외 사유를 명시
+- dev-plan.md 섹션 5의 페이지 목록과 프로토타입 HTML 파일 목록을 대조하여 누락 페이지 식별
+
+산출물:
+
+| # | 프로토타입 HTML | 구현 페이지명 | 레이아웃 | 인증 필요 | 우선순위 |
+|---|----------------|-------------|---------|----------|---------|
+| 1 | login.html | LoginPage | AuthLayout | 불필요 | P1 |
+| 2 | dashboard.html | DashboardPage | MainLayout | 필요 | P1 |
+| ... | ... | ... | ... | ... | ... |
+
+이 표의 모든 행이 구현 완료되어야 프론트엔드 개발이 완료된 것으로 간주한다.
+
+#### 1.2.2 레이아웃 다양성 분석
+
+프로토타입의 각 페이지별 레이아웃 구성 요소(헤더, 사이드바/드로어, 바텀 네비게이션, 푸터)를 분석한다.
+
+확인 절차:
+1. 각 프로토타입 페이지에서 상단(헤더/AppBar), 하단(BottomNav/Footer), 좌측(Sidebar/Drawer) 유무를 기록
+2. 동일한 레이아웃 구성을 가진 페이지끼리 그룹핑
+3. 서로 다른 레이아웃 그룹이 2개 이상이면 그룹별 레이아웃 컴포넌트를 생성
+
+산출물:
+
+| 레이아웃명 | 구성 요소 | 적용 페이지 |
+|-----------|----------|-----------|
+| MainLayout | Header + BottomNav + Content | Dashboard, List, Detail, ... |
+| AuthLayout | Content only (centered) | Login, Register |
+| PublicLayout | Header + Footer (BottomNav 없음) | 공개 프로필, ... |
+
+MainLayout 하나만으로 모든 페이지를 커버할 수 있다고 가정하지 않는다.
+프로토타입에서 레이아웃이 다른 페이지가 있으면 반드시 별도 레이아웃을 생성한다.
+
+#### 1.2.3 라우팅 구조 분석
+
+프로토타입의 각 페이지가 인증 필요/불필요인지 분석하여 라우팅 구조를 결정한다.
+
+판단 기준:
+- 로그인 없이 접근 가능해야 하는 페이지 → Public Route
+- 로그인 후에만 접근 가능한 페이지 → Protected Route
+- 프로토타입에 로그인 버튼 없이 바로 콘텐츠가 보이는 페이지 = Public
+- 프로토타입의 flow-script에서 비인증 사용자가 접근하는 페이지 = Public
+
+산출물:
+
+| 라우트 그룹 | 페이지 | 레이아웃 |
+|------------|--------|---------|
+| Public Routes | Login, Register, 공개 프로필 | AuthLayout, PublicLayout |
+| Protected Routes | Dashboard, List, Detail, Settings | MainLayout |
+
+**라우팅 구조 코드 예시**:
+
+```dart
+// lib/core/router/app_router.dart
+GoRouter(
+  routes: [
+    // Public Routes
+    GoRoute(path: '/login', builder: (_, __) => const LoginScreen()),
+    ShellRoute(
+      builder: (_, __, child) => PublicLayout(child: child),
+      routes: [
+        GoRoute(path: '/profile/:nickname', builder: (_, state) => PublicProfileScreen(nickname: state.pathParameters['nickname']!)),
+      ],
+    ),
+    // Protected Routes (redirect 로직으로 인증 체크)
+    ShellRoute(
+      redirect: (context, state) => isAuthenticated ? null : '/login',
+      builder: (_, __, child) => MainLayout(child: child),
+      routes: [
+        GoRoute(path: '/dashboard', builder: (_, __) => const DashboardScreen()),
+      ],
+    ),
+  ],
+)
 ```
 
 #### 1.3 Prism Mock 서버 기동 확인
@@ -126,6 +215,35 @@ python {PLUGIN_DIR}/resources/tools/customs/general/generate_image.py \
 ---
 
 ### 2단계. 공통 컴포넌트/위젯 개발
+
+> **[체크포인트] 2단계 완료 조건**
+> - 프로토타입 공통 자산 전수 추출 테이블 작성 완료
+> - 공통 UI 컴포넌트/위젯 전체 구현 완료
+> - 인터랙션 패턴(toggle/checkbox 등) 프로토타입 일치 확인
+> - 네비게이션 라벨·아이콘·순서 프로토타입 일치 확인
+
+#### 프로토타입 공통 자산 전수 추출
+
+프로토타입의 공통 파일(common.js, common.css 등)을 분석하여 공통 컴포넌트/위젯 목록을 작성한다.
+
+절차:
+1. `prototype/common.js` (또는 동등 파일)에서 정의된 웹 컴포넌트(Custom Elements) 목록 추출
+2. `prototype/common.css` (또는 동등 파일)에서 공통 UI 패턴(toggle switch, card, badge 등) 식별
+3. 각 공통 요소를 프레임워크 컴포넌트로 매핑
+
+산출물:
+
+| 프로토타입 공통 요소 | 타입 | 프레임워크 컴포넌트명 | 사용 페이지 |
+|-------------------|------|-------------------|-----------|
+| <app-header> | Web Component | Header / AppHeader | 전체 |
+| <app-nav> | Web Component | BottomNav / AppBottomNav | MainLayout 하위 |
+| <app-footer> | Web Component | Footer / AppFooter | PublicLayout |
+| .toggle-switch | CSS Pattern | ToggleSwitch / AppToggle | Settings |
+| ... | ... | ... | ... |
+
+이 표의 모든 항목이 구현 완료되어야 공통 컴포넌트 개발이 완료된 것으로 간주한다.
+프로토타입 common 파일에 정의된 요소를 누락하면 해당 요소를 사용하는 모든 페이지에서
+불일치가 발생하므로 전수 추출이 필수.
 
 #### 2.1 컴포넌트 분류 기준
 
@@ -208,6 +326,22 @@ AppSnackBar / AppAlertDialog
 AppBadge / AppTag
 ```
 
+**인터랙션 패턴 정확 반영 규칙**:
+
+프로토타입에서 사용하는 폼 요소와 인터랙션을 그대로 반영한다. 유사하지만 다른 요소로 대체하지 않는다.
+
+| 프로토타입 요소 | 올바른 구현 | 잘못된 구현 (금지) |
+|---------------|-----------|-----------------|
+| Toggle Switch | ToggleSwitch 컴포넌트 | Checkbox |
+| Radio Button Group | RadioGroup 컴포넌트 | Select/Dropdown |
+| Range Slider | Slider 컴포넌트 | Number Input |
+| Date Picker | DatePicker 컴포넌트 | Text Input |
+
+추가 준수 사항:
+- 프로토타입에 debounce가 적용된 입력 필드 → 동일한 debounce 시간(ms) 적용
+- 프로토타입에 애니메이션/전환 효과 → 동일한 애니메이션 구현 (fade, slide 등)
+- 프로토타입에 비활성화(disabled) 상태 표시 → 동일한 조건에서 비활성화 처리
+
 **위젯 분류 기준 (Atomic Design 매핑)**:
 
 | Atomic | Flutter 분류 | 예시 |
@@ -255,9 +389,35 @@ ShellRoute(
 ),
 ```
 
+**네비게이션 라벨/아이콘 정확 반영 규칙**:
+
+네비게이션 요소(Header, Sidebar, BottomNav, TabBar)의 라벨, 아이콘, 순서를
+프로토타입과 정확히 일치시킨다.
+
+확인 절차:
+1. 프로토타입의 네비게이션에서 각 항목의 라벨 텍스트를 정확히 추출
+2. 프로토타입의 네비게이션에서 각 항목의 아이콘(아이콘명 또는 SVG)을 식별
+3. 항목의 표시 순서를 프로토타입과 동일하게 유지
+
+산출물 예시:
+
+| 위치 | 순서 | 라벨 (프로토타입 원문) | 아이콘 | 라우트 |
+|------|------|---------------------|--------|--------|
+| BottomNav | 1 | 홈 | home | /dashboard |
+| BottomNav | 2 | 목록 | list | /items |
+| BottomNav | 3 | 작성 | edit | /items/new |
+| BottomNav | 4 | 프로필 | person | /profile |
+
+라벨을 임의로 변경하지 않는다 (예: "목록"을 "TIL"로, "프로필"을 "설정"으로 변경 금지).
+
 ---
 
 ### 3단계. API 서비스 함수 구현
+
+> **[체크포인트] 3단계 완료 조건**
+> - 모든 도메인 타입/모델이 OpenAPI 스키마와 1:1 매핑 검증 완료
+> - 서비스 함수가 모든 엔드포인트를 커버
+> - 상태 관리 훅/스토어/프로바이더 구현 완료
 
 `frontend-env-setup-flutter.md`에서 생성한 Dio 클라이언트를 활용하여 Repository + DataSource 패턴으로 구현한다.
 
@@ -305,6 +465,29 @@ class UserListParams {
 ```bash
 dart run build_runner build --delete-conflicting-outputs
 ```
+
+모델 클래스는 OpenAPI 명세의 `components/schemas`를 그대로 반영한다. 임의로 추정하지 않는다.
+
+**모델 완전 매핑 검증 규칙**:
+
+OpenAPI 스키마의 모든 필드가 Dart 모델 클래스(freezed)에 빠짐없이 반영되었는지 검증한다.
+
+절차:
+1. OpenAPI yaml에서 각 스키마의 필드 목록을 추출
+2. freezed 모델 클래스의 필드 목록과 1:1 대조
+3. 누락된 필드가 있으면 추가 (optional 필드 포함)
+4. 모델에만 존재하고 OpenAPI에 없는 필드는 삭제 또는 별도 클라이언트 전용 모델로 분리
+
+검증 산출물 (각 스키마별):
+
+| OpenAPI 필드 | 타입 | Dart 모델 반영 여부 |
+|-------------|------|-------------------|
+| id | string | O |
+| name | string | O |
+| githubUrl | string? | X → 추가 필요 |
+
+required/optional 구분도 OpenAPI 명세를 정확히 따른다.
+OpenAPI에서 required가 아닌 필드는 Dart 모델에서도 nullable(?)로 선언한다.
 
 #### 3.2 DataSource (Dio 기반 API 호출)
 
@@ -441,6 +624,12 @@ final usersNotifierProvider =
 
 ### 4단계. 페이지별 구현
 
+> **[체크포인트] 4단계 완료 조건**
+> - dev-plan.md 섹션 5의 모든 페이지 구현 완료
+> - CRUD 수정 모드가 필요한 폼 페이지에서 Create/Update 분기 동작
+> - 유저 플로우 Mock 범위 검증 통과 (4.5 산출물 기준)
+> - Prism Mock 연동 확인 완료 (4.3)
+
 #### 4.1 구현 순서 결정
 
 `docs/develop/dev-plan.md` 섹션 5의 우선순위를 기준으로 구현 순서를 정한다.
@@ -527,6 +716,96 @@ GoRoute(
 ),
 ```
 
+**CRUD 수정(Edit) 모드 구현 규칙**:
+
+프로토타입에서 "수정" 버튼이나 편집 기능이 있는 페이지는,
+작성(Create) 폼을 재사용하여 수정(Update) 모드를 구현한다.
+
+패턴:
+1. 상세 페이지에 수정 버튼이 있는지 프로토타입에서 확인
+2. 수정 버튼 클릭 시 작성 폼 페이지로 이동하되, 기존 데이터를 로드
+3. 폼 페이지는 "생성 모드"(새 데이터)와 "수정 모드"(기존 데이터 편집)를 구분
+4. 수정 모드에서는 기존 데이터를 API로 조회하여 폼 필드에 채움
+
+```dart
+// lib/features/items/presentation/screens/item_form_screen.dart
+class ItemFormScreen extends ConsumerStatefulWidget {
+  const ItemFormScreen({super.key, this.editId});
+  final String? editId;
+
+  @override
+  ConsumerState<ItemFormScreen> createState() => _ItemFormScreenState();
+}
+
+class _ItemFormScreenState extends ConsumerState<ItemFormScreen> {
+  final _titleController = TextEditingController();
+  final _contentController = TextEditingController();
+  bool get isEditMode => widget.editId != null;
+
+  @override
+  void initState() {
+    super.initState();
+    if (isEditMode) {
+      // 수정 모드: 기존 데이터를 로드하여 폼 필드에 채움
+      ref.listenManual(
+        itemDetailProvider(widget.editId!),
+        (_, next) => next.whenData((item) {
+          _titleController.text = item.title;
+          _contentController.text = item.content;
+        }),
+      );
+    }
+  }
+
+  Future<void> _handleSubmit() async {
+    final data = {'title': _titleController.text, 'content': _contentController.text};
+    final notifier = ref.read(itemsNotifierProvider.notifier);
+    if (isEditMode) {
+      await notifier.updateItem(widget.editId!, data);
+    } else {
+      await notifier.createItem(data);
+    }
+    if (mounted) context.go('/items');
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(title: Text(isEditMode ? '수정' : '작성')),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(children: [
+          AppTextField(controller: _titleController, label: '제목'),
+          AppTextField(controller: _contentController, label: '내용'),
+          AppButton(label: isEditMode ? '수정' : '작성', onPressed: _handleSubmit),
+        ]),
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _titleController.dispose();
+    _contentController.dispose();
+    super.dispose();
+  }
+}
+```
+
+**go_router에서 editId 전달**:
+
+```dart
+// lib/core/router/app_router.dart
+GoRoute(
+  path: '/items/new',
+  builder: (_, __) => const ItemFormScreen(),
+),
+GoRoute(
+  path: '/items/:id/edit',
+  builder: (_, state) => ItemFormScreen(editId: state.pathParameters['id']),
+),
+```
+
 #### 4.3 Prism Mock 연동 확인
 
 각 페이지/화면 구현 완료 후 확인한다.
@@ -569,6 +848,42 @@ class AuthStub {
   }
 }
 ```
+
+#### 4.5 유저 플로우 Mock 범위 검증
+
+프로토타입에 flow-script(유저 플로우 정의)가 있으면, Mock 범위 내에서
+UI 네비게이션 경로가 정상 동작하는지 검증한다.
+
+> Prism은 stateless Mock 서버이므로 진정한 End-to-End 검증
+> (인증 기반 접근 제어, 상태 의존 분기 등)은 불가능하다.
+> 이 단계의 "유저 플로우 검증"은 **Mock 범위 내에서의 UI 네비게이션 경로 검증**으로 한정한다.
+
+절차:
+1. 프로토타입의 flow-script 파일(flow-script.html 등)을 분석하여 유저 여정 목록 추출
+2. 각 여정의 시작 페이지 → 경유 페이지 → 종료 페이지 경로를 기록
+3. 구현된 앱에서 각 여정을 순서대로 수행하며 페이지 전환이 정상 동작하는지 확인
+
+산출물:
+
+| 여정 # | 시작 | 경유 | 종료 | 검증 결과 |
+|--------|------|------|------|----------|
+| 1 | Login | → Dashboard | → Item Detail | Pass/Fail |
+| 2 | Dashboard | → Settings | → Edit Profile | Pass/Fail |
+| ... | ... | ... | ... | ... |
+
+검증 항목 (각 여정별, Mock 범위):
+- [ ] 시작 페이지에서 다음 페이지로의 네비게이션 링크/버튼 존재
+- [ ] 각 경유 페이지가 정상 렌더링 (Mock 데이터 기준)
+- [ ] 라우트 전환이 정상 동작 (페이지 컴포넌트가 렌더링됨)
+- [ ] 뒤로 가기(Back) 시 이전 페이지로 복귀
+
+검증 제외 항목 (실제 백엔드 통합 시 검증):
+- 인증 기반 접근 제어 (미인증 시 리디렉트)
+- 상태 의존 UI 분기 (데이터 유무에 따른 빈 상태/목록 표시)
+- CRUD 후 목록 갱신 반영 (Prism stateless 제약)
+
+flow-script가 없는 프로토타입의 경우, 프로토타입 페이지 간 링크/버튼을 추적하여
+주요 유저 여정을 도출한다.
 
 ---
 
@@ -655,6 +970,9 @@ frontend/lib/
 - [ ] 화면 구성 확인 (프로토타입)
 - [ ] 요청/응답 스키마 확인 (OpenAPI yaml)
 - [ ] 프로토타입 화면 확인 (playwright — 모바일 사이즈 390×844)
+- [ ] 이 화면의 레이아웃 그룹 확인 (1.2.2 산출물)
+- [ ] 이 화면의 라우트 그룹 확인 (Public/Protected)
+- [ ] 수정 모드 필요 여부 확인 (상세→수정 버튼 유무)
 
 ### 구현
 - [ ] Dart 모델 클래스 생성 (lib/features/<domain>/domain/models/)
@@ -671,6 +989,9 @@ frontend/lib/
 - [ ] 화면 정상 렌더링 확인
 - [ ] flutter logs에 에러 없음
 - [ ] 프로토타입 화면과 일치 확인 (모바일/태블릿)
+- [ ] 인터랙션 패턴 일치 확인 (toggle/checkbox 등)
+- [ ] 네비게이션 라벨/아이콘 프로토타입 일치 확인
+- [ ] API 응답 모델의 모든 필드가 UI에 반영되는지 확인
 ```
 
 ---
@@ -684,10 +1005,31 @@ frontend/lib/
 - [ ] `dart run build_runner build` 성공 (freezed/json_serializable 코드 최신 상태)
 - [ ] `flutter build apk` (또는 대상 플랫폼 빌드) 성공
 - [ ] ThemeData 기반 스타일링 (하드코딩된 색상·폰트 크기 없음)
+  → 검증 방법: 아래 ThemeData 하드코딩 검증 절차 참조
 - [ ] Prism stub 데이터가 `lib/core/stubs/`에 분리됨
 - [ ] dev-plan.md 섹션 5의 페이지 전체 구현
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" frontend/lib/` 결과가 0건
 - [ ] **런타임 동작 확인**: `flutter run -d chrome --web-port 3000` 실행 후 주요 화면 접근 및 Mock API 호출 정상 동작
+- [ ] 프로토타입 HTML 파일 전수가 화면으로 구현됨 (1.2.1 산출물 테이블 기준)
+- [ ] 프로토타입과 다른 레이아웃이 필요한 화면에 별도 레이아웃 적용 (1.2.2 산출물 기준)
+- [ ] Public/Protected 라우트 구분이 프로토타입 분석 결과와 일치 (1.2.3 산출물 기준)
+- [ ] 프로토타입 common 파일의 모든 공통 요소가 위젯으로 구현됨 (공통 자산 전수 추출 산출물 기준)
+- [ ] OpenAPI 스키마의 모든 필드가 Dart 모델 클래스에 반영됨 (3.1 검증 산출물 기준)
+- [ ] 네비게이션(BottomNav/AppBar/Drawer) 라벨·아이콘이 프로토타입과 일치
+- [ ] 프로토타입의 인터랙션 패턴(toggle/checkbox/radio 구분, debounce 등)이 정확히 반영됨
+- [ ] CRUD 수정 모드가 필요한 폼 화면에서 기존 데이터 로드 및 업데이트 정상 동작
+- [ ] 유저 플로우 Mock 범위 검증 통과 (4.5 산출물 기준)
+
+**ThemeData 하드코딩 검증 절차** (빌드 성공 후 실행):
+
+```bash
+# 하드코딩된 색상값이 theme 접근 없이 직접 사용되는지 검증
+grep -rn 'Color(0x\|Colors\.' frontend/lib/ | grep -v 'theme\|Theme' | grep -v 'test/'
+# 결과가 0건이어야 함
+```
+
+> **참고**: `Color(0x` 패턴의 괄호는 쉘에서 이스케이프가 필요할 수 있음.
+> `grep -rn 'Color\(0x' ...` 형태로 실행 환경에 따라 조정.
 
 ## 주의사항
 
