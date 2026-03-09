@@ -395,6 +395,11 @@ Step 1은 두 단계로 구성된다:
 - **TASK**: docker-compose의 Prism Mock 서버 활용 → 페이지별 구현
 - **EXPECTED OUTCOME**: `frontend/src/components/`, `frontend/src/layouts/`, `frontend/src/services/api/`, `frontend/src/hooks/`, `frontend/src/pages/`
 - **Prism 실행**: `docker compose --profile mock up` (Step 2-2에서 구성)
+- **POST_ACTION**:
+  - 프로토타입 화면과 개발 화면 매핑 
+  - Playwright MCP로 웹브라우저로 개발된 화면의 첫 화면 오픈
+  - 각 개발된 화면을 클릭하여 프로토타입과 비교하여 UI/UX 일치 여부 확인 (개발 화면이 프로토타입과 다를 경우, 프론트엔드 개발자에게 피드백하여 수정 요청) 
+  - 모든 개발된 화면이 프로토타입과 일치할 때까지 반복 수행
 
 #### Step 3-3 사전 참조: AI 서비스 크리덴셜
 
@@ -423,7 +428,7 @@ Step 1은 두 단계로 구성된다:
   - FLUTTER: `{PLUGIN_DIR}/resources/guides/develop/frontend-integration-flutter.md`
 - **TASK**: Prism Mock → 실제 백엔드 API 전환, E2E 동작 확인
 - **EXPECTED OUTCOME**: `frontend/public/runtime-env.js`, `frontend/src/services/api/client.ts`, `frontend/src/services/api/authService.ts`, `frontend/src/store/authStore.ts`, `frontend/`(실제 API 연동 완료)
-
+  
 #### Step 4-2. 백엔드 ↔ AI 서비스 연동 → Agent: backend-developer + ai-engineer (ralph 모드로 수행)
 
 - **GUIDE**: `{PLUGIN_DIR}/resources/guides/develop/backend-ai-integration.md`
