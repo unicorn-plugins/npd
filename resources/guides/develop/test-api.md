@@ -12,7 +12,7 @@
 | API 설계서 | `docs/design/api/*.yaml` | 통합 테스트 케이스 결정 |
 | 백킹서비스 설치결과서 | `docs/develop/backing-service-result.md` | DB접근정보 취득 |
 | 서비스 실행 프로파일 | `{service-name}/.run/{service-name}.run.xml` | 실행 환경 확인 |
-| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 백엔드 서비스 실행 |
+| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 백엔드 서비스 실행 |
 
 ## 출력 (이 단계 산출물)
 
@@ -142,7 +142,7 @@ curl -X GET http://localhost:{port}/api/v1/{resource} \
 # 백킹서비스 기동
 docker compose up -d
 ```
-- 백엔드 서비스 시작: `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` 이용 
+- 백엔드 서비스 시작: `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` 이용 
 - 필요시 AI 서비스 시작 
 - 각 API 테스트 수행: API의 의존 관계를 분석하여 병렬 또는 순차 수행   
   예시)
@@ -176,7 +176,7 @@ docker compose up -d
 ## 테스트 환경
 - 테스트 일시: YYYY-MM-DD HH:MM
 - 백킹서비스: docker compose (로컬)
-- 백엔드 서비스: run-intellij-service-profile.py 기동
+- 백엔드 서비스: run-backend.py 기동
 
 ## API 목록
 
@@ -229,7 +229,7 @@ curl -X POST http://localhost:{port}/api/v1/{resource} \
 ## 주의사항
 
 - **빌드 실패 시 서비스 기동 금지**: `./gradlew clean build` 성공 확인 후 서비스를 기동한다. 빌드 실패 상태에서 테스트를 시도하지 않는다
-- **서비스 기동은 반드시 run-intellij-service-profile.py 사용**: `./gradlew bootRun` 직접 실행 시 환경변수가 누락되므로 반드시 실행 프로파일 도구를 사용한다
+- **서비스 기동은 반드시 run-backend.py 사용**: `./gradlew bootRun` 직접 실행 시 환경변수가 누락되므로 반드시 실행 프로파일 도구를 사용한다
 - **테스트 실패 시 우회 금지**: API 응답이 기대와 다를 경우 테스트 기대값을 변경하지 말고 구현 코드를 수정한다
 - **JPA 스키마 확인 필수**: seed.sql 작성 시 엔티티 클래스의 `@Column`, `@Table` 어노테이션이 아닌 JPA가 실제 생성한 테이블/컬럼명을 확인한다 (네이밍 전략에 따라 camelCase → snake_case 변환될 수 있음)
 - **OAuth2 프로젝트의 토큰 획득**: 테스트 전용 엔드포인트(`@Profile("dev")`)를 통해 토큰을 획득한다. 외부 Provider 리디렉트는 AI 에이전트가 수행할 수 없다

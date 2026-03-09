@@ -9,22 +9,22 @@ IntelliJ의 .run/*.run.xml 파일을 파싱하여 환경변수를 추출하고
 
 Usage:
   # 전체 서비스 시작 (서비스 간 5초 delay, 기존 실행 중인 서비스는 자동 중지)
-  python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
+  python3 tools/run-backend.py --config-dir . --delay 5
 
   # 백그라운드로 전체 서비스 시작
-  nohup python3 tools/run-intellij-service-profile.py --config-dir . --delay 5 > /dev/null 2>&1 &
+  nohup python3 tools/run-backend.py --config-dir . --delay 5 > /dev/null 2>&1 &
 
   # 개별 서비스 시작 (기존 실행 중이면 자동 중지 후 재시작)
-  python3 tools/run-intellij-service-profile.py auth
+  python3 tools/run-backend.py auth
 
   # 전체 서비스 중지
-  python3 tools/run-intellij-service-profile.py --stop
+  python3 tools/run-backend.py --stop
 
   # 개별 서비스 중지
-  python3 tools/run-intellij-service-profile.py --stop auth
+  python3 tools/run-backend.py --stop auth
 
   # 서비스 목록 확인
-  python3 tools/run-intellij-service-profile.py --list
+  python3 tools/run-backend.py --list
 """
 
 import argparse
@@ -550,8 +550,8 @@ def main():
         print(f"  {name:20s} PID {proc.pid}")
     print()
     print("서비스 종료:")
-    print("  전체 중지 : python3 tools/run-intellij-service-profile.py --stop")
-    print("  개별 중지 : python3 tools/run-intellij-service-profile.py --stop {service-name}")
+    print("  전체 중지 : python3 tools/run-backend.py --stop")
+    print("  개별 중지 : python3 tools/run-backend.py --stop {service-name}")
 
 
 if __name__ == '__main__':

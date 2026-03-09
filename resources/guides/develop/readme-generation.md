@@ -29,7 +29,7 @@
 - **산출물 기반**: 모든 내용은 기존 산출물에서 추출하며, 임의로 생성하지 않는다
 - **실행 가능**: 시작하기 섹션은 복사-붙여넣기만으로 서비스를 기동할 수 있어야 한다
 - **간결성**: 각 섹션은 핵심만 기술하고, 상세 내용은 docs/ 하위 문서로 링크한다
-- **프론트엔드 실행**: `tools/run-frontend-devserver.py`가 플랫폼을 자동 감지하므로 플랫폼별 분기 불필요
+- **프론트엔드 실행**: `tools/run-frontend.py`가 플랫폼을 자동 감지하므로 플랫폼별 분기 불필요
 
 ### 정보 추출 순서
 
@@ -61,7 +61,7 @@
 - 백엔드 서비스 기동 명령
 
 프론트엔드 프로젝트에서:
-- 프론트엔드 기동 명령 (`tools/run-frontend-devserver.py` 사용)
+- 프론트엔드 기동 명령 (`tools/run-frontend.py` 사용)
 
 #### 4. API 엔드포인트 요약
 
@@ -130,24 +130,24 @@
 docker compose up -d
 
 # 2. 백엔드 서비스 기동
-python3 tools/run-intellij-service-profile.py --config-dir . --delay 5
+python3 tools/run-backend.py --config-dir . --delay 5
 
 # 3. AI 서비스 기동 (해당 시)
 docker compose --profile ai up -d
 
 # 4. 프론트엔드 기동
-python3 tools/run-frontend-devserver.py start --background   # 백그라운드 시작
-python3 tools/run-frontend-devserver.py status                # 상태 확인
+python3 tools/run-frontend.py start --background   # 백그라운드 시작
+python3 tools/run-frontend.py status                # 상태 확인
 ```
   
 #### 중지
 
 ```bash
 # 프론트엔드 중지
-python3 tools/run-frontend-devserver.py stop
+python3 tools/run-frontend.py stop
 
 # 백엔드 서비스 중지
-python3 tools/run-intellij-service-profile.py --stop
+python3 tools/run-backend.py --stop
 
 # 백킹서비스 + AI 서비스 중지
 docker compose down
@@ -195,7 +195,7 @@ This project is proprietary and confidential.
 - [ ] 환경변수 목록이 .env.example과 일치
 - [ ] API 엔드포인트가 API 명세와 일치
 - [ ] AI 서비스 섹션은 해당 시에만 포함
-- [ ] 프론트엔드 기동/중지 명령이 `tools/run-frontend-devserver.py`를 사용함
+- [ ] 프론트엔드 기동/중지 명령이 `tools/run-frontend.py`를 사용함
 - [ ] 테스트 결과 섹션이 final-report.md 기반으로 작성됨 (해당 시)
 - [ ] Known Issues/Improvements가 final-report.md와 일치 (해당 시)
 - [ ] Final Report 링크가 정상 동작 — 상대 경로 (해당 시)

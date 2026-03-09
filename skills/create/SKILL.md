@@ -278,6 +278,52 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 2. 해당 디렉토리의 절대 경로를 `{PLUGIN_DIR}`에 바인딩
 3. 이후 모든 `{PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
 
+## 백엔드 서비스 기동/중지
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py [{service-name}] {OPTIONS}
+OPTIONS:
+```
+# 전체 서비스 시작 (서비스 간 5초 delay, 기존 실행 중인 서비스는 자동 중지)
+--config-dir . --delay 5
+
+# 백그라운드로 전체 서비스 시작
+--config-dir . --delay 5 > /dev/null 2>&1 &
+
+# 개별 서비스 시작 (기존 실행 중이면 자동 중지 후 재시작)
+{service-name}
+
+# 전체 서비스 중지
+--stop
+
+# 개별 서비스 중지
+--stop {service-name}
+
+# 서비스 목록 확인
+--list
+```
+
+## 프론트엔드 서비스 기동/중지
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-frontend.py [{service-name}] {OPTIONS}
+
+```
+# 프론트엔드 개발 서버 시작
+start
+
+# 기존 포트 점유 프로세스를 강제 종료 후 시작
+start --force
+
+# 백그라운드로 시작
+start --background
+
+# 프론트엔드 개발 서버 중지
+stop
+
+# 프론트엔드 개발 서버 상태 확인
+status
+
+# 프로젝트 루트 지정
+--project-dir /path/to/project start
+```
+
 ````
 
 **멤버 구성 규칙:**

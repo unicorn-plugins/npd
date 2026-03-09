@@ -8,22 +8,22 @@
 
 Usage:
   # 프론트엔드 개발 서버 시작
-  python3 tools/run-frontend-devserver.py start
+  python3 tools/run-frontend.py start
 
   # 기존 포트 점유 프로세스를 강제 종료 후 시작
-  python3 tools/run-frontend-devserver.py start --force
+  python3 tools/run-frontend.py start --force
 
   # 백그라운드로 시작
-  python3 tools/run-frontend-devserver.py start --background
+  python3 tools/run-frontend.py start --background
 
   # 프론트엔드 개발 서버 중지
-  python3 tools/run-frontend-devserver.py stop
+  python3 tools/run-frontend.py stop
 
   # 프론트엔드 개발 서버 상태 확인
-  python3 tools/run-frontend-devserver.py status
+  python3 tools/run-frontend.py status
 
   # 프로젝트 루트 지정
-  python3 tools/run-frontend-devserver.py --project-dir /path/to/project start
+  python3 tools/run-frontend.py --project-dir /path/to/project start
 """
 
 import argparse
@@ -374,7 +374,7 @@ def action_start(project_dir: Path, frontend_dir: Path, port: int,
         else:
             print(f"\n오류: 포트 {port}에서 이미 프로세스가 실행 중입니다. (PID: {existing_pids})")
             print(f"  --force 옵션으로 강제 종료 후 시작할 수 있습니다:")
-            print(f"  python3 tools/run-frontend-devserver.py start --force")
+            print(f"  python3 tools/run-frontend.py start --force")
             sys.exit(1)
 
     # 저장된 PID 파일 정리
@@ -415,9 +415,9 @@ def action_start(project_dir: Path, frontend_dir: Path, port: int,
         print(f"        pid      : {proc.pid}")
         print()
         print(f"백그라운드로 시작되었습니다.")
-        print(f"  상태 확인 : python3 tools/run-frontend-devserver.py status")
+        print(f"  상태 확인 : python3 tools/run-frontend.py status")
         print(f"  로그 확인 : tail -f {log_path}")
-        print(f"  중지      : python3 tools/run-frontend-devserver.py stop")
+        print(f"  중지      : python3 tools/run-frontend.py stop")
     else:
         # 포그라운드 실행 (Ctrl+C로 종료)
         print()

@@ -17,7 +17,7 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 | 백킹서비스 연결 정보 | `.env.example` | DB/Redis/MQ 연결 설정 |
 | 보안·JWT·Swagger 표준 | `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` | JWT 인증, Swagger 설정 표준 |
 | 테스트 코드 가이드 | `{PLUGIN_DIR}/resources/references/java-test-guide.md` | 단위 테스트 작성 표준 |
-| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py` | 서비스 기동 검증 |
+| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 서비스 기동 검증 |
 
 ## 출력 (이 단계 산출물)
 
@@ -205,7 +205,8 @@ config/
 > - 크리덴셜이 `.env`에 있으면: 코드 구현 + 통합 테스트 모두 수행
 > - "코드 구현만 진행" 지시를 받으면: 코드 구현만 수행, 통합 테스트는 SKIP하고 결과에 "OAuth2 크리덴셜 미설정으로 통합 테스트 생략" 기재
 >
-> Provider별 앱 등록 가이드: `{PLUGIN_DIR}/resources/references/oauth2-provider-setup-guide.md`
+> Provider별 앱 등록 및 전체 구현 패턴 가이드: `{PLUGIN_DIR}/resources/guides/develop/oauth-guide.md`
+> — GitHub/Google/Kakao OAuth App 설정, Spring Boot + 프론트엔드(React/Vue/Flutter) 구현 전체 패턴 포함
 
 Spring Security OAuth2 Client (`spring-boot-starter-oauth2-client`) 기반으로 구현한다. 설계서에 명시된 Provider만 구현한다.
 
@@ -417,14 +418,14 @@ class {ServiceName}ControllerTest {
 
 #### 6단계: 서비스 기동 검증
 
-컴파일과 단위 테스트를 통과해도 런타임에 빈 주입 실패, 설정 누락 등의 오류가 발생할 수 있다. `run-intellij-service-profile.py`를 사용하여 실제 서비스 기동을 확인한다.
+컴파일과 단위 테스트를 통과해도 런타임에 빈 주입 실패, 설정 누락 등의 오류가 발생할 수 있다. `run-backend.py`를 사용하여 실제 서비스 기동을 확인한다.
 
 이 도구는 IntelliJ `.run/*.run.xml` 실행 프로파일에서 환경변수(DB 접속 정보, 포트 등)를 추출하여 `gradlew bootRun`에 주입한다. `./gradlew bootRun`을 직접 실행하면 환경변수가 누락되므로 반드시 이 도구를 사용한다.
 
 **서비스 기동:**
 ```bash
 # 개별 서비스 기동
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py {service-name}
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py {service-name}
 ```
 
 **기동 확인:**
@@ -438,10 +439,10 @@ curl -s http://localhost:{port}/actuator/health
 **서비스 중지:**
 ```bash
 # 개별 서비스 중지
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py --stop {service-name}
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop {service-name}
 
 # 전체 서비스 중지
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py --stop
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop
 ```
 
 ### 병렬 처리 가이드
@@ -471,8 +472,8 @@ python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profil
 # 테스트 결과 리포트 확인
 # {service-name}/build/reports/tests/test/index.html
 
-# 서비스 기동 검증 (run-intellij-service-profile.py 사용)
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-intellij-service-profile.py {service-name}
+# 서비스 기동 검증 (run-backend.py 사용)
+python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py {service-name}
 curl -s http://localhost:{port}/actuator/health
 ```
 
@@ -601,7 +602,7 @@ curl -s http://localhost:{port}/actuator/health
 
 - **TODO/FIXME/HACK 금지**: 모든 코드는 완전하게 구현한다. "TODO: 나중에 구현", "FIXME: 임시 처리" 등의 미완성 마커를 남기지 않는다. 구현이 어려운 부분이 있으면 우회하지 말고 근본 원인을 해결한다
 - **런타임 에러 워크어라운드 금지**: 런타임 에러 발생 시 try-catch로 삼키거나, 기능을 비활성화하거나, 하드코딩 값으로 대체하는 등의 우회 해결을 금지한다. 반드시 근본 원인을 분석하고 정상 동작하도록 수정한다
-- **서비스 기동 검증 필수**: 컴파일과 단위 테스트 통과만으로는 완료가 아니다. `run-intellij-service-profile.py`로 실제 기동하여 `actuator/health`가 UP 응답을 반환해야 한다
+- **서비스 기동 검증 필수**: 컴파일과 단위 테스트 통과만으로는 완료가 아니다. `run-backend.py`로 실제 기동하여 `actuator/health`가 UP 응답을 반환해야 한다
 - 설계 아키텍처 패턴(Layered/Clean)은 서비스별로 다를 수 있으므로 `dev-plan.md`에서 서비스별 패턴을 반드시 확인
 - SecurityConfig의 공개 경로 설정은 API 설계서의 인증 요구 여부를 기준으로 조정
 - 테스트 설정 Manifest(`src/test/resources/application.yml`)의 값은 환경변수 처리 (하드코딩 금지)
