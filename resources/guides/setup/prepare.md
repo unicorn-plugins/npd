@@ -333,8 +333,15 @@ Claude Code를 수행하고 설치되었는지 확인합니다.
    
 ## Python 설치
 최신 버전을 설치하세요.  
-https://www.python.org/downloads/
 
+**Window: **  
+https://www.python.org/downloads/windows/  
+![](images/2026-03-26-16-32-02.png)
+
+**Mac:**    
+https://www.python.org/downloads/macos/  
+![](images/2026-03-26-16-32-56.png) 
+  
 
 | [Top](#로컬-개발-환경-구성) |
 

@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1772981074429,
-  "projectRoot": "/Users/dreamondal/workspace/npd",
+  "lastScanned": 1775199197094,
+  "projectRoot": "c:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772981074409,
+      "lastAccessed": 1775199197007,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1772981074410,
+      "lastAccessed": 1775199197007,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1772981074410,
+      "lastAccessed": 1775199197008,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1772981074410,
+      "lastAccessed": 1775199197009,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -78,7 +78,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1772981074410,
+      "lastAccessed": 1775199197009,
       "keyFiles": [
         "resource.md"
       ]
@@ -87,71 +87,17 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1772981074411,
+      "lastAccessed": 1775199197010,
+      "keyFiles": []
+    },
+    "templates": {
+      "path": "templates",
+      "purpose": null,
+      "fileCount": 0,
+      "lastAccessed": 1775199197011,
       "keyFiles": []
     }
   },
-  "hotPaths": [
-    {
-      "path": "resources/guides/develop",
-      "accessCount": 67,
-      "lastAccessed": 1772986829016,
-      "type": "directory"
-    },
-    {
-      "path": "resources/guides/develop/frontend-dev-flutter.md",
-      "accessCount": 63,
-      "lastAccessed": 1772986834020,
-      "type": "file"
-    },
-    {
-      "path": "resources/guides/develop/frontend-dev-vue.md",
-      "accessCount": 57,
-      "lastAccessed": 1772986834408,
-      "type": "file"
-    },
-    {
-      "path": "resources/guides/develop/frontend-dev-react.md",
-      "accessCount": 53,
-      "lastAccessed": 1772986817020,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 34,
-      "lastAccessed": 1772985463887,
-      "type": "directory"
-    },
-    {
-      "path": ".claude/plan.md",
-      "accessCount": 4,
-      "lastAccessed": 1772984073419,
-      "type": "file"
-    },
-    {
-      "path": "resources/guides/develop/frontend-integration-react.md",
-      "accessCount": 2,
-      "lastAccessed": 1772984327886,
-      "type": "file"
-    },
-    {
-      "path": "resources/guides/develop/frontend-integration-vue.md",
-      "accessCount": 1,
-      "lastAccessed": 1772984080979,
-      "type": "file"
-    },
-    {
-      "path": "resources/guides/develop/frontend-integration-flutter.md",
-      "accessCount": 1,
-      "lastAccessed": 1772984081370,
-      "type": "file"
-    },
-    {
-      "path": "skills/develop/SKILL.md",
-      "accessCount": 1,
-      "lastAccessed": 1772984318420,
-      "type": "file"
-    }
-  ],
+  "hotPaths": [],
   "userDirectives": []
 }
