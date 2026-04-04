@@ -19,7 +19,7 @@
 | 유저스토리 | `docs/plan/design/userstory.md` | 아키텍처 범위 확인 |
 | UI/UX 설계서(기획 산출물) | `docs/plan/design/uiux/uiux.md` | 참조 | 
 | HighLevel아키텍처정의서템플릿 | `{PLUGIN_DIR}/resources/templates/highlevel-architecture-template.md` | 작성 템플릿 |
-| High Level 아키텍처 정의서 예제 | `{PLUGIN_DIR}/resources/samples/sample-highlevel아키텍처정의서.md` | 참조 |
+| High Level 아키텍처 정의서 예제 | `{PLUGIN_DIR}/resources/samples/sample-highlevel-architecture.md` | 참조 |
 | AI 서비스 설계서 | `docs/design/ai-service-design.md` | AI 아키텍처 섹션 참조 (Step 9 완료 후 생성됨) |
 
 ## 출력 (이 단계 산출물)

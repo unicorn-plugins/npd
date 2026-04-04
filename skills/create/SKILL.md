@@ -336,7 +336,26 @@ status
 - `{style 정보}` = `persona.style` (첫 줄만 요약)
 - `{background 정보}` = `persona.background` (첫 줄만 요약)
 
-### Step 6. GitHub 레포 생성 (선택)
+### Step 6. 플러그인 디렉토리 접근 권한 셋팅 
+
+플러그인 디렉토리에 대한 에이전트의 Read/Write/Edit/Bash 권한을 설정하여 개발 및 검증 과정에서 파일 생성/수정/실행 가능하도록 함.
+`~/.claude/settings.json` 파일의 "permissions" 섹션에 아래 권한 추가:  
+```
+"permissions": {
+  "allow": [
+    "Read({사용자홈}/.claude/plugins/**)",
+    "Write({사용자홈}/.claude/plugins/**)",
+    "Edit({사용자홈}/.claude/plugins/**)",
+    "Bash(python {사용자홈}/.claude/plugins/**)",
+    "Bash(python3 {사용자홈}/.claude/plugins/**)"
+  ],
+  "additionalDirectories": [
+    "{사용자홈}/.claude/plugins"
+  ]
+}
+```
+
+### Step 7. GitHub 레포 생성 (선택)
 
 <!--ASK_USER-->
 {"title":"GitHub 레포 생성","questions":[
@@ -346,7 +365,7 @@ status
 
 **생성** 선택 시:
 
-**6-1. Organization 입력**
+**7-1. Organization 입력**
 
 <!--ASK_USER-->
 {"title":"GitHub Organization","questions":[
@@ -357,7 +376,7 @@ status
 - 사용자가 입력하지 않거나 빈 값이면 → `--org` 옵션 없이 개인 계정에 생성
 - 사용자가 Organization을 입력하면 → `--org {입력값}` 옵션으로 해당 Organization에 생성
 
-**6-2. 공개/비공개 선택**
+**7-2. 공개/비공개 선택**
 
 <!--ASK_USER-->
 {"title":"저장소 공개 설정","questions":[
@@ -368,7 +387,7 @@ status
 - **Public** 선택 시 → `--private` 옵션 없이 공개 저장소로 생성
 - **Private** 선택 시 → `--private` 옵션으로 비공개 저장소로 생성
 
-**6-3. 레포 생성 실행**
+**7-3. 레포 생성 실행**
 
 1. `{PLUGIN_DIR}/resources/tools/customs/git/create_repo.py` 도구 존재 여부 확인
 2. 환경변수 `GITHUB_TOKEN` 설정 여부 확인
@@ -380,7 +399,7 @@ status
 
 **건너뛰기** 선택 시 → Step 7로 이동
 
-### Step 7. 완료 보고
+### Step 8. 완료 보고
 
 ```
 ## 프로젝트 생성 완료
