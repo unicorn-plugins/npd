@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1775287088242,
-  "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
+  "lastScanned": 1776066759265,
+  "projectRoot": "c:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775287088185,
+      "lastAccessed": 1776066759225,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1775287088185,
+      "lastAccessed": 1776066759226,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -56,17 +56,30 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1775287088186,
+      "lastAccessed": 1776066759226,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
+      ]
+    },
+    "gemini-workflows": {
+      "path": "gemini-workflows",
+      "purpose": null,
+      "fileCount": 13,
+      "lastAccessed": 1776066759227,
+      "keyFiles": [
+        "add-ext-skill.md",
+        "cicd.md",
+        "create.md",
+        "deploy.md",
+        "design-physical-architecture.md"
       ]
     },
     "output": {
       "path": "output",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1775287088187,
+      "lastAccessed": 1776066759227,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -78,7 +91,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1775287088187,
+      "lastAccessed": 1776066759228,
       "keyFiles": [
         "resource.md"
       ]
@@ -87,46 +100,22 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775287088188,
+      "lastAccessed": 1776066759228,
       "keyFiles": []
     },
     "templates": {
       "path": "templates",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1775287088189,
+      "lastAccessed": 1776066759229,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "resources\\tools\\customs\\general\\convert-to-markdown.py",
-      "accessCount": 1,
-      "lastAccessed": 1775287131373,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 1,
-      "lastAccessed": 1775287131630,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\tools\\check-mermaid.md",
-      "accessCount": 1,
-      "lastAccessed": 1775287136778,
-      "type": "file"
-    },
-    {
-      "path": "resources\\tools\\generate-image.md",
-      "accessCount": 1,
-      "lastAccessed": 1775287136821,
-      "type": "file"
-    },
-    {
-      "path": "resources\\tools\\convert-to-markdown.md",
-      "accessCount": 1,
-      "lastAccessed": 1775287169049,
+      "path": "resources\\references\\MCP-window.json",
+      "accessCount": 5,
+      "lastAccessed": 1776067094801,
       "type": "file"
     }
   ],

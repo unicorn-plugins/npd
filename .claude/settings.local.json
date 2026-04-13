@@ -5,7 +5,8 @@
       "mcp__plugin_oh-my-claudecode_t__state_write",
       "Bash(cd:*)",
       "mcp__plugin_oh-my-claudecode_t__state_list_active",
-      "mcp__plugin_oh-my-claudecode_t__state_clear"
+      "mcp__plugin_oh-my-claudecode_t__state_clear",
+      "WebFetch(domain:developers.figma.com)"
     ]
   }
 }
