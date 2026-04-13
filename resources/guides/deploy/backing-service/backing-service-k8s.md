@@ -11,8 +11,8 @@ K8s 클러스터(EKS/AKS/GKE)에서 애플리케이션이 의존하는 백킹서
 |--------|----------|----------|
 | K8s 클러스터 접속 설정 | `~/.kube/config` | kubectl로 클러스터 접속 |
 | 개발 환경 백킹서비스 결과서 | `docs/develop/backing-service-container-result.md` | DB 이름, 계정 정보 참조 |
-| 레퍼런스: Helm 설치 방법 | `{PLUGIN_DIR}/resources/references/install-backing-service-k8s.md` | values.yaml 예시 참조 |
-| 레퍼런스: 클러스터 생성 | `{PLUGIN_DIR}/resources/references/create-k8s.md` | CLI 도구 설치 참조 |
+| 레퍼런스: Helm 설치 방법 | `{NPD_PLUGIN_DIR}/resources/references/install-backing-service-k8s.md` | values.yaml 예시 참조 |
+| 레퍼런스: 클러스터 생성 | `{NPD_PLUGIN_DIR}/resources/references/create-k8s.md` | CLI 도구 설치 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -46,7 +46,7 @@ helm version
 kubectl get nodes
 ```
 
-> 미설치 시 `{PLUGIN_DIR}/resources/references/create-k8s.md`의 "CLOUD CLI 설치" 섹션을 참조하여 설치한다.
+> 미설치 시 `{NPD_PLUGIN_DIR}/resources/references/create-k8s.md`의 "CLOUD CLI 설치" 섹션을 참조하여 설치한다.
 
 ### Bitnami Helm repo 추가
 
@@ -1185,7 +1185,7 @@ Health Check 완료 후 `docs/deploy/backing-service-k8s-result.md`를 작성한
 - `helm uninstall` 시 PVC(데이터)는 자동 삭제되지 않는다. 데이터 초기화가 필요하면 `kubectl delete pvc -l app.kubernetes.io/instance={릴리즈명}`으로 수동 삭제한다.
 - 백킹서비스는 애플리케이션과 동일한 네임스페이스에 배포한다. 따라서 앱 Pod에서 서비스명만으로 접속 가능하다 (예: `postgres-postgresql:5432`).
 - PostgreSQL의 `global.postgresql.auth.database`는 **1개 DB만 생성**한다. 여러 서비스가 각각 다른 DB(예: member, recommendation, payment)를 사용하는 경우 `primary.initdb.scripts`로 추가 DB를 생성해야 한다. 또한 앱이 커스텀 스키마(예: `lunchpick_member`)를 사용하는 경우, Spring JPA `DDL_AUTO=update`는 **테이블만 자동 생성**하며 스키마는 생성하지 않으므로, initdb 스크립트에 `CREATE SCHEMA IF NOT EXISTS`를 포함해야 한다.
-- Cloud MQ(Azure Service Bus, AWS SQS, GCP Pub/Sub)는 Helm으로 설치하지 않는다. 클라우드 관리형 서비스를 프로비저닝한다. 프로비저닝 방법은 `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md`의 Cloud MQ 섹션을 참조한다.
+- Cloud MQ(Azure Service Bus, AWS SQS, GCP Pub/Sub)는 Helm으로 설치하지 않는다. 클라우드 관리형 서비스를 프로비저닝한다. 프로비저닝 방법은 `{NPD_PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md`의 Cloud MQ 섹션을 참조한다.
 - values.yaml의 storageClass는 반드시 해당 클라우드에 맞는 값으로 설정한다 (위 StorageClass 테이블 참조). 잘못된 storageClass는 Pod `Pending` 상태의 주된 원인이다.
 - Bitnami Helm 차트는 StatefulSet으로 배포된다. `kubectl exec` 시 리소스 타입을 `sts/`로 지정하고, Pod 인덱스(`-0`)를 붙인다 (예: `sts/postgres-postgresql-0`).
 - RabbitMQ는 모든 클라우드에서 Helm 차트가 아닌 raw K8s manifest(StatefulSet + Service)로 설치한다. 삭제 시 `kubectl delete -f deploy.yaml`을 사용한다.

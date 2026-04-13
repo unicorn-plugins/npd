@@ -77,4 +77,4 @@
 
 ## 참조
 - 이 파일은 `resources/guides/develop/backend-api-dev.md`에서 참조됩니다.
-- 테스트코드표준: `{PLUGIN_DIR}/resources/references/standard_testcode.md`도 함께 참조하세요.
+- 테스트코드표준: `{NPD_PLUGIN_DIR}/resources/references/standard_testcode.md`도 함께 참조하세요.

@@ -1,7 +1,7 @@
 # 로컬 개발 환경 구성
 
 - [로컬 개발 환경 구성](#로컬-개발-환경-구성)
-- [기본 설치](#기본-설치)
+- [공통 필수 설치](#공통-필수-설치)
   - [Git Client 설치](#git-client-설치)
     - [설치](#설치)
     - [기존 인증정보 삭제](#기존-인증정보-삭제)
@@ -17,27 +17,28 @@
     - [설정](#설정)
   - [Claude Code 설치](#claude-code-설치)
   - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
+  - [AI툴 설치](#ai툴-설치)
   - [필수 MCP 설치](#필수-mcp-설치)
   - [Claude Code 편의 명령어 설정](#claude-code-편의-명령어-설정)
   - [NPD 플러그인 추가](#npd-플러그인-추가)
+    - [작업 디렉토리 생성 및 NPD 플러그인 다운로드](#작업-디렉토리-생성-및-npd-플러그인-다운로드)
     - [플러그인 추가](#플러그인-추가)
     - [플러그인 추가 확인](#플러그인-추가-확인)
   - [Python 설치](#python-설치)
 - [추가 설치](#추가-설치)
-  - [IntelliJ 설치](#intellij-설치)
-    - [설치](#설치-3)
-    - [IntelliJ 환경 설정](#intellij-환경-설정)
   - [Docker Desktop 설치](#docker-desktop-설치)
   - [GitHub 회원가입 및 토큰 생성](#github-회원가입-및-토큰-생성)
     - [회원가입](#회원가입)
     - [접근 토큰 생성](#접근-토큰-생성)
   - [Docker HUB 회원가입](#docker-hub-회원가입)
-  - [DBeaver 설치(옵션)](#dbeaver-설치옵션)
+  - [IntelliJ 설치](#intellij-설치)
+    - [설치](#설치-3)
+    - [IntelliJ 환경 설정](#intellij-환경-설정)
 
 ---
 
-# 기본 설치
-기획과정만 수행할 때 최소한의 설치입니다. 
+# 공통 필수 설치   
+기본적으로 설치해야 하는 공통 필수 설치    
 
 ## Git Client 설치
 ### 설치
@@ -203,7 +204,7 @@ PowerShell에서 수행합니다.
 irm https://claude.ai/install.ps1 | iex
 ```
 
-설치 후 초기 구성:
+설치 후 초기 구성: Claude Code Pro 이상 구독 시에만 수행   
 
 ```bash
 claude 
@@ -233,19 +234,14 @@ claude
 
 ## Oh My ClaudeCode (OMC) 설치
 OMC는 Claude Code를 더 잘 사용하기 위한 플러그인입니다.    
-  
-Claude Code 실행 후 프롬프트에서 순차 수행:
+아래 명령 수행하여 설치     
 ```
-claude
-```
-
-아래 명령 수행  
-```
-/plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-/plugin install oh-my-claudecode
+claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
+claude plugin install oh-my-claudecode
 ```
 
-아래 명령으로 셋업 수행. Setup 시 MCP는 Skip 하십시오. 
+아래 명령으로 셋업 수행. Setup 시 MCP는 Skip 하십시오.    
+Claude Code Pro 이상 구독 시에만 수행   
 ```
 /oh-my-claudecode:omc-setup
 ```
@@ -254,8 +250,31 @@ claude
 
 ---
 
+## AI툴 설치  
+강사의 특별한 언급이 없으면 모두 설치 해 주십시오.   
+
+**1)Claude CoWork 설치**    
+Claude CoWork는 Claude Web과 유사한 기능을 로컬에서 사용하기 위한 로컬 Claude툴입니다.  
+Claude Code도 CoWork과 동일하게 로컬에 설치하는 Claude 툴입니다.   
+차이는 CoWork는 로컬의 가상환경 내에서 수행되고 Code는 로컬에서 직접 수행된다는 것입니다.   
+CoWork는 가상환경 내에서 수행되기 때문에 외부 API과 같은 일부 기능이 제약됩니다.   
+
+![](images/2026-04-13-16-39-25.png)   
+   
+![](images/2026-04-13-16-43-01.png)
+  
+**2)Cursor 설치**        
+아래 사이트에서 설치 프로그램 다운로드해서 설치하세요.   
+https://cursor.com/
+
+| [Top](#로컬-개발-환경-구성) |
+
+---
+
+
 ## 필수 MCP 설치   
 
+https://github.com/unicorn-plugins/npd/blob/main/resources/guides/setup/install-mcp.md
 
 ---
 
@@ -311,11 +330,20 @@ function cy { cc-yolo @args }
 ---
 
 ## NPD 플러그인 추가
+### 작업 디렉토리 생성 및 NPD 플러그인 다운로드 
+```
+mkdir -p ~/workspace
+cd ~/workspace
+ 
+git clone https://github.com/unicorn-plugins/npd.git
+cd npd 
+```
+
 ### 플러그인 추가  
 플러그인 추가는 마켓플레이스를 추가한 후 그 마켓플레이스의 플러그인을 install하는 방식으로 설치합니다.    
 ```
 # Marketplace 추가 
-cy plugin marketplace add unicorn-plugins/npd
+cy plugin marketplace add ./
 
 # Plugin 추가
 cy plugin install npd@npd
@@ -328,6 +356,7 @@ claude plugin list
 ```
 
 Claude Code를 수행하고 설치되었는지 확인합니다.    
+Claude Code Pro 이상 구독 시에만 수행   
 ![](images/2026-02-20-16-14-23.png)   
   
 | [Top](#로컬-개발-환경-구성) |
@@ -356,38 +385,7 @@ https://www.python.org/downloads/macos/
 
 # 추가 설치
 모든 과정을 진행하기 위한 추가 설치입니다. 
-
-## IntelliJ 설치
-IntelliJ는 통합개발환경(IDE:Integrated Development Environment) 도구의 하나입니다.   
-### 설치
-- 설치 파일 다운로드
-  [JetBrain의 IDE페이지](https://www.jetbrains.com/idea/download)를 열고 설치 
-
-- 실행: 실행 시 IntelliJ 환경설정을 불러들일 위치를 묻는데 그냥 OK클릭   
-  ![](images/2026-02-20-13-50-00.png)
-
-### IntelliJ 환경 설정
-- Lombok설치
-  Lombok은 클래스의 생성자, Getter(프라퍼티값을 읽는 메소드), Setter(프라퍼티값을 변경하는 메소드)등을    
-  자동으로 작성해 주는 라이브러리입니다.    
-  Lombok을 사용하면 어노테이션만 지정하면 이러한 메소드들을    
-  자동으로 만들어 주기 때문에 편하고 코드도 깔끔해집니다.    
-
-  ![](images/2026-02-20-13-50-40.png)
-
-- 라이브러리 자동 import 옵션    
-  첫번째 옵션은 코드 작성 중 필요한 라이브러리를 자동 import해 주는 것이고,   
-  두번째 옵션은 불필요한 라이브러리 import를 자동으로 제거해 주는 옵션입니다.   
-  ![](images/2026-02-20-13-51-08.png)
-
-- 오타 검사 옵션 비활성화  
-  코드나 주석에 오타를 체크해 주는 옵션입니다.   
-  활성화 되어 있으면 컴파일 Warning갯수가 자꾸 보여서 눈에 거슬립니다.   
-  ![](images/2026-02-20-13-51-21.png) 
-  
-| [Top](#로컬-개발-환경-구성) |
-
----
+개발과 배포 과정까지 진행하려면 추가 설치하세요.    
 
 ## Docker Desktop 설치
 - 설치파일 다운로드: 
@@ -432,38 +430,34 @@ https://hub.docker.com 으로 접근하여 회원가입을 하십시오.
 
 ---
 
-## DBeaver 설치(옵션)
-DBeaver는 SQL Client 프로그램의 하나입니다.   
-Database를 관리하고 SQL로 테이블과 데이터를 처리할 수 있습니다.    
+## IntelliJ 설치
+IntelliJ는 통합개발환경(IDE:Integrated Development Environment) 도구의 하나입니다.   
+### 설치
+- 설치 파일 다운로드
+  [JetBrain의 IDE페이지](https://www.jetbrains.com/idea/download)를 열고 설치 
 
-- 설치하기 
-  - 설치파일 다운로드: [설치파일 다운로드](https://dbeaver.io/download/) 링크를 열어 OS에 맞는 파일을 다운로드    
-  - 파일을 실행하여 설치합니다. 기본 옵션 그대로 설치합니다.   
-- 테스트   
-  - DBeaver를 실행합니다.  최초 실행 시 Connection생성 창은 닫으세요.   
-    ![](images/2026-02-20-14-09-33.png)  
-          
-  - 테스트로 MySQL Database를 컨테이너로 실행합니다.  
-    Windows 사용자는 MobaXTerm, Mac사용자는 터미널에서 실행     
-    ```
-    docker run -d --name mysql -p 3306:3306 -e MYSQL_ROOT_PASSWORD=P@ssw0rd$ mysql
-    ```     
+- 실행: 실행 시 IntelliJ 환경설정을 불러들일 위치를 묻는데 그냥 OK클릭   
+  ![](images/2026-02-20-13-50-00.png)
 
-  - 아래와 같이 DB를 연결 합니다.: Root암호는 P@ssw0rd$임(MySQL 컨테이너 실행 시 옵션으로 지정)  
-    ![](images/2026-02-20-14-09-58.png)
-    ![](images/2026-02-20-14-10-04.png)  
-    ![](images/2026-02-20-14-11-06.png)  
-  - Driver파일을 다운로드 한 후 아래와 같이 경고가 나오면  아래를 수행합니다.  
-    ![](images/2026-02-20-14-11-30.png)  
-    ![](images/2026-02-20-14-11-39.png)    
-    
-  - 아래와 같이 DB가 연결되면 성공!   
-    ![](images/2025-02-23-19-05-24.png)  
-   
-  - SQL편집기를 테스트 해 봅니다.   
-    ![](images/2026-02-20-14-11-59.png)
-    ![](images/2026-02-20-14-12-07.png)
-      
-| [Top](#목차) |
+### IntelliJ 환경 설정
+- Lombok설치
+  Lombok은 클래스의 생성자, Getter(프라퍼티값을 읽는 메소드), Setter(프라퍼티값을 변경하는 메소드)등을    
+  자동으로 작성해 주는 라이브러리입니다.    
+  Lombok을 사용하면 어노테이션만 지정하면 이러한 메소드들을    
+  자동으로 만들어 주기 때문에 편하고 코드도 깔끔해집니다.    
+
+  ![](images/2026-02-20-13-50-40.png)
+
+- 라이브러리 자동 import 옵션    
+  첫번째 옵션은 코드 작성 중 필요한 라이브러리를 자동 import해 주는 것이고,   
+  두번째 옵션은 불필요한 라이브러리 import를 자동으로 제거해 주는 옵션입니다.   
+  ![](images/2026-02-20-13-51-08.png)
+
+- 오타 검사 옵션 비활성화  
+  코드나 주석에 오타를 체크해 주는 옵션입니다.   
+  활성화 되어 있으면 컴파일 Warning갯수가 자꾸 보여서 눈에 거슬립니다.   
+  ![](images/2026-02-20-13-51-21.png) 
+  
+| [Top](#로컬-개발-환경-구성) |
 
 ---

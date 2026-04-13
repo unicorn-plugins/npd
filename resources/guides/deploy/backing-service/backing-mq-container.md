@@ -170,10 +170,10 @@ GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
 ### 상세 설정 참조
 
 > 상세 binder 설정 및 Gradle 의존성은 단일 출처(Single Source of Truth)로 관리:
-> `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조.
+> `{NPD_PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조.
 
 > MQ 설치 계획서 샘플:
-> `{PLUGIN_DIR}/resources/samples/sample-MQ설치계획서.md` 참조.
+> `{NPD_PLUGIN_DIR}/resources/samples/sample-MQ설치계획서.md` 참조.
 
 ---
 

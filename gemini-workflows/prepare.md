@@ -1,0 +1,9 @@
+﻿# NPD: prepare 스킬 워크플로우
+
+> [!NOTE]
+> 이 워크플로우는 NPD prepare 단계를 실행합니다.
+
+## 실행 지침
+1. 현재 작업 중인 프로젝트의 "CLAUDE.md" 파일을 읽어 NPD_PLUGIN_DIR 경로를 파악하세요.
+2. 파악한 플러그인 루트 경로 하위의 "skills/prepare/SKILL.md" 문서를 "view_file" 로 꼼꼼히 읽으세요.
+3. "SKILL.md" 내부에 명시된 단계를 Gemini 네이티브 도구(예: "run_command", "write_to_file", "ask_question")로 번역하여 현재 프로젝트에 수행하세요.
