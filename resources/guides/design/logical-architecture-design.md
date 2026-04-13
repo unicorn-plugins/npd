@@ -11,7 +11,7 @@
 | 아키텍처 패턴 설계서 | `docs/design/pattern-definition.md` | 선정된 패턴 기반 설계 |
 | 유저스토리 | `docs/plan/design/userstory.md` | 서비스 책임 매칭 |
 | 핵심솔루션 | `docs/plan/think/핵심솔루션.md` | AI 활용 기회 식별 |
-| 논리아키텍처 다이어그램 예제 | `{PLUGIN_DIR}/resources/samples/sample-논리아키텍처.mmd` | 논리아키텍처 다이어그램 참조 |
+| 논리아키텍처 다이어그램 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-논리아키텍처.mmd` | 논리아키텍처 다이어그램 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -117,7 +117,7 @@
 
 #### 2.4 Mermaid 스크립트 검사 실행
 
-작성 완료 후 'Mermaid문법검사가이드(`{PLUGIN_DIR}/resources/guides/tools/mermaid-guide.md`)'에 준용하여 스크립트를 검증합니다.
+작성 완료 후 'Mermaid문법검사가이드(`{NPD_PLUGIN_DIR}/resources/guides/tools/mermaid-guide.md`)'에 준용하여 스크립트를 검증합니다.
 
 ### 3. 검토
 
@@ -193,4 +193,4 @@ graph TB
 - '아키텍처패턴'에 선정된 클라우드 디자인 패턴을 적용하여 설계
 - 물리적 배포 구조(인프라, 컨테이너 배치 등)는 이 단계에서 결정하지 않음
 - **AI 서비스의 상세 설계(모델 선정, 프롬프트 설계, 비용 최적화)는 이 단계에서 수행하지 않음** — 서비스 경계, 통신 방식, 폴백 전략만 정의
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용

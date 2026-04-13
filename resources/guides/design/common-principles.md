@@ -103,7 +103,7 @@ rm -f .temp/check.puml
 # 종료 코드: 0 = 통과, 1 = 오류
 ```
 
-- 상세 사용법: `{PLUGIN_DIR}/resources/tools/check-plantuml.md` 참조
+- 상세 사용법: `{NPD_PLUGIN_DIR}/resources/tools/check-plantuml.md` 참조
 - **화살표 문법 주의**: sequence diagram에서 `..>` 사용 금지, 비동기는 `->>` 또는 `-->>` 사용
 
 ### Mermaid 검사 방법
@@ -121,14 +121,14 @@ rm -f .temp/check.mmd
 # 종료 코드: 0 = 통과, 1 = 오류
 ```
 
-- 상세 사용법: `{PLUGIN_DIR}/resources/tools/check-mermaid.md` 참조
+- 상세 사용법: `{NPD_PLUGIN_DIR}/resources/tools/check-mermaid.md` 참조
 
 ---
 
-## `{PLUGIN_DIR}` 결정 
+## `{NPD_PLUGIN_DIR}` 결정 
 1. `~/.claude/plugins/cache/npd/npd/` 하위에서 최신 버전 디렉토리를 탐색
-2. 해당 디렉토리의 절대 경로를 `{PLUGIN_DIR}`에 바인딩
-3. 이후 모든 `{PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
+2. 해당 디렉토리의 절대 경로를 `{NPD_PLUGIN_DIR}`에 바인딩
+3. 이후 모든 `{NPD_PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
 
-**예시**: `{PLUGIN_DIR}/resources/guides/design/common-principles.md`
+**예시**: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md`
 → `~/.claude/plugins/cache/npd/npd/0.2.0/resources/guides/design/common-principles.md`

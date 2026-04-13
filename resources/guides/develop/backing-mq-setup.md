@@ -131,13 +131,13 @@ binder 교체만으로 다른 MQ 제품으로 전환할 수 있다.
 ### Cloud MQ별 설정 참조
 
 > 상세 binder 설정 및 Gradle 의존성은 단일 출처(Single Source of Truth)로 관리:
-> `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조.
+> `{NPD_PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조.
 > 카테고리 가이드에서는 전환 전략 개념과 간략 매핑만 기술하고, 상세 설정은 위 참조 문서로 위임한다.
 
 ### Cloud MQ별 운영 프로비저닝
 
 > Cloud MQ 프로비저닝 절차:
-> `{PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md` 참조.
+> `{NPD_PLUGIN_DIR}/resources/guides/deploy/backing-service/backing-mq-container.md` 참조.
 
 ---
 

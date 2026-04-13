@@ -17,12 +17,13 @@
     - [설정](#설정)
   - [Claude Code 설치](#claude-code-설치)
   - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
+  - [필수 MCP 설치](#필수-mcp-설치)
   - [Claude Code 편의 명령어 설정](#claude-code-편의-명령어-설정)
   - [NPD 플러그인 추가](#npd-플러그인-추가)
     - [플러그인 추가](#플러그인-추가)
     - [플러그인 추가 확인](#플러그인-추가-확인)
-- [추가 설치](#추가-설치)
   - [Python 설치](#python-설치)
+- [추가 설치](#추가-설치)
   - [IntelliJ 설치](#intellij-설치)
     - [설치](#설치-3)
     - [IntelliJ 환경 설정](#intellij-환경-설정)
@@ -244,12 +245,17 @@ claude
 /plugin install oh-my-claudecode
 ```
 
-아래 명령으로 셋업 수행. Setup 시 MCP는 context7만 설치  
+아래 명령으로 셋업 수행. Setup 시 MCP는 Skip 하십시오. 
 ```
 /oh-my-claudecode:omc-setup
 ```
 
 | [Top](#로컬-개발-환경-구성) |
+
+---
+
+## 필수 MCP 설치   
+
 
 ---
 
@@ -328,9 +334,6 @@ Claude Code를 수행하고 설치되었는지 확인합니다.
     
 ---
 
-# 추가 설치
-모든 과정을 진행하기 위한 추가 설치입니다. 
-   
 ## Python 설치
 최신 버전을 설치하세요.  
 
@@ -343,9 +346,16 @@ https://www.python.org/downloads/macos/
 ![](images/2026-03-26-16-32-56.png) 
   
 
+(중요) 설치 시 'Add python.exe to PATH'를 반드시 체크하고 설치   
+![](images/2026-04-13-16-35-19.png)
+
+  
 | [Top](#로컬-개발-환경-구성) |
 
 ---
+
+# 추가 설치
+모든 과정을 진행하기 위한 추가 설치입니다. 
 
 ## IntelliJ 설치
 IntelliJ는 통합개발환경(IDE:Integrated Development Environment) 도구의 하나입니다.   

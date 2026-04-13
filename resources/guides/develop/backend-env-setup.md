@@ -12,8 +12,8 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 | 공통 모듈 구성 정보 | `docs/develop/dev-plan.md` 섹션 10-1 | 공통 컴포넌트 (BaseEntity, 예외처리, 공통 DTO 등) |
 | 기술스택 정보 | `docs/develop/dev-plan.md` 섹션 10-5 | SpringBoot/Java 버전, 빌드 도구 |
 | 패키지 구조 | `docs/design/class/package-structure.md` | 패키지 구조 |
-| Gradle 빌드 표준 | `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` | Gradle 멀티모듈 구성 표준 |
-| 설정 Manifest 표준 | `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` | application.yml 작성 표준 |
+| Gradle 빌드 표준 | `{NPD_PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` | Gradle 멀티모듈 구성 표준 |
+| 설정 Manifest 표준 | `{NPD_PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` | application.yml 작성 표준 |
 
 ## 출력 (이 단계 산출물)
 
@@ -30,15 +30,15 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 
 ### 작성 원칙
 
-- **Java 패키지 그룹명 표준**: `com.{ORG}.{ROOT}` 형식을 강제 적용한다 (`{PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조)
+- **Java 패키지 그룹명 표준**: `com.{ORG}.{ROOT}` 형식을 강제 적용한다 (`{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조)
   - `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 `CLAUDE.md`에서 읽는다
   - 설계서(클래스 설계서, 패키지 구조 등)에 다른 패키지명이 있더라도 이 표준으로 통일한다
   - 루트 `build.gradle`의 `group` 값: `'com.{ORG}.{ROOT}'`
   - 소스 코드 패키지 루트: `com/{ORG}/{ROOT}/{service-name}/`
   - 예: CLAUDE.md에 `ORG=travelplanner`, `ROOT=travel` → `com.travelplanner.travel`
 - Java 버전 호환 Gradle Wrapper (`gradle-wrapper.md`의 매핑 테이블 적용)
-- 루트 build.gradle 표준 준수: `{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 참조
-- 설정 Manifest 표준 준수: `{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조
+- 루트 build.gradle 표준 준수: `{NPD_PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 참조
+- 설정 Manifest 표준 준수: `{NPD_PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조
 - application.yml 환경변수는 placeholder만 작성 (실제 값은 .env.example에서 정의)
 
 ### 작성 순서
@@ -112,7 +112,7 @@ include '{service-name-2}'
 
 #### 3단계: Version Catalog + 루트 build.gradle 작성
 
-`{PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 표준 형식에 따라 작성한다.
+`{NPD_PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 표준 형식에 따라 작성한다.
 
 **3-a. `gradle/libs.versions.toml` 생성 (Version Catalog):**
 
@@ -148,7 +148,7 @@ group = 'com.{ORG}.{ROOT}'
 
 #### 5단계: 서비스별 application.yml 작성
 
-`{PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 표준 형식에 따라 작성한다. 환경변수는 실제 값 대신 placeholder로만 기재한다.
+`{NPD_PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 표준 형식에 따라 작성한다. 환경변수는 실제 값 대신 placeholder로만 기재한다.
 
 ```yaml
 # 예시 — 실제 값 하드코딩 금지
@@ -220,4 +220,4 @@ logging:
 - `{VERSION}`을 실제 버전 번호로 교체 (예: 8.10.2)
 - Windows에서는 `./gradlew` 대신 `.\gradlew.bat` 사용
 - application.yml의 환경변수 실제 값은 이 단계에서 설정하지 않음 (backing-service-setup.md 단계에서 .env.example로 통일)
-- 참조 파일 경로는 `{PLUGIN_DIR}`을 절대 경로로 치환하여 사용
+- 참조 파일 경로는 `{NPD_PLUGIN_DIR}`을 절대 경로로 치환하여 사용

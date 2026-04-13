@@ -18,8 +18,8 @@
 | 캐시 DB 설계서 | `docs/design/database/cache-db-design.md` (Redis database 할당표 포함) |
 | 유저스토리 | `docs/plan/design/userstory.md` | 아키텍처 범위 확인 |
 | UI/UX 설계서(기획 산출물) | `docs/plan/design/uiux/uiux.md` | 참조 | 
-| HighLevel아키텍처정의서템플릿 | `{PLUGIN_DIR}/resources/templates/highlevel-architecture-template.md` | 작성 템플릿 |
-| High Level 아키텍처 정의서 예제 | `{PLUGIN_DIR}/resources/samples/sample-highlevel-architecture.md` | 참조 |
+| HighLevel아키텍처정의서템플릿 | `{NPD_PLUGIN_DIR}/resources/templates/highlevel-architecture-template.md` | 작성 템플릿 |
+| High Level 아키텍처 정의서 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-highlevel-architecture.md` | 참조 |
 | AI 서비스 설계서 | `docs/design/ai-service-design.md` | AI 아키텍처 섹션 참조 (Step 9 완료 후 생성됨) |
 
 ## 출력 (이 단계 산출물)
@@ -107,8 +107,8 @@
 - [ ] 개발언어/프레임워크/AI모델은 GA된 최신 버전 사용
 
 ## 주의사항
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
 - {CLOUD}플랫폼에 최적화된 제품/서비스로 구성
-- 개발언어, 개발 프레임워크, AI모델은 `{PLUGIN_DIR}/resources/references/제품버전참조.md`를 참조하여 GA된 최신 버전 사용
+- 개발언어, 개발 프레임워크, AI모델은 `{NPD_PLUGIN_DIR}/resources/references/제품버전참조.md`를 참조하여 GA된 최신 버전 사용
 - 유저스토리, 논리아키텍처, 외부시퀀스설계서 간 일관성 유지
 

@@ -12,7 +12,7 @@
 | API 설계서 | `docs/design/api/*.yaml` | 통합 테스트 케이스 결정 |
 | 백킹서비스 설치결과서 | `docs/develop/backing-service-result.md` | DB접근정보 취득 |
 | 서비스 실행 프로파일 | `{service-name}/.run/{service-name}.run.xml` | 실행 환경 확인 |
-| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 백엔드 서비스 실행 |
+| 서비스 실행기 | `{NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 백엔드 서비스 실행 |
 
 ## 출력 (이 단계 산출물)
 
@@ -142,7 +142,7 @@ curl -X GET http://localhost:{port}/api/v1/{resource} \
 # 백킹서비스 기동
 docker compose up -d
 ```
-- 백엔드 서비스 시작: `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` 이용 
+- 백엔드 서비스 시작: `{NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` 이용 
 - 필요시 AI 서비스 시작 
 - 각 API 테스트 수행: API의 의존 관계를 분석하여 병렬 또는 순차 수행   
   예시)

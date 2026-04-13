@@ -81,7 +81,7 @@
 
 ## 주의사항
 
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
 - 설계서에 구현 코드(컴포넌트 소스 등) 포함 금지 — 설계 명세만 기술
 - 사용자 플로우 프리젠테이션 화면과 다르게 설계하지 않을 것
 - API 매핑 시 백엔드 API 경로, 요청/응답 데이터 구조를 정확히 반영

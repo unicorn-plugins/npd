@@ -11,13 +11,13 @@
 | 논리 아키텍처 | `docs/design/logical-architecture.md` | 서비스 구성 확인 |
 | 데이터 설계서 | `docs/design/database/` | DB 인프라 구성 |
 | HighLevel아키텍처정의서 | `docs/design/high-level-architecture.md` | 참조 |
-| 개발환경 물리아키텍처 설계서 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-dev.md` | 참조 |
-| 운영환경 물리아키텍처 설계서 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-prod.md` | 참조 |
-| 마스터 물리아키텍처 설계서 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture.md` | 참조 |
-| 개발환경 물리아키텍처 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-dev.mmd` | 참조 |
-| 운영환경 물리아키텍처 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-prod.mmd` | 참조 |
-| 개발환경 네트워크 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-network-dev.mmd` | 참조 |
-| 운영환경 네트워크 다이어그램 예시 | `{PLUGIN_DIR}/resources/samples/physical/sample-network-prod.mmd` | 참조 |
+| 개발환경 물리아키텍처 설계서 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-dev.md` | 참조 |
+| 운영환경 물리아키텍처 설계서 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-prod.md` | 참조 |
+| 마스터 물리아키텍처 설계서 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture.md` | 참조 |
+| 개발환경 물리아키텍처 다이어그램 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-dev.mmd` | 참조 |
+| 운영환경 물리아키텍처 다이어그램 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-physical-architecture-prod.mmd` | 참조 |
+| 개발환경 네트워크 다이어그램 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-network-dev.mmd` | 참조 |
+| 운영환경 네트워크 다이어그램 예시 | `{NPD_PLUGIN_DIR}/resources/samples/physical/sample-network-prod.mmd` | 참조 |
 
 ## 출력 (이 단계 산출물)
 | 산출물 | 파일 경로 |
@@ -242,5 +242,5 @@
 - 환경별 특성에 맞는 차별화 전략 적용
 - 비용 효율성과 운영 안정성의 균형 고려
 - 선정된 아키텍처 패턴 반영 및 최적화
-- 공통 원칙은 `{PLUGIN_DIR}/resources/guides/common-principles.md` 참조
+- 공통 원칙은 `{NPD_PLUGIN_DIR}/resources/guides/common-principles.md` 참조
 - AI 외부 API(LLM API, 벡터 DB SaaS 등) 연동을 위한 Egress 네트워크 규칙 설정 필요

@@ -10,8 +10,8 @@
 |--------|----------|----------|
 | 유저스토리 | `docs/plan/design/userstory.md` | API 선정 기준 |
 | 시퀀스 설계서 | `docs/design/sequence/` | API 일관성 확인 |
-| Swagger YAML 예제 | `{PLUGIN_DIR}/resources/samples/sample-swagger-api.yaml` | 참조 |
-| API 설계서 예제 | `{PLUGIN_DIR}/resources/samples/sample-API 설계서.md` | 참조 |
+| Swagger YAML 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-swagger-api.yaml` | 참조 |
+| API 설계서 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-API 설계서.md` | 참조 |
 | AI 서비스 설계서 | `docs/design/ai-service-design.md` | AI API 스키마 참조 (Step 9 완료 후 생성됨 — 설계 시점에는 논리 아키텍처의 AI 섹션을 참조) |
 
 ## 출력 (이 단계 산출물)
@@ -185,7 +185,7 @@ components:
 - [ ] AI API 스키마가 논리 아키텍처의 AI 서비스 정의와 일치
 
 ## 주의사항
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
 - 유저스토리와 매칭되지 않는 API 추가 금지
 - 시퀀스 설계서와 API 명세 간 일관성 유지
 - 최종 완료 후 Swagger Editor(https://editor.swagger.io/)에서 생성된 YAML 파일을 붙여 확인 및 테스트

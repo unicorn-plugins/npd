@@ -51,9 +51,9 @@ Step 1에서 확인한 DB/MQ 종류가 기본 제품(PostgreSQL, RabbitMQ/Kafka)
 
 | 확인 결과 | 참조 가이드 | 조치 |
 |-----------|------------|------|
-| DB가 MySQL 또는 MariaDB | `{PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md` | postgres 서비스 블록을 해당 제품으로 교체 |
-| NoSQL(MongoDB) 사용 | `{PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md` | mongo 서비스 블록 추가 |
-| Cloud MQ 사용 (SQS, Service Bus, Pub/Sub) | `{PLUGIN_DIR}/resources/guides/develop/backing-mq-setup.md` | 로컬은 RabbitMQ/Kafka 사용, 운영 전환 전략 확인 |
+| DB가 MySQL 또는 MariaDB | `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md` | postgres 서비스 블록을 해당 제품으로 교체 |
+| NoSQL(MongoDB) 사용 | `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md` | mongo 서비스 블록 추가 |
+| Cloud MQ 사용 (SQS, Service Bus, Pub/Sub) | `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-mq-setup.md` | 로컬은 RabbitMQ/Kafka 사용, 운영 전환 전략 확인 |
 | 기본 제품 (PostgreSQL + RabbitMQ/Kafka) | (이 가이드 내 인라인 코드 사용) | 추가 참조 불필요 |
 
 ### Step 2. docker-compose.yml 작성
@@ -72,11 +72,11 @@ Step 1에서 확인한 DB/MQ 종류가 기본 제품(PostgreSQL, RabbitMQ/Kafka)
 **기본 기동 서비스** (프로파일 없음, `docker compose up -d` 시 항상 기동)
 
 > **대안 DB 사용 시**: PostgreSQL 대신 MySQL/MariaDB를 사용하는 경우,
-> 아래 PostgreSQL 서비스 블록 대신 `{PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md`의
+> 아래 PostgreSQL 서비스 블록 대신 `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md`의
 > 해당 제품 docker-compose 스니펫을 사용한다.
 >
 > **NoSQL 추가 시**: MongoDB를 함께 사용하는 경우,
-> `{PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md`를 참조하여 mongo 서비스를 추가한다.
+> `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md`를 참조하여 mongo 서비스를 추가한다.
 
 > **DB 구성 원칙**: PostgreSQL 단일 인스턴스에 서비스별 database를 분리한다. 초기화 스크립트(`docker/postgres/init/`)로 서비스별 database를 자동 생성한다.
 
@@ -248,10 +248,10 @@ GRANT ALL PRIVILEGES ON DATABASE "user" TO {ROOT};
 > 테이블은 생성하지 않는다. JPA `ddl-auto=update` 또는 Flyway/Liquibase로 자동 생성된다.
 
 > **MySQL/MariaDB init 스크립트**: `docker/{product}/init/01-create-databases.sql`
-> 문법 차이(백틱, FLUSH PRIVILEGES 등)는 `{PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md` 참조.
+> 문법 차이(백틱, FLUSH PRIVILEGES 등)는 `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md` 참조.
 >
 > **MongoDB init 스크립트**: `docker/mongo/init/01-create-databases.js`
-> JavaScript 기반 초기화는 `{PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md` 참조.
+> JavaScript 기반 초기화는 `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md` 참조.
 
 ### Step 4. .env.example 작성
 
@@ -316,10 +316,10 @@ CORS_ALLOWED_ORIGINS=http://localhost:${FRONTEND_PORT}
 > `.env`는 `.gitignore`에 반드시 추가한다.
 
 > **MySQL/MariaDB 사용 시**: `DB_PORT` 기본값을 3306으로 변경하고 `DB_ROOT_PASSWORD`를 추가한다.
-> 추가 변수는 `{PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md` 참조.
+> 추가 변수는 `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md` 참조.
 >
 > **MongoDB 사용 시**: `MONGO_PORT`, `MONGO_USER`, `MONGO_PASSWORD` 변수를 추가한다.
-> `{PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md` 참조.
+> `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md` 참조.
 
 ### Step 5. docker compose 기동
 
@@ -367,8 +367,8 @@ docker compose down -v
 | Prism Mock | `curl http://localhost:4010/` | HTTP 응답 확인 |
 
 > **대안 DB/NoSQL 확인 명령**: MySQL/MariaDB/MongoDB 사용 시 제품별 healthcheck 명령은 해당 카테고리 가이드 참조.
-> - RDB: `{PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md`
-> - NoSQL: `{PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md`
+> - RDB: `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-rdb-setup.md`
+> - NoSQL: `{NPD_PLUGIN_DIR}/resources/guides/develop/backing-nosql-setup.md`
 
 ### Step 7. 설치 결과서 작성
 

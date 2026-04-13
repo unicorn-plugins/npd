@@ -9,8 +9,8 @@
 |--------|----------|----------|
 | 클래스 설계서 | `docs/design/class/` | Entity-테이블 매핑 |
 | 논리 아키텍처 | `docs/design/logical-architecture.md` | 캐시 대상 서비스 파악 |
-| 데이터베이스설계서 예제 | `{PLUGIN_DIR}/resources/samples/sample-데이터설계서.puml` | 참조 |
-| 캐시DB설계서 예제 | `{PLUGIN_DIR}/resources/samples/sample-cache-db-design.md` | 참조 |
+| 데이터베이스설계서 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-데이터설계서.puml` | 참조 |
+| 캐시DB설계서 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-cache-db-design.md` | 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -46,7 +46,7 @@ service-name은 영어로 작성
     - 결과: {service-name}.md
   - ERD 작성
     - 결과: {service-name}-erd.puml
-    - **PlantUML 스크립트 파일 생성 즉시 검사 실행**: 'PlantUML 문법 검사  가이드(`{PLUGIN_DIR}/resources/guides/tools/plantuml-guide.md`)' 준용
+    - **PlantUML 스크립트 파일 생성 즉시 검사 실행**: 'PlantUML 문법 검사  가이드(`{NPD_PLUGIN_DIR}/resources/guides/tools/plantuml-guide.md`)' 준용
   - 데이터베이스 스키마 스크립트 작성
     - 실행 가능한 SQL 스크립트 작성
     - 결과: {service-name}-schema.psql
@@ -103,7 +103,7 @@ Agent 1~N: 각 서비스별 데이터베이스 설계
 
 ## 주의사항
 
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
 - 클래스 설계서 Entity 이외의 테이블 추가 금지
 - 서비스 간 DB 조인 및 FK 참조 금지
 - Redis Cluster 모드 사용 시 database 번호 대신 Key Prefix 방식으로 전환

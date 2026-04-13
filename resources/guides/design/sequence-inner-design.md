@@ -12,7 +12,7 @@
 | 논리 아키텍처 | `docs/design/logical-architecture.md` | 서비스 내부 레이어 확인 |
 | 사용자 플로우 프리젠테이션 | `docs/plan/design/uiux/prototype/flow-script.html` | 사용자 인터랙션 파악 |
 | 외부 시퀀스 다이어그램 | `docs/design/sequence/outer/{플로우명}.puml` | 외부 시퀀스 참조 |
-| 시퀀스설계서(내부) 예제 | `{PLUGIN_DIR}/resources/samples/sample-시퀀스설계서(내부).puml` | 참조 |
+| 시퀀스설계서(내부) 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-시퀀스설계서(내부).puml` | 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -146,4 +146,4 @@ participant "LLM API(E)" as aoai
 - 외부 시퀀스 설계서의 플로우와 일관성 유지
 - 서비스명은 영어로, 시나리오명은 한글로 작성
 - 파일명 형식: `{서비스명}-{시나리오}.puml`
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용

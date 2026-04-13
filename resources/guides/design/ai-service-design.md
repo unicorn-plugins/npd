@@ -573,4 +573,4 @@ AI 서비스 설계가 기존 산출물과 일치하는지 검증합니다.
 - **폴백 필수**: AI 장애 시에도 서비스 연속성 보장 (비AI 폴백)
 - **프롬프트 하드코딩 금지**: 외부 저장소 기반 관리 권장
 - **비용 통제**: Rate Limiting + 토큰 사용량 모니터링 필수
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용

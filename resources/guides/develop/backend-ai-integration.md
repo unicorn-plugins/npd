@@ -52,7 +52,7 @@ grep -i "불필요\|해당 없음\|미사용\|skip" docs/design/ai-service-desig
 - **장애 격리 패턴 적용**: `ai-service-design.md`에 지정된 Circuit Breaker, Fallback 전략 준수
 - **타임아웃 필수 설정**: LLM 응답 지연이 30초 이상 발생할 수 있으므로 connectTimeout/readTimeout 명시
 - **환경변수 관리**: AI 서비스 URL은 하드코딩 금지, `AI_SERVICE_URL` 환경변수로 관리
-- **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{PLUGIN_DIR}/resources/references/standard_comment.md` 참조)
+- **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{NPD_PLUGIN_DIR}/resources/references/standard_comment.md` 참조)
 
 ### 작성 순서
 
@@ -580,7 +580,7 @@ resilience4j:
 
 ### 패키지 구조 예시
 
-> 패키지 구조 표준: `{PLUGIN_DIR}/resources/references/standard_package_structure.md`
+> 패키지 구조 표준: `{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md`
 > `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽는다.
 
 **Layered 아키텍처**
@@ -677,6 +677,6 @@ resilience4j:
 - FeignClient와 WebClient 중 하나만 선택. FeignClient는 Spring Cloud 의존성이 추가되므로 `dev-plan.md`의 기술 스택 확인 후 결정
 - Fallback 전략은 `ai-service-design.md`에 명시된 전략을 우선 적용
 - 테스트 설정(`application-test.yml`)의 `waitDurationInOpenState`, `timeoutDuration`은 실제값보다 짧게 설정하여 테스트 실행 시간 단축
-- 참조: 개발주석표준 — `{PLUGIN_DIR}/resources/references/standard_comment.md`
-- 참조: 테스트코드표준 — `{PLUGIN_DIR}/resources/references/standard_testcode.md`
-- `{PLUGIN_DIR}` = `~/.claude/plugins/cache/npd/npd/{version}/`
+- 참조: 개발주석표준 — `{NPD_PLUGIN_DIR}/resources/references/standard_comment.md`
+- 참조: 테스트코드표준 — `{NPD_PLUGIN_DIR}/resources/references/standard_testcode.md`
+- `{NPD_PLUGIN_DIR}` = `~/.claude/plugins/cache/npd/npd/{version}/`

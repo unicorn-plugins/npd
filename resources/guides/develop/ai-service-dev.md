@@ -860,7 +860,7 @@ async def analyze_prompt(topic: str) -> str:
 # 개발 모드 (Inspector UI)
 mcp dev mcp_server/server.py
 
-# Claude Desktop 연동
+# Claude CoWork 연동
 mcp install mcp_server/server.py
 ```
 

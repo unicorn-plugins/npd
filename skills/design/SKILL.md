@@ -45,27 +45,27 @@ user-invocable: true
 본 스킬의 가이드·참조·샘플·도구 파일은 NPD 플러그인 디렉토리에 위치합니다.
 프로젝트 작업 디렉토리와 플러그인 디렉토리가 다르므로, 아래 변수를 사용합니다.
 
-**`{PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
+**`{NPD_PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
 
 ### 경로 해석 규칙
 
-오케스트레이터는 실행 시작 시 다음 순서로 `{PLUGIN_DIR}`를 결정합니다:
+오케스트레이터는 실행 시작 시 다음 순서로 `{NPD_PLUGIN_DIR}`를 결정합니다:
 
 1. `~/.claude/plugins/cache/npd/npd/` 하위에서 최신 버전 디렉토리를 탐색
-2. 해당 디렉토리의 절대 경로를 `{PLUGIN_DIR}`에 바인딩
-3. 이후 모든 `{PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
+2. 해당 디렉토리의 절대 경로를 `{NPD_PLUGIN_DIR}`에 바인딩
+3. 이후 모든 `{NPD_PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
 
-**예시**: `{PLUGIN_DIR}/resources/guides/design/common-principles.md`
+**예시**: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md`
 → `~/.claude/plugins/cache/npd/npd/0.2.0/resources/guides/design/common-principles.md`
 
 ### 에이전트에 전달 시
 
-1. 가이드 파일(`{PLUGIN_DIR}/resources/guides/...`)은 Read로 읽어 프롬프트에 포함
-2. 가이드 내에서 참조하는 플러그인 리소스(`{PLUGIN_DIR}/resources/references/...`, `{PLUGIN_DIR}/resources/samples/...` 등)는 `{PLUGIN_DIR}`를 절대 경로로 치환하여 에이전트에게 전달하여 에이전트가 직접 읽을 수 있도록 함
+1. 가이드 파일(`{NPD_PLUGIN_DIR}/resources/guides/...`)은 Read로 읽어 프롬프트에 포함
+2. 가이드 내에서 참조하는 플러그인 리소스(`{NPD_PLUGIN_DIR}/resources/references/...`, `{NPD_PLUGIN_DIR}/resources/samples/...` 등)는 `{NPD_PLUGIN_DIR}`를 절대 경로로 치환하여 에이전트에게 전달하여 에이전트가 직접 읽을 수 있도록 함
 
 ## 공통 설계 원칙
 
-모든 Step에서 `{PLUGIN_DIR}/resources/guides/design/common-principles.md`를 준수:
+모든 Step에서 `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md`를 준수:
 
 ## Step 0. 사전 설정·진행 모드 선택
 
@@ -150,7 +150,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 ### Step 1. 아키텍처 패턴 선정 → Agent: architect + ai-engineer (병렬) (`/ralplan` 활용)
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/architecture-patterns.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/architecture-patterns.md` 참조
 - **TASK**: 기획 산출물과 기술스택을 기반으로 패턴 후보를 정량 평가하고 MVP→확장→고도화 로드맵을 수립
   - **AI 패턴 병렬 평가**: ai-engineer가 AI 서비스에 필요한 패턴(비동기 통신, Circuit Breaker, Cache-Aside, Rate Limiting 등)의 적합성을 평가하고 AI 관점의 가중치를 제시. architect와 병렬 수행
 - **EXPECTED OUTCOME**: `docs/design/pattern-definition.md` (패턴 평가 매트릭스, Mermaid 다이어그램, Phase별 로드맵)
@@ -203,14 +203,14 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 ### Step 2. 논리 아키텍처 설계 → Agent: architect + ai-engineer (병렬) (`/ralph` 활용)
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/logical-architecture-design.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/logical-architecture-design.md` 참조
 - **TASK**: 선정된 아키텍처 패턴 기반으로 서비스 간 관계·통신 전략·데이터 흐름을 설계하고 Context Map 스타일 Mermaid 다이어그램 작성
   - **AI 서비스 병렬 설계**: ai-engineer가 AI 서비스 식별·경계·통신 방식·폴백 전략을 설계. architect와 병렬 수행 (가이드의 2.2 AI 서비스 아키텍처 설계 참조)
 - **EXPECTED OUTCOME**: `docs/design/logical-architecture.md`, `docs/design/logical-architecture.mmd`
 
 ### Step 3. 시퀀스 설계 → Agent: architect + ai-engineer (내부 시퀀스 병렬) (`/ralph` 활용)
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/sequence-outer-design.md`, `{PLUGIN_DIR}/resources/guides/design/sequence-inner-design.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/sequence-outer-design.md`, `{NPD_PLUGIN_DIR}/resources/guides/design/sequence-inner-design.md` 참조
 - **TASK**: 핵심 유저스토리의 외부(서비스 간) 및 내부(서비스 내) 시퀀스 다이어그램을 PlantUML로 작성하고 문법 검사 수행
   - **외부 시퀀스 AI 검토**: 설계 완료 후 ai-engineer가 AI Pipeline 서비스 참여자 포함 여부 및 AI 호출 흐름 표현을 검토
   - **내부 시퀀스 AI 병렬 설계**: ai-engineer가 AI Pipeline 서비스(Python/FastAPI)의 내부 시퀀스(Router→PromptBuilder→LLMClient→ResponseParser)를 직접 설계. architect와 병렬 수행
@@ -218,7 +218,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 ### Step 4. API 설계 → Agent: architect + ai-engineer (병렬) (`/ralph` 활용)
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/api-design.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/api-design.md` 참조
 - **TASK**: 유저스토리와 시퀀스 설계 기반으로 서비스별 REST API를 OpenAPI 3.0으로 설계하고 swagger-cli 검증 수행
   - **Phase 0 접점 계약**: 병렬 작업 시작 전 architect와 ai-engineer가 서비스 간 API 스키마(요청/응답 JSON, 에러코드)를 합의
   - **AI API 병렬 설계**: ai-engineer가 AI Pipeline 서비스의 API를 직접 설계. architect와 병렬 수행
@@ -261,7 +261,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 #### 5-1. 클래스 설계 수행
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/class-design.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/class-design.md` 참조
 - **TASK**: **{설계 아키텍처 패턴}** 기반으로 공통 컴포넌트 순차 설계 → 서비스별 병렬 클래스 다이어그램 설계(상세+요약) → 통합 검증 3단계로 수행하고 PlantUML 문법 검사 실행
   - **Phase 0 접점 계약**: 병렬 작업 시작 전 architect와 ai-engineer가 서비스 간 인터페이스를 합의
   - **AI 클래스 병렬 설계**: ai-engineer가 AI Pipeline 서비스(Python/FastAPI)의 클래스를 직접 설계. architect와 병렬 수행
@@ -269,7 +269,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 ### Step 6. 데이터 설계 → Agent: architect (`/ralph` 활용)
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/data-design.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/data-design.md` 참조
 - **TASK**: 클래스 설계 기반으로 서비스별 DB 스키마·ERD·Redis 캐시 설계를 병렬 수행하고 PlantUML 문법 검사 실행
   - **AI 검토**: 설계 완료 후 ai-engineer가 AI 응답 캐시(Redis 키 패턴, TTL) 설계를 검토
 - **EXPECTED OUTCOME**: `docs/design/database/{service-name}.md`, `docs/design/database/{service-name}-erd.puml`, `docs/design/database/{service-name}-schema.md`, `docs/design/database/cache-db-design.md`
@@ -283,7 +283,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 #### 7-1. HighLevel 아키텍처 정의 수행
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/architecture-highlevel.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/architecture-highlevel.md` 참조
 - **TASK**: 전체 설계 산출물을 종합하여 Executive Summary부터 ADR까지 HighLevel 아키텍처 정의서 작성. Cloud 환경은 **{CLOUD}** 기준으로 설계
   - **멀티 리뷰**: architect 작성 완료 후 아래 리뷰어가 병렬로 담당 섹션을 검토
     - **backend-developer**: 6장(개발 아키텍처 — 백엔드 기술스택, 아키텍처 패턴, 개발 가이드라인), 8장(기술 스택)
@@ -295,7 +295,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 
 ### Step 8. AI 서비스 설계 → Agent: ai-engineer (`/ralph` 활용)
 
-- **GUIDE**: `{PLUGIN_DIR}/resources/guides/design/ai-service-design.md` 참조
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/ai-service-design.md` 참조
 - **TASK**: 핵심 솔루션의 AI 활용 기회를 우선순위화하고 LLM API 연동·프롬프트 설계·모델 선정·RAG·Function Calling·MCP·비용 최적화·AI 서비스 아키텍처를 설계
 - **EXPECTED OUTCOME**: `docs/design/ai-service-design.md` (AI 활용 기회 목록, 엔드포인트·프롬프트 설계, 모델 선정 근거, RAG/FC/MCP 설계, 비용·성능 최적화 전략, 아키텍처 다이어그램)
 

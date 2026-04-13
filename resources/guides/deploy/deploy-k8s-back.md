@@ -204,7 +204,7 @@ include 'trip-service'
 
 K8s 매니페스트 배포 후, 외부 HTTPS 접근을 위해 Nginx Web Server의 프록시 설정을 수행한다.
 
-> **참고**: Web Server 설치 가이드: `{PLUGIN_DIR}/resources/references/create-k8s.md` > [Web서버 설치](https://github.com/unicorn-plugins/npd/blob/main/resources/references/create-k8s.md#web%EC%84%9C%EB%B2%84-%EC%84%A4%EC%B9%98)
+> **참고**: Web Server 설치 가이드: `{NPD_PLUGIN_DIR}/resources/references/create-k8s.md` > [Web서버 설치](https://github.com/unicorn-plugins/npd/blob/main/resources/references/create-k8s.md#web%EC%84%9C%EB%B2%84-%EC%84%A4%EC%B9%98)
 
 #### 사전 조건
 

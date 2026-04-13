@@ -11,7 +11,7 @@
 | 유저스토리 | `docs/plan/design/userstory.md` | 기능적/비기능적 요구사항 분석 |
 | 이벤트 스토밍 | `docs/plan/think/es/*.puml` | 서비스 경계 확인 |
 | 핵심 솔루션 | `docs/plan/think/핵심솔루션.md` | 기술적 도전과제 식별 |
-| 클라우드 디자인 패턴 개요 | `{PLUGIN_DIR}/resources/references/Cloud Design Patterns(개요).md` | 42개 패턴 후보 풀 참조 |
+| 클라우드 디자인 패턴 개요 | `{NPD_PLUGIN_DIR}/resources/references/Cloud Design Patterns(개요).md` | 42개 패턴 후보 풀 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -59,7 +59,7 @@
 - 유저스토리 NFR에서 파악된 동기/비동기 처리 필요성
 
 #### 1.4 패턴 후보 스크리닝
-`{PLUGIN_DIR}/resources/references/Cloud Design Patterns(개요).md`의 42개 패턴을 8개 카테고리별로 도전과제와 매핑하여 후보를 축소합니다.
+`{NPD_PLUGIN_DIR}/resources/references/Cloud Design Patterns(개요).md`의 42개 패턴을 8개 카테고리별로 도전과제와 매핑하여 후보를 축소합니다.
 
 **카테고리-도전과제 매핑표**:
 
@@ -321,4 +321,4 @@ graph TB
 - **트레이드오프 투명성**: 각 패턴의 장단점과 수용 근거를 명확히 문서화
 - **비용 효율성**: 과도한 엔지니어링 지양, 비즈니스 가치 중심 선정
 - **문서화**: 선정 과정과 근거를 명확히 문서화하여 후속 의사결정 지원
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준수
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준수

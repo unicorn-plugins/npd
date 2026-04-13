@@ -1,6 +1,7 @@
 ---
-description: Claude Code 사용을 위한 로컬 개발 환경 사전준비 (기본 프로그램 설치 안내, Claude Code + OMC 설치, Claude Code 설정)
-allowed-tools: Read, Bash
+description: NPD prepare 스킬 실행
+allowed-tools: Read, Write, Bash, Task
 ---
 
-~/.claude/plugins/cache/**/{plugin-name}/ 하위 최신 버전 디렉토리의 skills/prepare/SKILL.md 파일을 읽고 실행하세요.
+1. 우선 사용자에게 "NPD 플러그인이 설치된 절대 경로가 어디인가요?" 라고 질문하세요. (문맥상 알고 있다면 생략)
+2. 사용자가 알려준 경로 하위의 `skills/prepare/SKILL.md` 파일을 읽고 실행하세요.

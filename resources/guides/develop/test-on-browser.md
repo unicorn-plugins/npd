@@ -16,7 +16,7 @@
 | 테스트 시나리오 | `docs/develop/dev-plan.md` 섹션 9 | TC별 test() 블록 생성 |
 | API 테스트 결과 | `docs/develop/api-test-result.md` | API 정상 동작 확인 전제 |
 | 샘플 데이터 | `{service}/src/test/resources/data/` | API 테스트에서 생성된 데이터 재활용 |
-| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 백엔드 서비스 실행 |
+| 서비스 실행기 | `{NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 백엔드 서비스 실행 |
 
 ## 사전 조건
 
@@ -72,7 +72,7 @@ python3 tools/run-frontend.py start --background --force
 python3 tools/run-frontend.py status
 ```
 
-> tools/ 미존재 시: `{PLUGIN_DIR}/resources/tools/customs/general/run-frontend.py` 사용
+> tools/ 미존재 시: `{NPD_PLUGIN_DIR}/resources/tools/customs/general/run-frontend.py` 사용
 
 - `status` 명령으로 "상태: 실행 중" 출력을 확인한 뒤 진행
 

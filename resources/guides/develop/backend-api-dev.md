@@ -15,9 +15,9 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 | 행위 계약 테스트 | `test/design-contract/{service-name}/` | **행위 참고 자료** — alt/else 분기를 참고하여 구현 시 누락 방지 |
 | Gradle 환경 | `settings.gradle`, `build.gradle` | 빌드 구성 |
 | 백킹서비스 연결 정보 | `.env.example` | DB/Redis/MQ 연결 설정 |
-| 보안·JWT·Swagger 표준 | `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` | JWT 인증, Swagger 설정 표준 |
-| 테스트 코드 가이드 | `{PLUGIN_DIR}/resources/references/java-test-guide.md` | 단위 테스트 작성 표준 |
-| 서비스 실행기 | `{PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 서비스 기동 검증 |
+| 보안·JWT·Swagger 표준 | `{NPD_PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` | JWT 인증, Swagger 설정 표준 |
+| 테스트 코드 가이드 | `{NPD_PLUGIN_DIR}/resources/references/java-test-guide.md` | 단위 테스트 작성 표준 |
+| 서비스 실행기 | `{NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py` | 서비스 기동 검증 |
 
 ## 출력 (이 단계 산출물)
 
@@ -30,18 +30,18 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 ### 작성 원칙
 
-- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다 (`{PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조). `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
-- **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{PLUGIN_DIR}/resources/references/standard_comment.md` 참조)
+- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다 (`{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조). `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
+- **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{NPD_PLUGIN_DIR}/resources/references/standard_comment.md` 참조)
 - **API 설계서 일관성**: API 설계서(`docs/design/api/` 하위 — 준비 단계에서 식별한 파일)의 모든 엔드포인트를 누락 없이 Controller에 구현
 - **설계 아키텍처 패턴 적용**: 서비스별로 지정된 패턴을 적용
   - **Layered 아키텍처**: Service 레이어에 Interface 사용 (`{ServiceName}Service` 인터페이스 + `{ServiceName}ServiceImpl` 구현체)
   - **Clean 아키텍처**: Port/Adapter 용어 대신 Clean 아키텍처 고유 용어 사용 (UseCase, Gateway 등)
 - **행위 계약 참고**: 행위 계약 테스트(`test/design-contract/{service-name}/`)의 각 it() 케이스를 참고하여 구현 시 alt/else 분기를 누락하지 않도록 한다 (테스트 실행은 불요)
 - **인증 방식은 설계서에서 확인 후 적용**: `docs/develop/dev-plan.md` 섹션 10-3의 인증 방식 및 API 설계서의 `components/securitySchemes`에서 인증 방식을 식별한다
-  - **JWT 인증**: `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (R3) 기반 구현
+  - **JWT 인증**: `{NPD_PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (R3) 기반 구현
   - **OAuth2/OIDC (소셜 로그인 — Google, 카카오, 네이버 등)**: Spring Security OAuth2 Client 기반 구현
   - 설계서에 인증 방식이 명시되지 않은 경우 클래스 설계서의 Security 관련 클래스를 확인하여 판단
-- **단위 테스트**: `{PLUGIN_DIR}/resources/references/java-test-guide.md` (R4) 기반 — Mockito 사용, 병렬 테스트 전략 적용
+- **단위 테스트**: `{NPD_PLUGIN_DIR}/resources/references/java-test-guide.md` (R4) 기반 — Mockito 사용, 병렬 테스트 전략 적용
 
 ### 작성 순서
 
@@ -119,7 +119,7 @@ biz/service/{ServiceName}Service.java            ← UseCase 구현체
 biz/usecase/out/{EntityReader}.java              ← 아웃바운드 UseCase 인터페이스
 infra/gateway/{EntityGateway}.java               ← 아웃바운드 구현체
 ```
-> Port/Adapter 용어 사용 금지 — `패키지구조표준`(`{PLUGIN_DIR}/resources/references/standard_package_structure.md`) 준수
+> Port/Adapter 용어 사용 금지 — `패키지구조표준`(`{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md`) 준수
 
 **서비스 구현 공통 사항:**
 - 트랜잭션 경계: 읽기 전용은 `@Transactional(readOnly = true)`, 쓰기는 `@Transactional`
@@ -172,7 +172,7 @@ public class {ServiceName}Controller {
 
 **[JWT 인증인 경우]**
 
-R3(`{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md`)의 예제를 적용한다.
+R3(`{NPD_PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md`)의 예제를 적용한다.
 
 - `SecurityConfig`: CSRF 비활성화, CORS 설정, Stateless 세션, JWT 필터 등록, 공개 경로(`/actuator/**`, `/swagger-ui/**`, `/v3/api-docs/**`, `/health`) 허용
 - `JwtAuthenticationFilter`: `OncePerRequestFilter` 구현, Bearer 토큰 추출 및 `JwtTokenProvider`로 검증
@@ -205,7 +205,7 @@ config/
 > - 크리덴셜이 `.env`에 있으면: 코드 구현 + 통합 테스트 모두 수행
 > - "코드 구현만 진행" 지시를 받으면: 코드 구현만 수행, 통합 테스트는 SKIP하고 결과에 "OAuth2 크리덴셜 미설정으로 통합 테스트 생략" 기재
 >
-> Provider별 앱 등록 및 전체 구현 패턴 가이드: `{PLUGIN_DIR}/resources/guides/develop/oauth-guide.md`
+> Provider별 앱 등록 및 전체 구현 패턴 가이드: `{NPD_PLUGIN_DIR}/resources/guides/develop/oauth-guide.md`
 > — GitHub/Google/Kakao OAuth App 설정, Spring Boot + 프론트엔드(React/Vue/Flutter) 구현 전체 패턴 포함
 
 Spring Security OAuth2 Client (`spring-boot-starter-oauth2-client`) 기반으로 구현한다. 설계서에 명시된 Provider만 구현한다.
@@ -284,11 +284,11 @@ config/
     └── OAuth2FailureHandler.java
 ```
 
-> 패키지 구조 표준: `{PLUGIN_DIR}/resources/references/standard_package_structure.md` 준수
+> 패키지 구조 표준: `{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md` 준수
 
 #### 4단계: 단위 테스트 작성
 
-R4(`{PLUGIN_DIR}/resources/references/java-test-guide.md`) 및 테스트코드표준(`{PLUGIN_DIR}/resources/references/standard_testcode.md`)을 준용한다.
+R4(`{NPD_PLUGIN_DIR}/resources/references/java-test-guide.md`) 및 테스트코드표준(`{NPD_PLUGIN_DIR}/resources/references/standard_testcode.md`)을 준용한다.
 
 **Mockito 사용 원칙:**
 - 외부 의존성(Repository, 외부 서비스)은 `@Mock`으로 모킹
@@ -425,7 +425,7 @@ class {ServiceName}ControllerTest {
 **서비스 기동:**
 ```bash
 # 개별 서비스 기동
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py {service-name}
+python3 {NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py {service-name}
 ```
 
 **기동 확인:**
@@ -439,10 +439,10 @@ curl -s http://localhost:{port}/actuator/health
 **서비스 중지:**
 ```bash
 # 개별 서비스 중지
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop {service-name}
+python3 {NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop {service-name}
 
 # 전체 서비스 중지
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop
+python3 {NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop
 ```
 
 ### 병렬 처리 가이드
@@ -473,7 +473,7 @@ python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py --stop
 # {service-name}/build/reports/tests/test/index.html
 
 # 서비스 기동 검증 (run-backend.py 사용)
-python3 {PLUGIN_DIR}/resources/tools/customs/general/run-backend.py {service-name}
+python3 {NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py {service-name}
 curl -s http://localhost:{port}/actuator/health
 ```
 
@@ -481,7 +481,7 @@ curl -s http://localhost:{port}/actuator/health
 
 ### 서비스별 패키지 구조 예시
 
-> 패키지 구조는 `{PLUGIN_DIR}/resources/references/standard_package_structure.md`를 준수한다.
+> 패키지 구조는 `{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md`를 준수한다.
 
 **Layered 아키텍처 적용 서비스:**
 ```
@@ -607,9 +607,9 @@ curl -s http://localhost:{port}/actuator/health
 - SecurityConfig의 공개 경로 설정은 API 설계서의 인증 요구 여부를 기준으로 조정
 - 테스트 설정 Manifest(`src/test/resources/application.yml`)의 값은 환경변수 처리 (하드코딩 금지)
 - 테스트 실패 시 테스트 코드를 우회하는 방식이 아닌 프로덕션 코드의 로직을 수정하여 해결
-- 참조: 개발주석표준 — `{PLUGIN_DIR}/resources/references/standard_comment.md`
-- 참조: 테스트코드표준 — `{PLUGIN_DIR}/resources/references/standard_testcode.md`
+- 참조: 개발주석표준 — `{NPD_PLUGIN_DIR}/resources/references/standard_comment.md`
+- 참조: 테스트코드표준 — `{NPD_PLUGIN_DIR}/resources/references/standard_testcode.md`
 - 인증 방식은 설계서(`high-level-architecture.md` 보안 요구사항 + API 설계서 securitySchemes)에서 확인 후 적용. 무조건 JWT로 구현하지 않을 것
-- 참조: SecurityConfig/JWT/Swagger 예제 (R3) — `{PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (JWT 인증인 경우만 적용)
-- 참조: 테스트 가이드 (R4) — `{PLUGIN_DIR}/resources/references/java-test-guide.md`
-- `{PLUGIN_DIR}` = `~/.claude/plugins/cache/npd/npd/{version}/`
+- 참조: SecurityConfig/JWT/Swagger 예제 (R3) — `{NPD_PLUGIN_DIR}/resources/references/java-security-jwt-swagger.md` (JWT 인증인 경우만 적용)
+- 참조: 테스트 가이드 (R4) — `{NPD_PLUGIN_DIR}/resources/references/java-test-guide.md`
+- `{NPD_PLUGIN_DIR}` = `~/.claude/plugins/cache/npd/npd/{version}/`

@@ -11,7 +11,7 @@
 | 유저스토리 | `docs/plan/design/userstory.md` | 요구사항과 유저 플로우('## 2. Epic 정의') 참조 |
 | 논리 아키텍처 | `docs/design/logical-architecture.md` | 서비스 참여자 확인 |
 | 사용자 플로우 프리젠테이션 | `docs/plan/design/uiux/prototype/flow-script.html` | 사용자 인터랙션 파악 |
-| 시퀀스설계서(외부) 예제 | `{PLUGIN_DIR}/resources/samples/sample-시퀀스설계서(외부).puml` | 참조 |
+| 시퀀스설계서(외부) 예제 | `{NPD_PLUGIN_DIR}/resources/samples/sample-시퀀스설계서(외부).puml` | 참조 |
 
 ## 출력 (이 단계 산출물)
 
@@ -91,4 +91,4 @@ fe --> user : {화면 표시 설명}
 - 유저스토리에 없는 유저 플로우 추가 금지
 - 마이크로서비스 내부 처리 흐름은 내부 시퀀스 설계서에서 별도 작성
 - 유저 플로우명은 한글로 네이밍
-- 설계 공통 원칙: `{PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용
+- 설계 공통 원칙: `{NPD_PLUGIN_DIR}/resources/guides/design/common-principles.md` 준용

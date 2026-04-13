@@ -8,9 +8,9 @@
 - 간결하고 객관적인 기술 문서 스타일 유지
 
 # PLUGIN_DIR 변수 해석 
-**`{PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
-오케스트레이터는 실행 시작 시 다음 순서로 `{PLUGIN_DIR}`를 결정
+**`{NPD_PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
+오케스트레이터는 실행 시작 시 다음 순서로 `{NPD_PLUGIN_DIR}`를 결정
 1. `~/.claude/plugins/cache/npd/npd/` 하위에서 최신 버전 디렉토리를 탐색
-2. 해당 디렉토리의 절대 경로를 `{PLUGIN_DIR}`에 바인딩
-3. 이후 모든 `{PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
+2. 해당 디렉토리의 절대 경로를 `{NPD_PLUGIN_DIR}`에 바인딩
+3. 이후 모든 `{NPD_PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
 
