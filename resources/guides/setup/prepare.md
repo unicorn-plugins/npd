@@ -252,13 +252,13 @@ Claude Code Pro 이상 구독 시에만 수행
 ---
 
 ## AI툴 설치  
-강사의 특별한 언급이 없으면 모두 설치 해 주십시오.   
 
 **1)Claude CoWork 설치**    
 Claude CoWork는 Claude Web과 유사한 기능을 로컬에서 사용하기 위한 로컬 Claude툴입니다.  
 Claude Code도 CoWork과 동일하게 로컬에 설치하는 Claude 툴입니다.   
 차이는 CoWork는 로컬의 가상환경 내에서 수행되고 Code는 로컬에서 직접 수행된다는 것입니다.   
 CoWork는 가상환경 내에서 수행되기 때문에 외부 API과 같은 일부 기능이 제약됩니다.   
+Claude Pro 구독 시에만 설치합니다.     
 
 ![](images/2026-04-13-16-39-25.png)   
    
