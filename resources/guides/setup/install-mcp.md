@@ -3,9 +3,9 @@
 - [MCP 설치 및 구성 방법](#mcp-설치-및-구성-방법)
   - [Overview](#overview)
   - [주요 MCP 이해 및 준비 작업](#주요-mcp-이해-및-준비-작업)
-  - [Claude CoWork에 주요 MCP서버 연결](#claude-cowork에-주요-mcp서버-연결)
   - [Claude Code에 주요 MCP서버 연결](#claude-code에-주요-mcp서버-연결)
   - [Cursor에 주요 MCP서버 연결](#cursor에-주요-mcp서버-연결)
+  - [Claude CoWork에 주요 MCP서버 연결](#claude-cowork에-주요-mcp서버-연결)
   - [MCP서버 삭제](#mcp서버-삭제)
 
 ---
@@ -36,45 +36,6 @@ https://mcp.so/server/sequentialthinking/modelcontextprotocol
 https://github.com/microsoft/playwright-mcp
 
  
----
-
-## Claude CoWork에 주요 MCP서버 연결
-Claude CoWork의 MCP서버 설정은 OS별로 아래 파일에 설정 합니다.  
-MCP 설정 파일:  
-- **Linux**: "~/.config/Claude/claude_desktop_config.json"
-- **Mac**: "$HOME/Library/Application Support/Claude/claude_desktop_config.json"
-- **Windows**: "$HOME/AppData/Roaming/Claude/claude_desktop_config.json"
-
-**1.설정파일 열기**    
-Claude CoWork을 열고 설정 페이지를 엽니다.  
-설정 페이지는 좌측 하단에서 로그인 사용자명을 선택하고 '설정'을 클릭합니다.  
-![](images/2026-04-13-16-44-34.png) 
-
-그리고 설정 메뉴 중 가장 하단에 있는 '개발자'를 선택합니다.   
-'[구성편집]'버튼을 누르고 파일을 편집기에서 엽니다.  
-![](images/2026-04-13-16-44-43.png)
-
-**2.설정 추가**  
-OS별로 설정값을 복사합니다.  
-Linux/Mac:
-https://github.com/unicorn-plugins/npd/blob/main/resources/references/MCP-linuxmac.json
-  
-Windows:
-https://github.com/unicorn-plugins/npd/blob/main/resources/references/MCP-window.json
-
-아래 그림과 같이 mcpServers 항목 밑에 잘 붙여 넣습니다.  
-![](images/2026-04-13-17-47-43.png)
-
-**3.확인**    
-Claude CoWork이 실행 중이면 종료 합니다.   
-단순히 창의 'X'버튼으로 닫지 말고 메인 메뉴에서 '종료'해야 합니다.   
-예를 들어 Mac은 아래와 같이 종료합니다.  
-![](images/2026-04-13-17-48-54.png)   
-
-Claude CoWork을 다시 시작하여 "설정"페이지의 "개발자"메뉴를 확인합니다.   
-추가한 MCP서버 목록이 보이고 각 MCP서버를 선택하였을 때 'running'이라고 나와야 합니다.   
-![](images/2026-04-13-17-49-52.png)  
-  
 ---
 
 ## Claude Code에 주요 MCP서버 연결 
@@ -119,6 +80,47 @@ https://github.com/unicorn-plugins/npd/blob/main/resources/references/MCP-linuxm
 Windows:
 https://github.com/unicorn-plugins/npd/blob/main/resources/references/MCP-window.json
 
+  
+---
+
+## Claude CoWork에 주요 MCP서버 연결
+Claude CoWork의 MCP서버 설정은 OS별로 아래 파일에 설정 합니다.  
+Claude Pro 이상 구독 시에만 설정합니다.    
+  
+MCP 설정 파일:  
+- **Linux**: "~/.config/Claude/claude_desktop_config.json"
+- **Mac**: "$HOME/Library/Application Support/Claude/claude_desktop_config.json"
+- **Windows**: "$HOME/AppData/Roaming/Claude/claude_desktop_config.json"
+
+**1.설정파일 열기**    
+Claude CoWork을 열고 설정 페이지를 엽니다.  
+설정 페이지는 좌측 하단에서 로그인 사용자명을 선택하고 '설정'을 클릭합니다.  
+![](images/2026-04-13-16-44-34.png) 
+
+그리고 설정 메뉴 중 가장 하단에 있는 '개발자'를 선택합니다.   
+'[구성편집]'버튼을 누르고 파일을 편집기에서 엽니다.  
+![](images/2026-04-13-16-44-43.png)
+
+**2.설정 추가**  
+OS별로 설정값을 복사합니다.  
+Linux/Mac:
+https://github.com/unicorn-plugins/npd/blob/main/resources/references/MCP-linuxmac.json
+  
+Windows:
+https://github.com/unicorn-plugins/npd/blob/main/resources/references/MCP-window.json
+
+아래 그림과 같이 mcpServers 항목 밑에 잘 붙여 넣습니다.  
+![](images/2026-04-13-17-47-43.png)
+
+**3.확인**    
+Claude CoWork이 실행 중이면 종료 합니다.   
+단순히 창의 'X'버튼으로 닫지 말고 메인 메뉴에서 '종료'해야 합니다.   
+예를 들어 Mac은 아래와 같이 종료합니다.  
+![](images/2026-04-13-17-48-54.png)   
+
+Claude CoWork을 다시 시작하여 "설정"페이지의 "개발자"메뉴를 확인합니다.   
+추가한 MCP서버 목록이 보이고 각 MCP서버를 선택하였을 때 'running'이라고 나와야 합니다.   
+![](images/2026-04-13-17-49-52.png)  
   
 ---
 
