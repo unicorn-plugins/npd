@@ -242,9 +242,10 @@ claude plugin install oh-my-claudecode
 ```
 
 아래 명령으로 셋업 수행. Setup 시 MCP는 Skip 하십시오.    
-Claude Code Pro 이상 구독 시에만 수행   
+Claude Code Pro 이상 구독한 경우 Claude Code 실행 후 수행하고,   
+Cursor 구독한 경우 Cursor 실행 수 수행하세요.      
 ```
-/oh-my-claudecode:omc-setup
+/omc-setup
 ```
 
 | [Top](#로컬-개발-환경-구성) |
