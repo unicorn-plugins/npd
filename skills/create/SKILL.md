@@ -168,6 +168,8 @@ Thumbs.db
 ### Step 5. CLAUDE.md 생성
 
 #### NPD 플러그인 디렉토리 경로 설정
+`{프로젝트 디렉토리}/CLAUDE.md` 파일에 `{NPD_PLUGIN_DIR}` 변수가 설정되어 있는지 확인함.
+미설정 시 아래 수행 
 사용자에게 NPD 플러그인 디렉토리 경로를 입력받아 생성하는 프로젝트 디렉토리의 CLAUDE.md의 `{NPD_PLUGIN_DIR}` 변수에 설정합니다. 
 <!--ASK_USER-->
 {"title":"NPD 플러그인 디렉토리","questions":[
@@ -362,7 +364,7 @@ status
 ### Phase 7: NPD 플러그인 디렉토리 접근 권한 셋팅 
 
 플러그인 디렉토리에 대한 에이전트의 Read/Write/Edit/Bash 권한을 설정하여 개발 및 검증 과정에서 파일 생성/수정/실행 가능하도록 함.
-`~/.claude/settings.json` 파일의 "permissions" 섹션에 아래 권한 추가:  
+`{프로젝트 디렉토리}/.claude/settings.local.json` 파일의 "permissions" 섹션에 아래 권한 추가:  
 ```
 "permissions": {
   "allow": [
