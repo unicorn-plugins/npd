@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776066759265,
+  "lastScanned": 1776216285279,
   "projectRoot": "c:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776066759225,
+      "lastAccessed": 1776216285217,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1776066759226,
+      "lastAccessed": 1776216285218,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1776066759226,
+      "lastAccessed": 1776216285218,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "gemini-workflows",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1776066759227,
+      "lastAccessed": 1776216285219,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -79,7 +79,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1776066759227,
+      "lastAccessed": 1776216285220,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -91,7 +91,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776066759228,
+      "lastAccessed": 1776216285221,
       "keyFiles": [
         "resource.md"
       ]
@@ -100,24 +100,17 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776066759228,
+      "lastAccessed": 1776216285222,
       "keyFiles": []
     },
     "templates": {
       "path": "templates",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776066759229,
+      "lastAccessed": 1776216285222,
       "keyFiles": []
     }
   },
-  "hotPaths": [
-    {
-      "path": "resources\\references\\MCP-window.json",
-      "accessCount": 5,
-      "lastAccessed": 1776067094801,
-      "type": "file"
-    }
-  ],
+  "hotPaths": [],
   "userDirectives": []
 }

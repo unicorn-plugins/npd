@@ -167,14 +167,22 @@ Thumbs.db
 
 ### Step 5. CLAUDE.md 생성
 
-프로젝트 디렉토리에 CLAUDE.md를 생성합니다.
+#### NPD 플러그인 디렉토리 경로 설정
+사용자에게 NPD 플러그인 디렉토리 경로를 입력받아 생성하는 프로젝트 디렉토리의 CLAUDE.md의 `{NPD_PLUGIN_DIR}` 변수에 설정합니다. 
+<!--ASK_USER-->
+{"title":"NPD 플러그인 디렉토리","questions":[
+  {"question":"NPD 플러그인 디렉토리 경로를 입력해주세요.","type":"text"}
+]}
+<!--/ASK_USER-->
+
+#### 프로젝트 디렉토리에 CLAUDE.md를 생성합니다.
 NPD 플러그인의 `agents/*/agentcard.yaml`을 읽어 멤버 정보를 구성합니다.
 
 **CLAUDE.md 구조:**
 
 ````markdown
 # 스쿼드 소개
-## 플러그인 설정
+## NPD 플러그인 설정
 - NPD_PLUGIN_DIR: "{NPD_PLUGIN_DIR}"
 
 ## 목표
@@ -274,13 +282,6 @@ SKILL.md 또는 대화에서 아래 키워드가 나오면 **반드시 Skill 도
 ### 교훈 목록
 - [HIGH] `<!--ASK_USER-->` 발견 시 AskUserQuestion 도구를 호출할 것 - 공통
 
-## PLUGIN_DIR 변수 해석 
-**`{NPD_PLUGIN_DIR}`**: NPD 플러그인 루트 디렉토리의 절대 경로
-오케스트레이터는 실행 시작 시 다음 순서로 `{NPD_PLUGIN_DIR}`를 결정
-1. `~/.claude/plugins/cache/npd/npd/` 하위에서 최신 버전 디렉토리를 탐색
-2. 해당 디렉토리의 절대 경로를 `{NPD_PLUGIN_DIR}`에 바인딩
-3. 이후 모든 `{NPD_PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
-
 ## 백엔드 서비스 기동/중지
 python3 {NPD_PLUGIN_DIR}/resources/tools/customs/general/run-backend.py [{service-name}] {OPTIONS}
 OPTIONS:
@@ -358,7 +359,26 @@ status
 }
 ```
 
-### Step 7. GitHub 레포 생성 (선택)
+### Phase 7: NPD 플러그인 디렉토리 접근 권한 셋팅 
+
+플러그인 디렉토리에 대한 에이전트의 Read/Write/Edit/Bash 권한을 설정하여 개발 및 검증 과정에서 파일 생성/수정/실행 가능하도록 함.
+`~/.claude/settings.json` 파일의 "permissions" 섹션에 아래 권한 추가:  
+```
+"permissions": {
+  "allow": [
+    "Read({NPD_PLUGIN_DIR}/**)",
+    "Write({NPD_PLUGIN_DIR}/**)",
+    "Edit({NPD_PLUGIN_DIR}/**)",
+    "Bash(python {NPD_PLUGIN_DIR}/**)",
+    "Bash(python3 {NPD_PLUGIN_DIR}/**)"
+  ],
+  "additionalDirectories": [
+    "{NPD_PLUGIN_DIR}"
+  ]
+}
+```
+
+### Step 8. GitHub 레포 생성 (선택)
 
 <!--ASK_USER-->
 {"title":"GitHub 레포 생성","questions":[
@@ -402,7 +422,7 @@ status
 
 **건너뛰기** 선택 시 → Step 7로 이동
 
-### Step 8. 완료 보고
+### Step 9. 완료 보고
 
 ```
 ## 프로젝트 생성 완료
