@@ -62,7 +62,7 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
    - **금지액션 구체화**: agentcard.yaml의 `forbidden_actions` → `action_mapping`에서 제외할 실제 도구 결정
    - **최종 도구** = (구체화된 도구) - (제외 도구)
 3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
-4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
+4. `Agent(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
 
 ## 리소스 경로 규칙
 

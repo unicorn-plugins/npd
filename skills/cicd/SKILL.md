@@ -36,7 +36,7 @@ ArgoCD GitOps 방식으로 CD를 분리하는 파이프라인을 구축한다.
    - **금지액션 구체화**: agentcard.yaml의 `forbidden_actions` → `action_mapping`에서 제외할 실제 도구 결정
    - **최종 도구** = (구체화된 도구) - (제외 도구)
 3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
-4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
+4. `Agent(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
 
 ## 변수명 규약
 
@@ -245,7 +245,7 @@ MANIFEST_REPO_URL="https://github.com/{org}/{SYSTEM_NAME}-manifest.git"
 ### 7) [실행정보] 조립
 
 수집된 정보를 `[실행정보]` 블록으로 조립한다. **CI 도구 + 클라우드/레지스트리 조합**에 따라 아래 7가지 템플릿 중 하나를 사용한다.
-조립된 `[실행정보]` 블록은 이후 에이전트 호출 시 **프롬프트의 동적(작업 지시) 영역에 텍스트로 포함**하여 전달한다. 에이전트는 별도 컨텍스트에서 실행되므로, `Task(prompt=...)` 호출 시 `[실행정보]` 블록 전문을 반드시 포함해야 가이드 내 변수를 치환할 수 있다.
+조립된 `[실행정보]` 블록은 이후 에이전트 호출 시 **프롬프트의 동적(작업 지시) 영역에 텍스트로 포함**하여 전달한다. 에이전트는 별도 컨텍스트에서 실행되므로, `Agent(prompt=...)` 호출 시 `[실행정보]` 블록 전문을 반드시 포함해야 가이드 내 변수를 치환할 수 있다.
 
 > **2단계 조립**: Step 0에서 base [실행정보]를 조립하되, CI 도구 전용 필드(JENKINS_CLOUD_NAME, JENKINS_GIT_CREDENTIALS, MANIFEST_SECRET_GIT_USERNAME/PASSWORD, RESOURCE_GROUP, GKE_ZONE)는 미정으로 남긴다.
 > Step 2.5에서 해당 필드를 수집한 후 [실행정보]를 보완하여 Step 3에 전달.

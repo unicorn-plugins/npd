@@ -35,7 +35,7 @@ Kubernetes 배포 순서로 배포 환경을 구축함.
    - **금지액션 구체화**: agentcard.yaml의 `forbidden_actions` → `action_mapping`에서 제외할 실제 도구 결정
    - **최종 도구** = (구체화된 도구) - (제외 도구)
 3. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 동적(작업 지시)
-4. `Task(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
+4. `Agent(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
 
 ## Step 0. 진행 모드 선택
 
@@ -367,7 +367,7 @@ kubectx {선택된 컨텍스트}
 > - VM 관련 필드 (HOST, KEY파일 등): Step 1 또는 3 실행 시에만
 
 수집된 정보를 아래 템플릿에 따라 `[실행정보]`로 조립한다.
-조립된 `[실행정보]` 블록은 이후 에이전트 호출 시 **프롬프트의 동적(작업 지시) 영역에 텍스트로 포함**하여 전달한다. 에이전트는 별도 컨텍스트에서 실행되므로, `Task(prompt=...)` 호출 시 `[실행정보]` 블록 전문을 반드시 포함해야 가이드 내 `${REGISTRY_URL}`, `${IMG_ID}` 등의 변수를 치환할 수 있다.
+조립된 `[실행정보]` 블록은 이후 에이전트 호출 시 **프롬프트의 동적(작업 지시) 영역에 텍스트로 포함**하여 전달한다. 에이전트는 별도 컨텍스트에서 실행되므로, `Agent(prompt=...)` 호출 시 `[실행정보]` 블록 전문을 반드시 포함해야 가이드 내 `${REGISTRY_URL}`, `${IMG_ID}` 등의 변수를 치환할 수 있다.
 
 > VM 접속 정보는 Step 1(배포 사전 준비)에서 `~/.ssh/config`를 파싱하여 자동 수집된다.
 > 사용자가 선택한 Host alias의 HostName, User, IdentityFile 값이 매핑된다.
