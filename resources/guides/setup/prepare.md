@@ -282,8 +282,15 @@ claude install
 
 ### Claude Desktop에 Claude Code 추가   
 2026년 4월 15일부터 Claude Desktop에 Claude Code가 추가되어 훨씬 편한 UI/UX로 사용할 수 있게 됨  
-
+아래 [Claude CoWork 설치](#ai툴-설치)를 참고하여 Claude CoWork를 설치하면 자동으로 설치됩니다.   
 ![](images/2026-04-16-13-22-32.png)   
+
+YOLO모드(매번 사용자 확인없이 AI가 자율적으로 수행)를 사용하려면 '설정'에서 아래 권한우회모드를 활성화해야 합니다.     
+![](images/2026-04-16-13-35-05.png)  
+
+권한우회 모드를 활성화하고 대화창에서 '권한 건너뛰기'를 선택하면 YOLO모드로 수행됩니다.   
+![](images/2026-04-16-13-35-57.png)  
+
 
 | [Top](#로컬-개발-환경-구성) |
 
