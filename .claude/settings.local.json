@@ -7,7 +7,8 @@
       "mcp__plugin_oh-my-claudecode_t__state_list_active",
       "mcp__plugin_oh-my-claudecode_t__state_clear",
       "WebFetch(domain:developers.figma.com)",
-      "Bash(git commit -m \"$\\(cat <<''EOF''\n환경 준비 가이드 업데이트 - 구독별 셋업 안내 개선\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
+      "Bash(git commit -m \"$\\(cat <<''EOF''\n환경 준비 가이드 업데이트 - 구독별 셋업 안내 개선\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")",
+      "Bash(git commit -m \"$\\(cat <<''EOF''\nNPD_PLUGIN_DIR 중복 설정 방지 로직 추가\n\nCo-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>\nEOF\n\\)\")"
     ]
   }
 }

@@ -16,6 +16,12 @@
     - [설치](#설치-2)
     - [설정](#설정)
   - [Claude Code 설치](#claude-code-설치)
+    - [설치](#설치-3)
+    - [`~/.local/bin` 추가](#localbin-추가)
+    - [설치확인](#설치확인)
+    - [참고](#참고)
+      - [npm 버전 EOS](#npm-버전-eos)
+    - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
   - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
   - [AI툴 설치](#ai툴-설치)
   - [필수 MCP 설치](#필수-mcp-설치)
@@ -33,7 +39,7 @@
   - [Docker HUB 회원가입](#docker-hub-회원가입)
 - [개발/배포 단계를 위한 추가 설치](#개발배포-단계를-위한-추가-설치)
   - [IntelliJ 설치](#intellij-설치)
-    - [설치](#설치-3)
+    - [설치](#설치-4)
     - [IntelliJ 환경 설정](#intellij-환경-설정)
 
 ---
@@ -193,6 +199,7 @@ Interpreter 언어를 개발할 때 사용하는 IDE(Integrated Development Envi
 ---
 
 ## Claude Code 설치  
+### 설치
 **Linux/Mac**     
 ```bash
 # macOS/Linux
@@ -205,29 +212,78 @@ PowerShell에서 수행합니다.
 irm https://claude.ai/install.ps1 | iex
 ```
 
-설치 후 초기 구성: Claude Code Pro 이상 구독 시에만 수행   
+### `~/.local/bin` 추가   
+Claude가 설치된 경로를 추가해야 실행할 수 있습니다.  
 
-```bash
+**1)Window**     
+```
+code ~/.bashrc
+```
+
+아래 추가
+```
+export PATH=~/.local/bin:$PATH
+```
+
+설정 적용
+```
+source ~/.bashrc
+```
+
+PowerShell에서도 동작하도록 경로 추가: PowerShell 터미널을 열고 아래 명령 수행  
+```
+$localBin = "$env:USERPROFILE\.local\bin"
+$currentPath = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+[System.Environment]::SetEnvironmentVariable("PATH", $currentPath + ";" + $localBin, "User")
+Write-Host "완료: $localBin 추가됨. PowerShell 재시작 필요."
+```
+
+**2)Mac**     
+```
+code ~/.zshrc
+```
+
+아래 추가
+```
+export PATH=~/.local/bin:$PATH
+```
+
+저장 후 아래 명령으로 적용   
+```
+source ~/.zshrc
+```
+
+### 설치확인   
+Claude Pro 이상 구독시에만 수행    
+```
 claude 
 ```
 
-> 2026년 2월부터 Claude Code는 npm을 이용하지 않고 독립적인 런타임 엔진을 사용
-> 기존 설치한 사람은 아래 명령으로 기존 claude를 삭제하고 재설치 바람 
-> **삭제**   
-> ```
-> # 강제 언인스톨
-> npm uninstall -g @anthropic-ai/claude-code --force
-> # 확인
-> where claude
-> 만약, 위 명령 결과가 나오면 아래 수행하여 삭제   
-> rm -rf {위 결과 파일 경로}
-> # 캐시 정리
-> npm cache clean --force
-> ```
-> **설치**
-> ```
-> claude install 
-> ```
+### 참고 
+
+#### npm 버전 EOS
+2026년 2월부터 Claude Code는 npm을 이용하지 않고 독립적인 런타임 엔진을 사용
+기존 설치한 사람은 아래 명령으로 기존 claude를 삭제하고 재설치 바람 
+**삭제**   
+```
+# 강제 언인스톨
+npm uninstall -g @anthropic-ai/claude-code --force
+# 확인
+where claude
+만약, 위 명령 결과가 나오면 아래 수행하여 삭제   
+rm -rf {위 결과 파일 경로}
+# 캐시 정리
+npm cache clean --force
+```
+**설치**
+```
+claude install 
+```
+
+### Claude Desktop에 Claude Code 추가   
+2026년 4월 15일부터 Claude Desktop에 Claude Code가 추가되어 훨씬 편한 UI/UX로 사용할 수 있게 됨  
+
+![](images/2026-04-16-13-22-32.png)   
 
 | [Top](#로컬-개발-환경-구성) |
 
