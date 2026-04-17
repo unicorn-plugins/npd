@@ -151,7 +151,7 @@ Claude Code 프롬프트창에서 아래 명령 실행 하도록 안내. 단 MCP
 ```bash
 if ! grep -q 'alias cc-yolo' ~/.zshrc 2>/dev/null; then
   echo '' >> ~/.zshrc
-  echo "alias cc-yolo='claude --dangerously-skip-permissions --verbose'" >> ~/.zshrc
+  echo "alias cc-yolo='claude --dangerously-skip-permissions'" >> ~/.zshrc
   echo "alias cc-safe='claude'" >> ~/.zshrc
   echo "alias cy='cc-yolo'" >> ~/.zshrc
   source ~/.zshrc
@@ -162,7 +162,7 @@ fi
 ```bash
 if ! grep -q 'alias cc-yolo' ~/.bashrc 2>/dev/null; then
   echo '' >> ~/.bashrc
-  echo "alias cc-yolo='claude --dangerously-skip-permissions --verbose'" >> ~/.bashrc
+  echo "alias cc-yolo='claude --dangerously-skip-permissions'" >> ~/.bashrc
   echo "alias cc-safe='claude'" >> ~/.bashrc
   echo "alias cy='cc-yolo'" >> ~/.bashrc
   source ~/.bashrc
@@ -173,7 +173,7 @@ fi
 ```bash
 if ! grep -q 'alias cc-yolo' ~/.bashrc 2>/dev/null; then
   echo '' >> ~/.bashrc
-  echo "alias cc-yolo='claude --dangerously-skip-permissions --verbose'" >> ~/.bashrc
+  echo "alias cc-yolo='claude --dangerously-skip-permissions'" >> ~/.bashrc
   echo "alias cc-safe='claude'" >> ~/.bashrc
   echo "alias cy='cc-yolo'" >> ~/.bashrc
   source ~/.bashrc
@@ -187,7 +187,7 @@ if (!(Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -
 if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
 if (!(Select-String -Path $PROFILE -Pattern 'cc-yolo' -Quiet 2>$null)) {
   Add-Content $PROFILE ""
-  Add-Content $PROFILE "function cc-yolo { claude --dangerously-skip-permissions --verbose @args }"
+  Add-Content $PROFILE "function cc-yolo { claude --dangerously-skip-permissions @args }"
   Add-Content $PROFILE "function cc-safe { claude @args }"
   Add-Content $PROFILE "function cy { cc-yolo @args }"
 }
