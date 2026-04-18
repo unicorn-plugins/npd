@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776216285279,
-  "projectRoot": "c:\\Users\\hiond\\workspace\\npd",
+  "lastScanned": 1776486891614,
+  "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -36,14 +36,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776216285217,
+      "lastAccessed": 1776486891597,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1776216285218,
+      "lastAccessed": 1776486891598,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -56,7 +56,7 @@
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1776216285218,
+      "lastAccessed": 1776486891598,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +66,7 @@
       "path": "gemini-workflows",
       "purpose": null,
       "fileCount": 13,
-      "lastAccessed": 1776216285219,
+      "lastAccessed": 1776486891598,
       "keyFiles": [
         "add-ext-skill.md",
         "cicd.md",
@@ -79,7 +79,7 @@
       "path": "output",
       "purpose": null,
       "fileCount": 4,
-      "lastAccessed": 1776216285220,
+      "lastAccessed": 1776486891599,
       "keyFiles": [
         "release-template-proposal.md",
         "v0.0.2-release-notes.md",
@@ -91,7 +91,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776216285221,
+      "lastAccessed": 1776486891599,
       "keyFiles": [
         "resource.md"
       ]
@@ -100,14 +100,14 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776216285222,
+      "lastAccessed": 1776486891599,
       "keyFiles": []
     },
     "templates": {
       "path": "templates",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776216285222,
+      "lastAccessed": 1776486891600,
       "keyFiles": []
     }
   },

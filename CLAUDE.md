@@ -14,3 +14,9 @@
 2. 해당 디렉토리의 절대 경로를 `{NPD_PLUGIN_DIR}`에 바인딩
 3. 이후 모든 `{NPD_PLUGIN_DIR}/resources/...` 경로를 절대 경로로 치환하여 파일을 읽음
 
+## Advisor 활용 규칙
+- Advisor 모델은 Opus 가장 최신 버전으로 설정  
+- 실제 작업을 시작하기 전에 먼저 Advisor를 호출
+- 작업 진행 중 Advisor의 자문이 필요하면 호출. 단, 최대 3번까지만 호출
+- 작업 완료 후 한번 더 Advisor를 호출
+- Advisor의 응답은 최대 200자를 초과하지 않게 함
