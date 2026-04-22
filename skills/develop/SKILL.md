@@ -84,6 +84,15 @@ API 계약(OpenAPI 명세) 기반 병렬 개발 전략으로 개발을 수행함
 1. 가이드 파일(`{NPD_PLUGIN_DIR}/resources/guides/develop/...`)은 Read로 읽어 프롬프트에 포함
 2. 가이드 내에서 참조하는 플러그인 리소스(`{NPD_PLUGIN_DIR}/resources/references/...`, `{NPD_PLUGIN_DIR}/resources/references/...` 등)는 `{NPD_PLUGIN_DIR}`를 절대 경로로 치환하여 에이전트에게 전달하여 에이전트가 직접 읽을 수 있도록 함
 
+### 서브 에이전트 호출
+워크플로우 단계에 `Agent: {agent-name}`이 명시된 경우,
+메인 에이전트는 해당 단계를 직접 수행하지 않고,
+반드시 위 프롬프트 조립 규칙에 따라 해당 에이전트를 호출하여 결과를 받아야 함.
+
+서브에이전트 호출 없이 메인 에이전트가 해당 산출물을 직접 작성하면
+스킬 미준수로 간주함.
+
+
 ## 공통 참조 리소스
 
 모든 Step에서 아래 표준을 준수:
