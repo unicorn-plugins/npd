@@ -155,6 +155,7 @@ Desktop Claude Code에서
 아래 프롬프트로 playwright를 다른 이름(pw)으로 설치하고 재시작     
 ```
 playwright mcp를 모든 스콥에서 삭제하고 'pw'라는 이름으로 유저 스콥으로 다시 설치해줘요.  
+'--allow-unrestricted-file-access' 옵션을 반드시 붙여서 설치
 ```
 
 ## MCP 서버 삭제  
