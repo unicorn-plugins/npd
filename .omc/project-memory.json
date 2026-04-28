@@ -205,6 +205,18 @@
       "accessCount": 1,
       "lastAccessed": 1777382417309,
       "type": "file"
+    },
+    {
+      "path": ".temp-release-v1.1.6.md",
+      "accessCount": 1,
+      "lastAccessed": 1777382926274,
+      "type": "file"
+    },
+    {
+      "path": "agents\\architect\\AGENT.md",
+      "accessCount": 1,
+      "lastAccessed": 1777383147997,
+      "type": "file"
     }
   ],
   "userDirectives": []

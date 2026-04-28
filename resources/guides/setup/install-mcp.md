@@ -52,14 +52,14 @@ Windows:
 ```
 claude mcp add-json context7 '{"command":"cmd","args":["/c","npx","-y","@upstash/context7-mcp@latest"]}' --scope user
 claude mcp add-json sequential-thinking '{"command":"cmd","args":["/c","npx","-y","@modelcontextprotocol/server-sequential-thinking"]}' --scope user
-claude mcp add-json playwright '{"command":"cmd","args":["/c","npx","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
+claude mcp add-json pw '{"command":"cmd","args":["/c","npx","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
 ```
 
 Mac/Linux:   
 ```
 claude mcp add-json context7 '{"command":"npx","args":["-y","@upstash/context7-mcp@latest"]}' --scope user
 claude mcp add-json sequential-thinking '{"command":"npx","args":["-y","@modelcontextprotocol/server-sequential-thinking"]}' --scope user
-claude mcp add-json playwright '{"command":"npx","args":["-y","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
+claude mcp add-json pw '{"command":"npx","args":["-y","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
 ```
       
 아래 명령으로 설치 및 연결 확인을 합니다.   
@@ -149,14 +149,6 @@ playwright mcp로 https://daum.net 오픈하여 아무 페이지나 클릭
 ```
 
 브라우저 창이 열리고 제대로 수행되면 정상 설치된 것임
-
-Desktop Claude Code에서   
-만약, 'mcp__playwright__browser_navigate 도구가 커넥터 설정에서 비활성화되어 있습니다.' 와 같은 메시지가 나오면,   
-아래 프롬프트로 playwright를 다른 이름(pw)으로 설치하고 재시작     
-```
-playwright mcp를 모든 스콥에서 삭제하고 'pw'라는 이름으로 유저 스콥으로 다시 설치해줘요.  
-'--allow-unrestricted-file-access' 옵션을 반드시 붙여서 설치
-```
 
 ## MCP 서버 삭제  
 추가된 MCP를 삭제하는 방법입니다.  

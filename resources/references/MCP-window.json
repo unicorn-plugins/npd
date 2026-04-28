@@ -18,7 +18,7 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ]
     },
-    "playwright": {
+    "pw": {
       "command": "cmd",
       "args": [
         "/c",
