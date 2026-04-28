@@ -121,10 +121,19 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 
 #### Step 1. MVP 주제 정의 → Agent: product-owner 
 
+- **PREV_ACTION**: 
+  - 참고 정보를 사용자에게 문의
+   <!--ASK_USER-->
+   {"title":"참고정보 요청","questions":[
+   {"question":"MVP 주제를 정의하기 위해 참고할 정보가 있으면 파일 경로를 입력하세요.<br>없으면 `없음`이라고 입력하세요.","type":"text"}
+   <!--/ASK_USER-->
+   - 참고정보 파일 입력 시 내용을 요약하여 에이젼트 `product-owner`에 전달 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/01-mvp-definition-guide.md`
 - **TASK**: AGENTS.md의 MVP 비즈니스 도메인을 기반으로 MVP 후보를 시장 잠재력·사용자 pain points·실현 가능성·경쟁 우위 4가지 팩터로 평가하여 최종 MVP 주제를 확정
 - **EXPECTED OUTCOME**: `docs/plan/define/MVP정의.md` — MVP 주제 정의, 선정 이유(4가지 팩터 평가표), 목표 비즈니스 도메인
 - **POST-ACTION**: 
+  - 사용자에게 MVP후보와 추천 주제를 제공하고 사용자에게 선택 시킴. AskUserQuestion을 사용하지 말고 화면에 선택지를 표시. 선택한 주제에 대해 아래 수행
+  - 사용자가 선택한 주제로 `docs/plan/define/MVP정의.md` 파일 업데이트 
   - 프로젝트 AGENTS.md의 `## 목표` 섹션에 확정된 MVP 주제에 기반하여 팀 목표를 기술 
   - 프로젝트 AGENTS.md의 `## MVP > MVP 주제` 섹션에 확정된 MVP 주제를 기술 
   - `{NPD_PLUGIN_DIR}/resources/guides/plan/domain-context-guide.md`의 가이드에 따라 `{PROJECT_DIR}/.npd/domain-context.yaml`에 도메인 특화 정보 생성
