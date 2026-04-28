@@ -164,7 +164,7 @@ volumes:
 
 ## 주의사항
 
-- **자격 증명 통일 규칙**: MONGO_USER는 CLAUDE.md의 `{ROOT}` 값, MONGO_PASSWORD는 `P@ssw0rd$`로 통일한다.
+- **자격 증명 통일 규칙**: MONGO_USER는 AGENTS.md의 `{ROOT}` 값, MONGO_PASSWORD는 `P@ssw0rd$`로 통일한다.
 - **인증 활성화**: `MONGO_INITDB_ROOT_USERNAME`/`MONGO_INITDB_ROOT_PASSWORD`를 설정하면 MongoDB 인증이 자동 활성화된다. 접속 시 `?authSource=admin`을 URI에 포함해야 한다.
 - **포트 충돌 방지**: MongoDB 기본 포트(27017)가 로컬에서 이미 사용 중인 경우 `.env`에서 변경한다.
 - **볼륨 초기화**: MongoDB 데이터를 완전히 초기화하려면 `docker compose down -v`로 볼륨을 함께 삭제한다.

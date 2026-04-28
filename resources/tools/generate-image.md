@@ -42,7 +42,7 @@
 |--------|:----:|------|--------|
 | `GEMINI_API_KEY` | 필수 | Google Gemini API Key | - |
 
-> 환경 변수 파일 위치: `tools/.env`
+> 환경 변수 파일 위치: 호출 시점의 **현재 작업 디렉토리(프로젝트 루트)** 의 `.env`
 > 또는 `--api-key` 파라미터로 직접 전달 가능.
 
 [Top](#generate_image)

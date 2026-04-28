@@ -153,7 +153,7 @@ binder 교체만으로 다른 MQ 제품으로 전환할 수 있다.
 
 ## 주의사항
 
-- **자격 증명 통일 규칙**: MQ_USER는 CLAUDE.md의 `{ROOT}` 값, MQ_PASSWORD는 `P@ssw0rd$`로 통일한다.
+- **자격 증명 통일 규칙**: MQ_USER는 AGENTS.md의 `{ROOT}` 값, MQ_PASSWORD는 `P@ssw0rd$`로 통일한다.
 - **MQ 포함 조건 엄수**: dev-plan.md 섹션 10-2에서 MQ 불필요로 판정된 경우 MQ 서비스를 임의로 추가하지 않는다.
 - **Cloud MQ 로컬 개발**: Cloud MQ는 docker-compose로 에뮬레이션이 어렵다. 로컬에서는 Self-hosted MQ(RabbitMQ/Kafka)를 대리로 사용하고, Spring Cloud Stream binder 교체로 운영 전환한다.
 - **Kafka 이미지**: `bitnami/kafka:3.7`을 사용한다. 최신 stable 버전은 Docker Hub에서 확인한다.

@@ -142,7 +142,7 @@ deploy:
   start_step: "Step 1"
 
   # Cloud 서비스: "AWS" | "Azure" | "GCP"
-  # design 단계에서 설정한 값을 자동 참조 (CLAUDE.md에서 읽음)
+  # design 단계에서 설정한 값을 자동 참조 (AGENTS.md에서 읽음)
   # 여기서 별도 설정 시 이 값 우선
   cloud: ""
 

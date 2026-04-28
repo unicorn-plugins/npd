@@ -2,11 +2,6 @@
 # Setup 스킬 실행 시 이 파일을 읽어 도구 인프라를 구성함
 
 mcp_servers:
-  - name: context7
-    description: "라이브러리 공식 문서 검색 및 코드 예시 제공"
-    config: mcp/context7.json
-    scope: user
-    required: false
 
 custom_tools:
   - name: create_repo

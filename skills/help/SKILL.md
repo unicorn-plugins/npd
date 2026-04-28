@@ -32,27 +32,25 @@ NPD 플러그인의 사용 가능한 명령어와 사용법을 즉시 출력함.
 | 명령어 | 설명 |
 |--------|------|
 | `/npd:prepare` | 로컬 개발 환경 사전준비 (기본 프로그램, Claude Code + OMC 설치 안내) |
-| `/npd:setup` | 플러그인 초기 설정 (MCP 서버 설치, 토큰 설정) |
 | `/npd:help` | 이 도움말 출력 |
 | `/npd:create` | 새 프로젝트 생성 (모노레포 + domain-expert 생성 + GitHub 레포) |
 | `/npd:plan` | 기획 단계 AI 협업 (PO·서비스기획자·아키텍트·도메인전문가·AI엔지니어) |
 | `/npd:design` | 설계 단계 AI 협업 (아키텍트·AI엔지니어) |
 | `/npd:develop` | 개발 단계 AI 협업 (백엔드·프론트엔드·AI엔지니어·QA) |
-| `/npd:deploy` | 배포 단계 AI 협업 (DevOps 엔지니어) |
-| `/npd:add-ext-skill` | 외부 플러그인 연동 스킬 추가 |
-| `/npd:remove-ext-skill` | 외부 플러그인 연동 스킬 제거 |
-| `/npd:ext-github-release-manager` | GitHub Release 문서 자동 생성·수정·삭제 및 구성 추천 |
+| `/npd:deploy` | 수동 배포 단계 AI 협업 (DevOps 엔지니어) |
+| `/npd:cicd` | 자동 배포 단계 AI 협업 (DevOps 엔지니어) |
+| `/npd:design-physical-architecture` | 물리 아키텍처 설계 |
 
 ### 권장 사용 순서
 
 ```
 0. /npd:prepare    → 로컬 개발 환경 사전준비
-1. /npd:setup      → 초기 설정
-2. /npd:create     → 프로젝트 생성
-3. /npd:plan       → 기획
-4. /npd:design     → 설계
-5. /npd:develop    → 개발
-6. /npd:deploy     → 배포
+1. /npd:create     → 프로젝트 생성
+2. /npd:plan       → 기획
+3. /npd:design     → 설계
+4. /npd:develop    → 개발
+5. /npd:deploy     → 수동 배포
+5. /npd:cicd       → 자동 배포
 ```
 
 ### 팁

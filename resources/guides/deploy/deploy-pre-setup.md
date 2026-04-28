@@ -9,7 +9,7 @@
 
 ## 1-1. CLOUD 판단
 
-프로젝트 루트 `CLAUDE.md`의 `## NPD 워크플로우 상태 > ### design` 섹션에서 `CLOUD` 값을 읽는다 (AWS / Azure / GCP).
+프로젝트 루트 `AGENTS.md`의 `## NPD 워크플로우 상태 > ### design` 섹션에서 `CLOUD` 값을 읽는다 (AWS / Azure / GCP).
 `CLOUD` 값이 없으면 사용자에게 ASK_USER로 질문한다.
 
 ---

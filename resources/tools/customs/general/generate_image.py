@@ -54,15 +54,15 @@ Examples:
 
     args = parser.parse_args()
 
-    # Load API key
+    # Load API key — `.env`는 호출 시점의 현재 작업 디렉토리(프로젝트 루트)에서 탐색
     if args.api_key:
         api_key = args.api_key
     else:
-        env_path = os.path.join('.', 'tools', '.env')
+        env_path = Path.cwd() / ".env"
         load_dotenv(env_path)
         api_key = os.getenv('GEMINI_API_KEY')
         if not api_key:
-            parser.error("GEMINI_API_KEY not found in .env file. Use --api-key to provide it.")
+            parser.error(f"GEMINI_API_KEY not found in {env_path}. Use --api-key to provide it.")
 
     # Get prompt
     if args.prompt:

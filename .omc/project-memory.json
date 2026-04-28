@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776486891614,
-  "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
+  "lastScanned": 1777362249173,
+  "projectRoot": "C:\\Users\\hiond\\plugins\\npd",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -36,62 +36,37 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776486891597,
+      "lastAccessed": 1777362249137,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1776486891598,
+      "fileCount": 9,
+      "lastAccessed": 1777362249138,
       "keyFiles": [
-        "add-ext-skill.md",
         "cicd.md",
         "create.md",
         "deploy.md",
-        "design-physical-architecture.md"
+        "design-physical-architecture.md",
+        "design.md"
       ]
     },
     "gateway": {
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1776486891598,
+      "lastAccessed": 1777362249139,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
-      ]
-    },
-    "gemini-workflows": {
-      "path": "gemini-workflows",
-      "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1776486891598,
-      "keyFiles": [
-        "add-ext-skill.md",
-        "cicd.md",
-        "create.md",
-        "deploy.md",
-        "design-physical-architecture.md"
-      ]
-    },
-    "output": {
-      "path": "output",
-      "purpose": null,
-      "fileCount": 4,
-      "lastAccessed": 1776486891599,
-      "keyFiles": [
-        "release-template-proposal.md",
-        "v0.0.2-release-notes.md",
-        "v0.2.0-release-notes.md",
-        "v1.0.0-release-notes.md"
       ]
     },
     "resources": {
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776486891599,
+      "lastAccessed": 1777362249139,
       "keyFiles": [
         "resource.md"
       ]
@@ -100,17 +75,137 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776486891599,
-      "keyFiles": []
-    },
-    "templates": {
-      "path": "templates",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1776486891600,
+      "lastAccessed": 1777362249139,
       "keyFiles": []
     }
   },
-  "hotPaths": [],
+  "hotPaths": [
+    {
+      "path": "skills\\plan\\SKILL.md",
+      "accessCount": 29,
+      "lastAccessed": 1777364013426,
+      "type": "file"
+    },
+    {
+      "path": "skills\\develop\\SKILL.md",
+      "accessCount": 29,
+      "lastAccessed": 1777371919347,
+      "type": "file"
+    },
+    {
+      "path": "skills\\deploy\\SKILL.md",
+      "accessCount": 12,
+      "lastAccessed": 1777375062679,
+      "type": "file"
+    },
+    {
+      "path": "skills\\cicd\\SKILL.md",
+      "accessCount": 7,
+      "lastAccessed": 1777382604264,
+      "type": "file"
+    },
+    {
+      "path": "skills\\design\\SKILL.md",
+      "accessCount": 6,
+      "lastAccessed": 1777364196002,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\product-verify.md",
+      "accessCount": 3,
+      "lastAccessed": 1777371877133,
+      "type": "file"
+    },
+    {
+      "path": "resources\\tools\\customs\\general\\generate_image.py",
+      "accessCount": 2,
+      "lastAccessed": 1777367006428,
+      "type": "file"
+    },
+    {
+      "path": "resources\\tools\\generate-image.md",
+      "accessCount": 2,
+      "lastAccessed": 1777367011625,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\phase0-presetup.md",
+      "accessCount": 1,
+      "lastAccessed": 1777369431624,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\conditional-branching-protocol.md",
+      "accessCount": 1,
+      "lastAccessed": 1777369469613,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\test-browser-auto.md",
+      "accessCount": 1,
+      "lastAccessed": 1777369530688,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\test-browser-manual.md",
+      "accessCount": 1,
+      "lastAccessed": 1777369575303,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\develop\\dev-complete.md",
+      "accessCount": 1,
+      "lastAccessed": 1777369673184,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\phase0-deploy-mode.md",
+      "accessCount": 1,
+      "lastAccessed": 1777374732086,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\deploy-env-info.md",
+      "accessCount": 1,
+      "lastAccessed": 1777374817397,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\nginx-proxy-setup.md",
+      "accessCount": 1,
+      "lastAccessed": 1777374876919,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\deploy\\vm-git-sync.md",
+      "accessCount": 1,
+      "lastAccessed": 1777374920408,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\cicd-runinfo-templates.md",
+      "accessCount": 1,
+      "lastAccessed": 1777382222515,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\phase0-presetup.md",
+      "accessCount": 1,
+      "lastAccessed": 1777382308059,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\phase2-argocd-setup.md",
+      "accessCount": 1,
+      "lastAccessed": 1777382363577,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\cicd\\phase3-pipeline-creation.md",
+      "accessCount": 1,
+      "lastAccessed": 1777382417309,
+      "type": "file"
+    }
+  ],
   "userDirectives": []
 }
