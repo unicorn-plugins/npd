@@ -49,6 +49,10 @@ capabilities:
       - 고객 경험 조사를 수행하는 사람
       - 시장 조사를 수행하는 사람
 
+forbidden_actions:
+  - file_delete
+  - code_execute
+
 handoff:
   - target: service-planner
     when: "MVP 범위 확정 후 사용자 경험 설계, 고객 분석, 유저스토리 작성이 필요한 경우"

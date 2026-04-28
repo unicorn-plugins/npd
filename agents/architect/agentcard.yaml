@@ -2,6 +2,23 @@ name: architect
 version: "0.2.0"
 tier: HIGH
 
+# sub_roles: 단계별 tier 차등 분기를 위한 hook
+# SKILL.md에서 sub_role을 명시 호출하면 tier가 sub_role의 값으로 오버라이드됨
+# 미명시 시 최상위 `tier` 값(HIGH)이 적용됨
+sub_roles:
+  design_lead:
+    description: "아키텍처 패턴 선정·논리/시퀀스/API/클래스/데이터 설계 주도"
+    tier: HIGH
+  es_facilitator:
+    description: "이벤트 스토밍(DDD) 퍼실리테이션 + 도메인 모델링"
+    tier: HIGH
+  highlevel_definer:
+    description: "HighLevel 아키텍처 정의 (장별 통합 보고서)"
+    tier: HIGH
+  review_participant:
+    description: "타 단계 리뷰·투표·발산 참여 (가벼운 작업, 비용 절감)"
+    tier: MEDIUM
+
 persona:
   profile:
     name: "홍길동"
@@ -46,6 +63,9 @@ capabilities:
       - 직접 코드를 구현하는 개발자
       - 비즈니스 우선순위를 결정하는 사람
       - UI/UX 디자인을 담당하는 사람
+
+forbidden_actions:
+  - file_delete
 
 handoff:
   - target: backend-developer

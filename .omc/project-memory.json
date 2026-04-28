@@ -117,6 +117,12 @@
       "type": "file"
     },
     {
+      "path": "agents\\architect\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1777383776526,
+      "type": "file"
+    },
+    {
       "path": "resources\\tools\\customs\\general\\generate_image.py",
       "accessCount": 2,
       "lastAccessed": 1777367006428,
@@ -126,6 +132,42 @@
       "path": "resources\\tools\\generate-image.md",
       "accessCount": 2,
       "lastAccessed": 1777367011625,
+      "type": "file"
+    },
+    {
+      "path": "gateway\\runtime-mapping.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777383570863,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777383595431,
+      "type": "file"
+    },
+    {
+      "path": "agents\\ai-engineer\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777383658201,
+      "type": "file"
+    },
+    {
+      "path": "agents\\domain-expert\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777383674186,
+      "type": "file"
+    },
+    {
+      "path": "agents\\product-owner\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777383690581,
+      "type": "file"
+    },
+    {
+      "path": "agents\\service-planner\\agentcard.yaml",
+      "accessCount": 2,
+      "lastAccessed": 1777383712145,
       "type": "file"
     },
     {
