@@ -34,37 +34,37 @@ tool_mapping:
     - type: mcp
       server: "playwright"
       tools:
-        - "mcp__pw__browser_navigate"
-        - "mcp__pw__browser_navigate_back"
-        - "mcp__pw__browser_snapshot"
-        - "mcp__pw__browser_take_screenshot"
-        - "mcp__pw__browser_resize"
-        - "mcp__pw__browser_click"
-        - "mcp__pw__browser_type"
-        - "mcp__pw__browser_fill_form"
-        - "mcp__pw__browser_select_option"
-        - "mcp__pw__browser_press_key"
-        - "mcp__pw__browser_hover"
-        - "mcp__pw__browser_drag"
-        - "mcp__pw__browser_drop"
-        - "mcp__pw__browser_file_upload"
-        - "mcp__pw__browser_handle_dialog"
-        - "mcp__pw__browser_wait_for"
-        - "mcp__pw__browser_evaluate"
-        - "mcp__pw__browser_run_code"
-        - "mcp__pw__browser_console_messages"
-        - "mcp__pw__browser_network_requests"
-        - "mcp__pw__browser_tabs"
-        - "mcp__pw__browser_close"
+        - "mcp__playwright__browser_navigate"
+        - "mcp__playwright__browser_navigate_back"
+        - "mcp__playwright__browser_snapshot"
+        - "mcp__playwright__browser_take_screenshot"
+        - "mcp__playwright__browser_resize"
+        - "mcp__playwright__browser_click"
+        - "mcp__playwright__browser_type"
+        - "mcp__playwright__browser_fill_form"
+        - "mcp__playwright__browser_select_option"
+        - "mcp__playwright__browser_press_key"
+        - "mcp__playwright__browser_hover"
+        - "mcp__playwright__browser_drag"
+        - "mcp__playwright__browser_drop"
+        - "mcp__playwright__browser_file_upload"
+        - "mcp__playwright__browser_handle_dialog"
+        - "mcp__playwright__browser_wait_for"
+        - "mcp__playwright__browser_evaluate"
+        - "mcp__playwright__browser_run_code"
+        - "mcp__playwright__browser_console_messages"
+        - "mcp__playwright__browser_network_requests"
+        - "mcp__playwright__browser_tabs"
+        - "mcp__playwright__browser_close"
 
   github_create_repo:
     - type: custom
-      source: "resources/tools/create_repo/"
+      source: "resources/tools/customs/git/create_repo.py"
       tools: ["create_repo"]
 
   mermaid_check:
     - type: custom
-      source: "resources/tools/check_mermaid/"
+      source: "resources/tools/customs/diagram/check-mermaid.sh"
       tools: ["check_mermaid"]
 
 # ─────────────────────────────────────────────

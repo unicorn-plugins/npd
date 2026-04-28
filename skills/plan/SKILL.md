@@ -39,6 +39,11 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 | service-planner | `npd:service-planner:service-planner` |
 | architect | `npd:architect:architect` |
 | ai-engineer | `npd:ai-engineer:ai-engineer` |
+| domain-expert | `npd:domain-expert:domain-expert` |
+| backend-developer | `npd:backend-developer:backend-developer` |
+| frontend-developer | `npd:frontend-developer:frontend-developer` |
+| qa-engineer | `npd:qa-engineer:qa-engineer` |
+| devops-engineer | `npd:devops-engineer:devops-engineer` |
 
 ### 프롬프트 조립
 

@@ -56,6 +56,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 
 | 에이전트 | FQN |
 |----------|-----|
+| architect | `npd:architect:architect` |
 | backend-developer | `npd:backend-developer:backend-developer` |
 | frontend-developer | `npd:frontend-developer:frontend-developer` |
 | ai-engineer | `npd:ai-engineer:ai-engineer` |
@@ -356,7 +357,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
 
 결정된 테스트 모드를 `AGENTS.md`의 `### develop > 지원 변수` 섹션에 `TEST_MODE: {AUTO|MANUAL}` 로 기록한다.
 
-##### Step 1-2. 자동 테스트 모드 수행 → Agent: qa-engineer + (수정 시) backend/frontend/ai-engineer
+##### Step 1-2. 자동 테스트 모드 수행 → Agent: qa-engineer + (수정 시) backend-developer, frontend-developer, ai-engineer
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/develop/test-browser-auto.md` ← **필수 로드**
 - **수행 조건**: `TEST_MODE = AUTO`인 경우만
@@ -366,7 +367,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
   - `e2e/tests/scenarios.spec.ts`
   - `.temp/iter-{N}/tc-*.png` (Step 2 입력)
 
-##### Step 1-3. 수동 테스트 모드 수행 → Agent: backend/frontend/ai-engineer (이슈 수정 시)
+##### Step 1-3. 수동 테스트 모드 수행 → Agent: backend-developer, frontend-developer, ai-engineer (이슈 수정 시)
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/develop/test-browser-manual.md` ← **필수 로드**
 - **수행 조건**: `TEST_MODE = MANUAL`인 경우만

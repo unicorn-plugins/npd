@@ -51,6 +51,3 @@ handoff:
   - target: backend-developer
     when: "배포 중 애플리케이션 코드 수정이 필요한 경우"
     reason: "백엔드 수정 전문가에게 위임"
-  - target: skill
-    when: "배포 완료 또는 배포 실패 시"
-    reason: "스킬에 결과 보고"

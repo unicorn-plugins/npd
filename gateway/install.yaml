@@ -6,10 +6,10 @@ mcp_servers:
 custom_tools:
   - name: create_repo
     description: "GitHub REST API 기반 원격 저장소 생성 및 초기 푸시"
-    source: resources/tools/create_repo/
+    source: resources/tools/customs/git/create_repo.py
     required: false
 
   - name: check_mermaid
     description: "Docker 기반 Mermaid 다이어그램 문법 검증"
-    source: resources/tools/check_mermaid/
+    source: resources/tools/customs/diagram/check-mermaid.sh
     required: false
