@@ -404,8 +404,8 @@ function cy { cc-yolo @args }
 ## NPD 플러그인 추가
 ### 작업 디렉토리 생성 및 NPD 플러그인 다운로드 
 ```
-mkdir -p ~/workspace
-cd ~/workspace
+mkdir -p ~/plugins
+cd ~/plugins
  
 git clone https://github.com/unicorn-plugins/npd.git
 cd npd 
