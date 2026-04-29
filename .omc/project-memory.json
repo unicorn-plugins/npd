@@ -82,32 +82,32 @@
   "hotPaths": [
     {
       "path": "skills\\plan\\SKILL.md",
-      "accessCount": 29,
-      "lastAccessed": 1777364013426,
+      "accessCount": 31,
+      "lastAccessed": 1777425227411,
       "type": "file"
     },
     {
       "path": "skills\\develop\\SKILL.md",
-      "accessCount": 29,
-      "lastAccessed": 1777371919347,
+      "accessCount": 31,
+      "lastAccessed": 1777425228811,
       "type": "file"
     },
     {
       "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 12,
-      "lastAccessed": 1777375062679,
+      "accessCount": 14,
+      "lastAccessed": 1777425228898,
       "type": "file"
     },
     {
       "path": "skills\\cicd\\SKILL.md",
-      "accessCount": 7,
-      "lastAccessed": 1777382604264,
+      "accessCount": 9,
+      "lastAccessed": 1777425229041,
       "type": "file"
     },
     {
       "path": "skills\\design\\SKILL.md",
-      "accessCount": 6,
-      "lastAccessed": 1777364196002,
+      "accessCount": 8,
+      "lastAccessed": 1777425227862,
       "type": "file"
     },
     {
@@ -168,6 +168,18 @@
       "path": "agents\\service-planner\\agentcard.yaml",
       "accessCount": 2,
       "lastAccessed": 1777383712145,
+      "type": "file"
+    },
+    {
+      "path": "skills\\prepare\\SKILL.md",
+      "accessCount": 2,
+      "lastAccessed": 1777425220277,
+      "type": "file"
+    },
+    {
+      "path": "skills\\create\\SKILL.md",
+      "accessCount": 2,
+      "lastAccessed": 1777425226375,
       "type": "file"
     },
     {

@@ -44,7 +44,6 @@ claude plugin update npd
 
 ```
 0. /npd:prepare  → 로컬 개발 환경 사전준비 (기본 프로그램, Claude Code + OMC 설치 안내)
-1. /npd:setup    → MCP 서버 설치, 환경변수 설정
 2. /npd:create   → 새 프로젝트 생성 (모노레포 + domain-expert + GitHub 레포)
 3. /npd:plan     → 기획 단계 (PO·서비스기획자·아키텍트·도메인전문가·AI엔지니어 협업)
 4. /npd:design   → 설계 단계 (아키텍트·AI엔지니어 협업)
@@ -55,19 +54,17 @@ claude plugin update npd
 
 ### 명령어 목록
 
-| 명령어 | 유형 | 설명 |
-|--------|------|------|
-| `/npd:prepare` | Setup | 로컬 개발 환경 사전준비 (기본 프로그램, Claude Code + OMC 설치 안내) |
-| `/npd:setup` | Setup | 플러그인 초기 설정 (MCP 서버, 환경변수) |
-| `/npd:help` | Utility | 사용법 안내 |
-| `/npd:create` | Core | 새 프로젝트 생성 (모노레포 + domain-expert + GitHub 레포) |
-| `/npd:plan` | Core | 기획 단계 AI 협업 |
-| `/npd:design` | Orchestrator | 설계 단계 AI 협업 |
-| `/npd:develop` | Orchestrator | 개발 단계 AI 협업 |
-| `/npd:deploy` | Orchestrator | 배포 단계 AI 협업 |
-| `/npd:cicd` | Orchestrator | CI/CD 파이프라인 구축 단계 AI 협업 |
-| `/npd:add-ext-skill` | Utility | 외부 플러그인 연동 스킬 추가 |
-| `/npd:remove-ext-skill` | Utility | 외부 플러그인 연동 스킬 제거 |
+| 명령어 | 설명 |
+|--------|------|
+| `/npd:prepare` | 로컬 개발 환경 사전준비 (기본 프로그램, Claude Code + OMC 설치 안내) |
+| `/npd:help` | 이 도움말 출력 |
+| `/npd:create` | 새 프로젝트 생성 (모노레포 + domain-expert 생성 + GitHub 레포) |
+| `/npd:plan` | 기획 단계 AI 협업 (PO·서비스기획자·아키텍트·도메인전문가·AI엔지니어) |
+| `/npd:design` | 설계 단계 AI 협업 (아키텍트·AI엔지니어) |
+| `/npd:develop` | 개발 단계 AI 협업 (백엔드·프론트엔드·AI엔지니어·QA) |
+| `/npd:deploy` | 수동 배포 단계 AI 협업 (DevOps 엔지니어) |
+| `/npd:cicd` | 자동 배포 단계 AI 협업 (DevOps 엔지니어) |
+| `/npd:design-physical-architecture` | 물리 아키텍처 설계 |
 
 ### 시작 하기
 1.개발할 프로젝트 디렉토리 생성    
@@ -87,12 +84,17 @@ Cursor 실행
 cursor .
 ```
   
-3.프로젝트 초기화 명령 수행    
+3.로컬 개발 환경 사전준비 체크 
+```
+/npd:prepare
+```
+
+4. 프로젝트 초기화 명령 수행    
 ```
 /npd:create
 ```
 
-4.기획-설계-개발-배포 스킬 수행    
+5.기획-설계-개발-배포 스킬 수행    
 이후 각 단계 명령어를 실행하여 작업 수행      
   
 ---
@@ -111,6 +113,29 @@ cursor .
 | `frontend-developer` | MEDIUM | 개발 | 프론트엔드 개발 |
 | `qa-engineer` | MEDIUM | 개발 | 테스트 및 버그 리포트 |
 | `devops-engineer` | MEDIUM | 배포 | Docker·K8s·CI/CD |
+
+---
+
+## 워크플로우 
+각 이미지를 새로운 탭에 열어 확대하여 보십시오.  
+
+- [사전준비 체크](docs/workflow-images/01.prepare.png)
+- [프로젝트 초기화](docs/workflow-images/02.create.png)
+- [기획](docs/workflow-images/03.plan.png)
+- [설계](docs/workflow-images/04.design.png)
+- 개발: 
+  - [전체](docs/workflow-images/05.develop.png)
+  - [개발키트(설계서 요약) 생성](docs/workflow-images/05.develop-1.devkit.png)
+  - [개발키트 생성](docs/workflow-images/05.develop-2.prepare.png)
+  - [백엔드/프론트엔드/AI 개발 및 단위 테스트](docs/workflow-images/05.develop-3.dev.png)
+  - [백엔드/프론트엔드/AI 통합 및 시스템 테스트](docs/workflow-images/05.develop-4.integration.png)
+  - [E2E 테스트 및 완료](docs/workflow-images/05.develop-5.test.png)
+- [수동배포](docs/workflow-images/06.deploy.png)
+- 자동배포: 
+  - [전체](docs/workflow-images/07.cicd.png)
+  - [도구셋업](docs/workflow-images/07.cicd-1.setup_tools.png)
+  - [매니페스트 레포지토리 생성](docs/workflow-images/07.cicd-2.manifest_repo.png)
+  - [파이프라인 개발](docs/workflow-images/07.cicd-3.pipeline.png)
 
 ---
 
