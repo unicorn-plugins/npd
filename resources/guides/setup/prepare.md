@@ -21,7 +21,7 @@
     - [설치확인](#설치확인)
     - [참고](#참고)
       - [npm 버전 EOS](#npm-버전-eos)
-    - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
+      - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
   - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
   - [AI툴 설치](#ai툴-설치)
   - [필수 MCP 설치](#필수-mcp-설치)
@@ -280,7 +280,7 @@ npm cache clean --force
 claude install 
 ```
 
-### Claude Desktop에 Claude Code 추가   
+#### Claude Desktop에 Claude Code 추가   
 2026년 4월 15일부터 Claude Desktop에 Claude Code가 추가되어 훨씬 편한 UI/UX로 사용할 수 있게 됨  
 아래 [Claude CoWork 설치](#ai툴-설치)를 참고하여 Claude CoWork를 설치하면 자동으로 설치됩니다.   
 ![](images/2026-04-16-13-22-32.png)   
