@@ -138,13 +138,16 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
   - 프로젝트 AGENTS.md의 `## MVP > MVP 주제` 섹션에 확정된 MVP 주제를 기술 
   - `{NPD_PLUGIN_DIR}/resources/guides/plan/domain-context-guide.md`의 가이드에 따라 `{PROJECT_DIR}/.npd/domain-context.yaml`에 도메인 특화 정보 생성
   - 프로젝트 AGENTS.md의 멤버 중 `domain-expert`의 성향과 경력을 `{PROJECT_DIR}/.npd/domain-context.yaml`을 참고하여 재작성 
+  - `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
   
 #### Step 2. 고객 분석 → Agent: service-planner
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/02-customer-analysis-guide.md`
 - **TASK**: JTBD 프레임워크로 타겟 고객 유형을 정의하고 사용자 세그먼트(3-5개)별 인구통계·행동 패턴·현재 상황, 주요 Job과 원하는 결과를 도출
 - **EXPECTED OUTCOME**: `docs/plan/define/고객분석.md` — 타겟 고객 유형(JTBD 형식), 사용자 세그먼트 3-5개, Job to be Done
-- **POST-ACTION**: 프로젝트 AGENTS.md의 `## MVP 주제` 섹션 다음에 `## 고객유형` 섹션을 추가하고, 선정된 고객유형과 최우선 고객 세그먼트를 기록
+- **POST-ACTION**: 
+  - 프로젝트 AGENTS.md의 `## MVP 주제` 섹션 다음에 `## 고객유형` 섹션을 추가하고, 선정된 고객유형과 최우선 고객 세그먼트를 기록
+  - `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트 
 
 #### Step 3. 시장 조사 → Agent: domain-expert
 
@@ -153,6 +156,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/03-market-research-guide.md`
 - **TASK**: MVP 주제와 타겟 고객에 대해 시장 규모(TAM/SAM/SOM), 경쟁 환경(3-5개 경쟁사), 고객 트렌드, 규제 환경, SWOT 분석, 시장 진입 전략을 포함한 철저한 시장 조사를 수행
 - **EXPECTED OUTCOME**: `docs/plan/define/시장조사.md` — 시장 규모·성장, 경쟁 환경, 고객 트렌드, 규제 환경, SWOT, 시장 진입 전략
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -163,6 +167,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/04-customer-journey-stages-guide.md`
 - **TASK**: MVP 주제와 고객유형을 기반으로 현재 고객이 겪는 경험 단계(5-7개)를 문제 인식부터 해결/관리까지 순차적으로 정의
 - **EXPECTED OUTCOME**: `docs/plan/define/고객경험단계.md` — 고객경험 단계(화살표 연결), 단계별 설명(주요 행동·긍정/부정 느낌·Pain Points), 단계 도출 근거
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 고객 경험 조사 → Agent: service-planner × 3 병렬 
 
@@ -200,6 +205,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 
 - **TASK**: Step 2-3에서 생성된 개별 인터뷰 결과를 종합 분석하여 핵심 인사이트를 도출
 - **EXPECTED OUTCOME**: `docs/plan/define/고객경험인터뷰결과취합.md` — 인터뷰 종합 분석(핵심 인사이트·Pain Points·Needs·기대 가치)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **실행 지침**: Step 2-1, 2-2, 2-3을 `Agent(run_in_background=true)`로 동시에 실행합니다. 3개 모두 완료되면 2-D를 순차 실행합니다. 모든 서브스텝이 완료되어야 Step 2 완료로 간주합니다.
 
@@ -208,6 +214,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/06-journey-mapping-guide.md`
 - **TASK**: 고객경험 단계를 X축으로, 경험 조사 데이터를 기반으로 페르소나 정의·단계별 행동/생각/감정/터치포인트/Pain Points/Gain Points·감정 곡선·핵심 인사이트·기회 영역이 포함된 User Journey Map을 작성
 - **EXPECTED OUTCOME**: `docs/plan/define/유저저니맵.md` — 페르소나·여정 맵 상세·감정 곡선·핵심 인사이트·기회 영역 / `docs/plan/define/유저저니맵.svg` — 시각화된 여정 맵
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 4. 문제 가설 정의 → 전체 팀 협업 (발산-수렴-선택 패턴) 
 
@@ -282,6 +289,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 
 - **TASK**: 수렴된 후보 중 고객·회사 각각 가장 중요한 비즈니스 가치 3개 이하를 측정 가능한 지표와 연결하여 선정
 - **EXPECTED OUTCOME**: `docs/plan/define/비즈니스가치.md` — 고객/회사 측면 비즈니스 가치(각 3개 이하, 선정 근거 포함)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **전체 산출물**: `문제가설.md` (피보팅 최종본), `문제검증인터뷰결과.md`, `문제검증인터뷰결과취합.md`, `비즈니스가치.md`
 
@@ -290,6 +298,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/08-direction-setting-guide.md`
 - **TASK**: 검증된 문제들을 영향력·빈도·심각도·근본성·해결가능성 5가지 기준으로 평가하여 킹핀 문제를 선정하고, `'<고객유형>는 <목적>을 위하여 <원하는 것>이 필요하다.'` 형식의 Needs Statement로 방향성을 정의
 - **EXPECTED OUTCOME**: `docs/plan/think/킹핀문제.md` — 검증된 문제 리스트·인과관계·5가지 기준 평가·킹핀 문제 선정 / `docs/plan/think/문제해결방향성.md` — Needs Statement·상세 설명(고객유형·목적·원하는 것)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -301,6 +310,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **TASK**: 모든 팀원(9명)이 SCAMPER·Steal & Synthesize 기법으로 각자 Big Idea 3개, Little Win Idea 2개, Crazy Idea 1개를 도출(병렬)한 후, service-planner가 유사도 평가표(기능 70%/경험 30%)를 작성하여 유사도 0.7 이상 아이디어를 합쳐 솔루션 후보를 수렴
 - **EXPECTED OUTCOME**: `docs/plan/think/솔루션탐색.md` — 팀원별 아이디어 표 / `docs/plan/think/솔루션후보.md` — 수렴된 솔루션 후보(각 후보 상세 설명)
 - **실행**: 솔루션 탐색은 9개 에이전트를 `Agent(run_in_background=true)`로 동시 실행, 솔루션 수렴은 service-planner가 순차 수행
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 솔루션 선정 → Agent: product-owner(리드), service-planner, domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer
 
@@ -308,6 +318,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **TASK**: 모든 팀원(9명)이 비즈니스 가치(B) 3표·실현 가능성(F) 3표를 투표(병렬)한 후, product-owner가 결과를 집계하고 X축=실현가능성/Y축=비즈니스 영향도의 2x2 매트릭스로 시각화하여 핵심 솔루션 3개 이하를 선정
 - **EXPECTED OUTCOME**: `docs/plan/think/솔루션평가.md` — 투표 결과 집계표 / `docs/plan/think/솔루션우선순위평가.svg` — 우선순위 매트릭스 SVG / `docs/plan/think/핵심솔루션.md` — 선정된 핵심 솔루션(3개 이하, 상세 설명)
 - **실행**: 투표는 9개 에이전트를 `Agent(run_in_background=true)`로 동시 실행, 집계 및 선정은 product-owner가 순차 수행
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -318,12 +329,14 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/11-business-modeling-guide.md`
 - **TASK**: Lean Canvas 프레임워크로 9개 영역(Problem·Customer Segments·UVP·Solution·Channels·Revenue Streams·Cost Structure·Key Metrics·Unfair Advantage)과 경쟁 분석·GTM 전략·3개년 재무 계획(손익계산서·BEP)을 포함한 비즈니스 모델을 설계
 - **EXPECTED OUTCOME**: `docs/plan/think/비즈니스모델.md` — Lean Canvas 9영역 전체·가격 전략·수익 전망·비용 구조·Key Metrics·경쟁 매트릭스·GTM 전략·재무 계획
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 발표자료 스크립트 → Agent: service-planner
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/12-presentation-guide.md`
 - **TASK**: 비즈니스 모델을 기반으로 린캔버스 9영역·경쟁 분석·GTM 전략·재무 계획을 10-15장으로 구성하고 장표별 핵심 메시지 3개 이하·비주얼 제안을 포함한 발표자료 스크립트를 작성
 - **EXPECTED OUTCOME**: `docs/plan/think/서비스기획서스크립트.md` — 10-15장 슬라이드 스크립트(각 장표 핵심 메시지 3개 이하, 장표 간 `---` 구분, 비주얼 제안 포함)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -359,6 +372,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **TASK**: 팀 리뷰 의견을 검토하고 타당한 의견을 반영하여 이벤트 스토밍 산출물을 업데이트
 - **EXPECTED OUTCOME**: 기존 `docs/plan/think/es/*.puml` 파일 업데이트(반영 사항 주석 추가), `docs/plan/think/es/리뷰반영결과.md` — 반영/미반영 판단 근거(ai-engineer AI 기회 발굴 의견 별도 섹션)
 - **CONTEXT**: `docs/plan/think/es/리뷰의견.md`, 기존 이벤트 스토밍 산출물
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert
 
@@ -386,12 +400,14 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **TASK**: 검토 의견을 반영하여 유저스토리를 업데이트하고 반영/미반영 판단 근거를 기록
 - **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` 업데이트(기존 파일 덮어쓰기), `docs/plan/design/userstory-리뷰반영결과.md` — 반영/미반영 판단 근거(최종 UFR 최소 20개 확인)
 - **CONTEXT**: `docs/plan/design/userstory-리뷰의견.md`, 기존 유저스토리
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. UI/UX 설계 → Agent: service-planner
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/15-uiux-design-guide.md`
 - **TASK**: 유저스토리를 기반으로 디자인 원칙·정보 아키텍처·사용자 플로우·와이어프레임(최소 5개 화면)·컴포넌트 라이브러리·접근성(WCAG 2.1 AA)·스타일 가이드·인터랙션 디자인을 포함한 UI/UX 디자인 명세를 작성 (레퍼런스 분석 결과 있는 경우 디자인 톤·레이아웃·컴포넌트 스타일 반영)
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/uiux.md` — UI/UX 디자인 명세 전체 / `docs/plan/design/uiux/style-guide.md` — 스타일 가이드
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ##### Step 3-1. 디자인 레퍼런스 수집
 
@@ -420,6 +436,8 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
    - `docs/plan/design/uiux/references/레퍼런스분석.md`에 분석 결과 저장
    - 이 파일을 후속 UI/UX 설계의 CONTEXT에 포함
 
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+
 ---
 
 ### Phase 6: 프로토타입 (Prototype)
@@ -437,7 +455,8 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/16-prototype-development-guide.md`
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/` 디렉토리 — `common.css`·`common.js`·`{2자리번호}-{한글화면명}.html`·`테스트결과.md`
-
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+  
 ##### Step 1-1. 공통 파일 개발 (순차)
 
 - **TASK**: 스타일가이드를 기반으로 CSS 변수·Mobile First 레이아웃·접근성 유틸리티가 포함된 `common.css`와 Web Components 공통 UI·샘플 데이터·화면 전환·localStorage 유틸리티가 포함된 `common.js`를 개발
@@ -504,11 +523,14 @@ Step 1-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통
 3. Playwright로 수정된 항목만 재테스트
 4. 모든 항목 통과 시 완료, 미통과 시 1번으로 복귀
 
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+
 #### Step 2. 사용자 플로우 프리젠테이션 → Agent: frontend-developer 
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/17-flow-presentation-guide.md`
 - **TASK**: Playwright로 각 프로토타입 화면을 스크린샷 촬영(일련번호+한글 자막 오버레이)하고, 테스트결과.md의 화면간 연결성 데이터를 분석하여 주요 플로우를 도출한 후, 3단 레이아웃(좌측 스텝 리스트/중앙 폰 프레임/우측 나레이션)의 인터랙티브 HTML 프리젠테이션을 개발
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/screenshots/{번호}-{화면명}.png` — 자막 포함 화면별 스크린샷 / `docs/plan/design/uiux/prototype/flow-script.html` — 사용자 플로우 인터랙티브 프리젠테이션
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. 기획 완료 보고
 

@@ -161,6 +161,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 - **TASK**: 기획 산출물과 기술스택을 기반으로 패턴 후보를 정량 평가하고 MVP→확장→고도화 로드맵을 수립
   - **AI 패턴 병렬 평가**: ai-engineer가 AI 서비스에 필요한 패턴(비동기 통신, Circuit Breaker, Cache-Aside, Rate Limiting 등)의 적합성을 평가하고 AI 관점의 가중치를 제시. architect와 병렬 수행
 - **EXPECTED OUTCOME**: `docs/design/pattern-definition.md` (패턴 평가 매트릭스, Mermaid 다이어그램, Phase별 로드맵)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 아키텍처 패턴 리뷰 → Agent: product-owner + backend-developer (병렬)
 
@@ -212,6 +213,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
   3. 심각도 '중간' 이하만 있으면 → architect 에이전트가 반영 후 다음 단계 진행
   4. 모두 승인이면 → 다음 단계 진행
 - **EXPECTED OUTCOME**: 리뷰 반영 완료된 `docs/design/pattern-definition.md`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. 논리 아키텍처 설계 → Agent: architect + ai-engineer (병렬)
 
@@ -219,6 +221,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 - **TASK**: 선정된 아키텍처 패턴 기반으로 서비스 간 관계·통신 전략·데이터 흐름을 설계하고 Context Map 스타일 Mermaid 다이어그램 작성
   - **AI 서비스 병렬 설계**: ai-engineer가 AI 서비스 식별·경계·통신 방식·폴백 전략을 설계. architect와 병렬 수행 (가이드의 2.2 AI 서비스 아키텍처 설계 참조)
 - **EXPECTED OUTCOME**: `docs/design/logical-architecture.md`, `docs/design/logical-architecture.mmd`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -231,6 +234,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
   - **외부 시퀀스 AI 검토**: 설계 완료 후 ai-engineer가 AI Pipeline 서비스 참여자 포함 여부 및 AI 호출 흐름 표현을 검토
   - **내부 시퀀스 AI 병렬 설계**: ai-engineer가 AI Pipeline 서비스(Python/FastAPI)의 내부 시퀀스(Router→PromptBuilder→LLMClient→ResponseParser)를 직접 설계. architect와 병렬 수행
 - **EXPECTED OUTCOME**: `docs/design/sequence/outer/{플로우명}.puml` (플로우별), `docs/design/sequence/inner/{서비스명}-{시나리오}.puml` (서비스-시나리오별)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. API 설계 → Agent: architect + ai-engineer (병렬)
 
@@ -239,6 +243,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
   - **Phase 0 접점 계약**: 병렬 작업 시작 전 architect와 ai-engineer가 서비스 간 API 스키마(요청/응답 JSON, 에러코드)를 합의
   - **AI API 병렬 설계**: ai-engineer가 AI Pipeline 서비스의 API를 직접 설계. architect와 병렬 수행
 - **EXPECTED OUTCOME**: `docs/design/api/{service-name}-api.yaml` (서비스별)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. 클래스 설계 → Agent: architect + ai-engineer (병렬)
 
@@ -288,6 +293,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
   - **Phase 0 접점 계약**: 병렬 작업 시작 전 architect와 ai-engineer가 서비스 간 인터페이스를 합의
   - **AI 클래스 병렬 설계**: ai-engineer가 AI Pipeline 서비스(Python/FastAPI)의 클래스를 직접 설계. architect와 병렬 수행
 - **EXPECTED OUTCOME**: `docs/design/class/common-base.puml`, `docs/design/class/{service-name}.puml`, `docs/design/class/{service-name}-simple.puml`, `docs/design/class/package-structure.md`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 4. 데이터 설계 → Agent: architect
 
@@ -295,6 +301,7 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 - **TASK**: 클래스 설계 기반으로 서비스별 DB 스키마·ERD·Redis 캐시 설계를 병렬 수행하고 PlantUML 문법 검사 실행
   - **AI 검토**: 설계 완료 후 ai-engineer가 AI 응답 캐시(Redis 키 패턴, TTL) 설계를 검토
 - **EXPECTED OUTCOME**: `docs/design/database/{service-name}.md`, `docs/design/database/{service-name}-erd.puml`, `docs/design/database/{service-name}-schema.md`, `docs/design/database/cache-db-design.md`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -318,12 +325,14 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
     - **qa-engineer**: 12장(품질 속성 구현 전략)
     - **ai-engineer**: 9장(AI/ML 아키텍처 — AI 서비스/모델 매핑, 프롬프트 관리 전략, 비용/성능 최적화)
 - **EXPECTED OUTCOME**: `docs/design/high-level-architecture.md` (전체 아키텍처 종합, 각 산출물 참조 경로, ADR)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. AI 서비스 설계 → Agent: ai-engineer
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/design/ai-service-design.md`
 - **TASK**: 핵심 솔루션의 AI 활용 기회를 우선순위화하고 LLM API 연동·프롬프트 설계·모델 선정·RAG·Function Calling·MCP·비용 최적화·AI 서비스 아키텍처를 설계
 - **EXPECTED OUTCOME**: `docs/design/ai-service-design.md` (AI 활용 기회 목록, 엔드포인트·프롬프트 설계, 모델 선정 근거, RAG/FC/MCP 설계, 비용·성능 최적화 전략, 아키텍처 다이어그램)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -368,6 +377,8 @@ Java 패키지 네이밍에 필요한 정보를 사용자에게 확인하고 프
 `/npd:develop` 으로 개발을 시작하세요.
 ```
 
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+ 
 ---
 
 ## MUST 규칙

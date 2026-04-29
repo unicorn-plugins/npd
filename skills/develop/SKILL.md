@@ -200,6 +200,7 @@ Step 1은 두 단계로 구성된다:
   - `docs/develop/dev-plan.md` (확장된 통합 맥락)
   - `test/design-contract/*.spec.ts` (행위 계약 참고 자료 — 백엔드 구현 시 분기 누락 방지용, 실행 불요)
 - **SKIP 조건 결정**: AI 서비스 설계서 미존재 시, AI 관련 test spec 생성 건너뜀
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **이후 모든 Step의 입력**:
 > - `docs/develop/dev-plan.md` (통합 맥락)
@@ -215,6 +216,7 @@ Step 1은 두 단계로 구성된다:
 - **TASK**: Gradle Wrapper 생성 + 멀티모듈 build.gradle 구성 + 공통 모듈 개발
 - **EXPECTED OUTCOME**: `gradlew`, `gradlew.bat`, `gradle/wrapper/`, `settings.gradle`, `build.gradle`(루트), `{service-name}/build.gradle`(서비스별), `{service-name}/src/main/resources/application.yml`(서비스별), `common/src/main/java/.../common/`
 - **주의**: application.yml의 환경변수는 placeholder만 작성 (환경변수 키는 Step 3의 `.env.example` 템플릿에 정의되며, 실제 값은 `{PROJECT_DIR}/.env`에서 통일)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. 백킹서비스 + Mock 서버 로컬 구성 → Agent: backend-developer
 
@@ -226,6 +228,7 @@ Step 1은 두 단계로 구성된다:
   - mock 프로파일: Prism Mock 서버 (`docker compose --profile mock up`)
   - ai 프로파일: AI 서비스 컨테이너 (`docker compose --profile ai up`, AI 서비스 존재 시만)
 - **사용자 선택**: 사용자가 선택한 백킹서비스 환경에 따라 분기
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 4. 프론트엔드 프로젝트 초기화 → Agent: frontend-developer
 
@@ -235,6 +238,7 @@ Step 1은 두 단계로 구성된다:
   - FLUTTER: `{NPD_PLUGIN_DIR}/resources/guides/develop/frontend-env-setup-flutter.md`
 - **TASK**: 기술스택 결정 → 프로젝트 생성 → 기반 시스템(스타일/라우팅/상태관리) 구축 → Prism Mock 서버 연동 준비
 - **EXPECTED OUTCOME**: `frontend/` 프로젝트 골격, `tools/generate-runtime-env.sh` (프로젝트 서비스 구성에 맞게 동적 생성됨), `npm run dev` 실행 확인
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 5. AI 서비스 프로젝트 초기화 → Agent: ai-engineer
 
@@ -242,6 +246,7 @@ Step 1은 두 단계로 구성된다:
 - **TASK**: Python/FastAPI 프로젝트 생성 → 의존성 설치 → 기본 구조 설정 → docker-compose ai 프로파일에 등록
 - **EXPECTED OUTCOME**: `ai-service/` 프로젝트 골격, uvicorn 실행 확인
 - **SKIP 조건**: Phase 1 / Step 1에서 AI SKIP으로 결정된 경우 건너뜀
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **Phase 1 / Step 2 ~ Step 5는 병렬 실행**: 4개 에이전트가 동시에 작업. Step 2와 Step 3의 환경변수 정합성은 placeholder 방식으로 해결 (각자 독립 작성, 값은 `{PROJECT_DIR}/.env`에서 통일. `.env.example`은 키 템플릿)
 
@@ -251,6 +256,7 @@ Step 1은 두 단계로 구성된다:
 - **TASK**: 백킹서비스 연결 정보(Phase 1 / Step 3) + application.yml(Phase 1 / Step 2) 기반 실행 프로파일 작성
 - **EXPECTED OUTCOME**: `{service-name}/.run/{service-name}.run.xml` (서비스별)
 - **선행 조건**: Phase 1 / Step 2, Step 3 완료 필수 (Phase 2 진입 전 게이트)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -273,6 +279,7 @@ Step 1은 두 단계로 구성된다:
   - **서비스 구현 시**: `test/design-contract/{service-name}/*.spec.ts`의 it() 케이스를 참고하여 alt/else 분기 누락 방지 (테스트 실행 불요)
 - **EXPECTED OUTCOME**: `{service-name}/src/main/java/.../{service-name}/`(API 구현 코드), `{service-name}/src/test/java/.../{service-name}/`(단위 테스트 코드)
 - **병렬**: 서비스 간 의존성 분석 후 독립 서비스는 병렬 구현 (서브에이전트 활용)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 프론트엔드 Prism Mock 기반 개발 → Agent: frontend-developer
 
@@ -285,6 +292,7 @@ Step 1은 두 단계로 구성된다:
 - **TASK**: docker-compose의 Prism Mock 서버 활용 → 페이지별 구현
 - **EXPECTED OUTCOME**: `frontend/src/components/`, `frontend/src/layouts/`, `frontend/src/services/api/`, `frontend/src/hooks/`, `frontend/src/pages/`
 - **Prism 실행**: `docker compose --profile mock up` (Phase 1 / Step 3에서 구성)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. AI 서비스 구현 → Agent: ai-engineer
 
@@ -295,6 +303,7 @@ Step 1은 두 단계로 구성된다:
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/develop/ai-service-dev.md`
 - **TASK**: AI 서비스 설계서 기반 엔드포인트 구현, 프롬프트 작성, LLM 연동
 - **EXPECTED OUTCOME**: `{service-name}/models/`, `{service-name}/clients/`, `{service-name}/prompts/`, `{service-name}/services/`, `{service-name}/routers/`, `{service-name}/tests/`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **Phase 2 / Step 1 ~ Step 3은 병렬 실행**: 백엔드는 실제 API 구현, 프론트엔드는 Prism Mock으로 독립 개발, AI는 별도 서비스로 독립 개발
 
@@ -315,6 +324,7 @@ Step 1은 두 단계로 구성된다:
   - FLUTTER: `{NPD_PLUGIN_DIR}/resources/guides/develop/frontend-integration-flutter.md`
 - **TASK**: Prism Mock → 실제 백엔드 API 전환, E2E 동작 확인
 - **EXPECTED OUTCOME**: `frontend/public/runtime-env.js`, `frontend/src/services/api/client.ts`, `frontend/src/services/api/authService.ts`, `frontend/src/store/authStore.ts`, `frontend/`(실제 API 연동 완료)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 백엔드 ↔ AI 서비스 연동 → Agent: backend-developer + ai-engineer
 
@@ -322,6 +332,7 @@ Step 1은 두 단계로 구성된다:
 - **TASK**: 백엔드에서 AI 서비스 호출 코드 구현, Circuit Breaker/Fallback 설정
 - **EXPECTED OUTCOME**: `.../client/AiServiceClient.java`(인터페이스), `.../client/AiServiceClientImpl.java`(HTTP 클라이언트), `{service-name}/src/main/resources/application.yml`(resilience4j 섹션), `.../client/AiServiceClientTest.java`(통합 테스트)
 - **SKIP 조건**: Phase 1 / Step 1에서 AI SKIP으로 결정된 경우 건너뜀
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **Phase 3 / Step 1, Step 2는 병렬 실행 가능** (단, Step 1은 Phase 2 / Step 1 완료 필요, Step 2는 Phase 2 / Step 1 + Step 3 완료 필요)
 
@@ -339,6 +350,7 @@ Step 1은 두 단계로 구성된다:
   - `docs/develop/api-test-result.md` (API 테스트 결과)
   - `{service}/src/test/resources/data/` (SQL seed, JSON fixture)
 - **선행 조건**: Phase 3 / Step 1, Step 2 완료 필수
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -366,6 +378,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
   - `docs/develop/test/e2etest-{N}.md`
   - `e2e/tests/scenarios.spec.ts`
   - `.temp/iter-{N}/tc-*.png` (Step 2 입력)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ##### Step 1-3. 수동 테스트 모드 수행 → Agent: backend-developer, frontend-developer, ai-engineer (이슈 수정 시)
 
@@ -373,6 +386,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
 - **수행 조건**: `TEST_MODE = MANUAL`인 경우만
 - **TASK**: 위 GUIDE의 1-3a~1-3c 대화형 sub-flow 수행. AskUserQuestion 사용 금지
 - **EXPECTED OUTCOME**: 사용자 보고 이슈 반영된 코드 + Step 3 (Final Report) 입력용 대화 이력
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 제품 검증
 
@@ -385,6 +399,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
 - **EXPECTED OUTCOME**:
   - 자동: `docs/develop/test/verify-po-{N}.md`, `verify-sp-{N}.md`, `.temp/iter-{N+1}/`
   - 수동: 개선된 코드 + 대화 이력
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. Final Report 작성
 
@@ -395,6 +410,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
   - 수동 모드: Phase 4 / Step 1~2 대화에서 보고된 이슈 + 수정·개선 내역 + 사용자 최종 판정
 - **TASK**: 전체 테스트 과정 요약 + 최종 결과 + 잔여 이슈/개선사항 정리
 - **EXPECTED OUTCOME**: `docs/develop/test/final-report.md`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -411,6 +427,7 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
   5. 실행 가이드 템플릿 출력
   6. 다음 단계 안내 (`/npd:deploy`)
 - **EXPECTED OUTCOME**: `tools/run-backend.py`, `tools/run-frontend.py`, `{PROJECT_DIR}/README.md`
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 

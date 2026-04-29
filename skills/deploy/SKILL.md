@@ -116,6 +116,7 @@ Phase 6: 배포 완료 보고
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/deploy/deploy-pre-setup.md` ← **필수 로드**
 - **TASK**: CLOUD 판단 → 로컬 도구 설치(kubectl, kubens, helm, Cloud CLI) → Cloud CLI 로그인 확인 → VM 생성 안내 → `~/.ssh/config` 파싱 → SSH 접속 테스트 → VM 원격 도구 설치(Cloud CLI, Docker, kubectl, kubens, helm, JDK)
 - **EXPECTED OUTCOME**: 로컬/VM 도구 설치 완료, VM 접속 정보(`VM.HOST`, `VM.IP`, `VM.USERID`, `VM.KEY파일`) 수집, AGENTS.md `### deploy > VM_HOST` 기록
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **자동 진행 모드 동작**: Phase 1 내 모든 `<!--ASK_USER-->`를 생략하고 아래 규칙으로 자동 처리한다.
 > - **Step 1 CLOUD**: AGENTS.md에서 읽기 → 없으면 에러 중단
@@ -147,7 +148,8 @@ SSH로 VM에 접속하여 Cloud CLI/Docker/kubectl/kubens/helm/JDK 미설치 도
 
 #### Step 8. 완료 보고
 로컬/VM 설치 도구 목록 + VM 접속 방법(`ssh {VM_HOST_ALIAS}`) 보고.
-
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+ 
 ---
 
 ### Phase 2: 배포 환경 정보 수집
@@ -155,6 +157,7 @@ SSH로 VM에 접속하여 Cloud CLI/Docker/kubectl/kubens/helm/JDK 미설치 도
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/deploy/deploy-env-info.md` ← **필수 로드**
 - **TASK**: 위 GUIDE에 따라 이미지 레지스트리·K8S 클러스터·서비스 리소스 정보 수집 후 `[실행정보]` 블록 조립
 - **EXPECTED OUTCOME**: `[실행정보]` 블록 (Cloud별 4개 템플릿 중 하나) + AGENTS.md `### deploy` 진행상황 섹션 갱신
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **조건부 실행 규칙**: 시작 Phase ≤ 5인 경우만 본 Phase 수행 (Phase 6은 정보 수집 불필요)
 > VM 정보(Phase 1 결과)는 시작 Phase ∈ {1, 3, 4, 5}일 때만 사용
@@ -173,6 +176,7 @@ Step 4-1 일괄 기본값 + Step 4-2 서비스별 예외 → core/MB → millico
 
 #### Step 5. 실행정보 조립 + 상태 기록
 Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_CLUSTER, K8S_NAMESPACE 추가 기록).
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -184,6 +188,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **모드**: 모드 A (Phase 진입 전 동기화)
 - **commit message**: `"deploy: Phase 3 시작 전 소스 동기화"`
 - **EXPECTED OUTCOME**: VM `~/workspace/{ROOT}`에 최신 소스 적재
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. 백엔드·프론트엔드·AI 병렬 빌드 & 푸시 (TASK)
 
@@ -197,6 +202,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 
 - **CONTEXT**: Phase 2 / Step 5에서 조립된 `[실행정보]` 블록을 각 에이전트 프롬프트에 포함
 - **EXPECTED OUTCOME**: Dockerfile 생성, 이미지 빌드 성공, 이미지 푸시 성공
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. 산출물 커밋 & 동기화 (POST_ACTION)
 
@@ -204,6 +210,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **모드**: 모드 C (산출물 커밋)
 - **commit message**: `"deploy: Phase 3 산출물 (Dockerfile, build-image guide)"`
 - **EXPECTED OUTCOME**: VM 산출물(Dockerfile 등) 원격 저장소 반영 + 로컬 동기화
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -214,6 +221,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/deploy/vm-git-sync.md` ← **필수 로드**
 - **모드**: 모드 B (Phase 진입 전 동기화 + `.env` scp)
 - **EXPECTED OUTCOME**: VM `~/workspace/{ROOT}`에 최신 소스 + `.env` 파일 적재 (AI 서비스 컨테이너 `--env-file` 참조용)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 2. VM 백킹서비스 배포 (선행)
 
@@ -221,6 +229,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **CONTEXT**: Phase 2 / Step 5에서 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: VM에 SSH 접속하여 docker-compose로 백킹서비스(DB, Redis, MQ)를 기동하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
 - **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-container-result.md` 작성
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > 백킹서비스가 정상 기동된 후에야 Step 3 애플리케이션 컨테이너 실행이 가능하다.
 
@@ -236,6 +245,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 
 - **CONTEXT**: Phase 2 / Step 5에서 조립된 `[실행정보]` 블록을 각 에이전트 프롬프트에 포함
 - **EXPECTED OUTCOME**: 백엔드·프론트엔드·AI 서비스 컨테이너 정상 실행 확인, `docs/deploy/run-container-{back,front,ai}-result.md` 작성
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 4. 산출물 커밋 & 동기화 (POST_ACTION)
 
@@ -243,6 +253,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **모드**: 모드 C (산출물 커밋)
 - **commit message**: `"deploy: Phase 4 산출물 (backing-service-result, run-container-result)"`
 - **EXPECTED OUTCOME**: VM 산출물(*-result.md 등) 원격 저장소 반영 + 로컬 동기화
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -254,6 +265,7 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **CONTEXT**: Phase 2 / Step 5에서 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: K8s 클러스터에 kubectl/helm으로 백킹서비스(DB, Redis)를 Bitnami Helm 차트로 설치하고 health check 수행. Cloud MQ 사용 시 프로비저닝 포함
 - **EXPECTED OUTCOME**: 모든 백킹서비스 healthy 확인, `docs/deploy/backing-service-k8s-result.md` 작성
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > 백킹서비스가 K8s 클러스터에 정상 배포된 후에야 Step 2 애플리케이션 K8s 배포가 가능하다.
 
@@ -263,12 +275,14 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - **CONTEXT**: Phase 2 / Step 5에서 조립된 `[실행정보]` 블록을 프롬프트에 포함
 - **TASK**: K8s Deployment, Service, Ingress 매니페스트를 작성하고 배포
 - **EXPECTED OUTCOME**: `deploy/k8s/` 매니페스트 파일 생성, 배포 성공
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 #### Step 3. Nginx Web Server Proxy 설정 (POST_ACTION)
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/deploy/nginx-proxy-setup.md` ← **필수 로드**
 - **TASK**: 위 GUIDE에 따라 Web Server 확인 → SSL 인증서 발급 → Frontend·API 두 server 블록 Nginx conf 작성 → 재시작 → CORS 확인
 - **EXPECTED OUTCOME**: 외부 HTTPS 접근 가능 (`https://{SSL_DOMAIN}`, `https://api.{SSL_DOMAIN}`)
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
@@ -292,6 +306,8 @@ Cloud별 `[실행정보]` 블록 조립 → AGENTS.md `### deploy` 갱신 (K8S_C
 - 백엔드 API: {URL}
 - 프론트엔드: {URL}
 ```
+
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
