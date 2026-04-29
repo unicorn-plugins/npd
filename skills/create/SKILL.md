@@ -21,8 +21,20 @@ user-invocable: true
 사용자가 `/npd:create` 호출 시 또는 "새 프로젝트 생성", "프로젝트 만들어줘" 키워드 감지 시.
 
 ## 작업 환경 변수 로드
-AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
-로딩 실패 시 사용자에게 `/npd:create`을 먼저 수행하라고 안내하고 종료.
+현재 디렉토리의 AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
+로딩 실패 시 사용자에게 NPD 플러그인 디렉토리 경로를 입력받아 `AGENTS.md`의 `{NPD_PLUGIN_DIR}` 변수에 설정.   
+<!--ASK_USER-->
+{"title":"NPD 플러그인 디렉토리","questions":[
+  {"question":"NPD 플러그인 디렉토리 경로를 입력해주세요.","type":"text"}
+]}
+<!--/ASK_USER-->
+
+`/AGENTS.md` 에 다음 변수를 기록하여 이후 중복 계산 방지  
+```
+## 환경변수 
+- AI_RUNTIME: 런타임 종류. (Claude Code, Claude Cowork, Cursor, AntiGravity, Codex 등)
+- NPD_PLUGIN_DIR: NPD 플러그인의 루트 절대 경로 
+```
 
 ## 진행상황 업데이트 및 재개
 `{PROJECT_DIR}/AGENTS.md`에 각 Phase 완료 시 저장. 최종 완료 시 `Done`으로 표기.

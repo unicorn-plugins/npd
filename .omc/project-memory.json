@@ -1,6 +1,6 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1777362249173,
+  "lastScanned": 1777463142833,
   "projectRoot": "C:\\Users\\hiond\\plugins\\npd",
   "techStack": {
     "languages": [],
@@ -24,7 +24,9 @@
   "structure": {
     "isMonorepo": false,
     "workspaces": [],
-    "mainDirectories": [],
+    "mainDirectories": [
+      "docs"
+    ],
     "gitBranches": {
       "defaultBranch": "main",
       "branchingStrategy": null
@@ -36,14 +38,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777362249137,
+      "lastAccessed": 1777463142812,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
       "fileCount": 9,
-      "lastAccessed": 1777362249138,
+      "lastAccessed": 1777463142813,
       "keyFiles": [
         "cicd.md",
         "create.md",
@@ -52,11 +54,18 @@
         "design.md"
       ]
     },
+    "docs": {
+      "path": "docs",
+      "purpose": "Documentation",
+      "fileCount": 0,
+      "lastAccessed": 1777463142813,
+      "keyFiles": []
+    },
     "gateway": {
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1777362249139,
+      "lastAccessed": 1777463142814,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
@@ -66,7 +75,7 @@
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1777362249139,
+      "lastAccessed": 1777463142814,
       "keyFiles": [
         "resource.md"
       ]
@@ -75,7 +84,7 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1777362249139,
+      "lastAccessed": 1777463142815,
       "keyFiles": []
     }
   },
@@ -111,15 +120,57 @@
       "type": "file"
     },
     {
+      "path": "skills\\create\\SKILL.md",
+      "accessCount": 4,
+      "lastAccessed": 1777464641054,
+      "type": "file"
+    },
+    {
+      "path": "agents\\architect\\agentcard.yaml",
+      "accessCount": 4,
+      "lastAccessed": 1777464704149,
+      "type": "file"
+    },
+    {
       "path": "resources\\guides\\develop\\product-verify.md",
       "accessCount": 3,
       "lastAccessed": 1777371877133,
       "type": "file"
     },
     {
-      "path": "agents\\architect\\agentcard.yaml",
+      "path": "skills\\prepare\\SKILL.md",
       "accessCount": 3,
-      "lastAccessed": 1777383776526,
+      "lastAccessed": 1777464065991,
+      "type": "file"
+    },
+    {
+      "path": "agents\\product-owner\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1777464702588,
+      "type": "file"
+    },
+    {
+      "path": "agents\\service-planner\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1777464703713,
+      "type": "file"
+    },
+    {
+      "path": "agents\\ai-engineer\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1777464705560,
+      "type": "file"
+    },
+    {
+      "path": "agents\\devops-engineer\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1777464706209,
+      "type": "file"
+    },
+    {
+      "path": "agents\\domain-expert\\agentcard.yaml",
+      "accessCount": 3,
+      "lastAccessed": 1777464715106,
       "type": "file"
     },
     {
@@ -138,48 +189,6 @@
       "path": "gateway\\runtime-mapping.yaml",
       "accessCount": 2,
       "lastAccessed": 1777383570863,
-      "type": "file"
-    },
-    {
-      "path": "agents\\devops-engineer\\agentcard.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777383595431,
-      "type": "file"
-    },
-    {
-      "path": "agents\\ai-engineer\\agentcard.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777383658201,
-      "type": "file"
-    },
-    {
-      "path": "agents\\domain-expert\\agentcard.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777383674186,
-      "type": "file"
-    },
-    {
-      "path": "agents\\product-owner\\agentcard.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777383690581,
-      "type": "file"
-    },
-    {
-      "path": "agents\\service-planner\\agentcard.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777383712145,
-      "type": "file"
-    },
-    {
-      "path": "skills\\prepare\\SKILL.md",
-      "accessCount": 2,
-      "lastAccessed": 1777425220277,
-      "type": "file"
-    },
-    {
-      "path": "skills\\create\\SKILL.md",
-      "accessCount": 2,
-      "lastAccessed": 1777425226375,
       "type": "file"
     },
     {
@@ -270,6 +279,42 @@
       "path": "agents\\architect\\AGENT.md",
       "accessCount": 1,
       "lastAccessed": 1777383147997,
+      "type": "file"
+    },
+    {
+      "path": "AGENTS.md",
+      "accessCount": 1,
+      "lastAccessed": 1777464079554,
+      "type": "file"
+    },
+    {
+      "path": "resources\\guides\\setup\\prepare.md",
+      "accessCount": 1,
+      "lastAccessed": 1777464079960,
+      "type": "file"
+    },
+    {
+      "path": "",
+      "accessCount": 1,
+      "lastAccessed": 1777464695655,
+      "type": "directory"
+    },
+    {
+      "path": "agents\\backend-developer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777464704562,
+      "type": "file"
+    },
+    {
+      "path": "agents\\frontend-developer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777464705062,
+      "type": "file"
+    },
+    {
+      "path": "agents\\qa-engineer\\agentcard.yaml",
+      "accessCount": 1,
+      "lastAccessed": 1777464715277,
       "type": "file"
     }
   ],
