@@ -40,6 +40,10 @@ claude plugin update npd
 
 ## 사용법
 
+**사용법 동영상 보기**:   
+아래 링크의 압축파일 다운로드 후 압축 해제하여 각 일련번호별로 실행 하세요.
+https://drive.google.com/file/d/1drUqy7xCaV0U2y9WP-Y-PXE5y1jxGW8s/view?usp=drive_link
+   
 ### 권장 사용 순서
 
 ```
