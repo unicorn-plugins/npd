@@ -346,6 +346,9 @@ https://cursor.com/
 
 https://developers.openai.com/codex/app
 
+**Codex CLI설치:**      
+https://developers.openai.com/codex/cli
+
 **4)Antigravity 설치**        
 https://antigravity.google/download
 
