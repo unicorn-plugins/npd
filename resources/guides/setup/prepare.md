@@ -316,8 +316,9 @@ Cursor 구독한 경우 Cursor 실행 수 수행하세요.
 ---
 
 ## AI툴 설치  
-
-**1)Claude CoWork 설치**    
+사용할 AI툴을 설치 합니다.   
+  
+**1)Claude Code/CoWork 설치**    
 Claude CoWork는 Claude Web과 유사한 기능을 로컬에서 사용하기 위한 로컬 Claude툴입니다.  
 Claude Code도 CoWork과 동일하게 로컬에 설치하는 Claude 툴입니다.   
 차이는 CoWork는 로컬의 가상환경 내에서 수행되고 Code는 로컬에서 직접 수행된다는 것입니다.   
@@ -334,12 +335,19 @@ https://cursor.com/
 
 | [Top](#로컬-개발-환경-구성) |
 
-**3)Cursor 환경설정**        
+**Cursor 환경설정:**          
 - Cursor 가입: 위 Cursor 사이트에서 회원가입 및 Pro 구독   
 - 로그인
   ![](images/2026-04-13-22-16-09.png)    
 - Auto-Run Mode 활성화: 작업 시 매번 승인 안 물어보게 셋팅
   ![](images/2026-04-13-22-17-18.png)
+
+**3)Codex 설치**   
+
+https://developers.openai.com/codex/app
+
+**4)Antigravity 설치**        
+https://antigravity.google/download
 
 ---
 
