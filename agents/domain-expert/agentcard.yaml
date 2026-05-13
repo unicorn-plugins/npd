@@ -41,6 +41,10 @@ capabilities:
       - UI/UX를 디자인하는 사람
       - 코드를 구현하는 사람
 
+forbidden_actions:
+  - file_delete
+  - code_execute
+
 handoff:
   - target: product-owner
     when: "비즈니스 가치 판단 및 MVP 범위 결정이 필요한 경우"

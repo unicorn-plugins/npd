@@ -206,7 +206,7 @@ DB_HOST=localhost
 
 ## 주의사항
 
-- **자격 증명 통일 규칙**: DB_USER는 CLAUDE.md의 `{ROOT}` 값, DB_PASSWORD/DB_ROOT_PASSWORD는 `P@ssw0rd$`로 통일한다.
+- **자격 증명 통일 규칙**: DB_USER는 AGENTS.md의 `{ROOT}` 값, DB_PASSWORD/DB_ROOT_PASSWORD는 `P@ssw0rd$`로 통일한다.
 - **테이블 생성 금지**: 데이터베이스(스키마)만 생성한다. 테이블은 JPA `ddl-auto=update` 또는 Flyway/Liquibase로 자동 생성된다.
 - **포트 충돌 방지**: MySQL/MariaDB 기본 포트(3306)가 로컬에서 이미 사용 중인 경우 `.env`에서 변경한다.
 - **MySQL/MariaDB 문자셋**: 기본 문자셋이 `utf8mb4`인지 확인한다 (MySQL 8.0+, MariaDB 10.3+ 기본값).

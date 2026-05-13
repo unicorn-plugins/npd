@@ -21,7 +21,7 @@
     - [설치확인](#설치확인)
     - [참고](#참고)
       - [npm 버전 EOS](#npm-버전-eos)
-    - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
+      - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
   - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
   - [AI툴 설치](#ai툴-설치)
   - [필수 MCP 설치](#필수-mcp-설치)
@@ -36,8 +36,8 @@
   - [GitHub 회원가입 및 토큰 생성](#github-회원가입-및-토큰-생성)
     - [회원가입](#회원가입)
     - [접근 토큰 생성](#접근-토큰-생성)
-  - [Docker HUB 회원가입](#docker-hub-회원가입)
 - [개발/배포 단계를 위한 추가 설치](#개발배포-단계를-위한-추가-설치)
+  - [Docker HUB 회원가입](#docker-hub-회원가입)
   - [IntelliJ 설치](#intellij-설치)
     - [설치](#설치-4)
     - [IntelliJ 환경 설정](#intellij-환경-설정)
@@ -280,7 +280,7 @@ npm cache clean --force
 claude install 
 ```
 
-### Claude Desktop에 Claude Code 추가   
+#### Claude Desktop에 Claude Code 추가   
 2026년 4월 15일부터 Claude Desktop에 Claude Code가 추가되어 훨씬 편한 UI/UX로 사용할 수 있게 됨  
 아래 [Claude CoWork 설치](#ai툴-설치)를 참고하여 Claude CoWork를 설치하면 자동으로 설치됩니다.   
 ![](images/2026-04-16-13-22-32.png)   
@@ -316,8 +316,9 @@ Cursor 구독한 경우 Cursor 실행 수 수행하세요.
 ---
 
 ## AI툴 설치  
-
-**1)Claude CoWork 설치**    
+사용할 AI툴을 설치 합니다.   
+  
+**1)Claude Code/CoWork 설치**    
 Claude CoWork는 Claude Web과 유사한 기능을 로컬에서 사용하기 위한 로컬 Claude툴입니다.  
 Claude Code도 CoWork과 동일하게 로컬에 설치하는 Claude 툴입니다.   
 차이는 CoWork는 로컬의 가상환경 내에서 수행되고 Code는 로컬에서 직접 수행된다는 것입니다.   
@@ -334,12 +335,22 @@ https://cursor.com/
 
 | [Top](#로컬-개발-환경-구성) |
 
-**3)Cursor 환경설정**        
+**Cursor 환경설정:**          
 - Cursor 가입: 위 Cursor 사이트에서 회원가입 및 Pro 구독   
 - 로그인
   ![](images/2026-04-13-22-16-09.png)    
 - Auto-Run Mode 활성화: 작업 시 매번 승인 안 물어보게 셋팅
   ![](images/2026-04-13-22-17-18.png)
+
+**3)Codex 설치**   
+
+https://developers.openai.com/codex/app
+
+**Codex CLI설치:**      
+https://developers.openai.com/codex/cli
+
+**4)Antigravity 설치**        
+https://antigravity.google/download
 
 ---
 
@@ -404,8 +415,8 @@ function cy { cc-yolo @args }
 ## NPD 플러그인 추가
 ### 작업 디렉토리 생성 및 NPD 플러그인 다운로드 
 ```
-mkdir -p ~/workspace
-cd ~/workspace
+mkdir -p ~/plugins
+cd ~/plugins
  
 git clone https://github.com/unicorn-plugins/npd.git
 cd npd 
@@ -489,8 +500,13 @@ Note(토큰이름: 적절히 지정)를 입력하고 Expiration 기간을 지정
 ![](images/2026-02-20-14-16-37.png)
 
 | [Top](#로컬-개발-환경-구성) |
-
+  
 ---
+
+# 개발/배포 단계를 위한 추가 설치
+모든 과정을 진행하기 위한 추가 설치입니다. 
+개발과 배포 과정까지 진행하려면 추가 설치하세요.    
+
 
 ## Docker HUB 회원가입   
 Docker Hub는 컨테이너 이미지를 내려받고 저장할 공개된 이미지 저장소입니다.   
@@ -499,10 +515,6 @@ https://hub.docker.com 으로 접근하여 회원가입을 하십시오.
 | [Top](#로컬-개발-환경-구성) |
 
 ---
-
-# 개발/배포 단계를 위한 추가 설치
-모든 과정을 진행하기 위한 추가 설치입니다. 
-개발과 배포 과정까지 진행하려면 추가 설치하세요.    
 
 ## IntelliJ 설치
 IntelliJ는 통합개발환경(IDE:Integrated Development Environment) 도구의 하나입니다.   

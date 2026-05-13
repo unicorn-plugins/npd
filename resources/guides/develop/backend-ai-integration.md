@@ -47,7 +47,7 @@ grep -i "불필요\|해당 없음\|미사용\|skip" docs/design/ai-service-desig
 
 ### 작성 원칙
 
-- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다. `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
+- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다. `{ORG}`, `{ROOT}` 값은 `AGENTS.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
 - **행위 계약 테스트 준수**: `test/design-contract/integration/*.spec.ts`의 BE↔AI 연동 시나리오를 기반으로 구현하고, `docs/develop/dev-plan.md`의 서비스 간 의존관계를 참조한다
 - **장애 격리 패턴 적용**: `ai-service-design.md`에 지정된 Circuit Breaker, Fallback 전략 준수
 - **타임아웃 필수 설정**: LLM 응답 지연이 30초 이상 발생할 수 있으므로 connectTimeout/readTimeout 명시
@@ -221,7 +221,7 @@ public class AiServiceFeignConfig {
 
 ```java
 @SpringBootApplication
-@EnableFeignClients(basePackages = "com.{ORG}.{ROOT}.{service-name}.client")  // CLAUDE.md의 ORG, ROOT 값 참조
+@EnableFeignClients(basePackages = "com.{ORG}.{ROOT}.{service-name}.client")  // AGENTS.md의 ORG, ROOT 값 참조
 public class {ServiceName}Application {
     public static void main(String[] args) {
         SpringApplication.run({ServiceName}Application.class, args);
@@ -581,7 +581,7 @@ resilience4j:
 ### 패키지 구조 예시
 
 > 패키지 구조 표준: `{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md`
-> `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽는다.
+> `{ORG}`, `{ROOT}` 값은 `AGENTS.md`에서 읽는다.
 
 **Layered 아키텍처**
 

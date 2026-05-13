@@ -43,6 +43,9 @@ capabilities:
       - 일반 백엔드/프론트엔드 기능을 구현하는 개발자
       - 인프라·배포를 담당하는 DevOps
 
+forbidden_actions:
+  - file_delete
+
 handoff:
   - target: backend-developer
     when: "AI 연동 API 엔드포인트 구현이 필요한 경우"

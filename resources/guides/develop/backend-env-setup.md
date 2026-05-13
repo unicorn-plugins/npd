@@ -31,11 +31,11 @@ Gradle Wrapper 생성, 멀티모듈 build.gradle 구성, 서비스별 applicatio
 ### 작성 원칙
 
 - **Java 패키지 그룹명 표준**: `com.{ORG}.{ROOT}` 형식을 강제 적용한다 (`{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조)
-  - `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 `CLAUDE.md`에서 읽는다
+  - `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 `AGENTS.md`에서 읽는다
   - 설계서(클래스 설계서, 패키지 구조 등)에 다른 패키지명이 있더라도 이 표준으로 통일한다
   - 루트 `build.gradle`의 `group` 값: `'com.{ORG}.{ROOT}'`
   - 소스 코드 패키지 루트: `com/{ORG}/{ROOT}/{service-name}/`
-  - 예: CLAUDE.md에 `ORG=travelplanner`, `ROOT=travel` → `com.travelplanner.travel`
+  - 예: AGENTS.md에 `ORG=travelplanner`, `ROOT=travel` → `com.travelplanner.travel`
 - Java 버전 호환 Gradle Wrapper (`gradle-wrapper.md`의 매핑 테이블 적용)
 - 루트 build.gradle 표준 준수: `{NPD_PLUGIN_DIR}/resources/references/java-build-gradle-standard.md` 참조
 - 설정 Manifest 표준 준수: `{NPD_PLUGIN_DIR}/resources/references/java-config-manifest-standard.md` 참조
@@ -137,10 +137,10 @@ Version Catalog의 `alias(libs.plugins.*)`, `libs.*` 참조를 사용한다.
 
 **group 값 설정 (필수):**
 ```groovy
-// CLAUDE.md에서 ORG, ROOT 값을 읽어 설정
+// AGENTS.md에서 ORG, ROOT 값을 읽어 설정
 group = 'com.{ORG}.{ROOT}'
 ```
-> 설계서에 다른 group 값이 명시되어 있어도 CLAUDE.md의 `{ORG}.{ROOT}` 기반으로 덮어쓴다.
+> 설계서에 다른 group 값이 명시되어 있어도 AGENTS.md의 `{ORG}.{ROOT}` 기반으로 덮어쓴다.
 
 #### 4단계: 서비스별 build.gradle 작성
 

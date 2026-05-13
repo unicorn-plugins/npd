@@ -12,7 +12,7 @@ com.{ORG}.{ROOT}.{SERVICE}
 | `{ROOT}` | Root Project 명 | `lifesub`, `travel` |
 | `{SERVICE}` | 서비스명 (Root Project의 서브 프로젝트) | `member`, `auth`, `schedule` |
 
-- `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 **`CLAUDE.md`**에서 읽는다
+- `{ORG}`, `{ROOT}` 값은 프로젝트 루트의 **`AGENTS.md`**에서 읽는다
 - 설계서(클래스 설계서, 패키지 구조 등)에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다
 
 예: `com.unicorn.lifesub.member`, `com.unicorn.lifesub.common`

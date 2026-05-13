@@ -30,7 +30,7 @@ API 설계서 기반으로 서비스별 컨트롤러·서비스·레포지토리
 
 ### 작성 원칙
 
-- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다 (`{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조). `{ORG}`, `{ROOT}` 값은 `CLAUDE.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
+- **Java 패키지 그룹명 표준**: 모든 소스 코드의 패키지는 `com.{ORG}.{ROOT}.{service-name}` 형식을 사용한다 (`{NPD_PLUGIN_DIR}/resources/references/standard_package_structure.md` 참조). `{ORG}`, `{ROOT}` 값은 `AGENTS.md`에서 읽으며, 설계서에 다른 패키지명이 있더라도 이 표준으로 강제 통일한다.
 - **개발주석표준** 준수: 모든 클래스·메서드에 표준 Javadoc 주석 작성 (`{NPD_PLUGIN_DIR}/resources/references/standard_comment.md` 참조)
 - **API 설계서 일관성**: API 설계서(`docs/design/api/` 하위 — 준비 단계에서 식별한 파일)의 모든 엔드포인트를 누락 없이 Controller에 구현
 - **설계 아키텍처 패턴 적용**: 서비스별로 지정된 패턴을 적용

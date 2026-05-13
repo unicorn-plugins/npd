@@ -237,14 +237,14 @@ CREATE DATABASE order;
 CREATE DATABASE inventory;
 CREATE DATABASE "user";  -- 예약어인 경우 큰따옴표 사용
 
--- DB_USER는 CLAUDE.md의 ROOT 값 사용
+-- DB_USER는 AGENTS.md의 ROOT 값 사용
 GRANT ALL PRIVILEGES ON DATABASE order TO {ROOT};
 GRANT ALL PRIVILEGES ON DATABASE inventory TO {ROOT};
 GRANT ALL PRIVILEGES ON DATABASE "user" TO {ROOT};
 ```
 
 > **네이밍 규칙**: database명은 서비스명과 동일하게 사용하며 `_db` 접미사를 붙이지 않는다.
-> DB_USER는 CLAUDE.md의 `{ROOT}` 값, DB_PASSWORD는 `P@ssw0rd$`를 사용한다.
+> DB_USER는 AGENTS.md의 `{ROOT}` 값, DB_PASSWORD는 `P@ssw0rd$`를 사용한다.
 > 테이블은 생성하지 않는다. JPA `ddl-auto=update` 또는 Flyway/Liquibase로 자동 생성된다.
 
 > **MySQL/MariaDB init 스크립트**: `docker/{product}/init/01-create-databases.sql`
@@ -259,7 +259,7 @@ GRANT ALL PRIVILEGES ON DATABASE "user" TO {ROOT};
 
 ```dotenv
 # ===========================
-# Database (CLAUDE.md의 ROOT 값 참조)
+# Database (AGENTS.md의 ROOT 값 참조)
 # 서비스별 DB는 docker/postgres/init/ 스크립트로 자동 생성
 # ===========================
 DB_USER={ROOT}
@@ -274,7 +274,7 @@ REDIS_PORT=6379
 REDIS_HOST=localhost
 
 # ===========================
-# RabbitMQ (MQ 포함 시, CLAUDE.md의 ROOT 값 참조)
+# RabbitMQ (MQ 포함 시, AGENTS.md의 ROOT 값 참조)
 # ===========================
 MQ_USER={ROOT}
 MQ_PASSWORD=P@ssw0rd$
@@ -506,7 +506,7 @@ volumes:
 | Host | localhost |
 | Port | 5432 |
 | Database | 서비스별 database (init 스크립트로 자동 생성, _db 접미사 없음) |
-| User | {ROOT} (CLAUDE.md 참조) |
+| User | {ROOT} (AGENTS.md 참조) |
 | Password | P@ssw0rd$ |
 | JDBC URL | jdbc:postgresql://localhost:5432/{서비스명} |
 
@@ -523,7 +523,7 @@ volumes:
 | Host | localhost |
 | AMQP Port | 5672 |
 | Management UI | http://localhost:15672 |
-| User | {ROOT} (CLAUDE.md 참조) |
+| User | {ROOT} (AGENTS.md 참조) |
 | Password | P@ssw0rd$ |
 
 ### Prism Mock (mock 프로파일)
@@ -564,7 +564,7 @@ docker compose --profile mock up -d          # + Mock 서버
 ## 주의사항
 
 - **자격 증명 통일 규칙**:
-  - DB_USER / MQ_USER: CLAUDE.md의 `{ROOT}` 값을 사용한다.
+  - DB_USER / MQ_USER: AGENTS.md의 `{ROOT}` 값을 사용한다.
   - DB_PASSWORD / MQ_PASSWORD: `P@ssw0rd$`로 통일한다.
   - database명: 서비스명과 동일하게 사용하며 `_db` 접미사를 붙이지 않는다. init 스크립트로 생성한다.
 - **테이블 생성 금지**: 데이터베이스(스키마)만 생성하고 테이블은 생성하지 않는다.

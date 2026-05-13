@@ -20,12 +20,16 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
 
 사용자가 `/npd:plan` 호출 시 또는 "기획 시작", "기획해줘", "서비스 기획" 키워드 감지 시.
 
-주의사항: 중간 단계부터 시작할 때도 각 단계별 승인 여부를 선택하는 Step 0은 항상 수행하여 진행 모드를 설정해야 합니다.
+주의사항: 중간 단계부터 시작할 때도 각 단계별 승인 여부를 선택하는 Phase 0은 항상 수행하여 진행 모드를 설정해야 합니다.
 
 ## 선행 조건
 
-- `/npd:create` 완료 (프로젝트 디렉토리 및 CLAUDE.md 존재)
-- `.npd/domain-context.yaml` 존재 (도메인 컨텍스트)
+- `/npd:create` 완료 (프로젝트 디렉토리 및 AGENTS.md 존재)
+
+## 작업 환경 변수 로드
+
+AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
+로딩 실패 시 사용자에게 `/npd:create`를 먼저 수행하라고 안내하고 종료.
 
 ## 에이전트 호출 규칙
 
@@ -34,59 +38,41 @@ MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며
 | product-owner | `npd:product-owner:product-owner` |
 | service-planner | `npd:service-planner:service-planner` |
 | architect | `npd:architect:architect` |
-| domain-expert | `npd:domain-expert:domain-expert` |
 | ai-engineer | `npd:ai-engineer:ai-engineer` |
+| domain-expert | `npd:domain-expert:domain-expert` |
+| backend-developer | `npd:backend-developer:backend-developer` |
+| frontend-developer | `npd:frontend-developer:frontend-developer` |
+| qa-engineer | `npd:qa-engineer:qa-engineer` |
+| devops-engineer | `npd:devops-engineer:devops-engineer` |
 
 ### 프롬프트 조립
 
-1. `agents/{agent-name}/`에서 3파일 로드 (AGENT.md + agentcard.yaml + tools.yaml)
-2. `gateway/runtime-mapping.yaml` 참조하여 구체화:
-   - **모델 구체화**: agentcard.yaml의 `tier` → `tier_mapping`에서 모델 결정
-   - **툴 구체화**: tools.yaml의 추상 도구 → `tool_mapping`에서 실제 도구 결정
-   - **금지액션 구체화**: agentcard.yaml의 `forbidden_actions` → `action_mapping`에서 제외할 실제 도구 결정
-   - **최종 도구** = (구체화된 도구) - (제외 도구)
-3. **도메인 컨텍스트 주입**: `domain-expert` 에이전트 호출 시 프로젝트의 `.npd/domain-context.yaml`을 읽어 프롬프트에 포함. 도메인명, 배경(background), 전문성(expertise), 규제/표준(regulations) 정보를 동적 컨텍스트로 주입하여 도메인 특화 자문을 수행
-4. 프롬프트 조립: 공통 정적(runtime-mapping) → 에이전트별 정적(3파일) → 인격(persona) → 도메인 컨텍스트(domain-expert만) → 동적(작업 지시)
-5. `Agent(subagent_type=FQN, model=구체화된 모델, prompt=조립된 프롬프트)` 호출
+- `{NPD_PLUGIN_DIR}/resources/guides/combine-prompt.md`에 따라
+  AGENT.md + agentcard.yaml + tools.yaml 합치기
+- `Agent(subagent_type=FQN, model=tier_mapping 결과, prompt=조립된 프롬프트)` 호출
+- tier → 모델 매핑은 `{NPD_PLUGIN_DIR}/gateway/runtime-mapping.yaml` 참조
 
-## Step 0. 진행 모드 선택
+### 서브 에이전트 호출
 
-기획 워크플로우 시작 전, 각 단계별 승인 여부를 선택합니다.
+워크플로우 단계에 `Agent: {agent-name}`이 명시된 경우,
+메인 에이전트는 해당 단계를 직접 수행하지 않고, `{NPD_PLUGIN_DIR}/resources/guides/call-subagent.md`에 따라 서브 에이젼트 호출 
 
-<!--ASK_USER-->
-{"title":"진행 모드 선택","questions":[
-  {"question":"각 단계 완료 후 승인을 받고 진행할까요, 자동으로 진행할까요?","type":"radio","options":["단계별 승인","자동 진행"]}
-]}
-<!--/ASK_USER-->
+## 진행상황 업데이트 및 재개
 
-- **단계별 승인** 선택 시 → 각 스텝 완료 후 아래 형식의 승인 요청을 표시하고 사용자 승인 후 다음 스텝 진행:
+`{PROJECT_DIR}/AGENTS.md`에 각 Phase의 Step 완료 시 저장. 최종 완료 시 `Done`으로 표기.
 
-<!--ASK_USER-->
-{"title":"단계 승인","questions":[
-  {"question":"{완료된 스텝명} 단계가 완료되었습니다. 결과 파일({생성된 파일 경로})을 검토하고 {다음 스텝명} 단계로 계속 진행할 지 승인해 주십시오.","type":"radio","options":["승인","재작업 요청","중단"]}
-]}
-<!--/ASK_USER-->
-
-  - **승인** → 다음 스텝 진행
-  - **재작업 요청** → 사용자 피드백을 받아 현재 스텝 재수행
-  - **중단** → 현재까지 산출물 보존 후 스킬 종료
-
-- **자동 진행** 선택 시 → 승인 없이 연속 실행
-
-### 상태 기록 (`/clear` 대비)
-
-Step 0 완료 후, 프로젝트 루트 `CLAUDE.md`의 `## NPD 워크플로우 상태` 섹션 하위에 `### plan` 서브섹션을 생성(이미 있으면 갱신)합니다:
-
-```
-## NPD 워크플로우 상태
+```md
+## 워크플로우 진행상황
 ### plan
 - 진행 모드: {선택값}
-- 마지막 완료 Step: Step 0
+- 마지막 완료 Phase/Step: Phase 1/Step 0
 ```
 
-이후 각 Step 완료 시 `마지막 완료 Step` 값을 갱신합니다.
+`{PROJECT_DIR}/AGENTS.md`의 `## 워크플로우 진행상황 > ### plan`에 진행상황 정보가 있는 경우 마지막 완료 Step 이후부터 자동 재개. 
 
-## 워크플로우 개요
+## 워크플로우
+
+### 개요
 
 ```
 1단계: 정의 (MVP정의 + 고객분석 + 시장조사)
@@ -102,288 +88,269 @@ Step 0 완료 후, 프로젝트 루트 `CLAUDE.md`의 `## NPD 워크플로우 �
 6단계: 프로토타입 + 플로우 스크립트
 ```
 
----
+### Phase 0: 진행 모드 선택
 
-## 1단계: 정의 (Define)
+기획 워크플로우 시작 전, 각 단계별 승인 여부를 선택합니다.
 
-### Step 1. MVP 주제 정의 → Agent: product-owner (`/plan` 활용)
+<!--ASK_USER-->
+{"title":"진행 모드 선택","questions":[
+  {"question":"각 단계 완료 후 승인을 받고 진행할까요, 자동으로 진행할까요?","type":"radio","options":["단계별 승인","자동 진행"]}
+]}
+<!--/ASK_USER-->
 
+- **단계별 승인** 선택 시 → 각 스텝 완료 후 아래 ASK_USER로 승인 요청을 표시하고 응답에 따라 분기:
+  - **승인** → 다음 스텝 진행
+  - **재작업 요청** → 사용자 피드백을 받아 현재 스텝 재수행
+  - **중단** → 현재까지 산출물 보존 후 스킬 종료
+- **자동 진행** 선택 시 → 승인 없이 연속 실행
+
+승인 요청 ASK_USER 형식:
+
+<!--ASK_USER-->
+{"title":"단계 승인","questions":[
+  {"question":"{완료된 스텝명} 단계가 완료되었습니다. 결과 파일({생성된 파일 경로})을 검토하고 {다음 스텝명} 단계로 계속 진행할 지 승인해 주십시오.","type":"radio","options":["승인","재작업 요청","중단"]}
+]}
+<!--/ASK_USER-->
+
+
+### Phase 1: 정의 (Define)
+
+#### Step 1. MVP 주제 정의 → Agent: product-owner 
+
+- **PREV_ACTION**: 
+  - 참고 정보를 사용자에게 문의
+   <!--ASK_USER-->
+   {"title":"참고정보 요청","questions":[
+   {"question":"MVP 주제를 정의하기 위해 참고할 정보가 있으면 파일 경로를 입력하세요.<br>없으면 `없음`이라고 입력하세요.","type":"text"}
+   <!--/ASK_USER-->
+   - 참고정보 파일 입력 시 내용을 요약하여 에이젼트 `product-owner`에 전달 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/01-mvp-definition-guide.md`
-- **TASK**: CLAUDE.md의 MVP 주제를 기반으로 비즈니스 도메인을 정의하고, MVP 후보를 시장 잠재력·사용자 pain points·실현 가능성·경쟁 우위 4가지 팩터로 평가하여 최종 MVP 주제를 확정
+- **TASK**: AGENTS.md의 MVP 비즈니스 도메인을 기반으로 MVP 후보를 시장 잠재력·사용자 pain points·실현 가능성·경쟁 우위 4가지 팩터로 평가하여 최종 MVP 주제를 확정
 - **EXPECTED OUTCOME**: `docs/plan/define/MVP정의.md` — MVP 주제 정의, 선정 이유(4가지 팩터 평가표), 목표 비즈니스 도메인
-- **POST-ACTION**: 프로젝트 CLAUDE.md의 `## 목표` 섹션 다음에 `## MVP 주제` 섹션을 추가하고, 확정된 MVP 주제와 한 줄 설명을 기록
-
-### Step 2. 고객 분석 → Agent: service-planner (`/plan` 활용)
+- **POST-ACTION**: 
+  - 사용자에게 MVP후보와 추천 주제를 제공하고 사용자에게 선택 시킴. AskUserQuestion을 사용하지 말고 화면에 선택지를 표시. 선택한 주제에 대해 아래 수행
+  - 사용자가 선택한 주제로 `docs/plan/define/MVP정의.md` 파일 업데이트 
+  - 프로젝트 AGENTS.md의 `## 목표` 섹션에 확정된 MVP 주제에 기반하여 팀 목표를 기술 
+  - 프로젝트 AGENTS.md의 `## MVP > MVP 주제` 섹션에 확정된 MVP 주제를 기술 
+  - `{NPD_PLUGIN_DIR}/resources/guides/plan/domain-context-guide.md`의 가이드에 따라 `{PROJECT_DIR}/.npd/domain-context.yaml`에 도메인 특화 정보 생성
+  - 프로젝트 AGENTS.md의 멤버 중 `domain-expert`의 성향과 경력을 `{PROJECT_DIR}/.npd/domain-context.yaml`을 참고하여 재작성 
+  - `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+  
+#### Step 2. 고객 분석 → Agent: service-planner
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/02-customer-analysis-guide.md`
 - **TASK**: JTBD 프레임워크로 타겟 고객 유형을 정의하고 사용자 세그먼트(3-5개)별 인구통계·행동 패턴·현재 상황, 주요 Job과 원하는 결과를 도출
 - **EXPECTED OUTCOME**: `docs/plan/define/고객분석.md` — 타겟 고객 유형(JTBD 형식), 사용자 세그먼트 3-5개, Job to be Done
-- **POST-ACTION**: 프로젝트 CLAUDE.md의 `## MVP 주제` 섹션 다음에 `## 고객유형` 섹션을 추가하고, 선정된 고객유형과 최우선 고객 세그먼트를 기록
+- **POST-ACTION**: 
+  - 프로젝트 AGENTS.md의 `## MVP 주제` 섹션 다음에 `## 고객유형` 섹션을 추가하고, 선정된 고객유형과 최우선 고객 세그먼트를 기록
+  - `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트 
 
-### Step 3. 시장 조사 → Agent: domain-expert (`/plan` 활용)
+#### Step 3. 시장 조사 → Agent: domain-expert
 
-> **도메인 컨텍스트 주입**: `domain-expert` 호출 시 프로젝트의 `.npd/domain-context.yaml`을 읽어 프롬프트에 포함하여 도메인 특화 자문을 수행합니다.
+> **도메인 컨텍스트 주입**: `domain-expert` 호출 시 프로젝트의 `{PROJECT_DIR}/.npd/domain-context.yaml`을 읽어 프롬프트에 포함하여 도메인 특화 자문을 수행합니다.
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/03-market-research-guide.md`
 - **TASK**: MVP 주제와 타겟 고객에 대해 시장 규모(TAM/SAM/SOM), 경쟁 환경(3-5개 경쟁사), 고객 트렌드, 규제 환경, SWOT 분석, 시장 진입 전략을 포함한 철저한 시장 조사를 수행
 - **EXPECTED OUTCOME**: `docs/plan/define/시장조사.md` — 시장 규모·성장, 경쟁 환경, 고객 트렌드, 규제 환경, SWOT, 시장 진입 전략
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
-## 2단계: 문제 발견 및 방향성 (Discover)
+### Phase 2: 문제 발견 및 방향성 (Discover)
 
-### Step 4. 고객경험 단계 정의 → Agent: service-planner (`/plan` 활용)
+#### Step 1. 고객경험 단계 정의 → Agent: service-planner
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/04-customer-journey-stages-guide.md`
 - **TASK**: MVP 주제와 고객유형을 기반으로 현재 고객이 겪는 경험 단계(5-7개)를 문제 인식부터 해결/관리까지 순차적으로 정의
 - **EXPECTED OUTCOME**: `docs/plan/define/고객경험단계.md` — 고객경험 단계(화살표 연결), 단계별 설명(주요 행동·긍정/부정 느낌·Pain Points), 단계 도출 근거
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 5. 고객 경험 조사 → Agent: service-planner × 3 병렬 (`/ralph` 활용)
+#### Step 2. 고객 경험 조사 → Agent: service-planner × 3 병렬 
 
-**조사 규모 설정**: Step 5 시작 전, 고객 경험 조사의 규모를 사용자로부터 입력받습니다.
+**조사 규모 설정**: Step 2 시작 전, 고객 경험 조사의 규모를 사용자로부터 입력받습니다.
 
 <!--ASK_USER-->
 {"title":"고객 경험 조사 규모 설정","questions":[
-  {"question":"고객경험 인터뷰 대상자 수를 입력해 주세요. (기본값: 10명)","type":"text","placeholder":"10"},
-  {"question":"관찰 조사 횟수를 입력해 주세요. (기본값: 10회)","type":"text","placeholder":"10"},
-  {"question":"체험 테스트 횟수를 입력해 주세요. (기본값: 10회)","type":"text","placeholder":"10"}
+  {"question":"고객경험 인터뷰 대상자 수를 입력해 주세요. (기본값: 5명)","type":"text","placeholder":"5"},
+  {"question":"관찰 조사 횟수를 입력해 주세요. (기본값: 5회)","type":"text","placeholder":"5"},
+  {"question":"체험 테스트 횟수를 입력해 주세요. (기본값: 5회)","type":"text","placeholder":"5"}
 ]}
 <!--/ASK_USER-->
 
-> 사용자가 입력한 값을 각각 `{인터뷰수}`, `{관찰수}`, `{체험수}`로 사용합니다. 미입력 시 기본값 10을 적용합니다.
+> 사용자가 입력한 값을 각각 `{인터뷰수}`, `{관찰수}`, `{체험수}`로 사용합니다. 미입력 시 기본값 5를 적용합니다.
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/05-customer-experience-guide.md`
 - **실행 방식**: 3가지 조사를 서브에이전트로 **병렬 수행**한 후, 인터뷰 결과 취합을 순차 수행합니다.
 
-```
-┌─────────────────────────────────────────────────┐
-│  Step 5 시작 (조사 규모 입력 완료)                │
-│                                                   │
-│  ┌───────────┐ ┌───────────┐ ┌───────────────┐   │
-│  │ 5-A 관찰  │ │ 5-B 체험  │ │ 5-C 인터뷰    │   │
-│  │ (병렬)    │ │ (병렬)    │ │ (병렬)        │   │
-│  └─────┬─────┘ └─────┬─────┘ └──────┬────────┘   │
-│        └──────────────┼──────────────┘             │
-│                       ▼                            │
-│            ┌────────────────────┐                  │
-│            │ 5-D 인터뷰 취합   │                  │
-│            │ (5-C 완료 후 순차) │                  │
-│            └────────────────────┘                  │
-└─────────────────────────────────────────────────┘
-```
-
-#### Step 5-A. 관찰 조사 (병렬) → Agent: service-planner
+##### Step 2-1. 관찰 조사 (병렬) → Agent: service-planner
 
 - **TASK**: 고객경험 단계를 기준으로 {관찰수}회의 관찰 조사를 수행하여 고객 행동 데이터를 생성
 - **EXPECTED OUTCOME**: `docs/plan/define/관찰결과.md` — 관찰 {관찰수}회 결과(고객경험 단계별 관찰 행동·어려움·Pain Point·니즈·행동 패턴)
 
-#### Step 5-B. 체험 조사 (병렬) → Agent: service-planner
+##### Step 2-2. 체험 조사 (병렬) → Agent: service-planner
 
 - **TASK**: 고객경험 단계를 기준으로 {체험수}회의 체험 테스트를 수행하여 사용자 경험 데이터를 생성
 - **EXPECTED OUTCOME**: `docs/plan/define/체험결과.md` — 체험 {체험수}회 결과(고객경험 단계별 경험 내용·긍정/부정 측면·만족도)
 
-#### Step 5-C. 고객경험 인터뷰 (병렬) → Agent: service-planner
+##### Step 2-3. 고객경험 인터뷰 (병렬) → Agent: service-planner
 
 - **TASK**: 고객경험 단계를 기준으로 {인터뷰수}명 대상 심층 인터뷰를 수행하여 개별 인터뷰 결과를 생성
 - **EXPECTED OUTCOME**: `docs/plan/define/고객경험인터뷰결과.md` — 인터뷰 {인터뷰수}명 개별 결과(고객경험 단계별 행동·생각·긍정적/부정적 느낌)
 
-#### Step 5-D. 인터뷰 결과 취합 (5-C 완료 후 순차) → Agent: service-planner
+##### Step 2-4. 인터뷰 결과 취합 (2-D 완료 후 순차) → Agent: service-planner
 
-- **TASK**: 5-C에서 생성된 개별 인터뷰 결과를 종합 분석하여 핵심 인사이트를 도출
+- **TASK**: Step 2-3에서 생성된 개별 인터뷰 결과를 종합 분석하여 핵심 인사이트를 도출
 - **EXPECTED OUTCOME**: `docs/plan/define/고객경험인터뷰결과취합.md` — 인터뷰 종합 분석(핵심 인사이트·Pain Points·Needs·기대 가치)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-> **실행 지침**: Step 5-A, 5-B, 5-C를 `Agent(run_in_background=true)`로 동시에 실행합니다. 3개 모두 완료되면 5-D를 순차 실행합니다. 모든 서브스텝이 완료되어야 Step 5 완료로 간주합니다.
+> **실행 지침**: Step 2-1, 2-2, 2-3을 `Agent(run_in_background=true)`로 동시에 실행합니다. 3개 모두 완료되면 2-D를 순차 실행합니다. 모든 서브스텝이 완료되어야 Step 2 완료로 간주합니다.
 
-### Step 6. 고객 여정 맵 작성 → Agent: service-planner (`/ralph` 활용)
+#### Step 3. 고객 여정 맵 작성 → Agent: service-planner 
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/06-journey-mapping-guide.md`
 - **TASK**: 고객경험 단계를 X축으로, 경험 조사 데이터를 기반으로 페르소나 정의·단계별 행동/생각/감정/터치포인트/Pain Points/Gain Points·감정 곡선·핵심 인사이트·기회 영역이 포함된 User Journey Map을 작성
 - **EXPECTED OUTCOME**: `docs/plan/define/유저저니맵.md` — 페르소나·여정 맵 상세·감정 곡선·핵심 인사이트·기회 영역 / `docs/plan/define/유저저니맵.svg` — 시각화된 여정 맵
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 7. 문제 가설 정의 → 전체 팀 협업 (발산-수렴-선택 패턴) (`/ralph` 활용)
+#### Step 4. 문제 가설 정의 → 전체 팀 협업 (발산-수렴-선택 패턴) 
 
-> **도메인 컨텍스트 주입**: `domain-expert` 호출 시 프로젝트의 `.npd/domain-context.yaml`을 읽어 프롬프트에 포함합니다.
+> **도메인 컨텍스트 주입**: `domain-expert` 호출 시 프로젝트의 `{PROJECT_DIR}/.npd/domain-context.yaml`을 읽어 프롬프트에 포함합니다.
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/07-problem-hypothesis-guide.md`
 - **실행 방식**: 5개 서브스텝을 순차/병렬 조합으로 수행합니다.
 
-```
-┌──────────────────────────────────────────────────────────────┐
-│  Step 7 시작                                                  │
-│                                                                │
-│  ── 7-1. 문제가설 정의 (발산-수렴-선택) ──                     │
-│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                          │
-│  │ PO │ │ SP │ │ DE │ │ AR │ │ AI │  ← 5WHY 병렬 (5명)        │
-│  └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘                          │
-│    └───────┼──────┼──────┼──────┘                              │
-│              ▼                                                 │
-│     ┌─────────────────┐                                       │
-│     │ SP: 수렴 (합치기)│                                       │
-│     └────────┬────────┘                                       │
-│              ▼                                                 │
-│     ┌─────────────────┐                                       │
-│     │ PO: 선택 (확정) │ → 문제가설.md                          │
-│     └────────┬────────┘                                       │
-│              ▼                                                 │
-│  ── 7-2. 문제 검증 인터뷰 (병렬) ──                            │
-│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                          │
-│  │ PO │ │ SP │ │ DE │ │ AR │ │ AI │  ← 인터뷰 병렬 (5명)      │
-│  └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘                          │
-│    └───────┼──────┼──────┼──────┘                              │
-│              ▼                                                 │
-│  ── 7-3. 인터뷰 결과 취합 ──                                   │
-│     ┌─────────────────┐                                       │
-│     │ SP: 결과 취합    │ → 문제검증인터뷰결과취합.md             │
-│     └────────┬────────┘                                       │
-│              ▼                                                 │
-│  ── 7-4. 문제가설 피보팅 ──                                    │
-│     ┌─────────────────┐                                       │
-│     │ PO: 가설 수정    │ → 문제가설.md (덮어쓰기)               │
-│     └────────┬────────┘                                       │
-│              ▼                                                 │
-│  ── 7-5. 비즈니스 가치 도출 (발산-수렴-선택) ──                 │
-│  ┌────┐ ┌────┐ ┌────┐ ┌────┐ ┌────┐                          │
-│  │ PO │ │ SP │ │ DE │ │ AR │ │ AI │  ← 발산 병렬 (5명)        │
-│  └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘ └─┬──┘                          │
-│    └───────┼──────┼──────┼──────┘                              │
-│              ▼                                                 │
-│     ┌─────────────────┐                                       │
-│     │ SP: 수렴 (합치기)│                                       │
-│     └────────┬────────┘                                       │
-│              ▼                                                 │
-│     ┌─────────────────┐                                       │
-│     │ PO: 선택 (확정) │ → 비즈니스가치.md                      │
-│     └─────────────────┘                                       │
-└──────────────────────────────────────────────────────────────┘
+##### Step 4-1. 문제가설 정의 (발산-수렴-선택)
 
-PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engineer
-```
-
-#### Step 7-1. 문제가설 정의 (발산-수렴-선택)
-
-**7-1a. 발산 — 5WHY 수행 (병렬)** → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
+**4-1a. 발산 — 5WHY 수행 (병렬)** → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
 
 - **TASK**: 각 팀원이 자신의 전문 관점에서 현상문제 3개를 도출하고 각각 5WHY로 근본원인을 분석
 - **EXPECTED OUTCOME**: 팀원별 5WHY 분석 결과 (팀원당 문제 3개 × 5WHY)
 - **CONTEXT**: `docs/plan/define/고객분석.md`, `docs/plan/define/유저저니맵.md`, 고객 경험 조사 데이터 전체
 - **실행**: 5개 에이전트를 `Agent(run_in_background=true)`로 동시 실행
 
-**7-1b. 수렴 — 유사 항목 합치기 (순차)** → Agent: service-planner
+**4-1b. 수렴 — 유사 항목 합치기 (순차)** → Agent: service-planner
 
-- **TASK**: 7-1a에서 도출된 5명의 5WHY 결과를 취합하고 유사한 문제와 근본원인을 그룹핑하여 다층적 근본원인 관점으로 재구조화
+- **TASK**: 4-1a에서 도출된 5명의 5WHY 결과를 취합하고 유사한 문제와 근본원인을 그룹핑하여 다층적 근본원인 관점으로 재구조화
 - **EXPECTED OUTCOME**: 수렴된 문제가설 후보 목록 (그룹핑된 문제 + 근본원인 + 출처 팀원 표기)
-- **CONTEXT**: 7-1a 결과
+- **CONTEXT**: 4-1a 결과
 
-**7-1c. 선택 — 최종 문제가설 확정 (순차)** → Agent: product-owner
+**4-1c. 선택 — 최종 문제가설 확정 (순차)** → Agent: product-owner
 
 - **TASK**: 수렴된 후보 중 핵심 문제 3개와 근본원인을 영향력·빈도·심각도 관점에서 선정하여 최종 문제가설로 확정
 - **EXPECTED OUTCOME**: `docs/plan/define/문제가설.md` — 문제 3개, 5WHY 분석, 다층적 근본원인 검토, 핵심 근본원인 선정
+- **CONTEXT**: 4-1b 결과
 
-#### Step 7-2. 문제 검증 인터뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
+##### Step 4-2. 문제 검증 인터뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
 
-**인터뷰 규모 설정**: Step 7-2 시작 전, 문제검증 인터뷰 대상자 수를 사용자로부터 입력받습니다.
+**인터뷰 규모 설정**: Step 4-2 시작 전, 문제검증 인터뷰 대상자 수를 사용자로부터 입력받습니다.
 
 <!--ASK_USER-->
 {"title":"문제검증 인터뷰 규모 설정","questions":[
-  {"question":"문제검증 인터뷰 대상자 수를 입력해 주세요. (기본값: 10명)","type":"text","placeholder":"10"}
+  {"question":"문제검증 인터뷰 대상자 수를 입력해 주세요. (기본값: 5명)","type":"text","placeholder":"5"}
 ]}
 <!--/ASK_USER-->
 
-> 사용자가 입력한 값을 `{문제검증인터뷰수}`로 사용합니다. 미입력 시 기본값 10을 적용합니다.
+> 사용자가 입력한 값을 `{문제검증인터뷰수}`로 사용합니다. 미입력 시 기본값 5를 적용합니다.
 
-- **TASK**: 확정된 문제가설을 기반으로 {문제검증인터뷰수}명 대상 문제검증 인터뷰를 5명이 분담하여 병렬 수행
+- **TASK**: 확정된 문제가설을 기반으로 {문제검증인터뷰수}명 대상 문제검증 인터뷰를 에이전트 5명이 분담하여 병렬 수행
 - **EXPECTED OUTCOME**: `docs/plan/define/문제검증인터뷰결과.md` — {문제검증인터뷰수}명 개별 인터뷰 결과(중요도·불편도·근본원인 동의여부)
 - **실행**: 5개 에이전트를 `Agent(run_in_background=true)`로 동시 실행, 각 에이전트가 분담된 인터뷰 수만큼 수행 후 결과를 하나의 파일로 병합
 
-#### Step 7-3. 인터뷰 결과 취합 (순차) → Agent: service-planner
+##### Step 4-3. 인터뷰 결과 취합 (순차) → Agent: service-planner
 
 - **TASK**: 수집된 전체 인터뷰 결과를 종합 분석하여 문제별 중요도/불편도 평균, 근본원인 동의율, 핵심 인사이트를 도출
 - **EXPECTED OUTCOME**: `docs/plan/define/문제검증인터뷰결과취합.md` — 인터뷰 결과 종합 취합(문제별 통계·근본원인 검증·핵심 인사이트)
 
-#### Step 7-4. 문제가설 피보팅 (순차) → Agent: product-owner
+##### Step 4-4. 문제가설 피보팅 (순차) → Agent: product-owner
 
 - **TASK**: 인터뷰 결과 취합을 반영하여 중요도/불편도가 낮거나 동의율이 낮은 항목을 조정하고 새로 발견된 문제를 반영하여 문제가설을 수정
 - **EXPECTED OUTCOME**: `docs/plan/define/문제가설.md` — 피보팅된 문제가설(기존 파일 덮어쓰기), 변경 사항과 피보팅 근거를 파일 상단에 명시
 
-#### Step 7-5. 비즈니스 가치 도출 (발산-수렴-선택)
+##### Step 4-5. 비즈니스 가치 도출 (발산-수렴-선택)
 
-**7-5a. 발산 — 가치 도출 (병렬)** → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
+**4-5a. 발산 — 가치 도출 (병렬)** → Agent: product-owner, service-planner, domain-expert, architect, ai-engineer
 
 - **TASK**: 피보팅된 문제가설의 근본원인 해소 시 고객·회사 각각의 비즈니스 가치를 자신의 전문 관점에서 도출
 - **EXPECTED OUTCOME**: 팀원별 비즈니스 가치 후보 (고객 측면 + 회사 측면)
 - **CONTEXT**: `docs/plan/define/문제가설.md` (피보팅 버전), `docs/plan/define/문제검증인터뷰결과취합.md`
 - **실행**: 5개 에이전트를 `Agent(run_in_background=true)`로 동시 실행
 
-**7-5b. 수렴 — 유사 항목 합치기 (순차)** → Agent: service-planner
+**4-5b. 수렴 — 유사 항목 합치기 (순차)** → Agent: service-planner
 
 - **TASK**: 5명의 비즈니스 가치 후보를 취합하고 유사한 가치를 그룹핑하여 정리
 - **EXPECTED OUTCOME**: 수렴된 비즈니스 가치 후보 목록 (고객 측면 + 회사 측면, 출처 팀원 표기)
-- **CONTEXT**: 7-5a 결과
+- **CONTEXT**: 4-5a 결과
 
-**7-5c. 선택 — 최종 비즈니스 가치 확정 (순차)** → Agent: product-owner
+**4-5c. 선택 — 최종 비즈니스 가치 확정 (순차)** → Agent: product-owner
 
 - **TASK**: 수렴된 후보 중 고객·회사 각각 가장 중요한 비즈니스 가치 3개 이하를 측정 가능한 지표와 연결하여 선정
 - **EXPECTED OUTCOME**: `docs/plan/define/비즈니스가치.md` — 고객/회사 측면 비즈니스 가치(각 3개 이하, 선정 근거 포함)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 > **전체 산출물**: `문제가설.md` (피보팅 최종본), `문제검증인터뷰결과.md`, `문제검증인터뷰결과취합.md`, `비즈니스가치.md`
 
-### Step 8. 방향성 정의 → Agent: product-owner (`/plan` 활용)
+#### Step 5. 방향성 정의 → Agent: product-owner 
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/08-direction-setting-guide.md`
 - **TASK**: 검증된 문제들을 영향력·빈도·심각도·근본성·해결가능성 5가지 기준으로 평가하여 킹핀 문제를 선정하고, `'<고객유형>는 <목적>을 위하여 <원하는 것>이 필요하다.'` 형식의 Needs Statement로 방향성을 정의
 - **EXPECTED OUTCOME**: `docs/plan/think/킹핀문제.md` — 검증된 문제 리스트·인과관계·5가지 기준 평가·킹핀 문제 선정 / `docs/plan/think/문제해결방향성.md` — Needs Statement·상세 설명(고객유형·목적·원하는 것)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
-## 3단계: 솔루션 (Solution)
+### Phase 3: 솔루션 (Solution)
 
-### Step 9. 아이디어 발상 → Agent: product-owner, service-planner(리드), domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/ralph` 활용)
+#### Step 1. 아이디어 발상 → Agent: product-owner, service-planner(리드), domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer 
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/09-ideation-guide.md`
 - **TASK**: 모든 팀원(9명)이 SCAMPER·Steal & Synthesize 기법으로 각자 Big Idea 3개, Little Win Idea 2개, Crazy Idea 1개를 도출(병렬)한 후, service-planner가 유사도 평가표(기능 70%/경험 30%)를 작성하여 유사도 0.7 이상 아이디어를 합쳐 솔루션 후보를 수렴
 - **EXPECTED OUTCOME**: `docs/plan/think/솔루션탐색.md` — 팀원별 아이디어 표 / `docs/plan/think/솔루션후보.md` — 수렴된 솔루션 후보(각 후보 상세 설명)
 - **실행**: 솔루션 탐색은 9개 에이전트를 `Agent(run_in_background=true)`로 동시 실행, 솔루션 수렴은 service-planner가 순차 수행
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 10. 솔루션 선정 → Agent: product-owner(리드), service-planner, domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/plan` 활용)
+#### Step 2. 솔루션 선정 → Agent: product-owner(리드), service-planner, domain-expert, architect, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/10-solution-selection-guide.md`
 - **TASK**: 모든 팀원(9명)이 비즈니스 가치(B) 3표·실현 가능성(F) 3표를 투표(병렬)한 후, product-owner가 결과를 집계하고 X축=실현가능성/Y축=비즈니스 영향도의 2x2 매트릭스로 시각화하여 핵심 솔루션 3개 이하를 선정
 - **EXPECTED OUTCOME**: `docs/plan/think/솔루션평가.md` — 투표 결과 집계표 / `docs/plan/think/솔루션우선순위평가.svg` — 우선순위 매트릭스 SVG / `docs/plan/think/핵심솔루션.md` — 선정된 핵심 솔루션(3개 이하, 상세 설명)
 - **실행**: 투표는 9개 에이전트를 `Agent(run_in_background=true)`로 동시 실행, 집계 및 선정은 product-owner가 순차 수행
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
-## 4단계: 비즈니스 모델 (Business Model)
+### Phase 4: 비즈니스 모델 (Business Model)
 
-### Step 11. 비즈니스 모델 설계 → Agent: product-owner (`/plan` 활용)
+#### Step 1. 비즈니스 모델 설계 → Agent: product-owner 
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/11-business-modeling-guide.md`
 - **TASK**: Lean Canvas 프레임워크로 9개 영역(Problem·Customer Segments·UVP·Solution·Channels·Revenue Streams·Cost Structure·Key Metrics·Unfair Advantage)과 경쟁 분석·GTM 전략·3개년 재무 계획(손익계산서·BEP)을 포함한 비즈니스 모델을 설계
 - **EXPECTED OUTCOME**: `docs/plan/think/비즈니스모델.md` — Lean Canvas 9영역 전체·가격 전략·수익 전망·비용 구조·Key Metrics·경쟁 매트릭스·GTM 전략·재무 계획
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 12. 발표자료 스크립트 → Agent: service-planner (`/ralph` 활용)
+#### Step 2. 발표자료 스크립트 → Agent: service-planner
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/12-presentation-guide.md`
 - **TASK**: 비즈니스 모델을 기반으로 린캔버스 9영역·경쟁 분석·GTM 전략·재무 계획을 10-15장으로 구성하고 장표별 핵심 메시지 3개 이하·비주얼 제안을 포함한 발표자료 스크립트를 작성
 - **EXPECTED OUTCOME**: `docs/plan/think/서비스기획서스크립트.md` — 10-15장 슬라이드 스크립트(각 장표 핵심 메시지 3개 이하, 장표 간 `---` 구분, 비주얼 제안 포함)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
-## 5단계: 제품 설계 (Product Design)
+### Phase 5: 제품 설계 (Product Design)
 
-### Step 13. 이벤트 스토밍 → Agent: architect(리드), product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer (`/ralph` 활용)
+#### Step 1. 이벤트 스토밍 → Agent: architect(리드), product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer 
 
 - **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/13-event-storming-guide.md`
 - **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
 
-#### Step 13-1. 초안 작성 (순차) → Agent: architect
+##### Step 1-1. 초안 작성 (순차) → Agent: architect
 
 - **TASK**: DDD Event Storming 기법으로 핵심 솔루션의 시스템 이벤트 흐름을 분석하고, 주요 유저플로우 식별·연결도·시퀀스 다이어그램·마이크로서비스 정의를 PlantUML로 작성
 - **EXPECTED OUTCOME**: `docs/plan/think/es/userflow.puml` — 유저플로우 연결도 / `docs/plan/think/es/{순번}-{유저플로우명}.puml` — 각 유저플로우 시퀀스 다이어그램
 
-#### Step 13-2. 팀 리뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer
+##### Step 1-2. 팀 리뷰 (병렬) → Agent: product-owner, service-planner, domain-expert, ai-engineer, backend-developer, frontend-developer, qa-engineer, devops-engineer
 
-- **TASK**: 13-1에서 작성된 이벤트 스토밍 초안을 각자의 전문성 관점에서 리뷰하고 의견을 제시
+- **TASK**: Step 1-1에서 작성된 이벤트 스토밍 초안을 각자의 전문성 관점에서 리뷰하고 의견을 제시
   - **product-owner**: 비즈니스 가치·MVP 범위 관점에서 누락된 유저플로우나 이벤트 확인
   - **service-planner**: 사용자 경험·서비스 흐름 관점에서 유저플로우 완성도 검토
   - **domain-expert**: 도메인 규칙·규제·업계 관행 관점에서 정책/규칙 검증
@@ -396,23 +363,24 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 - **CONTEXT**: `docs/plan/think/es/userflow.puml`, `docs/plan/think/es/*.puml`
 - **실행**: 8개 에이전트를 `Agent(run_in_background=true)`로 동시 실행
 
-#### Step 13-3. 의견 반영 및 업데이트 (순차) → Agent: architect
+##### Step 1-3. 의견 반영 및 업데이트 (순차) → Agent: architect
 
 - **TASK**: 팀 리뷰 의견을 검토하고 타당한 의견을 반영하여 이벤트 스토밍 산출물을 업데이트
 - **EXPECTED OUTCOME**: 기존 `docs/plan/think/es/*.puml` 파일 업데이트(반영 사항 주석 추가), `docs/plan/think/es/리뷰반영결과.md` — 반영/미반영 판단 근거(ai-engineer AI 기회 발굴 의견 별도 섹션)
 - **CONTEXT**: `docs/plan/think/es/리뷰의견.md`, 기존 이벤트 스토밍 산출물
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 14. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert (`/ralph` 활용)
+#### Step 2. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert
 
-- **GUIDE**: `14-user-stories-guide.md`
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/14-user-stories-guide.md`
 - **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
 
-#### Step 14-1. 초안 작성 (순차) → Agent: service-planner
+##### Step 2-1. 초안 작성 (순차) → Agent: service-planner
 
 - **TASK**: 이벤트 스토밍 결과를 기반으로 유저플로우→Epic, 이벤트→User Story, 커맨드→시나리오/Task, 정책/규칙→Acceptance Criteria 변환, UFR 포맷·우선순위·Story Points·Feature Story Map·스프린트 계획·비기능 요구사항을 포함한 유저스토리를 작성
 - **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` — 마이크로서비스별 유저스토리(최소 20개 UFR)·사용자 역할·Feature Story Map·우선순위 매트릭스·스프린트 계획·비기능 요구사항·Definition of Done·리스크
 
-#### Step 14-2. 검토 (병렬) → Agent: product-owner, architect, ai-engineer, domain-expert
+##### Step 2-2. 검토 (병렬) → Agent: product-owner, architect, ai-engineer, domain-expert
 
 - **TASK**: 14-1에서 작성된 유저스토리 초안을 각자의 전문성 관점에서 검토하고 의견을 제시
   - **product-owner**: MVP 범위·비즈니스 우선순위 관점에서 우선순위(M/S/C) 적절성 검토, 누락된 비즈니스 요구사항 식별
@@ -423,25 +391,33 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 - **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/think/es/*.puml`
 - **실행**: 4개 에이전트를 `Agent(run_in_background=true)`로 동시 실행
 
-#### Step 14-3. 의견 반영 및 업데이트 (순차) → Agent: service-planner
+##### Step 2-3. 의견 반영 및 업데이트 (순차) → Agent: service-planner
 
 - **TASK**: 검토 의견을 반영하여 유저스토리를 업데이트하고 반영/미반영 판단 근거를 기록
 - **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` 업데이트(기존 파일 덮어쓰기), `docs/plan/design/userstory-리뷰반영결과.md` — 반영/미반영 판단 근거(최종 UFR 최소 20개 확인)
 - **CONTEXT**: `docs/plan/design/userstory-리뷰의견.md`, 기존 유저스토리
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 15. UI/UX 설계 → Agent: service-planner (`/ralph` 활용)
+#### Step 3. UI/UX 설계 → Agent: service-planner
 
-<!--ASK_USER-->
-{"title":"디자인 레퍼런스 입력 (선택)","questions":[
-  {"question":"참고할 디자인 레퍼런스(추천: https://wwit.design)가 있으시면 제공해 주세요. URL, 이미지 경로, 이미지 붙여넣기 모두 가능합니다. 없으면 '없음'을 입력해 주세요.","type":"text","placeholder":"없음"}
-]}
-<!--/ASK_USER-->
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/15-uiux-design-guide.md`
+- **TASK**: 유저스토리를 기반으로 디자인 원칙·정보 아키텍처·사용자 플로우·와이어프레임(최소 5개 화면)·컴포넌트 라이브러리·접근성(WCAG 2.1 AA)·스타일 가이드·인터랙션 디자인을 포함한 UI/UX 디자인 명세를 작성 (레퍼런스 분석 결과 있는 경우 디자인 톤·레이아웃·컴포넌트 스타일 반영)
+- **EXPECTED OUTCOME**: `docs/plan/design/uiux/uiux.md` — UI/UX 디자인 명세 전체 / `docs/plan/design/uiux/style-guide.md` — 스타일 가이드
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+
+##### Step 3-1. 디자인 레퍼런스 수집
+디자인 레퍼런스 입력을 사용자에게 요청. 반드시 `https://wwit.design` 사이트를 추천해야 함.    
+AskUserQuestion 사용하지 않고 아래와 같이 요청.   
+```  
+참고할 디자인 레퍼런스가 있으시면 제공해 주세요. URL, 이미지 경로, 이미지 붙여넣기 모두 가능합니다.  
+추천 사이트: https://wwit.design
+```
 
 - 사용자가 **URL을 제공한 경우**: 아래 레퍼런스 분석 워크플로우 실행 후 UI/UX 설계 진행
-- 사용자가 **이미지를 제공한 경우**: `docs/plan/design/uiux/references/`에 저장하고 Vision 에이전트로 디자인 분석
+- 사용자가 **이미지를 제공한 경우**: `docs/plan/design/uiux/references/`에 저장하고 디자인 분석
 - 사용자가 '없음' 또는 미응답 시: 레퍼런스 없이 진행
 
-#### Step 15-R. 레퍼런스 사이트 디자인 분석 (URL 제공 시에만 실행)
+##### Step 3-2. 레퍼런스 사이트 디자인 분석 (URL 제공 시에만 실행) → Agent: service-planner 
 
 1. **Playwright로 사이트 접속 및 스크린샷 촬영**
    - 데스크톱 뷰포트(1280x800)로 주요 페이지 스크린샷 촬영
@@ -449,22 +425,20 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
    - 스크린샷을 `docs/plan/design/uiux/references/`에 저장
 2. **Playwright accessibility snapshot으로 페이지 구조 파악**
    - 네비게이션 구조, 컴포넌트 계층, 폼 요소 등 구조 정보 수집
-3. **Vision 에이전트로 디자인 분석**
-   - 촬영된 스크린샷을 `oh-my-claudecode:vision` 에이전트에 전달
+3. **디자인 분석**
+   - 촬영된 스크린샷을 읽어 디자인 분석
    - 분석 항목: 컬러 팔레트, 레이아웃 패턴, 타이포그래피, 컴포넌트 스타일, 간격 시스템, 인터랙션 패턴
 4. **분석 결과 정리**
    - `docs/plan/design/uiux/references/레퍼런스분석.md`에 분석 결과 저장
    - 이 파일을 후속 UI/UX 설계의 CONTEXT에 포함
 
-- **GUIDE**: `15-uiux-design-guide.md`
-- **TASK**: 유저스토리를 기반으로 디자인 원칙·정보 아키텍처·사용자 플로우·와이어프레임(최소 5개 화면)·컴포넌트 라이브러리·접근성(WCAG 2.1 AA)·스타일 가이드·인터랙션 디자인을 포함한 UI/UX 디자인 명세를 작성 (레퍼런스 분석 결과 있는 경우 디자인 톤·레이아웃·컴포넌트 스타일 반영)
-- **EXPECTED OUTCOME**: `docs/plan/design/uiux/uiux.md` — UI/UX 디자인 명세 전체 / `docs/plan/design/uiux/style-guide.md` — 스타일 가이드
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
 ---
 
-## 6단계: 프로토타입 (Prototype)
+### Phase 6: 프로토타입 (Prototype)
 
-### Step 16. 프로토타입 개발 → Agent: frontend-developer (`/ralph` 활용)
+#### Step 1. 프로토타입 개발 → Agent: frontend-developer 
 
 <!--ASK_USER-->
 {"title":"이미지 생성용 Gemini API Key (선택)","questions":[
@@ -472,19 +446,20 @@ PO=product-owner, SP=service-planner, DE=domain-expert, AR=architect, AI=ai-engi
 ]}
 <!--/ASK_USER-->
 
-- 사용자가 API Key를 제공한 경우: `.npd/.env` 파일에 `GEMINI_API_KEY={입력값}` 저장 (`.npd/`는 `.gitignore`에 포함되어 git에 업로드되지 않음)
+- 사용자가 API Key를 제공한 경우: `{PROJECT_DIR}/.npd/.env` 파일에 `GEMINI_API_KEY={입력값}` 저장 (`.npd/`는 `.gitignore`에 포함되어 git에 업로드되지 않음)
 - 사용자가 '없음' 또는 미응답 시: 이미지 없이 진행 (placeholder 텍스트 사용)
 
-- **GUIDE**: `16-prototype-development-guide.md`
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/16-prototype-development-guide.md`
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/` 디렉토리 — `common.css`·`common.js`·`{2자리번호}-{한글화면명}.html`·`테스트결과.md`
-
-#### Step 16-1. 공통 파일 개발 (순차)
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+  
+##### Step 1-1. 공통 파일 개발 (순차)
 
 - **TASK**: 스타일가이드를 기반으로 CSS 변수·Mobile First 레이아웃·접근성 유틸리티가 포함된 `common.css`와 Web Components 공통 UI·샘플 데이터·화면 전환·localStorage 유틸리티가 포함된 `common.js`를 개발
 
-#### Step 16-2. 화면별 개발-테스트 루프 (ralph 활용)
+##### Step 1-2. 화면별 개발-테스트 루프 
 
-##### 의존관계 분석 및 병렬 개발
+###### 1-2a. 의존관계 분석 및 병렬 개발
 
 UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계를 파악하고, 독립적인 화면은 병렬로 개발함.
 
@@ -500,7 +475,7 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 3. **병렬 개발**: 같은 레벨의 화면들을 병렬 에이전트로 동시 개발 → 각 에이전트가 개발-테스트 사이클 수행
 4. **레벨 순차 진행**: 현재 레벨의 모든 화면 완료 후 다음 레벨로 진행
 
-##### 화면 1개당 개발-테스트 사이클
+###### 1-2b. 화면 1개당 개발-테스트 사이클
 
 1. **개발**: UI/UX 설계서의 와이어프레임과 일대일 매핑하여 HTML 작성
 2. **Playwright 즉시 테스트**:
@@ -512,7 +487,7 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 3. **수정**: 에러/UI 이슈 발견 시 수정 후 재테스트
 4. **완료**: 테스트 통과 후 해당 화면 완료 처리
 
-#### Step 16-3. 통합 테스트 (Playwright 자동 검증)
+##### Step 1-3. 통합 테스트 (Playwright 자동 검증)
 
 모든 화면 개발 완료 후, Playwright로 전체 프로토타입을 자동 검증함.
 
@@ -534,22 +509,26 @@ UI/UX 설계서의 사용자 플로우를 분석하여 화면 간 의존관계�
 | 데이터 | 사용 화면 | 일관성 |
 ```
 
-#### Step 16-4. 버그 수정 루프 (ralph 활용)
+##### Step 1-4. 버그 수정 루프 
 
-Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통과할 때까지 반복함.
+Step 1-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통과할 때까지 반복함. 
+**최대 반복횟수는 5번으로 한정**하고 초과하는 경우 결과 레포트에 반드시 명시  
 
 1. 테스트결과.md의 실패/비정상 항목 확인
 2. 해당 HTML 파일 수정
 3. Playwright로 수정된 항목만 재테스트
 4. 모든 항목 통과 시 완료, 미통과 시 1번으로 복귀
 
-### Step 17. 사용자 플로우 프리젠테이션 → Agent: frontend-developer (`/ralph` 활용)
+**POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-- **GUIDE**: `17-flow-presentation-guide.md`
-- **TASK**: Playwright로 각 프로토타입 화면을 스크린샷 촬영(일련번호+한글 자막 오버레이)하고, 테스트결과.md의 화면간 연결성 데이터를 분석하여 3-5개 주요 플로우를 도출한 후, 3단 레이아웃(좌측 스텝 리스트/중앙 폰 프레임/우측 나레이션)의 인터랙티브 HTML 프리젠테이션을 개발
+#### Step 2. 사용자 플로우 프리젠테이션 → Agent: frontend-developer 
+
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/17-flow-presentation-guide.md`
+- **TASK**: Playwright로 각 프로토타입 화면을 스크린샷 촬영(일련번호+한글 자막 오버레이)하고, 테스트결과.md의 화면간 연결성 데이터를 분석하여 주요 플로우를 도출한 후, 3단 레이아웃(좌측 스텝 리스트/중앙 폰 프레임/우측 나레이션)의 인터랙티브 HTML 프리젠테이션을 개발
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/screenshots/{번호}-{화면명}.png` — 자막 포함 화면별 스크린샷 / `docs/plan/design/uiux/prototype/flow-script.html` — 사용자 플로우 인터랙티브 프리젠테이션
+- **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-### Step 18. 기획 완료 보고
+#### Step 3. 기획 완료 보고
 
 ```
 ## 기획 완료
@@ -635,7 +614,7 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 
 ## 완료 조건
 
-- [ ] 모든 워크플로우 단계(6단계 18스텝)가 정상 완료됨
+- [ ] 모든 워크플로우 단계가 정상 완료됨
 - [ ] 산출물이 `docs/plan/` 하위 디렉토리(define/think/design/)에 생성됨
 - [ ] 프로토타입이 `docs/plan/design/uiux/prototype/`에 생성됨
 - [ ] 검증 프로토콜을 통과함
@@ -643,22 +622,10 @@ Step 16-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 �
 
 ## 검증 프로토콜
 
-1. 산출물 파일 존재 확인 (define/, think/, design/ 하위 전체 파일)
-2. 산출물 내용 품질 검증 (고객 조사 사용자 입력 규모 충족, UFR 20개 이상, Lean Canvas 9영역)
-3. 이전 Phase 산출물과의 일관성 확인 (각 Step의 CONTEXT 체인 연결)
+1. 산출물 내용 품질 검증 (고객 조사 사용자 입력 규모 충족, UFR 20개 이상, Lean Canvas 9영역)
+2. 이전 Phase 산출물과의 일관성 확인 (각 Step의 CONTEXT 체인 연결)
 
 ## 상태 정리
 
 완료 시 임시 상태 파일 정리. 산출물은 유지.
 
-## 취소
-
-사용자가 "cancelomc" 또는 "stopomc" 요청 시 현재 단계를 안전하게 중단하고 진행 상태를 보고함.
-
-## 재개
-
-마지막 완료된 Step부터 재시작. 이전 산출물이 존재하면 해당 단계는 건너뜀.
-
-1. `CLAUDE.md`의 `## NPD 워크플로우 상태 > ### plan` 섹션에서 `진행 모드`, `마지막 완료 Step`을 읽어 복원
-2. 상태 섹션이 없으면 **Step 0. 진행 모드 선택**을 먼저 수행
-3. 복원된 마지막 완료 Step의 다음 Step부터 진행

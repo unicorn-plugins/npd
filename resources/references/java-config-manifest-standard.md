@@ -71,7 +71,7 @@ springdoc:
 logging:
   level:
     root: ${LOG_LEVEL_ROOT:INFO}
-    com.{ORG}.{ROOT}: ${LOG_LEVEL_APP:DEBUG}  # CLAUDE.md의 ORG, ROOT 값 참조
+    com.{ORG}.{ROOT}: ${LOG_LEVEL_APP:DEBUG}  # AGENTS.md의 ORG, ROOT 값 참조
     org.springframework.web: ${LOG_LEVEL_WEB:INFO}
     org.hibernate.SQL: ${LOG_LEVEL_SQL:INFO}
     org.hibernate.type: ${LOG_LEVEL_SQL_TYPE:INFO}

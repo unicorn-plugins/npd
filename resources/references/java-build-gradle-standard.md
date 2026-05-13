@@ -98,7 +98,7 @@ plugins {
     alias(libs.plugins.lombok) apply false
 }
 
-group = 'com.{ORG}.{ROOT}'  // CLAUDE.md의 ORG, ROOT 값 참조
+group = 'com.{ORG}.{ROOT}'  // AGENTS.md의 ORG, ROOT 값 참조
 version = '1.0.0'
 
 allprojects {

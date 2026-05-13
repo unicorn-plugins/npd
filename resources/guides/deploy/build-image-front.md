@@ -6,7 +6,7 @@
 ## 입력 (이전 단계 산출물)
 | 산출물 | 파일 경로 | 활용 방법 |
 |--------|----------|----------|
-| 기술스택 정보 | `CLAUDE.md` | 빌드 도구 및 프레임워크 결정 |
+| 기술스택 정보 | `AGENTS.md` | 빌드 도구 및 프레임워크 결정 |
 | 프론트엔드 소스 | `(런타임 결정)` | 빌드 대상 |
 
 ## 출력 (이 단계 산출물)
@@ -21,10 +21,10 @@
 
 ### 기술스택 확인 및 분기
 
-CLAUDE.md의 기술스택 정보를 확인하여 아래 결정 트리를 따른다.
+AGENTS.md의 기술스택 정보를 확인하여 아래 결정 트리를 따른다.
 
 ```
-1. CLAUDE.md에서 프론트엔드 프레임워크 확인
+1. AGENTS.md에서 프론트엔드 프레임워크 확인
 2. IF package.json의 dependencies에 "react" + devDependencies에 "vite" → [Vite/React 분기]
 3. IF package.json의 dependencies에 "vue" → [Vue 분기]
 4. IF pubspec.yaml 존재 + dependencies에 "flutter" → [Flutter Web 분기]
@@ -189,7 +189,7 @@ CMD ["nginx", "-g", "daemon off;"]
 ```
 
 > **Vite/Vue 공통**: 두 프레임워크 모두 `npm run build` 결과가 `dist/` 디렉토리에 생성되므로 동일한 Dockerfile을 사용한다.
-> `{version}`은 CLAUDE.md의 `### develop > 기술스택 > Node.js` 버전을 참조하여 결정한다. 기술스택 정보가 없으면 기본값 `20`을 사용한다.
+> `{version}`은 AGENTS.md의 `### develop > 기술스택 > Node.js` 버전을 참조하여 결정한다. 기술스택 정보가 없으면 기본값 `20`을 사용한다.
 > **rollup 플랫폼 오류 발생 시**: 트러블슈팅 섹션의 "rollup platform-specific 오류" 항목을 참고한다.
 
 ### Dockerfile 생성 (Flutter Web)
@@ -354,7 +354,7 @@ docker push ${REGISTRY_URL}/${service}:v1.0.0
 ```
 
 > `${REGISTRY_URL}`은 `[실행정보]`에서 조립된 값을 사용한다.
-> `${ROOT}`는 CLAUDE.md의 시스템명을 참조한다.
+> `${ROOT}`는 AGENTS.md의 시스템명을 참조한다.
 > AKS 환경에서는 `:latest` 태그가 Deployment Safeguards 정책에 의해 차단되므로 시맨틱 버전 태그(`v1.0.0`)를 사용한다.
 
 ## 출력 형식

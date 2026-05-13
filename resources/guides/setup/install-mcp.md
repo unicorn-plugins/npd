@@ -6,7 +6,11 @@
   - [Claude Code에 주요 MCP서버 연결](#claude-code에-주요-mcp서버-연결)
   - [Cursor에 주요 MCP서버 연결](#cursor에-주요-mcp서버-연결)
   - [Claude CoWork에 주요 MCP서버 연결](#claude-cowork에-주요-mcp서버-연결)
-  - [MCP서버 삭제](#mcp서버-삭제)
+  - [MCP 서버 설치 확인](#mcp-서버-설치-확인)
+    - [Context7](#context7)
+    - [Sequential Thinking](#sequential-thinking)
+    - [Playwright](#playwright)
+  - [MCP 서버 삭제](#mcp-서버-삭제)
 
 ---
 
@@ -48,14 +52,14 @@ Windows:
 ```
 claude mcp add-json context7 '{"command":"cmd","args":["/c","npx","-y","@upstash/context7-mcp@latest"]}' --scope user
 claude mcp add-json sequential-thinking '{"command":"cmd","args":["/c","npx","-y","@modelcontextprotocol/server-sequential-thinking"]}' --scope user
-claude mcp add-json playwright '{"command":"cmd","args":["/c","npx","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
+claude mcp add-json pw '{"command":"cmd","args":["/c","npx","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
 ```
 
 Mac/Linux:   
 ```
 claude mcp add-json context7 '{"command":"npx","args":["-y","@upstash/context7-mcp@latest"]}' --scope user
 claude mcp add-json sequential-thinking '{"command":"npx","args":["-y","@modelcontextprotocol/server-sequential-thinking"]}' --scope user
-claude mcp add-json playwright '{"command":"npx","args":["-y","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
+claude mcp add-json pw '{"command":"npx","args":["-y","@playwright/mcp@latest","--allow-unrestricted-file-access"]}' --scope user
 ```
       
 아래 명령으로 설치 및 연결 확인을 합니다.   
@@ -124,7 +128,29 @@ Claude CoWork을 다시 시작하여 "설정"페이지의 "개발자"메뉴를 �
   
 ---
 
-## MCP서버 삭제  
+## MCP 서버 설치 확인
+### Context7
+```
+context7 mcp로 'Claude API 프롬프트 캐싱 설정' 안내
+```
+아래와 같이 나오면 정상 동작하는 것임.   
+![](images/2026-04-27-18-04-48.png)  
+
+### Sequential Thinking 
+```
+sequential thinking으로 프롬프팅 비용 최적화 방안 수립
+```
+정상동작 화면 예시:  
+![](images/2026-04-27-18-06-05.png)     
+
+### Playwright
+```
+playwright mcp로 https://daum.net 오픈하여 아무 페이지나 클릭    
+```
+
+브라우저 창이 열리고 제대로 수행되면 정상 설치된 것임
+
+## MCP 서버 삭제  
 추가된 MCP를 삭제하는 방법입니다.  
 ```
 claude mcp remove {MCP이름} [-s {scope}]

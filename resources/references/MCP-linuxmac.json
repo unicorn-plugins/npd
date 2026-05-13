@@ -14,7 +14,7 @@
         "@modelcontextprotocol/server-sequential-thinking"
       ]
     },
-    "playwright": {
+    "pw": {
       "command": "npx",
       "args": [
         "-y",

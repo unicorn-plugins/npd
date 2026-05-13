@@ -746,13 +746,13 @@ git checkout -b main
 git remote add origin https://github.com/cna-bootcamp/phonebill-manifest
 ```
 
-**2.CLAUDE.md 작성**       
+**2.AGENTS.md 작성**       
 vscode에서 로컬 레포지토리를 오픈합니다.    
 ```
 code .
 ```
 
-아래 내용으로 CLAUDE.md 파일을 만듭니다.   
+아래 내용으로 AGENTS.md 파일을 만듭니다.   
 ```
 # ArgoCD 가이드
 
