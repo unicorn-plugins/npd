@@ -164,7 +164,8 @@ ai-service-design.md 존재 시 LLM/Tool/RAG 크리덴셜 수집.
 
 #### Step 6. 진행 모드 선택
 단계별 승인/자동 진행 선택. 단계별 승인 시 ASK_USER 형식 정의됨.
-
+(중요) 자동 진행 시 사용자에게 진행에 필요한 정보를 한꺼번에 요청. AskUserQuestion 사용하지 않고 대화창으로 질문   
+  
 ---
 
 ### Phase 1: 환경 구성
