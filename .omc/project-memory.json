@@ -1,7 +1,7 @@
 {
   "version": "1.0.0",
-  "lastScanned": 1776825369132,
-  "projectRoot": "C:\\Users\\hiond\\workspace\\npd",
+  "lastScanned": 1779250821875,
+  "projectRoot": "/Users/dreamondal/plugins/npd",
   "techStack": {
     "languages": [],
     "frameworks": [],
@@ -38,14 +38,14 @@
       "path": "agents",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776825369117,
+      "lastAccessed": 1779250821857,
       "keyFiles": []
     },
     "commands": {
       "path": "commands",
       "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1776825369117,
+      "fileCount": 9,
+      "lastAccessed": 1779250821857,
       "keyFiles": [
         "cicd.md",
         "create.md",
@@ -58,49 +58,24 @@
       "path": "docs",
       "purpose": "Documentation",
       "fileCount": 0,
-      "lastAccessed": 1777605298127,
+      "lastAccessed": 1779250821857,
       "keyFiles": []
     },
     "gateway": {
       "path": "gateway",
       "purpose": null,
       "fileCount": 2,
-      "lastAccessed": 1776825369118,
+      "lastAccessed": 1779250821858,
       "keyFiles": [
         "install.yaml",
         "runtime-mapping.yaml"
-      ]
-    },
-    "gemini-workflows": {
-      "path": "gemini-workflows",
-      "purpose": null,
-      "fileCount": 13,
-      "lastAccessed": 1776825369118,
-      "keyFiles": [
-        "add-ext-skill.md",
-        "cicd.md",
-        "create.md",
-        "deploy.md",
-        "design-physical-architecture.md"
-      ]
-    },
-    "output": {
-      "path": "output",
-      "purpose": null,
-      "fileCount": 4,
-      "lastAccessed": 1776825369118,
-      "keyFiles": [
-        "release-template-proposal.md",
-        "v0.0.2-release-notes.md",
-        "v0.2.0-release-notes.md",
-        "v1.0.0-release-notes.md"
       ]
     },
     "resources": {
       "path": "resources",
       "purpose": null,
       "fileCount": 1,
-      "lastAccessed": 1776825369119,
+      "lastAccessed": 1779250821858,
       "keyFiles": [
         "resource.md"
       ]
@@ -109,286 +84,27 @@
       "path": "skills",
       "purpose": null,
       "fileCount": 0,
-      "lastAccessed": 1776825369119,
-      "keyFiles": []
-    },
-    "temp": {
-      "path": "temp",
-      "purpose": null,
-      "fileCount": 0,
-      "lastAccessed": 1776825369120,
+      "lastAccessed": 1779250821858,
       "keyFiles": []
     }
   },
   "hotPaths": [
     {
-      "path": "skills\\develop\\SKILL.md",
-      "accessCount": 34,
-      "lastAccessed": 1777502760267,
-      "type": "file"
-    },
-    {
-      "path": "skills\\plan\\SKILL.md",
-      "accessCount": 33,
-      "lastAccessed": 1777502300245,
-      "type": "file"
-    },
-    {
-      "path": "skills\\deploy\\SKILL.md",
-      "accessCount": 15,
-      "lastAccessed": 1777497523621,
-      "type": "file"
-    },
-    {
-      "path": "skills\\cicd\\SKILL.md",
-      "accessCount": 10,
-      "lastAccessed": 1777497523492,
-      "type": "file"
-    },
-    {
-      "path": "skills\\design\\SKILL.md",
-      "accessCount": 9,
-      "lastAccessed": 1777497523247,
-      "type": "file"
-    },
-    {
-      "path": "skills\\create\\SKILL.md",
-      "accessCount": 5,
-      "lastAccessed": 1777497524121,
-      "type": "file"
-    },
-    {
-      "path": "agents\\architect\\agentcard.yaml",
-      "accessCount": 5,
-      "lastAccessed": 1777497606139,
-      "type": "file"
-    },
-    {
-      "path": "agents\\service-planner\\agentcard.yaml",
-      "accessCount": 4,
-      "lastAccessed": 1777497606178,
-      "type": "file"
-    },
-    {
-      "path": "skills",
-      "accessCount": 4,
-      "lastAccessed": 1777502761727,
-      "type": "directory"
-    },
-    {
-      "path": "resources\\guides\\develop\\product-verify.md",
-      "accessCount": 3,
-      "lastAccessed": 1777371877133,
-      "type": "file"
-    },
-    {
-      "path": "skills\\prepare\\SKILL.md",
-      "accessCount": 3,
-      "lastAccessed": 1777464065991,
-      "type": "file"
-    },
-    {
-      "path": "agents\\product-owner\\agentcard.yaml",
-      "accessCount": 3,
-      "lastAccessed": 1777464702588,
-      "type": "file"
-    },
-    {
-      "path": "agents\\ai-engineer\\agentcard.yaml",
-      "accessCount": 3,
-      "lastAccessed": 1777464705560,
-      "type": "file"
-    },
-    {
-      "path": "agents\\devops-engineer\\agentcard.yaml",
-      "accessCount": 3,
-      "lastAccessed": 1777464706209,
-      "type": "file"
-    },
-    {
-      "path": "agents\\domain-expert\\agentcard.yaml",
-      "accessCount": 3,
-      "lastAccessed": 1777464715106,
-      "type": "file"
-    },
-    {
-      "path": "resources\\tools\\customs\\general\\generate_image.py",
-      "accessCount": 2,
-      "lastAccessed": 1777367006428,
-      "type": "file"
-    },
-    {
-      "path": "resources\\tools\\generate-image.md",
-      "accessCount": 2,
-      "lastAccessed": 1777367011625,
-      "type": "file"
-    },
-    {
-      "path": "gateway\\runtime-mapping.yaml",
-      "accessCount": 2,
-      "lastAccessed": 1777383570863,
-      "type": "file"
-    },
-    {
-      "path": "agents\\architect\\AGENT.md",
-      "accessCount": 2,
-      "lastAccessed": 1777497563395,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\phase0-presetup.md",
+      "path": "commands/prepare.md",
       "accessCount": 1,
-      "lastAccessed": 1777369431624,
+      "lastAccessed": 1779250962607,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\conditional-branching-protocol.md",
+      "path": "resources/guides/setup/prepare.md",
       "accessCount": 1,
-      "lastAccessed": 1777369469613,
+      "lastAccessed": 1779250962733,
       "type": "file"
     },
     {
-      "path": "resources\\guides\\develop\\test-browser-auto.md",
+      "path": "skills/prepare/SKILL.md",
       "accessCount": 1,
-      "lastAccessed": 1777369530688,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\test-browser-manual.md",
-      "accessCount": 1,
-      "lastAccessed": 1777369575303,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\develop\\dev-complete.md",
-      "accessCount": 1,
-      "lastAccessed": 1777369673184,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\phase0-deploy-mode.md",
-      "accessCount": 1,
-      "lastAccessed": 1777374732086,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\deploy-env-info.md",
-      "accessCount": 1,
-      "lastAccessed": 1777374817397,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\nginx-proxy-setup.md",
-      "accessCount": 1,
-      "lastAccessed": 1777374876919,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\deploy\\vm-git-sync.md",
-      "accessCount": 1,
-      "lastAccessed": 1777374920408,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\cicd-runinfo-templates.md",
-      "accessCount": 1,
-      "lastAccessed": 1777382222515,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\phase0-presetup.md",
-      "accessCount": 1,
-      "lastAccessed": 1777382308059,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\phase2-argocd-setup.md",
-      "accessCount": 1,
-      "lastAccessed": 1777382363577,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\cicd\\phase3-pipeline-creation.md",
-      "accessCount": 1,
-      "lastAccessed": 1777382417309,
-      "type": "file"
-    },
-    {
-      "path": ".temp-release-v1.1.6.md",
-      "accessCount": 1,
-      "lastAccessed": 1777382926274,
-      "type": "file"
-    },
-    {
-      "path": "AGENTS.md",
-      "accessCount": 1,
-      "lastAccessed": 1777464079554,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\setup\\prepare.md",
-      "accessCount": 1,
-      "lastAccessed": 1777464079960,
-      "type": "file"
-    },
-    {
-      "path": "",
-      "accessCount": 1,
-      "lastAccessed": 1777464695655,
-      "type": "directory"
-    },
-    {
-      "path": "agents\\backend-developer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1777464704562,
-      "type": "file"
-    },
-    {
-      "path": "agents\\frontend-developer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1777464705062,
-      "type": "file"
-    },
-    {
-      "path": "agents\\qa-engineer\\agentcard.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1777464715277,
-      "type": "file"
-    },
-    {
-      "path": "commands\\design-physical-architecture.md",
-      "accessCount": 1,
-      "lastAccessed": 1777497523913,
-      "type": "file"
-    },
-    {
-      "path": "agents\\service-planner\\AGENT.md",
-      "accessCount": 1,
-      "lastAccessed": 1777497563525,
-      "type": "file"
-    },
-    {
-      "path": "resources\\guides\\combine-prompt.md",
-      "accessCount": 1,
-      "lastAccessed": 1777497653734,
-      "type": "file"
-    },
-    {
-      "path": "temp\\combine-prompt.md",
-      "accessCount": 1,
-      "lastAccessed": 1777502045023,
-      "type": "file"
-    },
-    {
-      "path": "agents\\service-planner\\tools.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1777502298987,
-      "type": "file"
-    },
-    {
-      "path": "agents\\qa-engineer\\tools.yaml",
-      "accessCount": 1,
-      "lastAccessed": 1777502299650,
+      "lastAccessed": 1779250977860,
       "type": "file"
     }
   ],

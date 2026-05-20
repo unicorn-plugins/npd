@@ -212,87 +212,9 @@ export PATH=~/.npm-global:$PATH
 claude
 ```
 
-편의 명령어(`cc-yolo`, `cc-safe`, `cy`) alias를 자동으로 등록합니다.
-
-**Mac:**
-```bash
-if ! grep -q 'alias cc-yolo' ~/.zshrc 2>/dev/null; then
-  echo '' >> ~/.zshrc
-  echo "alias cc-yolo='claude --dangerously-skip-permissions'" >> ~/.zshrc
-  echo "alias cc-safe='claude'" >> ~/.zshrc
-  echo "alias cy='cc-yolo'" >> ~/.zshrc
-  source ~/.zshrc
-fi
-```
-
-**Linux:**
-```bash
-if ! grep -q 'alias cc-yolo' ~/.bashrc 2>/dev/null; then
-  echo '' >> ~/.bashrc
-  echo "alias cc-yolo='claude --dangerously-skip-permissions'" >> ~/.bashrc
-  echo "alias cc-safe='claude'" >> ~/.bashrc
-  echo "alias cy='cc-yolo'" >> ~/.bashrc
-  source ~/.bashrc
-fi
-```
-
-**Windows (Git Bash):**
-```bash
-if ! grep -q 'alias cc-yolo' ~/.bashrc 2>/dev/null; then
-  echo '' >> ~/.bashrc
-  echo "alias cc-yolo='claude --dangerously-skip-permissions'" >> ~/.bashrc
-  echo "alias cc-safe='claude'" >> ~/.bashrc
-  echo "alias cy='cc-yolo'" >> ~/.bashrc
-  source ~/.bashrc
-fi
-```
-
-**Windows (PowerShell):**
-```powershell
-$profileDir = Split-Path $PROFILE
-if (!(Test-Path $profileDir)) { New-Item -ItemType Directory -Path $profileDir -Force }
-if (!(Test-Path $PROFILE)) { New-Item -ItemType File -Path $PROFILE -Force }
-if (!(Select-String -Path $PROFILE -Pattern 'cc-yolo' -Quiet 2>$null)) {
-  Add-Content $PROFILE ""
-  Add-Content $PROFILE "function cc-yolo { claude --dangerously-skip-permissions @args }"
-  Add-Content $PROFILE "function cc-safe { claude @args }"
-  Add-Content $PROFILE "function cy { cc-yolo @args }"
-}
-```
-
-사용자에게 편의 명령어 사용 방법 안내:
-```
-아래와 같이 편의 명령이 등록되었습니다. 
-위험 모드로 수행하면 사용자의 승인 없이 파일 수정/삭제가 가능하니 주의해서 사용하세요.
-실용적으로 위험모드로 수행하는 것이 사용자 승인 없이 작업하여 편리합니다.    
-- 위험 모드로 수행: cy
-- 안전 모드로 수행: cc-safe  
-```
-
 ---
 
-#### Step6. OMC(Oh My Claude Code)
-
-`~/.claude/plugins/installed_plugins.json` 파일을 읽어 `oh-my-claudecode` 포함 여부 확인.
-
-- 포함됨 → ✅ 설치됨
-- 미포함 → ⚠️ 미설치, 아래 순서로 설치 안내:
-
-Claude Code 프롬프트에서 순차 실행
-```
-claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-claude plugin install oh-my-claudecode
-```
-
-OMC 초기 설정:     
-Claude Code 프롬프트창에서 아래 명령 실행 하도록 안내. 단 MCP 설치는 Skip하도록 안내    
-```
-/omc-setup
-```
-
----
-
-#### Step7. MCP
+#### Step6. MCP
 
 `sequential-thinking`, `context7`, `playwright` MCP를 `~/.claude.json`에 자동으로 등록합니다.
 `claude mcp list` 명령으로 확인하여 미설치 시에만 설치합니다.  
@@ -319,7 +241,7 @@ claude mcp list
 
 ---
 
-#### Step8. Python
+#### Step7. Python
 설치 여부 확인:
 ```bash
 python --version 2>/dev/null
@@ -329,7 +251,7 @@ python --version 2>/dev/null
 ---
 
 
-#### Step9. bun
+#### Step8. bun
 
 bun 설치 여부 확인:
 ```bash
