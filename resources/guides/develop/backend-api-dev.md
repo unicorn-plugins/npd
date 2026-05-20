@@ -416,6 +416,110 @@ class {ServiceName}ControllerTest {
 
 실제 검증은 Step 4(API 테스트 + 브라우저 테스트)에서 수행한다.
 
+#### 5.5단계: 이벤트 발행 (메시지 브로커 연동)
+
+##### 적용 조건
+
+설계서(`docs/design/sequence/inner/*.puml` 또는 API 설계서) 또는 통합 맥락(`dev-plan.md`)에 이벤트 발행 흐름이 명시된 경우에만 수행한다. 명시되지 않은 서비스는 본 단계를 스킵한다.
+
+##### 판별 방법
+
+- `dev-plan.md`의 "비동기 통신 정의" 섹션에서 발행 토픽 목록 확인
+- 시퀀스 다이어그램에서 `-->>` 또는 `Producer` / `Publisher` 키워드 확인
+- API 설계서 응답 명세에 "비동기 처리 완료 시 X 이벤트 발행" 같은 주석 확인
+
+##### 구현 절차
+
+**5.5.1 의존성 추가** — 빌드 파일(`build.gradle` 등)에 메시지 브로커 클라이언트 라이브러리를 추가한다. Kafka 사용 시 `spring-kafka`, RabbitMQ 사용 시 `spring-amqp` 등 설계서가 지정한 브로커에 맞는 라이브러리를 선택한다.
+
+**5.5.2 설정 외부화** — `application.yml`에 브로커 연결 정보를 `${BROKER_BOOTSTRAP_SERVERS}` 등 placeholder로 작성한다. 실제 값은 `.env.example`에 키만 등록한다. 토픽명·컨슈머 그룹 ID도 모두 외부화한다.
+
+```yaml
+# application.yml 예시
+spring:
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      acks: all
+app:
+  events:
+    topic:
+      domain-event: ${EVENT_TOPIC_DOMAIN:domain.event.v1}
+```
+
+**5.5.3 Producer 빈 구성** — 표준 패턴으로 KafkaTemplate(또는 동등 클라이언트) 빈을 등록하고 JSON 직렬화를 설정한다. 스프링 부트 자동구성으로 충분한 경우 별도 `@Configuration` 클래스를 만들지 않는다.
+
+**5.5.4 이벤트 발행 게이트웨이 구현** — 도메인 이벤트 발행을 캡슐화하는 클래스(`EventPublisherGateway` 등)를 작성한다. **`log.info()`만 수행하는 스텁 구현은 금지한다.** 실제 KafkaTemplate.send()를 호출하고, 결과 콜백을 처리해야 한다.
+
+```java
+// 예시: 실제 발행 구현
+@Component
+@RequiredArgsConstructor
+public class EventBackboneGateway implements EventPublisherGateway {
+    private final KafkaTemplate<String, Object> kafkaTemplate;
+    private final EventTopicProperties topics;  // application.yml에서 주입
+
+    @Override
+    public void publishDomainEvent(String aggregateId, DomainEvent event) {
+        kafkaTemplate.send(topics.getDomainEvent(), aggregateId, event)
+            .whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.error("이벤트 발행 실패: {}", event, ex);
+                    // 재시도·DLQ·outbox에 위임 (5.5.5 참조)
+                }
+            });
+    }
+}
+```
+
+**5.5.5 트랜잭션 안전성 (Outbox 패턴)** — 비즈니스 로직과 이벤트 발행이 같은 트랜잭션에 묶여야 하는 경우 Transactional Outbox 패턴을 적용한다.
+
+1. outbox 테이블 마이그레이션 추가 (`id`, `aggregate_id`, `event_type`, `payload`, `created_at`, `published_at`)
+2. 비즈니스 트랜잭션 내에서 outbox row를 저장 (브로커 전송은 아직 안 함)
+3. 별도 스케줄러(`@Scheduled`) 또는 CDC(Debezium 등)로 outbox 미발행 row를 읽어 브로커로 발송 후 `published_at`을 갱신
+
+단순 통보성 이벤트(트랜잭션 강제 보장 불요)는 `@TransactionalEventListener(phase = AFTER_COMMIT)`로 단순화 가능하다.
+
+**5.5.6 통합 테스트 작성** — Testcontainers의 Kafka/RabbitMQ 이미지 또는 임베디드 브로커를 사용하여 한 사이클을 검증한다.
+
+```java
+@SpringBootTest
+@Testcontainers
+class EventPublishingIntegrationTest {
+    @Container
+    static KafkaContainer kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"));
+
+    @DynamicPropertySource
+    static void registerKafkaProps(DynamicPropertyRegistry registry) {
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
+    }
+
+    @Test
+    void 비즈니스_메서드_호출_시_이벤트가_토픽에_발행된다() {
+        // given: 컨슈머 준비
+        // when: 비즈니스 서비스 메서드 호출
+        // then: 토픽에서 메시지 수신 + 페이로드 스키마 검증
+    }
+}
+```
+
+##### 금지 사항
+
+- `log.info("[EVENT] ...")` 만 호출하고 실제 발행하지 않는 스텁 메서드
+- 클래스/메서드 주석에 "Phase 3에서 Kafka 연동 완성" / "추후 구현" 같은 미루기 표기
+- 토픽명을 코드 리터럴로 박기 (`"order.created.v1"` 등) — 반드시 상수 클래스 또는 `application.yml`에서 주입
+
+##### 품질 기준
+
+| 항목 | 기준 |
+|------|------|
+| 이벤트 발행 실연동 | 통합 테스트에서 실제 브로커(Testcontainers)로 토픽 수신 확인 |
+| 스텁 잔존 검출 | `grep -rn "log.info.*\[EVENT\]" {service-name}/src/main/` 결과 0건 |
+| 토픽명 외부화 | 브로커 토픽명·키 정책이 `application.yml` 또는 상수 클래스에 집중 |
+| 환경 변수 등록 | 본 단계에서 도입한 `KAFKA_BOOTSTRAP_SERVERS`, `EVENT_TOPIC_*` 등 변수가 `.env.example`에 키 템플릿으로 등록 |
+
 #### 6단계: 서비스 기동 검증
 
 컴파일과 단위 테스트를 통과해도 런타임에 빈 주입 실패, 설정 누락 등의 오류가 발생할 수 있다. `run-backend.py`를 사용하여 실제 서비스 기동을 확인한다.
@@ -597,11 +701,19 @@ curl -s http://localhost:{port}/actuator/health
 - [ ] **TODO/FIXME/HACK 0건**: `grep -rn "TODO\|FIXME\|HACK" {service-name}/src/` 결과가 0건이어야 한다
 - [ ] **핵심 API 실호출 검증**: 서비스 기동 후 최소 1개 핵심 API에 `curl` 호출하여 정상 응답(2xx) 확인
 - [ ] **행위 계약 참고 확인**: `test/design-contract/{service-name}/*.spec.ts`의 it() 케이스 목록과 구현된 API 행위를 대조하여 누락 없음을 확인
+- [ ] **도메인 상수 외부화**: 가격·수수료·환율·임계값 등 비즈니스 상수는 `application.yml`의 `app.*` 프로퍼티 또는 DB 설정 테이블로 외부화한다. 코드 리터럴 금지
+- [ ] **ID 생성 일관성**: 동일 도메인 식별자(예: 사용자 ID)는 단일 유틸리티 클래스에서만 생성한다. 서비스마다 `email.hashCode()` 등으로 임의 생성 금지
+- [ ] **환경 변수 명세 동기화**: 본 단계에서 신규로 도입한 환경 변수는 즉시 루트 `.env.example`에 키와 주석 형태로 등록
+- [ ] **이벤트 스텁 잔존 검출**: `grep -rn "log.info.*\[EVENT\]" {service-name}/src/main/` 결과가 0건이어야 한다 (5.5단계 적용 서비스에 한함)
 
 ## 주의사항
 
 - **TODO/FIXME/HACK 금지**: 모든 코드는 완전하게 구현한다. "TODO: 나중에 구현", "FIXME: 임시 처리" 등의 미완성 마커를 남기지 않는다. 구현이 어려운 부분이 있으면 우회하지 말고 근본 원인을 해결한다
 - **런타임 에러 워크어라운드 금지**: 런타임 에러 발생 시 try-catch로 삼키거나, 기능을 비활성화하거나, 하드코딩 값으로 대체하는 등의 우회 해결을 금지한다. 반드시 근본 원인을 분석하고 정상 동작하도록 수정한다
+- **Phase 미루기 금지**: 클래스/메서드 주석에 "Phase 3에서 Kafka 연동 완성", "추후 구현" 같은 표기를 남기고 스텁만 두는 것은 금지한다. 본 단계에서 외부 의존성 사용이 설계서에 명시되었다면 실제 클라이언트 코드와 통합 테스트까지 완료한다 (SKILL.md MUST 4번)
+- **이벤트 발행 스텁 금지**: 이벤트 발행 메서드가 `log.info("[EVENT] ...")` 만 호출하면 안 된다. 실제 브로커 클라이언트(KafkaTemplate 등)를 호출하고 Testcontainers로 통합 테스트를 작성한다 (5.5단계 참조)
+- **도메인 상수 외부화**: 가격·수수료·환율·임계값 등 비즈니스 상수는 코드 리터럴이 아닌 `application.yml`의 `app.*` 프로퍼티 또는 DB 설정 테이블로 관리한다. 매월 변경 가능성이 있는 값은 코드 배포 없이 갱신 가능해야 한다
+- **ID 생성 일관성**: 동일 도메인 식별자(예: 사용자 ID)는 단일 유틸리티 클래스(`IdGenerator` 등)에서만 생성한다. 서비스마다 `email.hashCode()` 같은 임의 방식으로 생성하면 동일 입력에 다른 ID가 발급되어 데이터 무결성이 깨진다
 - **서비스 기동 검증 필수**: 컴파일과 단위 테스트 통과만으로는 완료가 아니다. `run-backend.py`로 실제 기동하여 `actuator/health`가 UP 응답을 반환해야 한다
 - 설계 아키텍처 패턴(Layered/Clean)은 서비스별로 다를 수 있으므로 `dev-plan.md`에서 서비스별 패턴을 반드시 확인
 - SecurityConfig의 공개 경로 설정은 API 설계서의 인증 요구 여부를 기준으로 조정

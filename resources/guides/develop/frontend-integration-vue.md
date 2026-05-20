@@ -430,17 +430,62 @@ router.beforeEach((to) => {
 export default router
 ```
 
-#### 4.5 stub 데이터 제거
+#### 4.5 Mock 상수 일괄 제거
 
-`frontend-dev-vue.md`에서 작성한 stub 로직을 실제 인증 서비스로 교체한다.
+Phase 2(`frontend-dev-vue.md`)에서 페이지 컴포넌트에 임시로 작성된 모든 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수를 실제 데이터 페치 컴포저블(`use<Domain><Op>()`) 또는 Pinia 스토어로 교체한다. 단순 인증 스텁만 다루는 것이 아니라, 페이지가 렌더링에 사용하는 **모든 도메인 데이터 상수**를 대상으로 한다.
+
+##### 4.5.1 인벤토리 작성
+
+먼저 프로젝트 전체에서 Mock 상수 위치를 정확히 식별한다.
 
 ```bash
-# stub 파일 목록 확인
-ls frontend/src/services/api/stubs/
+# 페이지·컴포넌트 안에 박힌 도메인 데이터 상수 검출
+grep -rn "^\s*const MOCK_\|^\s*const SAMPLE_\|^\s*const FAKE_" frontend/src/ 2>/dev/null
+
+# stubs/ 디렉토리 내 파일 목록 (Phase 2에서 작성된 모든 stub)
+ls frontend/src/services/api/stubs/ 2>/dev/null
 ```
 
-각 stub 파일을 열어 해당 로직을 실제 서비스 함수 호출로 교체한다.
-stub 파일은 삭제하지 않고 주석 처리하여 Mock 복귀 시 참고 가능하게 보존한다.
+결과를 `docs/develop/mock-inventory.md`에 표로 정리한다.
+
+| 파일:라인 | 상수명 | 데이터 종류 | 교체 후 호출할 컴포저블·스토어·서비스 함수 |
+|----------|--------|------------|-----------------------------------------|
+| `src/pages/<page>.vue:N` | `MOCK_<NAME>` | 목록·상세·통계·설정 등 | `use<Domain><Op>()` 또는 `use<Domain>Store()` |
+| `src/components/<Comp>.vue:N` | `SAMPLE_<NAME>` | 컴포넌트 기본 데이터 | `use<Domain><Op>()` |
+
+##### 4.5.2 페이지별 교체
+
+인벤토리의 각 항목에 대해 다음을 수행한다.
+
+1. 해당 페이지의 import에서 `MOCK_*` 상수 import 제거
+2. `<script setup>` 본문에서 `const data = MOCK_X` 패턴을 `const { data, isLoading, error } = use<Domain><Op>(...)` 또는 Pinia 스토어 호출로 교체
+3. 로딩·에러 상태 UI 추가 (Phase 2에서 누락된 경우)
+4. 빈 응답·페이징 처리 추가
+5. 상수 정의 코드(파일 상단의 배열 리터럴) 삭제
+
+##### 4.5.3 stub 디렉토리 정리
+
+`frontend/src/services/api/stubs/` 내 파일들은 다음 중 하나로 처리한다.
+
+- **삭제**: Prism Mock 한계 보완용이었고 실제 API 응답이 동등하면 삭제
+- **보존**: Mock 환경 복귀에 필요하면 보존하되, **페이지 컴포넌트에서 직접 import 금지**. `runtime-env.js`의 환경 분기로만 활성화한다
+
+##### 4.5.4 검증
+
+```bash
+# 모든 MOCK_* 잔존이 0건이어야 함 (stubs/ 디렉토리 제외)
+grep -rn "MOCK_\|SAMPLE_\|FAKE_" frontend/src/pages/ frontend/src/components/ 2>/dev/null | grep -v stubs/
+
+# 빌드 통과 확인
+cd frontend && npm run build
+
+# 실 API만으로 동작 확인 (Mock 서버 중단 상태에서)
+docker compose --profile mock down
+cd frontend && npm run dev
+# → 브라우저에서 모든 페이지가 실제 백엔드 응답으로 렌더링되는지 확인
+```
+
+> **예외 사유 표기**: 의도적으로 잔존시키는 상수가 있다면 같은 줄에 `// ALLOW: 사유` 주석을 붙여 grep 결과에서 인식 가능하게 한다.
 
 ---
 
@@ -615,6 +660,13 @@ window.__runtime_config__ = {
 - [ ] 403 처리: 권한 없음 안내 메시지
 - [ ] 네트워크 에러: 서버 연결 불가 안내 메시지
 
+### Mock 상수 제거
+- [ ] `docs/develop/mock-inventory.md` 작성 완료 (Phase 2에서 만든 모든 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 위치 정리)
+- [ ] 페이지·컴포넌트 내 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 상수 0건 (grep으로 검증, `stubs/` 디렉토리 제외)
+- [ ] Prism Mock 서버 중단(`docker compose --profile mock down`) 상태에서 모든 페이지 정상 동작
+- [ ] 로딩·에러·빈 응답 UI가 모든 페이지에 적용됨
+- [ ] 의도적 잔존 상수는 같은 줄에 `// ALLOW: 사유` 주석 표기
+
 ### Mock 환경 복귀 확인
 - [ ] VITE_API_URL=http://localhost:4010 으로 변경 시 Mock 서버 정상 동작 확인
 ```
@@ -630,10 +682,13 @@ window.__runtime_config__ = {
 - [ ] `public/runtime-env.js` 변경만으로 Mock ↔ 실제 API 즉시 전환 가능
 - [ ] Pinia 상태 관리 및 Vue Router 가드 정상 동작
 - [ ] `npm run build` 성공 (타입 오류·빌드 오류 없음)
+- [ ] **페이지·컴포넌트 내 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수 0건** (grep 게이트, `stubs/` 디렉토리 제외): `grep -rn "MOCK_\|SAMPLE_\|FAKE_" frontend/src/pages/ frontend/src/components/ 2>/dev/null \| grep -v stubs/ \| grep -v "ALLOW:"` 결과가 0건이어야 한다
+- [ ] **Prism Mock 서버 중단 상태에서 모든 페이지 정상 동작** (실 API만으로 데이터 렌더링 확인)
 
 ## 주의사항
 
 - **Mock 서버 코드와 설정은 삭제하지 않는다.**
+- **페이지 컴포넌트의 Mock 상수는 모두 제거한다.** Mock 서버는 보존하되, 페이지·컴포넌트 내 도메인 데이터 리터럴(`MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수)은 0건이어야 한다. Mock 환경 복귀는 `runtime-env.js`의 환경 분기와 Prism Mock 서버 조합으로만 이루어진다 (페이지 코드는 어느 환경에서도 동일한 컴포저블·스토어 호출 경로를 유지).
 - **CORS 문제 발생 시 Vue 코드를 수정하지 않는다.** 백엔드 SecurityConfig에서 Origin을 허용한다.
 - **Mock → 실제 전환은 `public/runtime-env.js` 변경만으로 완료되어야 한다.**
 - 토큰 갱신 엔드포인트 경로는 반드시 백엔드 인증 Controller의 실제 경로와 일치해야 한다.

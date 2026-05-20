@@ -135,6 +135,8 @@ services:
 
 Kafka를 사용하는 경우 rabbitmq 대신 아래 kafka 구성으로 교체한다.
 
+> **Bitnami 이미지 경로 정책**: 2025년 9월 이후 `docker.io/bitnami/*` 이미지가 삭제되어, Bitnami 컨테이너 이미지를 사용하는 모든 경우 `bitnamilegacy/{이미지명}` 경로를 사용한다. 본 가이드의 모든 Bitnami 기반 이미지(Kafka 등)는 이 규칙을 적용한 결과이다. 이 정책은 `develop/backing-mq-setup.md`, `deploy/backing-service/backing-service-k8s.md`, `cicd/cicd-pre-setup.md`와 일관성을 가진다.
+
 ```yaml
   # Kafka (비동기 통신이 Kafka로 설계된 경우)
   kafka:
@@ -578,3 +580,23 @@ docker compose --profile mock up -d          # + Mock 서버
 - **볼륨 초기화**: 데이터를 완전히 초기화하려면 `docker compose down -v`로 볼륨을 함께 삭제한다.
 - **gitignore 필수 등록**: `.env` 파일은 반드시 `.gitignore`에 추가한다.
   `.env.example`만 형상 관리한다.
+
+---
+
+## Bitnami 이미지 표준 매핑 (참고)
+
+본 develop 단계에서 docker-compose로 백킹 서비스를 띄울 때 Bitnami 이미지를 사용하는 경우 아래 경로를 따른다. **공식 이미지(`postgres`, `redis`, `mongo`, `mariadb` 등)가 동등 기능을 제공하면 공식 이미지를 우선 사용한다.** Bitnami는 Helm 차트와의 일관성이 필요하거나 Bitnami 전용 환경변수(`KAFKA_CFG_*` 등)를 활용할 때만 사용한다.
+
+| 서비스 | 공식 이미지 (기본) | Bitnami 이미지 (필요 시) |
+|--------|------------------|------------------------|
+| PostgreSQL | `postgres:16` | `bitnamilegacy/postgresql:16` |
+| MySQL | `mysql:8.0` | `bitnamilegacy/mysql:8.0` |
+| MariaDB | `mariadb:11` | `bitnamilegacy/mariadb:11` |
+| MongoDB | `mongo:7` | `bitnamilegacy/mongodb:7.0` |
+| Redis | `redis:7-alpine` | `bitnamilegacy/redis:7.2` |
+| Kafka | — | `bitnamilegacy/kafka:3.7` (KRaft 모드) |
+| RabbitMQ | `rabbitmq:3-management` | `bitnamilegacy/rabbitmq:3` |
+
+> **정책 단일 진실 소스(SSoT)**: `deploy/backing-service/backing-service-k8s.md`의 "중요: 2025년 9월 이후 docker.io/bitnami/* 이미지는 삭제되었다" 문장이 본 정책의 단일 진실 소스이다. develop 단계의 본 가이드와 `develop/backing-mq-setup.md`, cicd 단계의 `cicd/cicd-pre-setup.md`도 동일하게 `bitnamilegacy/*`를 사용한다.
+
+> **데이터 볼륨 경로는 변경하지 않음**: `/bitnami/kafka`, `/bitnami/postgresql` 등은 컨테이너 내부 경로이므로 변경하지 않는다. 이미지 organization만 `bitnami` → `bitnamilegacy`로 바꾼다.

@@ -576,15 +576,45 @@ class MyApp extends ConsumerWidget {
 }
 ```
 
-#### 4.5 stub 데이터 제거
+#### 4.5 Mock 상수 일괄 제거
 
-`frontend-dev-flutter.md`에서 작성한 stub 데이터 소스 클래스를 실제 서비스로 교체한다.
+Phase 2(`frontend-dev-flutter.md`)에서 페이지·위젯에 임시로 작성된 모든 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수를 실제 데이터 페치 Provider(Riverpod/Bloc 등)로 교체한다. 단순 인증 스텁만 다루는 것이 아니라, 화면이 렌더링에 사용하는 **모든 도메인 데이터 상수**를 대상으로 한다.
 
-```dart
-// stub Repository를 실제 Repository로 교체 예시
-// 변경 전: lib/features/auth/data/auth_repository_stub.dart
-// 변경 후: lib/features/auth/data/auth_repository.dart (Dio 기반)
+##### 4.5.1 인벤토리 작성
+
+먼저 프로젝트 전체에서 Mock 상수 위치를 정확히 식별한다.
+
+```bash
+# 페이지·위젯 안에 박힌 도메인 데이터 상수 검출
+grep -rn "^\s*const MOCK_\|^\s*const SAMPLE_\|^\s*const FAKE_\|^\s*final MOCK_\|^\s*final SAMPLE_\|^\s*final FAKE_" lib/ 2>/dev/null
+
+# stub 데이터 소스 파일 목록 (Phase 2에서 작성)
+find lib/ -name "*_stub.dart" -o -name "*_mock.dart" 2>/dev/null
 ```
+
+결과를 `docs/develop/mock-inventory.md`에 표로 정리한다.
+
+| 파일:라인 | 상수명 | 데이터 종류 | 교체 후 호출할 Provider·Repository·서비스 |
+|----------|--------|------------|----------------------------------------|
+| `lib/features/<feature>/presentation/<page>_page.dart:N` | `MOCK_<NAME>` | 목록·상세·통계·설정 등 | `<Domain>Provider` 또는 `<Domain>Bloc` |
+| `lib/features/<feature>/presentation/<widget>.dart:N` | `SAMPLE_<NAME>` | 위젯 기본 데이터 | Repository 직접 호출 또는 Provider 구독 |
+
+##### 4.5.2 페이지별 교체
+
+인벤토리의 각 항목에 대해 다음을 수행한다.
+
+1. 해당 파일의 import에서 `MOCK_*` 상수 import 제거
+2. 위젯 본문에서 `final data = MOCK_X` 패턴을 `ref.watch(<domain>Provider)` 또는 `BlocBuilder<<Domain>Bloc, <Domain>State>` 로 교체
+3. `AsyncValue` 패턴 활용: loading/data/error 분기 UI 추가 (Phase 2에서 누락된 경우)
+4. 빈 응답·페이징 처리 추가
+5. 상수 정의 코드(파일 상단의 List/Map 리터럴) 삭제
+
+##### 4.5.3 stub 데이터 소스 정리
+
+stub 데이터 소스 클래스(`*_stub.dart`, `*_mock.dart`)는 다음 중 하나로 처리한다.
+
+- **삭제**: Prism Mock 한계 보완용이었고 실제 API 응답이 동등하면 삭제
+- **보존**: Mock 환경 복귀에 필요하면 보존하되, **위젯에서 직접 참조 금지**. `runtime-env.js`(Web) 또는 `--dart-define`(Mobile)의 환경 분기로만 활성화한다
 
 stub 환경에서 저장된 임시 보안 데이터를 초기화한다.
 
@@ -594,7 +624,23 @@ await SecureStorage.deleteAll();
 // 이후 재로그인하면 실제 토큰이 secure_storage에 저장됨
 ```
 
-stub 파일은 삭제하지 않고 주석 처리하여 Mock 환경 복귀 시 참고 가능하게 보존한다.
+##### 4.5.4 검증
+
+```bash
+# 모든 MOCK_* 잔존이 0건이어야 함 (*_stub.dart, *_mock.dart 제외)
+grep -rn "MOCK_\|SAMPLE_\|FAKE_" lib/features/ 2>/dev/null | grep -v _stub.dart | grep -v _mock.dart
+
+# 빌드 통과 확인
+flutter build web --release    # Web 사용 시
+flutter build apk --debug      # Android 검증
+
+# 실 API만으로 동작 확인 (Mock 서버 중단 상태에서)
+docker compose --profile mock down
+flutter run -d chrome    # 또는 -d <device-id>
+# → 앱에서 모든 화면이 실제 백엔드 응답으로 렌더링되는지 확인
+```
+
+> **예외 사유 표기**: 의도적으로 잔존시키는 상수가 있다면 같은 줄에 `// ALLOW: 사유` 주석을 붙여 grep 결과에서 인식 가능하게 한다.
 
 ---
 
@@ -837,6 +883,13 @@ flutter run --dart-define=API_BASE_URL=http://localhost:8080
 - [ ] 403 처리: 권한 없음 안내 메시지
 - [ ] 네트워크 에러(connectionTimeout 등): 서버 연결 불가 안내 메시지
 
+### Mock 상수 제거
+- [ ] `docs/develop/mock-inventory.md` 작성 완료 (Phase 2에서 만든 모든 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 위치 정리)
+- [ ] 페이지·위젯 내 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 상수 0건 (grep으로 검증, `*_stub.dart`·`*_mock.dart` 제외)
+- [ ] Prism Mock 서버 중단(`docker compose --profile mock down`) 상태에서 모든 화면 정상 동작
+- [ ] AsyncValue 로딩·에러·빈 응답 UI가 모든 화면에 적용됨
+- [ ] 의도적 잔존 상수는 같은 줄에 `// ALLOW: 사유` 주석 표기
+
 ### Mock 환경 복귀 확인
 - [ ] --dart-define=API_URL=http://localhost:4010 으로 변경 시 Mock 서버 정상 동작 확인
 - [ ] SecureStorage.deleteAll() 후 재로그인으로 Mock 토큰 발급 확인
@@ -853,10 +906,13 @@ flutter run --dart-define=API_BASE_URL=http://localhost:8080
 - [ ] `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile) 전환만으로 Mock ↔ 실제 API 즉시 전환 가능
 - [ ] Riverpod AuthNotifier + go_router redirect guard 정상 동작
 - [ ] `flutter build apk --debug` 및 `flutter build ios --debug` 성공 (컴파일 오류 없음)
+- [ ] **페이지·위젯 내 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수 0건** (grep 게이트, `*_stub.dart`·`*_mock.dart` 제외): `grep -rn "MOCK_\|SAMPLE_\|FAKE_" lib/features/ 2>/dev/null \| grep -v _stub.dart \| grep -v _mock.dart \| grep -v "ALLOW:"` 결과가 0건이어야 한다
+- [ ] **Prism Mock 서버 중단 상태에서 모든 화면 정상 동작** (실 API만으로 데이터 렌더링 확인)
 
 ## 주의사항
 
 - **Mock 서버 코드와 설정은 삭제하지 않는다.** `web/runtime-env.js`(Web) 또는 `--dart-define`(Mobile) 변경으로 Mock 환경 복귀가 가능해야 한다.
+- **위젯의 Mock 상수는 모두 제거한다.** stub 데이터 소스(`*_stub.dart`, `*_mock.dart`)는 보존하되, 페이지·위젯 내 도메인 데이터 리터럴(`MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수)은 0건이어야 한다. Mock 환경 복귀는 `runtime-env.js`/`--dart-define`의 환경 분기와 Repository 구현체 교체로만 이루어진다 (위젯 코드는 어느 환경에서도 동일한 Provider 호출 경로를 유지).
 - **Flutter 네이티브 앱은 CORS 설정이 필요 없다.** 브라우저 Same-Origin Policy는 적용되지 않는다. 네트워크 오류 발생 시 Android cleartext / iOS ATS 설정을 먼저 확인한다.
 - **에뮬레이터에서 localhost 접근**: Android 에뮬레이터는 `10.0.2.2`를, iOS Simulator는 `127.0.0.1`을 사용하여 호스트 백엔드에 접근한다.
 - **`QueuedInterceptorsWrapper`는 동시 401 요청 시 갱신이 한 번만 실행되도록 보장한다.** 일반 `InterceptorsWrapper`로 교체하면 갱신 경쟁 조건이 발생할 수 있다.

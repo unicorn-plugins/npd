@@ -52,6 +52,8 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 > 필요한 정보는 모두 AI 개발 키트에 포함되어 있다. 원본이 필요한 경우는 키트에 누락이 있는 것이므로 Phase 1 / Step 1을 보완한다.
 > **단, Phase 1 / Step 1 (AI 개발 키트 컴파일)은 변환 단계이므로 원본 설계 문서 읽기가 필수이다.** 이 단계에서만 원본을 읽어 키트로 변환한다.
 
+> **환경 변수 명세 의무**: AI 개발 키트의 `docs/develop/dev-plan.md`는 설계서에서 식별된 모든 외부 의존성(메시지 브로커·DB·LLM·외부 API·시크릿)에 대해 **환경 변수 이름과 용도**를 명시한 표를 포함해야 한다. 이 표가 비어 있으면 Phase 1 / Step 1을 완료로 보지 않는다. 이후 Phase 2/3에서 신규 환경 변수가 도입될 때마다 같은 표에 추가하고 `.env.example`에 키 템플릿을 등록한다.
+
 ## 에이전트 호출 규칙
 
 | 에이전트 | FQN |
@@ -435,6 +437,9 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
 | 1 | `<!--ASK_USER-->` 발견 시 AskUserQuestion 도구를 호출할 것 (텍스트 출력 금지) |
 | 2 | **Phase 1 / Step 1 (AI 개발 키트 컴파일) 이후의 에이전트는 `docs/design/sequence/`, `docs/design/class/*.puml` 등 원본 설계 문서를 직접 읽지 않을 것** (AI 개발 키트만 사용. 원본이 필요한 경우 키트에 누락이 있는 것이므로 Phase 1 / Step 1을 보완) |
 | 3 | 외부 가이드(`{NPD_PLUGIN_DIR}/resources/guides/develop/*.md`)가 명시된 Step은 해당 가이드를 **반드시 Read로 로드한 뒤** 절차를 수행할 것. SKILL.md 본문의 요약만 보고 직접 수행하면 스킬 미준수로 간주 |
+| 4 | **Phase 2 완결 원칙**: Phase 2/Step 1~3의 산출물은 그 단계 안에서 실제 동작이 완성되어야 한다. "Phase 3에서 실제 연동", "추후 구현" 같은 미루기 주석·스텁을 금지한다. 외부 의존성(메시지 브로커·DB·LLM·외부 API) 사용이 설계서에 명시된 경우, 그 단계에서 실제 클라이언트 코드와 통합 테스트까지 완료한다 |
+| 5 | **하드코딩 금지 정책**: 모든 산출물 코드에서 (a) 시크릿/API Key, (b) 가격·환율 등 비즈니스 상수, (c) URL·포트, (d) 도메인 데이터 샘플(`MOCK_*`, `SAMPLE_*`, `FAKE_*` 등 명명 상수)이 코드 리터럴로 박혀 있으면 안 된다. 모두 환경변수·설정파일·시드 SQL·실제 API 응답 중 하나로 외부화한다 |
+| 6 | **스텁 검출 게이트**: 각 Phase 완료 시 자동 검출을 실행한다. (a) `grep -rn "MOCK_\|SAMPLE_\|FAKE_" frontend/`, (b) `grep -rn "TODO\|FIXME\|HACK" .`, (c) `grep -rn "log.info.*\[EVENT\]" .` 결과가 0건이어야 다음 Phase로 진입한다. 의도적 잔존이 필요한 경우 같은 줄에 `// ALLOW: 사유` 또는 `<!-- ALLOW: 사유 -->` 주석으로 사유를 명시한다 |
 
 ## 완료 조건
 
@@ -449,6 +454,9 @@ Phase 0 / Step 5에서 사전 수집된 테스트 모드를 적용한다.
 - [ ] Phase 4 / Step 3: Final Report 생성 (`docs/develop/test/final-report.md`)
 - [ ] Phase 5 / Step 1: `README.md` 생성 완료 (프로젝트 루트)
 - [ ] 에러 0건
+- [ ] Phase 2 완료 시: 스텁 검출 게이트 3종(`MOCK_*`/`SAMPLE_*`/`FAKE_*`, `TODO/FIXME/HACK`, `log.info(EVENT)` 패턴) 결과 0건 (의도적 잔존은 `ALLOW:` 주석으로 사유 명시)
+- [ ] Phase 2 완료 시: 설계서에 명시된 외부 의존성(메시지 브로커·DB·LLM·외부 API)이 실제로 호출·검증됨 (스텁/`log.info()`만 있는 발행 메서드 금지)
+- [ ] Phase 3 완료 시: 프론트엔드 페이지·컴포넌트에 `MOCK_*`·`SAMPLE_*`·`FAKE_*` 명명 상수 0건 (grep으로 검증)
 
 ## 검증 프로토콜
 

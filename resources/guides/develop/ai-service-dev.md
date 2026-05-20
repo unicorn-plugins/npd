@@ -424,6 +424,10 @@ class TextAnalyzeService:
         pass
 ```
 
+> **캐시 vs 영속화 구분**: 위 캐시 메서드는 "단기 응답 캐시" 전용이다. 사용자 단위 누적 데이터(사용량·비용·이력·피드백 등)는 별도 리포지토리로 DB에 영속화해야 한다 (5.8단계 참조). Redis만으로 영속화하는 패턴(`cache_set(key, value, ttl=90 * 86400)` 같이 TTL을 90일·1년으로 늘려 영구 저장 흉내내기)은 금지한다.
+
+> **폴백 응답 상수 외부화 의무**: `_fallback_response()` 내부의 메시지·가격·환율 등 값을 함수 내 리터럴로 박지 말고 `settings`(환경변수)에서 읽거나 DB 설정 테이블에서 조회한다. 예) 환율 `1380`, 모델 비용 `0.05`/`0.10` 등은 환경변수 `EXCHANGE_RATE_KRW`, `LLM_COST_PER_1K_INPUT`, `LLM_COST_PER_1K_OUTPUT` 등으로 외부화한다. 매월 변경 가능성이 있는 값은 코드 배포 없이 갱신 가능해야 한다.
+
 **Redis 캐시 연동 (설계서에 캐싱 명시 시)**:
 
 ```python
@@ -1043,6 +1047,143 @@ def create_search_agent():
     return graph.compile()
 ```
 
+### 5.8단계: 영속화 (관계형 DB 연동)
+
+#### 적용 조건
+
+설계서 또는 API 명세에 다음 중 하나라도 해당하면 본 단계를 수행한다.
+
+- 응답 결과를 사용자 단위로 조회·집계해야 함 (피드백·사용량·비용·이력 등)
+- 90일 이상 보존이 요구되는 데이터가 있음
+- 다른 서비스에서 같은 데이터를 조회해야 함
+- 감사 추적(audit trail)이 요구됨
+
+> **Redis 캐시만으로 충분한 경우**: 단일 응답에 대한 단기 캐싱, 세션·중복 호출 방지 목적이면 캐시만 사용 가능하다. 단 "장기 보관 또는 집계가 필요"하면 반드시 DB로 영속화한다. `cache_set(key, value, ttl=90 * 86400)` 처럼 Redis TTL을 90일로 늘려 영구 저장을 흉내내는 패턴은 금지한다.
+
+#### 구현 절차
+
+**5.8.1 ORM 의존성 추가** — `pyproject.toml`(또는 `requirements.txt`)에 SQLAlchemy 2.x async + DB 드라이버를 추가한다.
+
+```toml
+# pyproject.toml 예시
+[project]
+dependencies = [
+    "sqlalchemy[asyncio]>=2.0",
+    "asyncpg>=0.29",        # PostgreSQL 사용 시
+    "alembic>=1.13",
+]
+```
+
+**5.8.2 세션 팩토리 구성** — `{service-name}/db/session.py` 파일을 생성하여 `async_sessionmaker`와 `get_session` 의존성 함수를 구현한다. DB URL은 `settings.database_url`(환경변수)에서 읽는다.
+
+```python
+# db/session.py
+from collections.abc import AsyncIterator
+
+from sqlalchemy.ext.asyncio import AsyncSession, async_sessionmaker, create_async_engine
+
+from config import settings
+
+engine = create_async_engine(settings.database_url, echo=False, future=True)
+SessionLocal = async_sessionmaker(engine, expire_on_commit=False, class_=AsyncSession)
+
+
+async def get_session() -> AsyncIterator[AsyncSession]:
+    async with SessionLocal() as session:
+        yield session
+```
+
+**5.8.3 모델 정의** — 설계서 DB 스키마에 맞춰 `{service-name}/db/models.py`에 SQLAlchemy 모델을 작성한다. timestamp(`created_at`, `updated_at`) 필수.
+
+```python
+# db/models.py
+from datetime import datetime
+
+from sqlalchemy import DateTime, String
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
+
+
+class Base(DeclarativeBase):
+    pass
+
+
+class FeedbackRecord(Base):
+    __tablename__ = "feedback"
+    id: Mapped[str] = mapped_column(String, primary_key=True)
+    user_id: Mapped[str] = mapped_column(String, index=True)
+    feature: Mapped[str] = mapped_column(String, index=True)
+    payload: Mapped[str] = mapped_column(String)
+    created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+```
+
+**5.8.4 리포지토리 패턴** — `{service-name}/db/repositories/{feature}_repository.py`에 CRUD 메서드를 작성한다. 비즈니스 로직(`services/`)은 리포지토리만 호출하고 ORM 모델을 직접 다루지 않는다.
+
+```python
+# db/repositories/feedback_repository.py
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from db.models import FeedbackRecord
+
+
+class FeedbackRepository:
+    def __init__(self, session: AsyncSession):
+        self._session = session
+
+    async def save(self, record: FeedbackRecord) -> None:
+        self._session.add(record)
+        await self._session.commit()
+
+    async def find_by_user(self, user_id: str) -> list[FeedbackRecord]:
+        result = await self._session.execute(
+            select(FeedbackRecord).where(FeedbackRecord.user_id == user_id)
+        )
+        return list(result.scalars())
+```
+
+**5.8.5 마이그레이션** — Alembic으로 초기 마이그레이션을 생성한다. 마이그레이션 파일은 Git 커밋 대상이다.
+
+```bash
+alembic init alembic
+# alembic.ini 의 sqlalchemy.url을 환경변수에서 읽도록 수정
+alembic revision --autogenerate -m "initial schema"
+alembic upgrade head
+```
+
+**5.8.6 서비스 코드 통합** — 기존 `services/{feature}_service.py`에서 (a) DB 영속화는 항상 수행, (b) Redis는 짧은 TTL의 응답 캐시 용도로만 사용하도록 분리한다. "Redis만 저장, DB 미저장" 패턴은 금지.
+
+```python
+# services/feedback_service.py 예시
+class FeedbackService:
+    def __init__(self, repo: FeedbackRepository):
+        self._repo = repo
+
+    async def submit(self, request: FeedbackRequest) -> FeedbackResponse:
+        record = FeedbackRecord(
+            id=generate_id(),
+            user_id=request.user_id,
+            feature=request.feature,
+            payload=request.payload,
+        )
+        await self._repo.save(record)               # 1순위: DB 영속화 (필수)
+        await cache_set(f"feedback:{record.id}", record.dict(), ttl=3600)  # 2순위: 캐시 (선택)
+        return FeedbackResponse(id=record.id)
+```
+
+#### 금지 사항
+
+- Redis TTL을 90일·1년 등으로 늘려 영구 저장 흉내내기
+- DB 저장 없이 Redis에만 저장하고 "데이터 영속화 완료"로 보고
+- 서비스 코드에서 ORM 모델을 직접 import (반드시 리포지토리 경유)
+
+#### 품질 기준
+
+| 항목 | 기준 |
+|------|------|
+| DB 영속화 실연동 | `pytest` 통합 테스트에서 (a) API 호출 → (b) DB에 row 존재 → (c) 다음 API 호출에서 DB에서 조회됨을 한 사이클로 검증 |
+| 영속화 누락 검출 | 설계서에서 영속 대상으로 명시된 도메인이 모두 모델·리포지토리에 매핑됨 |
+| 마이그레이션 커밋 | Alembic 초기 마이그레이션 파일이 `alembic/versions/`에 커밋되어 있음 |
+| 환경 변수 등록 | `DATABASE_URL` 등 본 단계에서 도입한 변수가 `.env.example`에 키 템플릿으로 등록 |
+
 ### 6단계: API 라우터 구현
 
 API 명세(`ai-*-api.yaml`)의 각 엔드포인트를 FastAPI 라우터로 구현한다.
@@ -1396,6 +1537,18 @@ AI_SERVICE_URL=http://{service-name}:8000   # Docker 네트워크 내부 호출
 ### 외부 데이터 소스 (해당 시)
 - [ ] 웹검색 도구 연동 확인
 - [ ] YouTube 트랜스크립트 추출 확인
+
+### 영속화 (해당 시 — 5.8단계 적용)
+- [ ] SQLAlchemy 모델 정의 (설계서 스키마와 일치)
+- [ ] 리포지토리 패턴 적용 (서비스가 ORM 모델을 직접 다루지 않음)
+- [ ] Alembic 초기 마이그레이션 생성·커밋
+- [ ] 통합 테스트에서 (a) API 호출 → (b) DB row 존재 → (c) 다음 조회에서 DB 응답 한 사이클 검증
+- [ ] `DATABASE_URL` 환경변수가 `.env.example`에 키 템플릿으로 등록
+
+### 환경 변수 외부화
+- [ ] **시크릿**: `Settings` 필수 필드로 강제, 기본값(`"change-me-in-production"` 등) 없음
+- [ ] **비즈니스 상수**: 환율·가격·임계값 등이 환경변수 또는 DB 설정 테이블로 외부화 (코드 리터럴 0건)
+- [ ] **`/health`**: Redis·DB·LLM 의존성 ping 결과를 응답 본문에 포함 (단순 `{"status": "ok"}` 스텁 금지)
 ```
 
 ---
@@ -1414,6 +1567,10 @@ AI_SERVICE_URL=http://{service-name}:8000   # Docker 네트워크 내부 호출
 | TODO/FIXME 0건 | `grep -rn "TODO\|FIXME\|HACK" ai-service/` 결과 0건 |
 | 서비스 기동 확인 | `uvicorn main:app` 실행 → `/health` 정상 응답 |
 | 핵심 API 실호출 | 최소 1개 핵심 엔드포인트에 `curl` 호출 → 정상 응답(2xx) 확인 |
+| DB 영속화 (해당 시) | 사용자 단위 누적 데이터가 Redis뿐 아니라 관계형 DB에도 영속화됨 (5.8단계 통합 테스트 통과) |
+| 시크릿 외부화 | `Settings` 필수 필드, 기본값 없음. `change-me-in-production` 같은 placeholder 0건 |
+| 비즈니스 상수 외부화 | 환율·가격·임계값이 환경변수 또는 DB로 관리 (코드 리터럴 0건) |
+| `/health` 의존성 검증 | Redis·DB·LLM ping 결과를 응답에 포함 (`{"status": "ok"}` 스텁 금지) |
 
 ---
 
@@ -1436,5 +1593,15 @@ AI_SERVICE_URL=http://{service-name}:8000   # Docker 네트워크 내부 호출
 - **설계서 우선**: 이 가이드의 코드 예시는 일반적인 패턴을 보여준다. 설계서(`ai-service-design.md`)에 다른 클래스명, 메서드 시그니처, 프롬프트 구조가 명시된 경우 설계서를 따른다.
 
 - **AI_SERVICE_URL 환경변수**: 다른 마이크로서비스(백엔드 API 등)에서 AI 서비스를 호출할 때 URL을 하드코딩하지 않고 `AI_SERVICE_URL` 환경변수로 관리한다. Docker Compose 내부 네트워크에서는 서비스명을 호스트로 사용한다 (예: `http://{service-name}:8000`).
+
+- **시크릿 기본값 금지**: `service_jwt_secret = "change-me-in-production"`처럼 기본값을 코드에 두지 말 것. `Settings` 클래스에서 필수 필드(`...` 또는 `Field(..., env=...)`)로 지정하여 환경변수 미설정 시 기동 실패하도록 한다. 기본값이 있으면 운영 환경에 placeholder가 그대로 배포될 위험이 있다.
+
+- **건강 체크 실연동**: `/health` 엔드포인트는 `{"status": "ok"}` 스텁 금지. Redis·DB·LLM 의존성 ping을 수행하고 결과를 응답에 포함한다 (예: `{"status": "degraded", "components": {"redis": "ok", "db": "ok", "llm": "degraded"}}`). 의존성 중 하나라도 실패하면 상위 `status`를 `degraded`로 반환한다.
+
+- **가격·환율 외부화**: 토큰당 가격, 통화 환율 등은 환경변수 또는 DB 설정 테이블로 관리한다. 매월 변경 가능성이 있으므로 코드 배포 없이 갱신 가능해야 한다. 코드 리터럴(`cost_usd * 1380`, `groq_cost_per_1k_input = 0.05` 등) 금지.
+
+- **DB 영속화 의무**: 사용자 단위 누적 데이터(피드백·사용량·비용·이력 등)는 Redis 캐시뿐만 아니라 반드시 관계형 DB(SQLAlchemy + PostgreSQL 등)에도 영속화한다. Redis TTL을 90일·1년으로 늘려 영구 저장 흉내내기 금지 (5.8단계 참조).
+
+- **Phase 미루기 금지**: 모듈 docstring·주석에 "Phase 3에서 LLM 연동 완성", "추후 구현" 같은 표기를 남기고 스텁만 두는 것은 금지한다. 본 단계에서 외부 의존성 사용이 설계서에 명시되었다면 실제 클라이언트 코드와 통합 테스트까지 완료한다 (SKILL.md MUST 4번).
 
 - **LangChain 기반 프레임워크**: LLM 클라이언트는 LangChain의 `init_chat_model`을 기반으로 구현한다. 제공자별 직접 클라이언트 구현은 불필요하다. RAG, Function Calling, Agent, LangGraph 등 복합 패턴도 LangChain 생태계 내에서 통합한다.

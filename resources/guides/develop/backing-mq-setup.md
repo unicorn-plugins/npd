@@ -13,7 +13,7 @@ MQ 제품 선택 시 docker-compose 구성 차이점 및 Cloud MQ 전환 전략�
 
 | 설정 항목 | RabbitMQ | Kafka (KRaft) |
 |-----------|----------|---------------|
-| **image** | `rabbitmq:3-management` | `bitnami/kafka:3.7` |
+| **image** | `rabbitmq:3-management` | `bitnamilegacy/kafka:3.7` |
 | **메시징 포트** | 5672 | 9094 (EXTERNAL) |
 | **관리 포트** | 15672 | (없음) |
 | **데이터 볼륨 경로** | `/var/lib/rabbitmq` | `/bitnami/kafka` |
@@ -62,7 +62,7 @@ MQ 제품 선택 시 docker-compose 구성 차이점 및 Cloud MQ 전환 전략�
 
 ```yaml
   kafka:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka:3.7
     environment:
       KAFKA_CFG_NODE_ID: 1
       KAFKA_CFG_PROCESS_ROLES: broker,controller
@@ -156,4 +156,6 @@ binder 교체만으로 다른 MQ 제품으로 전환할 수 있다.
 - **자격 증명 통일 규칙**: MQ_USER는 AGENTS.md의 `{ROOT}` 값, MQ_PASSWORD는 `P@ssw0rd$`로 통일한다.
 - **MQ 포함 조건 엄수**: dev-plan.md 섹션 10-2에서 MQ 불필요로 판정된 경우 MQ 서비스를 임의로 추가하지 않는다.
 - **Cloud MQ 로컬 개발**: Cloud MQ는 docker-compose로 에뮬레이션이 어렵다. 로컬에서는 Self-hosted MQ(RabbitMQ/Kafka)를 대리로 사용하고, Spring Cloud Stream binder 교체로 운영 전환한다.
-- **Kafka 이미지**: `bitnami/kafka:3.7`을 사용한다. 최신 stable 버전은 Docker Hub에서 확인한다.
+- **Kafka 이미지**: `bitnamilegacy/kafka:3.7`을 사용한다. 최신 stable 버전은 Docker Hub에서 확인한다.
+
+- **Bitnami 이미지 경로 정책**: 2025년 9월 이후 `docker.io/bitnami/*` 이미지가 삭제되었다. Kafka·PostgreSQL·Redis·MongoDB 등 Bitnami 컨테이너 이미지를 사용하는 모든 경우 반드시 `bitnamilegacy/{이미지명}` 경로를 사용한다. Helm 차트 레포(`https://charts.bitnami.com/bitnami`)는 기존 버전이 계속 제공되지만, 이미지 자체는 `bitnamilegacy/`로 참조해야 한다. `bitnamilegacy` 이미지는 보안 업데이트가 없으므로 교육·실습·로컬 개발 용도로만 사용한다. 데이터 볼륨 경로(`/bitnami/kafka` 등)는 컨테이너 내부 경로이므로 변경하지 않는다 — 이미지 organization만 `bitnami` → `bitnamilegacy`로 바꾼다. 이 정책은 `develop/backing-service-setup.md`, `deploy/backing-service/backing-service-k8s.md`, `cicd/cicd-pre-setup.md`와 일관성을 가진다.
