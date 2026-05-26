@@ -22,15 +22,15 @@
     - [참고](#참고)
       - [npm 버전 EOS](#npm-버전-eos)
       - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
-  - [Oh My ClaudeCode (OMC) 설치](#oh-my-claudecode-omc-설치)
   - [AI툴 설치](#ai툴-설치)
   - [필수 MCP 설치](#필수-mcp-설치)
-  - [Claude Code 편의 명령어 설정](#claude-code-편의-명령어-설정)
   - [NPD 플러그인 추가](#npd-플러그인-추가)
     - [작업 디렉토리 생성 및 NPD 플러그인 다운로드](#작업-디렉토리-생성-및-npd-플러그인-다운로드)
     - [플러그인 추가](#플러그인-추가)
     - [플러그인 추가 확인](#플러그인-추가-확인)
   - [Python 설치](#python-설치)
+    - [설치](#설치-4)
+    - [Alias 등록(Mac 사용자만 수행)](#alias-등록mac-사용자만-수행)
 - [설계 단계를 위한 추가 설치](#설계-단계를-위한-추가-설치)
   - [Docker Desktop 설치](#docker-desktop-설치)
   - [GitHub 회원가입 및 토큰 생성](#github-회원가입-및-토큰-생성)
@@ -39,7 +39,7 @@
 - [개발/배포 단계를 위한 추가 설치](#개발배포-단계를-위한-추가-설치)
   - [Docker HUB 회원가입](#docker-hub-회원가입)
   - [IntelliJ 설치](#intellij-설치)
-    - [설치](#설치-4)
+    - [설치](#설치-5)
     - [IntelliJ 환경 설정](#intellij-환경-설정)
 
 ---
@@ -296,25 +296,6 @@ YOLO모드(매번 사용자 확인없이 AI가 자율적으로 수행)를 사용
 
 ---
 
-## Oh My ClaudeCode (OMC) 설치
-OMC는 Claude Code를 더 잘 사용하기 위한 플러그인입니다.    
-아래 명령 수행하여 설치     
-```
-claude plugin marketplace add https://github.com/Yeachan-Heo/oh-my-claudecode
-claude plugin install oh-my-claudecode
-```
-
-아래 명령으로 셋업 수행. Setup 시 MCP는 Skip 하십시오.    
-Claude Code Pro 이상 구독한 경우 Claude Code 실행 후 수행하고,   
-Cursor 구독한 경우 Cursor 실행 수 수행하세요.      
-```
-/omc-setup
-```
-
-| [Top](#로컬-개발-환경-구성) |
-
----
-
 ## AI툴 설치  
 사용할 AI툴을 설치 합니다.   
   
@@ -361,57 +342,6 @@ https://github.com/unicorn-plugins/npd/blob/main/resources/guides/setup/install-
 
 ---
 
-## Claude Code 편의 명령어 설정    
-Claude Code의 CLI인 'claude'의 단축어를 등록합니다.   
-이때 '--dangerously-skip-permissions'라는 옵션을 지정한 단축어 'cy'를 등록하면 매우 편합니다.    
-이 옵션은 로컬의 파일 변경 등 중요 작업 시 매번 사용자에게 묻지 않게 하는 옵션입니다. 
-위험하기 때문에 로컬에서만 사용하셔야 합니다. VM과 같은 곳에 Claude Code 설치하여 사용할 땐 하지 마십시오.     
-Linux/Mac사용자는 기본 터미널에서 수행하고, Window사용자는 Window Terminal의 Git Bash에서 수행합니다.   
- 
-**1.시작 스크립트 파일 열기**      
-Linux/Window   
-```
-code ~/.bashrc
-```
-
-Mac   
-```
-code ~/.zshrc
-```
-
-**2.Alias 등록**  
-맨 아래에 아래 Alias를 등록합니다.    
-```
-alias cc-yolo='claude --dangerously-skip-permissions --verbose'
-alias cc-safe='claude'
-alias cy='cc-yolo'
-```
-
-Window 사용자는 Powershell에서도 사용할 수 있도록 아래 작업을 더 합니다.    
-Window Terminal에서 Powershell창을 열고 아래를 수행하세요.   
-
-```
-code $PROFILE
-```
-
-아래와 같이 Alias를 등록합니다.   
-```
-function cc-yolo { claude --dangerously-skip-permissions --verbose @args }
-function cc-safe { claude @args }
-function cy { cc-yolo @args }
-```
-
----
-
-**3.사용방법**     
-- cc-yolo: YOLO Mode로 Claude Code 실행. Think과정도 표시.   
-- cc-safe: Safe Mode로 Claude Code 실행
-- cy: cc-yolo와 동일함. 기본값을 바꾸고 싶으면 alias설정을 변경하면 됨      
-
-편의 명령을 설정한 터미널을 모두 닫고 새 터미널을 열어 명령이 동작하는지 확인합니다.
-
----
-
 ## NPD 플러그인 추가
 ### 작업 디렉토리 생성 및 NPD 플러그인 다운로드 
 ```
@@ -447,21 +377,36 @@ Claude Code Pro 이상 구독 시에만 수행
 ---
 
 ## Python 설치
-최신 버전을 설치하세요.  
 
-**Window: **  
-https://www.python.org/downloads/windows/  
-![](images/2026-03-26-16-32-02.png)
+### 설치  
+자신의 OS에 맞는 3.13.3 버전을 설치하세요.  
+https://www.python.org/downloads/release/python-31313/
 
-**Mac:**    
-https://www.python.org/downloads/macos/  
-![](images/2026-03-26-16-32-56.png) 
-  
-
-(중요) 설치 시 'Add python.exe to PATH'를 반드시 체크하고 설치   
+(중요) 윈도우 사용자는 설치 시 'Add python.exe to PATH'를 반드시 체크하고 설치   
 ![](images/2026-04-13-16-35-19.png)
 
-  
+### Alias 등록(Mac 사용자만 수행)
+```
+code ~/.zshrc
+```
+맨 하단에 아래 추가
+```
+# python 
+alias python=python3.13
+alias pip=pip3
+```
+설정 적용  
+```
+source ~/.zshrc
+```
+
+테스트
+```
+python --version
+pip --version
+```
+
+
 | [Top](#로컬-개발-환경-구성) |
 
 ---
