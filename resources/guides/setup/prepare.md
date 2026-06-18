@@ -2,6 +2,9 @@
 
 - [로컬 개발 환경 구성](#로컬-개발-환경-구성)
 - [공통 필수 설치](#공통-필수-설치)
+  - [GitHub 회원가입 및 토큰 생성](#github-회원가입-및-토큰-생성)
+    - [회원가입](#회원가입)
+    - [접근 토큰 생성](#접근-토큰-생성)
   - [Git Client 설치](#git-client-설치)
     - [설치](#설치)
     - [기존 인증정보 삭제](#기존-인증정보-삭제)
@@ -15,27 +18,17 @@
   - [Microsoft Visual Studio Code 설치](#microsoft-visual-studio-code-설치)
     - [설치](#설치-2)
     - [설정](#설정)
-  - [Claude Code 설치](#claude-code-설치)
+  - [Claude Code CLI 설치](#claude-code-cli-설치)
     - [설치](#설치-3)
     - [`~/.local/bin` 추가](#localbin-추가)
     - [설치확인](#설치확인)
-    - [참고](#참고)
-      - [npm 버전 EOS](#npm-버전-eos)
-      - [Claude Desktop에 Claude Code 추가](#claude-desktop에-claude-code-추가)
   - [AI툴 설치](#ai툴-설치)
   - [필수 MCP 설치](#필수-mcp-설치)
-  - [NPD 플러그인 추가](#npd-플러그인-추가)
-    - [작업 디렉토리 생성 및 NPD 플러그인 다운로드](#작업-디렉토리-생성-및-npd-플러그인-다운로드)
-    - [플러그인 추가](#플러그인-추가)
-    - [플러그인 추가 확인](#플러그인-추가-확인)
   - [Python 설치](#python-설치)
     - [설치](#설치-4)
     - [Alias 등록(Mac 사용자만 수행)](#alias-등록mac-사용자만-수행)
 - [설계 단계를 위한 추가 설치](#설계-단계를-위한-추가-설치)
   - [Docker Desktop 설치](#docker-desktop-설치)
-  - [GitHub 회원가입 및 토큰 생성](#github-회원가입-및-토큰-생성)
-    - [회원가입](#회원가입)
-    - [접근 토큰 생성](#접근-토큰-생성)
 - [개발/배포 단계를 위한 추가 설치](#개발배포-단계를-위한-추가-설치)
   - [Docker HUB 회원가입](#docker-hub-회원가입)
   - [IntelliJ 설치](#intellij-설치)
@@ -46,6 +39,30 @@
 
 # 공통 필수 설치   
 기본적으로 설치해야 하는 공통 필수 설치    
+
+## GitHub 회원가입 및 토큰 생성  
+### 회원가입
+https://github.com을 여시고 회원 가입을 하십시오.   
+
+### 접근 토큰 생성
+Git Repository에 소스를 업로드할 때 사용할 토큰을 생성 하십시오. 
+토큰은 잊어 버리지 않게 잘 보관해 놓으십시오.   
+
+우측 상단의 프로파일 이미지를 클릭하고 'Settings'선택
+![](images/alt%20text.png)
+
+좌측 메뉴에서 맨 아래에 있는 Developer settings 선택
+![alt text](images/image.png)
+
+좌측 메뉴에서 'Personal access tokens'를 펼치고 Tokens(classic) 선택
+오른쪽에서 'Generate new token' 클릭하고 두번째 것 선택
+![](images/2026-02-20-14-15-48.png)
+
+Note(토큰이름: 적절히 지정)를 입력하고 Expiration 기간을 지정한 후 'repo'와 'workflow'를 체크함
+![](images/2026-02-20-14-16-37.png)
+
+| [Top](#로컬-개발-환경-구성) |
+  
 
 ## Git Client 설치
 ### 설치
@@ -198,7 +215,7 @@ Interpreter 언어를 개발할 때 사용하는 IDE(Integrated Development Envi
 
 ---
 
-## Claude Code 설치  
+## Claude Code CLI 설치  
 ### 설치
 **Linux/Mac**     
 ```bash
@@ -259,39 +276,6 @@ Claude Pro 이상 구독시에만 수행
 claude 
 ```
 
-### 참고 
-
-#### npm 버전 EOS
-2026년 2월부터 Claude Code는 npm을 이용하지 않고 독립적인 런타임 엔진을 사용
-기존 설치한 사람은 아래 명령으로 기존 claude를 삭제하고 재설치 바람 
-**삭제**   
-```
-# 강제 언인스톨
-npm uninstall -g @anthropic-ai/claude-code --force
-# 확인
-where claude
-만약, 위 명령 결과가 나오면 아래 수행하여 삭제   
-rm -rf {위 결과 파일 경로}
-# 캐시 정리
-npm cache clean --force
-```
-**설치**
-```
-claude install 
-```
-
-#### Claude Desktop에 Claude Code 추가   
-2026년 4월 15일부터 Claude Desktop에 Claude Code가 추가되어 훨씬 편한 UI/UX로 사용할 수 있게 됨  
-아래 [Claude CoWork 설치](#ai툴-설치)를 참고하여 Claude CoWork를 설치하면 자동으로 설치됩니다.   
-![](images/2026-04-16-13-22-32.png)   
-
-YOLO모드(매번 사용자 확인없이 AI가 자율적으로 수행)를 사용하려면 '설정'에서 아래 권한우회모드를 활성화해야 합니다.     
-![](images/2026-04-16-13-35-05.png)  
-
-권한우회 모드를 활성화하고 대화창에서 '권한 건너뛰기'를 선택하면 YOLO모드로 수행됩니다.   
-![](images/2026-04-16-13-35-57.png)  
-
-
 | [Top](#로컬-개발-환경-구성) |
 
 ---
@@ -299,12 +283,7 @@ YOLO모드(매번 사용자 확인없이 AI가 자율적으로 수행)를 사용
 ## AI툴 설치  
 사용할 AI툴을 설치 합니다.   
   
-**1)Claude Code/CoWork 설치**    
-Claude CoWork는 Claude Web과 유사한 기능을 로컬에서 사용하기 위한 로컬 Claude툴입니다.  
-Claude Code도 CoWork과 동일하게 로컬에 설치하는 Claude 툴입니다.   
-차이는 CoWork는 로컬의 가상환경 내에서 수행되고 Code는 로컬에서 직접 수행된다는 것입니다.   
-CoWork는 가상환경 내에서 수행되기 때문에 외부 API과 같은 일부 기능이 제약됩니다.   
-Claude Pro 구독 시에만 설치합니다.     
+**1)Claude Desktop 설치**    
 
 ![](images/2026-04-13-16-39-25.png)   
    
@@ -342,45 +321,14 @@ https://github.com/unicorn-plugins/npd/blob/main/resources/guides/setup/install-
 
 ---
 
-## NPD 플러그인 추가
-### 작업 디렉토리 생성 및 NPD 플러그인 다운로드 
-```
-mkdir -p ~/plugins
-cd ~/plugins
- 
-git clone https://github.com/unicorn-plugins/npd.git
-cd npd 
-```
-
-### 플러그인 추가  
-플러그인 추가는 마켓플레이스를 추가한 후 그 마켓플레이스의 플러그인을 install하는 방식으로 설치합니다.    
-```
-# Marketplace 추가 
-cy plugin marketplace add ./
-
-# Plugin 추가
-cy plugin install npd@npd
-```
-
-### 플러그인 추가 확인
-npd 플러그인이 추가되었는지 확인합니다.   
-```
-claude plugin list
-```
-
-Claude Code를 수행하고 설치되었는지 확인합니다.    
-Claude Code Pro 이상 구독 시에만 수행   
-![](images/2026-02-20-16-14-23.png)   
-  
-| [Top](#로컬-개발-환경-구성) |
-    
----
-
 ## Python 설치
 
 ### 설치  
-자신의 OS에 맞는 3.13.3 버전을 설치하세요.  
+자신의 OS에 맞는 3.13 버전을 설치하세요.  
 https://www.python.org/downloads/release/python-31313/
+
+3.13 버전 페이지의 하단에서 자신의 OS에 맞는 installer 다운로드하여 설치하세요.   
+![](images/2026-05-28-13-21-27.png)
 
 (중요) 윈도우 사용자는 설치 시 'Add python.exe to PATH'를 반드시 체크하고 설치   
 ![](images/2026-04-13-16-35-19.png)
@@ -421,31 +369,6 @@ pip --version
 
 | [Top](#로컬-개발-환경-구성) |
 
----
-
-## GitHub 회원가입 및 토큰 생성  
-### 회원가입
-https://github.com을 여시고 회원 가입을 하십시오.   
-
-### 접근 토큰 생성
-Git Repository에 소스를 업로드할 때 사용할 토큰을 생성 하십시오. 
-토큰은 잊어 버리지 않게 잘 보관해 놓으십시오.   
-
-우측 상단의 프로파일 이미지를 클릭하고 'Settings'선택
-![](images/alt%20text.png)
-
-좌측 메뉴에서 맨 아래에 있는 Developer settings 선택
-![alt text](images/image.png)
-
-좌측 메뉴에서 'Personal access tokens'를 펼치고 Tokens(classic) 선택
-오른쪽에서 'Generate new token' 클릭하고 두번째 것 선택
-![](images/2026-02-20-14-15-48.png)
-
-Note(토큰이름: 적절히 지정)를 입력하고 Expiration 기간을 지정한 후 'repo'와 'workflow'를 체크함
-![](images/2026-02-20-14-16-37.png)
-
-| [Top](#로컬-개발-환경-구성) |
-  
 ---
 
 # 개발/배포 단계를 위한 추가 설치

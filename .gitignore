@@ -14,3 +14,4 @@ node_modules/
 *.log
 .dmap/
 .omc/
+.claude/settings.local.json
