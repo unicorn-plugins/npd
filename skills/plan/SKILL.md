@@ -1,6 +1,6 @@
 ---
 name: plan
-description: 기획 단계 AI 협업 — 18단계 서비스 기획 워크플로우 (MVP정의 → 고객분석 → 시장조사 → 고객경험 → 문제가설 → 솔루션 → 비즈니스모델 → 이벤트스토밍 → 유저스토리 → UI/UX → 프로토타입 → 플로우 스크립트)
+description: 기획 단계 AI 협업 — 19단계 서비스 기획 워크플로우 (MVP정의 → 고객분석 → 시장조사 → 고객경험 → 문제가설 → 솔루션 → 비즈니스모델 → 이벤트스토밍 → PRD → 유저스토리 → UI/UX → 프로토타입 → 플로우 스크립트)
 type: orchestrator
 user-invocable: true
 ---
@@ -12,7 +12,7 @@ user-invocable: true
 ## 목표
 
 PO·서비스기획자·도메인전문가·아키텍트·AI엔지니어가 협업하여
-6단계 18스텝의 완전한 서비스 기획을 수행함.
+6단계 19스텝의 완전한 서비스 기획을 수행함.
 MVP 정의부터 프로토타입까지 체계적으로 산출물을 생성하며,
 각 단계의 산출물이 다음 단계의 컨텍스트로 누적 연결됨.
 
@@ -89,7 +89,7 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
    ↓
 4단계: 비즈니스 모델 (비즈니스모델 + 발표자료)
    ↓
-5단계: 제품 설계 (이벤트스토밍 + 유저스토리 + UI/UX설계)
+5단계: 제품 설계 (이벤트스토밍 + PRD + 유저스토리 + UI/UX설계)
    ↓
 6단계: 프로토타입 + 플로우 스크립트
 ```
@@ -377,42 +377,72 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
 - **CONTEXT**: `docs/plan/think/es/리뷰의견.md`, 기존 이벤트 스토밍 산출물
 - POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-#### Step 2. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert
+#### Step 2. PRD 작성 → Agent: product-owner(리드), service-planner, architect, ai-engineer, domain-expert
 
-- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/14-user-stories-guide.md`
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/14-prd-guide.md`
 - **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
 
-##### Step 2-1. 초안 작성 (순차) → Agent: service-planner
+##### Step 2-1. 초안 작성 (순차) → Agent: product-owner
 
-- **TASK**: 이벤트 스토밍 결과를 기반으로 유저플로우→Epic, 이벤트→User Story, 커맨드→시나리오/Task, 정책/규칙→Acceptance Criteria 변환, UFR 포맷·우선순위·Story Points·Feature Story Map·스프린트 계획·비기능 요구사항을 포함한 유저스토리를 작성
-- **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` — 마이크로서비스별 유저스토리(최소 20개 UFR)·사용자 역할·Feature Story Map·우선순위 매트릭스·스프린트 계획·비기능 요구사항·Definition of Done·리스크
+- **TASK**: 이벤트 스토밍 결과(유저플로우→사용자 시나리오, 커맨드/이벤트→기능 요구사항, 정책/규칙→비기능 요구사항)와 비즈니스모델·문제가설·시장조사를 근거로 문제 정의·목표·타겟 사용자·범위(In/Out)·사용자 시나리오·기능 요구사항(MoSCoW)·비기능 요구사항(목표치)·성공 지표·릴리스 계획·리스크를 포함한 PRD를 작성
+- **EXPECTED OUTCOME**: `docs/plan/design/PRD.md` — 문제 정의·목표·타겟 사용자·범위·사용자 시나리오·기능 요구사항(MoSCoW)·비기능 요구사항(목표치)·성공 지표·릴리스 계획·리스크 및 가정
+- **CONTEXT**: `docs/plan/think/es/*.puml`, `docs/plan/think/비즈니스모델.md`, `docs/plan/define/문제가설.md`, `docs/plan/define/시장조사.md`, `docs/plan/define/비즈니스가치.md`
 
-##### Step 2-2. 검토 (병렬) → Agent: product-owner, architect, ai-engineer, domain-expert
+##### Step 2-2. 검토 (병렬) → Agent: service-planner, architect, ai-engineer, domain-expert
 
-- **TASK**: 14-1에서 작성된 유저스토리 초안을 각자의 전문성 관점에서 검토하고 의견을 제시
+- **TASK**: 2-1에서 작성된 PRD 초안을 각자의 전문성 관점에서 검토하고 의견을 제시
+  - **service-planner**: 사용자 시나리오·UX 관점에서 범위·시나리오 누락 여부 검토
+  - **architect**: 기술 실현 가능성 관점에서 비기능 요구사항(성능·확장성) 목표치의 타당성 검토
+  - **ai-engineer**: AI/ML 기능 관련 요구사항 누락 여부 확인, AI 연동 요구사항 보완 제안
+  - **domain-expert**: 도메인 규제·업계 관행 관점에서 비기능 요구사항(보안·컴플라이언스) 누락 확인
+- **EXPECTED OUTCOME**: `docs/plan/design/PRD-리뷰의견.md` — 검토자별 의견(관점·의견·수정 제안)
+- **CONTEXT**: `docs/plan/design/PRD.md`
+- **실행**: 4개 에이전트를 `Agent(run_in_background=true)`로 동시 실행
+
+##### Step 2-3. 의견 반영 및 업데이트 (순차) → Agent: product-owner
+
+- **TASK**: 검토 의견을 반영하여 PRD를 업데이트하고 반영/미반영 판단 근거를 기록
+- **EXPECTED OUTCOME**: `docs/plan/design/PRD.md` 업데이트(기존 파일 덮어쓰기), `docs/plan/design/PRD-리뷰반영결과.md` — 반영/미반영 판단 근거
+- **CONTEXT**: `docs/plan/design/PRD-리뷰의견.md`, 기존 PRD
+- POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
+
+#### Step 3. 유저스토리 작성 → Agent: service-planner(리드), product-owner, architect, ai-engineer, domain-expert
+
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/15-user-stories-guide.md`
+- **실행 방식**: 3단계(초안-리뷰-반영)로 수행합니다.
+
+##### Step 3-1. 초안 작성 (순차) → Agent: service-planner
+
+- **TASK**: PRD와 이벤트 스토밍 결과를 기반으로 유저플로우→Epic, 이벤트→User Story, 커맨드→시나리오/Task, 정책/규칙→Acceptance Criteria 변환, UFR 포맷·우선순위·Story Points·Feature Story Map·스프린트 계획을 작성하고, PRD의 비기능 요구사항(목표치)을 관련 UFR/NFR의 구현 태스크·수용기준으로 구체화(목표치 재정의 없이 반영)한 유저스토리를 작성
+- **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` — 마이크로서비스별 유저스토리(최소 20개 UFR)·사용자 역할·Feature Story Map·우선순위 매트릭스·스프린트 계획·비기능 요구사항 구현 태스크·Definition of Done·리스크
+- **CONTEXT**: `docs/plan/design/PRD.md`, `docs/plan/think/es/*.puml`
+
+##### Step 3-2. 검토 (병렬) → Agent: product-owner, architect, ai-engineer, domain-expert
+
+- **TASK**: 3-1에서 작성된 유저스토리 초안을 각자의 전문성 관점에서 검토하고 의견을 제시
   - **product-owner**: MVP 범위·비즈니스 우선순위 관점에서 우선순위(M/S/C) 적절성 검토, 누락된 비즈니스 요구사항 식별
   - **architect**: 기술 실현 가능성·시스템 아키텍처 관점에서 Story Points 적절성 검토, 기술적 의존성·제약 사항 식별
   - **ai-engineer**: AI/ML 적용 가능한 유저스토리 식별, AI 기능 관련 UFR 누락 여부 확인, AI 연동 요구사항 보완 제안
   - **domain-expert**: 도메인 규칙·규제·업계 관행 관점에서 Acceptance Criteria 검증, 도메인 특화 요구사항 누락 확인
 - **EXPECTED OUTCOME**: `docs/plan/design/userstory-리뷰의견.md` — 검토자별 의견(관점·의견·수정 제안)
-- **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/think/es/*.puml`
+- **CONTEXT**: `docs/plan/design/userstory.md`, `docs/plan/design/PRD.md`, `docs/plan/think/es/*.puml`
 - **실행**: 4개 에이전트를 `Agent(run_in_background=true)`로 동시 실행
 
-##### Step 2-3. 의견 반영 및 업데이트 (순차) → Agent: service-planner
+##### Step 3-3. 의견 반영 및 업데이트 (순차) → Agent: service-planner
 
 - **TASK**: 검토 의견을 반영하여 유저스토리를 업데이트하고 반영/미반영 판단 근거를 기록
 - **EXPECTED OUTCOME**: `docs/plan/design/userstory.md` 업데이트(기존 파일 덮어쓰기), `docs/plan/design/userstory-리뷰반영결과.md` — 반영/미반영 판단 근거(최종 UFR 최소 20개 확인)
 - **CONTEXT**: `docs/plan/design/userstory-리뷰의견.md`, 기존 유저스토리
 - POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-#### Step 3. UI/UX 설계 → Agent: service-planner
+#### Step 4. UI/UX 설계 → Agent: service-planner
 
-- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/15-uiux-design-guide.md`
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/16-uiux-design-guide.md`
 - **TASK**: 유저스토리를 기반으로 디자인 원칙·정보 아키텍처·사용자 플로우·와이어프레임(최소 5개 화면)·컴포넌트 라이브러리·접근성(WCAG 2.1 AA)·스타일 가이드·인터랙션 디자인을 포함한 UI/UX 디자인 명세를 작성 (레퍼런스 분석 결과 있는 경우 디자인 톤·레이아웃·컴포넌트 스타일 반영)
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/uiux.md` — UI/UX 디자인 명세 전체 / `docs/plan/design/uiux/style-guide.md` — 스타일 가이드
 - POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
 
-##### Step 3-1. 디자인 레퍼런스 수집
+##### Step 4-1. 디자인 레퍼런스 수집
 디자인 레퍼런스 입력을 사용자에게 요청. 반드시 `https://wwit.design` 사이트를 추천해야 함.    
 AskUserQuestion 사용하지 않고 아래와 같이 요청.   
 ```  
@@ -424,7 +454,7 @@ AskUserQuestion 사용하지 않고 아래와 같이 요청.
 - 사용자가 **이미지를 제공한 경우**: `docs/plan/design/uiux/references/`에 저장하고 디자인 분석
 - 사용자가 '없음' 또는 미응답 시: 레퍼런스 없이 진행
 
-##### Step 3-2. 레퍼런스 사이트 디자인 분석 (URL 제공 시에만 실행) → Agent: service-planner 
+##### Step 4-2. 레퍼런스 사이트 디자인 분석 (URL 제공 시에만 실행) → Agent: service-planner 
 
 1. **Playwright로 사이트 접속 및 스크린샷 촬영**
    - 데스크톱 뷰포트(1280x800)로 주요 페이지 스크린샷 촬영
@@ -456,7 +486,7 @@ AskUserQuestion 사용하지 않고 아래와 같이 요청.
 - 사용자가 API Key를 제공한 경우: `{PROJECT_DIR}/.npd/.env` 파일에 `GEMINI_API_KEY={입력값}` 저장 (`.npd/`는 `.gitignore`에 포함되어 git에 업로드되지 않음)
 - 사용자가 '없음' 또는 미응답 시: 이미지 없이 진행 (placeholder 텍스트 사용)
 
-- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/16-prototype-development-guide.md`
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/17-prototype-development-guide.md`
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/` 디렉토리 — `common.css`·`common.js`·`{2자리번호}-{한글화면명}.html`·`테스트결과.md`
 - POST-ACTION: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
   
@@ -530,7 +560,7 @@ Step 1-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통
 
 #### Step 2. 사용자 플로우 프리젠테이션 → Agent: frontend-developer 
 
-- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/17-flow-presentation-guide.md`
+- **GUIDE**: `{NPD_PLUGIN_DIR}/resources/guides/plan/18-flow-presentation-guide.md`
 - **TASK**: Playwright로 각 프로토타입 화면을 스크린샷 촬영(일련번호+한글 자막 오버레이)하고, 테스트결과.md의 화면간 연결성 데이터를 분석하여 주요 플로우를 도출한 후, 3단 레이아웃(좌측 스텝 리스트/중앙 폰 프레임/우측 나레이션)의 인터랙티브 HTML 프리젠테이션을 개발
 - **EXPECTED OUTCOME**: `docs/plan/design/uiux/prototype/screenshots/{번호}-{화면명}.png` — 자막 포함 화면별 스크린샷 / `docs/plan/design/uiux/prototype/flow-script.html` — 사용자 플로우 인터랙티브 프리젠테이션
 - **POST-ACTION**: `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
@@ -572,6 +602,7 @@ Step 1-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통
 - docs/plan/think/es/{순번}-{유저플로우명}.puml — 시퀀스 다이어그램
 
 #### design/ (설계 단계)
+- docs/plan/design/PRD.md — PRD (제품 요구사항 문서)
 - docs/plan/design/userstory.md — 유저스토리
 - docs/plan/design/uiux/uiux.md — UI/UX 설계
 - docs/plan/design/uiux/style-guide.md — 스타일 가이드
@@ -602,7 +633,8 @@ Step 1-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통
 특정 단계만 실행 가능:
 - "1-2단계만 실행해줘" (정의 + 문제 발견)
 - "5단계부터 시작해줘" (제품 설계부터)
-- "유저스토리만 작성해줘" → Step 14만 실행
+- "PRD만 작성해줘" → Step 14만 실행
+- "유저스토리만 작성해줘" → Step 15만 실행
 
 ### 에러 처리
 스텝 실패 시:
@@ -629,7 +661,7 @@ Step 1-3에서 발견된 실패 항목을 수정 → 재테스트 → 모두 통
 
 ## 검증 프로토콜
 
-1. 산출물 내용 품질 검증 (고객 조사 사용자 입력 규모 충족, UFR 20개 이상, Lean Canvas 9영역)
+1. 산출물 내용 품질 검증 (고객 조사 사용자 입력 규모 충족, Lean Canvas 9영역, PRD 14개 섹션, UFR 20개 이상)
 2. 이전 Phase 산출물과의 일관성 확인 (각 Step의 CONTEXT 체인 연결)
 
 ## 상태 정리
