@@ -141,6 +141,8 @@ AGENTS.md 파일에서 `## 환경변수` 섹션의 환경변수 로딩.
   - 프로젝트 AGENTS.md의 `## MVP > MVP 주제` 섹션에 확정된 MVP 주제를 기술 
   - `{NPD_PLUGIN_DIR}/resources/guides/plan/domain-context-guide.md`의 가이드에 따라 `{PROJECT_DIR}/.npd/domain-context.yaml`에 도메인 특화 정보 생성
   - 프로젝트 AGENTS.md의 멤버 중 `domain-expert`의 성향과 경력을 `{PROJECT_DIR}/.npd/domain-context.yaml`을 참고하여 재작성 
+  - 프로젝트 AGENTS.md의 '클로니'의 책임과 경력을 MVP 주제와 관련된 책임과 경력으로 재작성
+  - 프로젝트 AGENTS.md의 팀원을 MVP 주제와 관련된 팀원으로 재작성 
   - `{PROJECT_DIR}/AGENTS.md`에 마지막 완료 Phase/Step 업데이트
   
 #### Step 2. 고객 분석 → Agent: service-planner
