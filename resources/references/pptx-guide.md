@@ -1,13 +1,13 @@
-# PPT 작성 가이드 (pptx-build-guide)
+# 제안서 스타일 PPT 작성 가이드 (proposal-pptx-build-guide)
 
 ## 0. 패턴 개요 (Spec Agent + Orchestrator Builder)
 
-DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
+제안서형 PPT 생성은 **2단계 분리 구조**를 따름:
 
 ```
 [사용자 요구]
      ↓
-[pptx-spec-writer 에이전트]  ← 시각 명세 .md 작성 (패턴 A~F 매핑, 슬라이드별 콘텐츠/디자인 의도)
+[pptx-spec-writer 에이전트]  ← 시각 명세 .md 작성 (패턴 A~E 매핑, 슬라이드별 콘텐츠/디자인 의도)
      ↓
 [Builder Skill (오케스트레이터)]
   1. 본 가이드 로드
@@ -21,20 +21,26 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 **원칙**:
 - 에이전트는 **명세만 산출** (실행 도구 비포함 → Cursor/Cowork 등 모든 런타임 호환)
 - 오케스트레이터(스킬)가 **빌드+실행+검증** 수행 (Write + Bash 도구만 필요)
-- 외부 변환 스킬(`anthropic-skills:pptx` 등) 의존 금지
+- 외부 변환 스킬 의존 금지
 - 빌더 스킬은 본 가이드 6절(코드 생성 시 필수 검증 규칙)을 **반드시 준수**
 
-**런타임 요구사항**: `node ≥ 18`, `npm i pptxgenjs` (생성 플러그인의 setup 스킬에서 자동 설치)
+**런타임 요구사항**: `node ≥ 18`, `npm i pptxgenjs`
 
 ---
 
-## 생성된 이미지 임베딩 
-- 스크립트에 아래 예와 같이 이미지 링크가 있으면 그 이미지를 페이지에 임베딩 
+## 생성된 이미지 임베딩
+- 스크립트에 아래 예와 같이 이미지 링크가 있으면 그 이미지를 페이지에 임베딩
   ```
-  ![AM 개요 다이어그램](images/am_overview_diagram.png)
+  ![서비스 방향성 다이어그램](images/service_direction.png)
   ```
+- 벤치마크·결과물 화면 캡처는 동일 비율로 정렬하여 그리드 배치하고, 필 라벨로 화면명을 표기
+
+---
 
 ## PPT 스타일시트
+
+> 이 스타일은 표준 컨설팅 제안서(딥 네이비 + 브라이트 블루) 디자인 언어를 기준으로 함.
+> 흰색 배경 위에 컬러 헤더 바·넘버 배지·틴트 카드를 배치하는 정갈한 코퍼레이트 톤.
 
 ### 1. 컬러 팔레트
 
@@ -42,56 +48,33 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 
 | 역할 | 컬러명 | HEX | 용도 |
 |------|--------|-----|------|
-| Primary | Dark Brown | `#2C2926` | 페이지 헤더, 레슨명 제목, 주요 텍스트 |
-| Sub | Green | `#059669` | 강조 배지, 플로우 스텝 바, 보조 강조 |
-| Accent Teal | Teal | `#0D9488` | 키워드 라벨, 섹션 구분 텍스트 |
-| Text Body | Dark Gray | `#505060` | 본문 텍스트 |
-| Text Secondary | Slate | `#59636E` | 설명 텍스트, 부가 정보 |
-| Text Tertiary | Mid Gray | `#6B6B7B` | 캡션, 메타데이터 |
+| Primary | Deep Navy | `#1E2A5C` | 페이지 제목, 헤더 바(좌), 넘버 배지, 주요 텍스트 |
+| Sub | Bright Blue | `#2E74C6` | 강조 헤더 바, 배지, 언더라인 액센트, 불릿 |
+| Text Body | Ink | `#2B3242` | 본문 텍스트 |
+| Text Secondary | Slate | `#4A5364` | 설명·부연 텍스트 |
+| Text Tertiary | Sub Gray | `#7C8598` | 캡션, breadcrumb, 메타데이터 |
 | Background (Master) | White | `#FFFFFF` | 슬라이드 마스터 배경 |
 | Background (Content) | White | `#FFFFFF` | 콘텐츠 영역 배경 사각형 |
 
-#### Accent 1~6 (테마 색상)
-
-| Accent | HEX | 미리보기 |
-|--------|-----|---------|
-| Accent 1 | `#4472C4` | 🔵 Blue |
-| Accent 2 | `#ED7D31` | 🟠 Orange |
-| Accent 3 | `#A5A5A5` | ⚪ Gray |
-| Accent 4 | `#FFC000` | 🟡 Gold |
-| Accent 5 | `#5B9BD5` | 🔵 Light Blue |
-| Accent 6 | `#70AD47` | 🟢 Green |
-
-#### 플로우 다이어그램 스텝 컬러
+#### 보조 · 배경 컬러
 
 | 용도 | HEX | 설명 |
 |------|-----|------|
-| 스텝 1 (시작/끝) | `#059669` | Green — Input/Output 바 |
-| 스텝 2 (검색/조회) | `#0284C7` | Blue — RAG, 데이터 조회 단계 |
-| 스텝 3 (구성/처리) | `#D97706` | Amber — Prompt 구성, 중간 처리 |
-| 스텝 4 (핵심 실행) | `#DC2626` | Red — LLM 호출, 핵심 실행 |
-| 스텝 5 (변환/출력) | `#7C3AED` | Purple — Output Parser, 변환 |
+| 틴트 박스 배경 | `#EEF3FA` | Light Blue — 요약·정보 카드 배경 |
+| 대체 행/카드 배경 | `#F5F8FC` | Pale Blue — 리스트 항목, 표 짝수행 |
+| 테이블 헤더 행 | `#E2EEF9` | Soft Blue — 표 헤더행 배경 |
+| 다크 배지 | `#404155` | Dark Slate — 섹션 라벨, WHAT 라벨 |
+| 카드 테두리 / 구분선 | `#D9E0EC` | Cool Gray — 카드 경계, 헤더 언더라인 바탕 |
+| 미세 구분선 | `#EDF0F6` | Light Gray — 표 행 구분, 리스트 구분 |
+| 푸터 구분선 | `#E9ECF3` | Light Gray — 하단 푸터 상단 라인 |
 
-#### 카드 그리드 헤더 컬러
+#### 헤더 바 그라디언트
 
-| 용도 | HEX | 설명 |
+| 용도 | 값 | 설명 |
 |------|-----|------|
-| 카테고리 A | `#3776AB` | Python Blue — 소개/개요 카드 |
-| 카테고리 B | `#1A6E36` | Dark Green — 구성 요소 카드 |
-| 카테고리 C | `#C0530A` | Dark Orange — 기본 문법 카드 |
-| 카테고리 D | `#1A5E7E` | Dark Teal — 환경/설정 카드 |
-| 카테고리 E | `#8B1A1A` | Dark Red — 핵심/심화 카드 |
-
-#### 보조 컬러
-
-| 용도 | HEX | 설명 |
-|------|-----|------|
-| 카드 배경 | `#F5F5F7` | Light Gray — 정보 카드 배경 |
-| 코드 블록 배경 | `#F5F5F7` | Light Gray — 회색 배경 코드 영역 |
-| 정보 하이라이트 배경 | `#CCFBF1` | Light Teal — 핵심 포인트 강조 박스 |
-| 구분선 | `#E2E8F0` | Light Gray — 섹션 구분 |
-| 카드 테두리 | `#DDDDE0` | Cool Gray — 카드 경계선 |
-| 비활성 화살표 | `#9CA3AF` | Gray — 화살표, 보조 기호 |
+| 강조 헤더 바 | `linear-gradient(90deg, #1E2A5C → #2E74C6)` | 우측 강조 섹션(추진 전략, 주요 결과물 등) |
+| 단색 헤더 바 | `#1E2A5C` | 좌측 기본 섹션(목적 등) |
+| 표지 / 구분 슬라이드 | `linear-gradient(120deg, #141D40 → #1E2A5C → #2E5AA8)` | 타이틀·파트 구분 배경 |
 
 ---
 
@@ -101,7 +84,7 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 
 | 서체 | 용도 | 비고 |
 |------|------|------|
-| **Pretendard** | 주 서체 (타이틀, 헤더, 본문, 캡션) | Variable Weight 지원 |
+| **Pretendard** | 주 서체 (제목, 헤더, 본문, 캡션) | Variable Weight, 한/영 통합 |
 | **맑은 고딕** | 폴백 한글 서체 | 시스템 미설치 시 대체 |
 | **Arial** | 영문 폴백 | 범용 |
 
@@ -109,16 +92,17 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 
 | 요소 | 서체 | 굵기 | 크기 | 색상 |
 |------|------|------|------|------|
-| 페이지 헤더 (제목) | **Pretendard** | Bold | 36pt | `#2C2926` |
-| 서브타이틀 (부제) | **Pretendard** | Bold | 20pt | `#2C2926` |
-| 섹션 헤더 | **Pretendard** | Bold | 28pt | `#2C2926` |
-| 키워드 라벨 | **Pretendard** | Bold | 16pt | `#0D9488` |
-| 본문 일반 텍스트 | **Pretendard** | Regular | 16pt | `#505060` |
-| 본문 강조 텍스트 | **Pretendard** | Bold | 16pt | `#2C2926` |
-| 카드 내 텍스트 | **Pretendard** | Regular | 14pt | `#59636E` |
-| 밀집 콘텐츠 텍스트 | **Pretendard** | Regular | 12pt | `#59636E` |
-| 코드 블록 텍스트 | **Pretendard** | Regular | 16-18pt | `#505060` (회색 배경 위) |
-| 캡션 / 메타 | **Pretendard** | Regular | 12pt | `#6B6B7B` |
+| 페이지 제목 | **Pretendard** | ExtraBold(800) | 40pt | `#1E2A5C` |
+| 섹션 헤더 바 텍스트 | **Pretendard** | Bold | 20pt | `#FFFFFF` |
+| 섹션 헤더(본문) | **Pretendard** | Bold | 28pt | `#1E2A5C` |
+| breadcrumb (경로) | **Pretendard** | SemiBold | 13pt | `#7C8598` |
+| 본문 강조 텍스트 | **Pretendard** | Bold | 18pt | `#2B3242` |
+| 본문 일반 텍스트 | **Pretendard** | Regular | 16pt | `#3B4557` |
+| 카드 내 텍스트 | **Pretendard** | Regular | 14pt | `#4A5364` |
+| 캡션 / 메타 | **Pretendard** | Regular | 12pt | `#7C8598` |
+
+#### 굵기 스케일
+`Regular 400` · `SemiBold 600` · `Bold 700` · `ExtraBold 800`
 
 ---
 
@@ -132,143 +116,121 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 | 여백 (좌우) | 40pt |
 | 여백 (상단) | 70pt (페이지 헤더 영역) |
 | 마스터 배경 | `#FFFFFF` (White) |
-| 콘텐츠 영역 | 흰색 배경 사각형 또는 카드로 구성 |
-| 푸터 | "무단전재 및 배포 금지" + 페이지 번호 (마스터 요소) |
-| 테마 | Office (커스텀) |
+| 콘텐츠 영역 | 흰색 배경 위 카드/헤더 바로 구성 |
+| 푸터 | 좌측 고정 문구 + 우측 파트/페이지 번호 (마스터 요소) |
 
-#### 슬라이드 마스터 구조
+#### 페이지 헤더 구조 (모든 콘텐츠 슬라이드 공통)
 
-| 마스터 | 배경색 | 용도 |
-|--------|--------|------|
-| Master 1 | `#00BBFF` (Bright Cyan) | 타이틀 슬라이드 |
-| Master 3 (Layout 6) | `#FFFFFF` (White) | 콘텐츠 슬라이드 (주 사용) |
+```
+① breadcrumb    : "Ⅰ. 디자인 시스템 › 2. 컬러"   (13pt, #7C8598)
+② 페이지 제목    : "컬러 시스템"                  (40pt Bold, #1E2A5C)
+③ 언더라인 룰    : 전폭 3pt #D9E0EC 위에 좌측 150px #2E74C6 액센트 세그먼트
+④ (선택) 리드문  : 한 문장 요약                   (16pt, #4A5364)
+```
 
 #### 레이아웃 패턴
 
-**패턴 A: 카드 그리드 (3열)**
-- 상단 페이지 헤더 + 부제
-- 3개의 동일 크기 카드 (`#F5F5F7` 배경, RoundRect)
-- 각 카드 아래 상세 설명 텍스트
-- 적합: 개념 비교, 핵심 가치 3가지 소개
+**패턴 A: 목적 / 추진 전략 (2단 헤더 바)**
+- 좌측: 단색 네이비 헤더 바(`목적`) + 틴트 박스 요약(이탤릭 Bold 강조)
+- 우측: 그라디언트 헤더 바(`추진 전략`) + 넘버 스퀘어 배지 항목 리스트
+- 적합: 제안의 목적과 핵심 전략 압축, 방향성 개요
 
-**패턴 B: 다이어그램 + 설명 (2열)**
-- 좌측: 도형/다이어그램 (무한루프, 도넛차트 등)
-- 우측: 번호 목록 또는 참고 이미지
-- 적합: 아키텍처 패턴, 구성 요소 관계도
+**패턴 B: WHY / HOW / WHAT (3행 목표·방안·결과)**
+- 좌측: 그라디언트 헤더 바 아래 3개 행
+  - WHY(목표) = 네이비 라벨 셀, HOW(수행 방안) = 블루 라벨 셀, WHAT(핵심 결과) = 다크 슬레이트 라벨 셀
+  - 각 라벨 셀은 영문 대문자 + 한글 부제
+- 우측: `주요 결과물 예시` 헤더 바 + 결과물 캡처(필 라벨 부착)
+- 적합: 수행 단계별 상세, 과업 정의
 
-**패턴 C: 플로우 다이어그램 + 코드 (2열)**
-- 좌측: 컬러 코딩된 프로세스 플로우 (세로 방향)
-  - 각 스텝은 다른 색상 바 사용 (`#059669`, `#0284C7`, `#D97706`, `#DC2626`, `#7C3AED`)
-  - 흰색 배경 컨테이너(`#FFFFFF`) 위에 배치
-- 우측: 회색 배경(`#F5F5F7`) 코드 블록 + 설명 텍스트
-- 하단: 핵심 포인트 하이라이트 박스(`#CCFBF1`)
-- 적합: 코드 파이프라인, 알고리즘 흐름
+**패턴 C: 벤치마크 카드 (사례 분석)**
+- 좌측: `소개`·`주요 기능` 틴트 카드 (불릿 리스트)
+- 우측: 화면 캡처 2×2 그리드 (동일 비율, 하단 캡션)
+- 적합: 경쟁·선진 사례 분석, 서비스 비교
 
-**패턴 D: 테이블 + 상세 섹션**
-- 상단: 표 (헤더행 구분)
-- 하단: 다크 배경(`#404155`) 배지 + 상세 설명
-- 적합: 비교표, 제공사 개요
+**패턴 D: 데이터 테이블**
+- 좌측: 다크 배지(섹션 라벨) + 표 (헤더행 `#E2EEF9`, 짝수행 `#F5F8FC`)
+- 우측: 규칙·산정식 넘버 리스트 (틴트 박스)
+- 적합: 기능점수 산정, 비교표, 제공사 개요
 
-**패턴 E: 카드 그리드 (2×3 또는 2×2)**
-- 각 카드는 색상 헤더 바 + 흰색 본문 영역
-- 헤더 바 색상으로 카테고리 구분
-- 카드 내 불릿 리스트 또는 코드 스니펫
-- 적합: 다항목 개요, 분류별 정리
-
-**패턴 F: 멀티 섹션 대시보드**
-- 2~4개 독립 섹션으로 분할
-- 각 섹션에 비교표, 턴 다이어그램, 아키텍처 등 혼합
-- 적합: 종합 정리, 핵심 개념 + 실습 안내
+**패턴 E: 섹션 구분 / 목차 (파트 전환)**
+- 네이비 그라디언트 배경 + 대형 로마자 워터마크(rgba 0.05) + 파트 타이틀
+- 목차는 흰 배경에 로마자 + 하위 항목 3열
+- 적합: 파트 도입, 목차, 챕터 전환
 
 ---
 
 ### 4. 컴포넌트 스타일
 
-#### 강조 배지
+#### 섹션 헤더 바
 
 | 속성 | 값 |
 |------|------|
-| 형태 | RoundRect (둥근 모서리 사각형) |
-| 배경색 | `#059669` |
-| 텍스트 | White, 14pt, Bold |
-| 용도 | 핵심 키워드 강조 (예: "WHY", "Process") |
+| 형태 | Rectangle (라운드 6px) |
+| 배경 | 단색 `#1E2A5C` 또는 `linear-gradient(90deg,#1E2A5C,#2E74C6)` |
+| 텍스트 | White, 20pt, Bold, 가운데 정렬 |
+| 용도 | 좌/우 섹션 구분(목적·추진전략, 목표·결과물 등) |
 
-#### 테이블 헤더 행
-
-| 속성 | 값 |
-|------|------|
-| 배경색 | `#E2EEF9` (옅은 파란색) |
-| 텍스트 | `#2C2926`, 12-13pt, Bold |
-| 용도 | 모든 테이블의 헤더 행 (기존 `#2C2926` 다크 배경 대신 사용) |
-
-> **변경**: 테이블 헤더를 어두운 배경(`#2C2926` + 흰색 텍스트) 대신 옅은 파란색 배경(`#E2EEF9`) + 진한 텍스트(`#2C2926`)로 통일
-
----
-
-#### 정보 카드
+#### 넘버 스퀘어 배지
 
 | 속성 | 값 |
 |------|------|
-| 형태 | RoundRect |
-| 배경색 | `#F5F5F7` (연한 회색) |
-| 테두리 | `#DDDDE0` (Cool Gray) |
-| 텍스트 | `#505060`, 16pt (제목 Bold, 본문 Regular) |
-| 용도 | 개념 설명, 항목 나열 |
+| 형태 | RoundRect (약 34~44px 정사각, radius 5~6px) |
+| 배경 | `#2E74C6`(기본) / `#1E2A5C` / `#404155` |
+| 텍스트 | White, Bold |
+| 용도 | 순서·단계·핵심 항목 번호 |
 
-#### 카드 그리드 헤더
-
-| 속성 | 값 |
-|------|------|
-| 형태 | RoundRect 상단 바 (카드 너비 × 38pt) |
-| 배경색 | 카테고리별 컬러 (카드 그리드 헤더 컬러 참조) |
-| 텍스트 | White, 14-16pt, Bold |
-| 용도 | 카드 상단 카테고리 라벨 |
-
-#### 플로우 스텝 바
+#### 틴트 정보 박스
 
 | 속성 | 값 |
 |------|------|
-| 형태 | RoundRect (너비 380pt × 높이 48pt) |
-| 배경색 | 스텝별 컬러 (플로우 다이어그램 스텝 컬러 참조) |
-| 텍스트 | White, 16-18pt, Bold |
-| 컨테이너 | 흰색 배경(`#FFFFFF`) 사각형 위에 배치 |
-| 용도 | 프로세스 흐름도의 각 단계 |
+| 형태 | RoundRect (radius 8~12px) |
+| 배경 | `#EEF3FA` (요약) / `#F5F8FC` (리스트 항목) |
+| 테두리 | `#D9E0EC` |
+| 텍스트 | 제목 `#1E2A5C` Bold, 본문 `#3B4557` Regular |
+| 용도 | 개념 요약, 항목 나열, 카드 |
 
-#### 코드 블록
+#### 필 라벨
 
 | 속성 | 값 |
 |------|------|
-| 형태 | RoundRect |
-| 배경색 | `#F5F5F7` (Light Gray, 회색 배경 스타일) |
-| 텍스트 | 16-18pt, 구문 하이라이팅 컬러 사용 |
-| 구문 색상 | 문자열 `#A31515`, 키워드 `#0000FF`, 주석 `#008000` |
-| 용도 | 코드 예시, API 호출 예시 |
+| 형태 | Pill (radius 999) |
+| 배경 | `#EEF3FA`, 테두리 `#C3CEE0` |
+| 텍스트 | `#1E2A5C`, Bold |
+| 용도 | 화면 캡처·이미지·카테고리 라벨 |
 
 #### 다크 배지
 
 | 속성 | 값 |
 |------|------|
 | 형태 | RoundRect |
-| 배경색 | `#404155` (Dark Slate) |
-| 텍스트 | White, 16pt, Bold |
-| 용도 | 카테고리명, 섹션 라벨 (예: "Groq API") |
+| 배경 | `#404155` (Dark Slate) |
+| 텍스트 | White, Bold |
+| 용도 | 테이블 섹션 라벨, 카테고리명 |
 
-#### 하이라이트 박스
-
-| 속성 | 값 |
-|------|------|
-| 형태 | RoundRect |
-| 배경색 | `#CCFBF1` (Light Teal) |
-| 텍스트 | `#2C2926`, 14-16pt |
-| 용도 | 핵심 포인트, 적합 사례 표시 |
-
-#### 구분선
+#### 데이터 테이블
 
 | 속성 | 값 |
 |------|------|
-| 두께 | 1pt |
-| 색상 | `#E2E8F0` |
-| 너비 | 전체 콘텐츠 영역 (1072pt) |
+| 헤더 행 | 배경 `#E2EEF9`, 텍스트 `#1E2A5C` Bold |
+| 본문 행 | 흰색 / `#F5F8FC` 교차, 텍스트 `#3B4557` |
+| 행 구분선 | `#EDF0F6` |
+| 행 높이 | 0.45~0.55″ (12pt 이상 + 여유 패딩) |
+
+#### 인용 콜아웃
+
+| 속성 | 값 |
+|------|------|
+| 형태 | 좌측 5px `#2E74C6` 바 + 이탤릭 텍스트 |
+| 텍스트 | `#1E2A5C`, Bold, Italic |
+| 용도 | 기대 효과·핵심 메시지 강조 |
+
+#### 페이지 제목 언더라인
+
+| 속성 | 값 |
+|------|------|
+| 바탕 | 전폭 3pt `#D9E0EC` |
+| 액센트 | 좌측 150px 세그먼트 `#2E74C6` |
+| 용도 | 모든 페이지 제목 하단 구분 |
 
 ---
 
@@ -276,18 +238,20 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 
 #### 필수 준수 사항
 
-- 마스터 배경(`#E7E6E6`)이 투과되므로 콘텐츠 슬라이드에는 반드시 흰색 배경 사각형 배치
-- 페이지 헤더는 `#2C2926` Bold 36pt로 좌측 상단에 배치
-- 모든 콘텐츠는 좌우 40pt 여백 안에 배치
-- 본문 텍스트 최소 크기 **12pt** (가독성 보장) — 12pt 미만이 필요할 정도로 내용이 많으면 슬라이드를 분리할 것
-- 하단 여백이 과도하게 남는 경우, 표·카드의 글자 크기를 키우거나 행 높이를 늘려 콘텐츠 영역을 균형있게 채울 것
-- 플로우 다이어그램 각 스텝은 서로 다른 색상으로 구분
-- 코드 블록은 회색 배경(`#F5F5F7`)에 구문 하이라이팅 적용
-- 카드 그리드 사용 시 각 카드 헤더 바 색상으로 카테고리 구분
+- 콘텐츠는 반드시 **흰색 배경** 위, 좌우 40pt 여백 안에 배치
+- 페이지 제목은 `#1E2A5C` ExtraBold 40pt로 좌측 상단에 배치하고 언더라인 룰을 둠
+- breadcrumb(경로)는 제목 위 13pt `#7C8598`로 표기
+- 본문 텍스트 최소 크기 **12pt** — 12pt 미만이 필요할 정도면 슬라이드를 분리할 것
+- 하단 여백이 **1.0인치 이상** 남으면 표·카드의 글자/행 높이를 키워 균형있게 채울 것
+- 헤더 바·배지·박스는 **지정 팔레트 내 컬러**만 사용
+- 흰 카드에는 `#D9E0EC` 테두리를 추가하여 시인성 확보
+- 다크(네이비/슬레이트) 배경 위 텍스트는 반드시 **흰색/밝은색**
+- 화면 캡처는 동일 비율·정렬로 그리드 배치하고 필 라벨로 화면명 표기
+- 푸터 영역(고정 문구·페이지 번호)에는 콘텐츠 배치 금지
 
 #### 테이블 배치 규칙
 
-한 슬라이드에 **테이블이 2개 이상**일 때, 아래 기준으로 수직/좌우 배치를 결정:
+한 슬라이드에 **테이블이 2개 이상**일 때:
 
 | 조건 | 배치 | 이유 |
 |------|------|------|
@@ -296,23 +260,10 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 | 테이블 **3개 이상** | **좌우 배치 우선** 검토 후, 불가 시 수직 | 공간 효율 극대화 |
 
 **좌우 배치 시 규칙:**
-- 콘텐츠 영역 너비(`CW`)를 2등분하고 중간 갭 0.2~0.3" 확보
-- 각 테이블 위에 섹션 배지(제목)를 배치하여 구분
-- 두 테이블의 상단 y좌표를 동일하게 맞춰 정렬
-- 행 높이를 넉넉히(0.45~0.55") 잡아 12pt 이상 폰트와 여유 있는 패딩 확보
-
-**코드 레벨 검증:**
-```
-테이블 개수 ≥ 2 AND 각 테이블 행 수 ≤ 5
-→ 좌우 배치 필수 (수직 배치 시 NG)
-```
-
-#### 주의 사항
-
-- 서로 다른 슬라이드 마스터 간 레이아웃 ID를 교차 참조하지 않을 것
-- 푸터 영역에는 마스터 요소("무단전재 및 배포 금지", 페이지번호)가 있으므로 콘텐츠 배치 금지
-- `#FFFFFF` 카드에는 `#DDDDE0` 테두리를 추가하여 시인성 확보
-- 다크 배경 위 텍스트는 반드시 `#FFFFFF` 또는 밝은 색상 사용
+- 콘텐츠 영역 너비(`CW`)를 2등분하고 중간 갭 0.2~0.3″ 확보
+- 각 테이블 위에 다크 배지(섹션 제목)를 배치하여 구분
+- 두 테이블의 상단 y좌표를 동일하게 정렬
+- 행 높이를 넉넉히(0.45~0.55″) 잡아 12pt 이상 폰트와 여유 패딩 확보
 
 ---
 
@@ -320,9 +271,20 @@ DMAP 표준 PPT 생성 패턴은 **2단계 분리 구조**임:
 
 PPT 생성 스크립트(JavaScript/pptxgenjs) 작성 시, 아래 규칙을 **코드 레벨에서 강제**할 것.
 
-#### 6-1. 최소 폰트 크기 강제 (12pt)
+#### 6-1. 팔레트 상수화
 
-스크립트 상단에 아래 헬퍼 함수를 선언하고, 모든 `fontSize` 지정에 이 함수를 사용:
+```javascript
+const C = {
+  navy:   "1E2A5C",  blue:   "2E74C6",  ink:    "2B3242",
+  slate:  "4A5364",  sub:    "7C8598",
+  tint:   "EEF3FA",  altRow: "F5F8FC",  tableHead: "E2EEF9",
+  dark:   "404155",  border: "D9E0EC",  line:   "EDF0F6",
+};
+```
+
+**규칙**: 색상 리터럴을 슬라이드마다 반복 입력하지 말고 `C.*` 상수 사용.
+
+#### 6-2. 최소 폰트 크기 강제 (12pt)
 
 ```javascript
 const MIN_FONT = 12;
@@ -332,54 +294,65 @@ const fs12 = (size) => {
 };
 ```
 
-사용 예:
-```javascript
-// ✅ CORRECT — 헬퍼 함수 경유
-{ fontSize: fs12(14), ... }
-
-// ❌ WRONG — 직접 지정 (검증 우회)
-{ fontSize: 10, ... }
-```
-
 **규칙**: `fontSize` 값을 직접 숫자로 쓰지 말고 반드시 `fs12()` 함수를 경유할 것.
-12pt 미만이 필요한 상황이면 **폰트를 줄이지 말고 슬라이드를 분리**할 것.
 
-#### 6-2. 하단 여백 검증
+#### 6-3. 헤더 바 헬퍼
 
-슬라이드 콘텐츠의 최하단 요소(푸터 제외)와 푸터 구분선 사이 빈 공간이 **1.0인치 이상**이면,
-표·카드의 행 높이를 늘리거나 글자 크기를 키워 공간을 채울 것.
-
-코드 작성 후 아래 체크를 수행:
+```javascript
+// 단색 / 그라디언트 헤더 바
+function headerBar(slide, { x, y, w, text, accent = false }) {
+  slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+    x, y, w, h: 0.5, rectRadius: 0.06,
+    fill: accent
+      ? { type: "gradient", stops: [{ color: C.navy, position: 0 }, { color: C.blue, position: 100 }], angle: 0 }
+      : { color: C.navy },
+    line: { type: "none" },
+  });
+  slide.addText(text, { x, y, w, h: 0.5, align: "center", color: "FFFFFF",
+    bold: true, fontSize: fs12(20), fontFace: FONT });
+}
 ```
-최하단 콘텐츠 y좌표 + height = ?
-푸터 구분선 y좌표 = ?
-남는 공간 = 푸터 y - (콘텐츠 y + h)
-→ 1.0인치 이상이면 NG → 행 높이/폰트 크기 확대 필요
+
+**규칙**: 섹션 헤더 바는 헬퍼로 생성. `accent:true` 는 우측 강조 섹션(추진 전략·주요 결과물 등).
+
+#### 6-4. 넘버 배지 헬퍼
+
+```javascript
+function numBadge(slide, { x, y, n, color = C.blue, size = 0.4 }) {
+  slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, {
+    x, y, w: size, h: size, rectRadius: 0.05, fill: { color }, line: { type: "none" },
+  });
+  slide.addText(String(n), { x, y, w: size, h: size, align: "center", valign: "middle",
+    color: "FFFFFF", bold: true, fontSize: fs12(16), fontFace: FONT });
+}
 ```
 
-#### 6-3. Shape 사용 규칙
+#### 6-5. 페이지 헤더(제목 + 언더라인) 헬퍼
 
-도형 생성 시 반드시 `pptx.shapes` 상수 사용. `ShapeType` 객체 직접 import 금지.
+```javascript
+function pageHeader(slide, { crumb, title }) {
+  slide.addText(crumb, { x: 0.55, y: 0.45, w: 12, h: 0.3, color: C.sub, fontSize: fs12(13), fontFace: FONT });
+  slide.addText(title, { x: 0.55, y: 0.72, w: 14, h: 0.7, color: C.navy, bold: true, fontSize: fs12(40), fontFace: FONT });
+  slide.addShape(pptx.shapes.RECTANGLE, { x: 0.55, y: 1.55, w: 14.9, h: 0.04, fill: { color: C.border }, line: { type: "none" } });
+  slide.addShape(pptx.shapes.RECTANGLE, { x: 0.55, y: 1.55, w: 2.1,  h: 0.04, fill: { color: C.blue },   line: { type: "none" } });
+}
+```
+
+#### 6-6. Shape 사용 규칙
 
 ```javascript
 // ✅ CORRECT
-slide.addShape(pptx.shapes.RECTANGLE, { x: 0, y: 0, w: 10, h: 1 });
-slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x: 0, y: 0, w: 5, h: 1, rectRadius: 0.1 });
-
+slide.addShape(pptx.shapes.ROUNDED_RECTANGLE, { x, y, w, h, rectRadius: 0.08 });
 // ❌ WRONG
 import { ShapeType } from "pptxgenjs";
-slide.addShape(ShapeType.rect, ...);
 ```
 
-**규칙**: 도형은 `pptx.shapes.*`로만 참조. 자주 쓰는 항목:
-- `pptx.shapes.RECTANGLE` — 콘텐츠 박스, 카드 배경
-- `pptx.shapes.ROUNDED_RECTANGLE` — 배지, 라운드 카드
-- `pptx.shapes.LINE` — 구분선
-- `pptx.shapes.RIGHT_TRIANGLE` — 화살표 등 보조 도형
+**규칙**: 도형은 `pptx.shapes.*` 로만 참조. 자주 쓰는 항목:
+- `RECTANGLE` — 콘텐츠 박스, 언더라인, 카드 배경
+- `ROUNDED_RECTANGLE` — 헤더 바, 배지, 라운드 카드
+- `LINE` — 구분선
 
-#### 6-4. 슬라이드 크기 정의
-
-스크립트 시작부에서 반드시 `defineLayout("CUSTOM")` 사용:
+#### 6-7. 슬라이드 크기 정의
 
 ```javascript
 const pptx = new pptxgen();
@@ -387,127 +360,82 @@ pptx.defineLayout({ name: "CUSTOM", width: 16, height: 9 });
 pptx.layout = "CUSTOM";
 ```
 
-**규칙**: 16" × 9" (1152 × 648pt) 고정. `LAYOUT_WIDE` 등 프리셋 사용 금지.
+**규칙**: 16″ × 9″ (1152 × 648pt) 고정. `LAYOUT_WIDE` 등 프리셋 금지.
 
-#### 6-5. 슬라이드 함수 패턴
-
-각 슬라이드는 `async function createSlideXX(pptx)` 형태로 분리:
+#### 6-8. 슬라이드 함수 패턴
 
 ```javascript
 async function createSlide01(pptx) {
   const slide = pptx.addSlide({ masterName: "MASTER" });
-  // ... 슬라이드 콘텐츠 작성
+  pageHeader(slide, { crumb: "Ⅰ. 디자인 시스템 › 2. 컬러", title: "컬러 시스템" });
+  // ... 슬라이드 콘텐츠
   return slide;
 }
 ```
 
-**규칙**:
-- 슬라이드 함수는 반드시 `async`로 선언 (이미지 로드 비동기 처리)
-- 함수명은 `createSlide` + 2자리 숫자(01, 02, …)
-- 한 함수에 한 슬라이드만 작성
-- `main()`에서 순차 호출
+**규칙**: 슬라이드 함수는 `async function createSlideXX(pptx)` 형태, 한 함수에 한 슬라이드, `main()`에서 순차 호출.
 
-#### 6-6. 테이블 작성 규칙
-
-행/열 구조 데이터는 반드시 `slide.addTable()` 사용. `addShape` + `addText`로 셀 수동 그리기 금지.
+#### 6-9. 테이블 작성 규칙
 
 ```javascript
-// ✅ CORRECT
 slide.addTable(
   [
-    [{ text: "헤더1", options: { bold: true, fill: "059669", color: "FFFFFF" } }, { text: "헤더2", options: { bold: true } }],
-    ["셀1", "셀2"],
+    [ { text: "점수", options: { fill: C.tableHead, color: C.navy, bold: true } },
+      { text: "유형", options: { fill: C.tableHead, color: C.navy, bold: true } } ],
+    ["7.5", "EIF"],
   ],
-  { x: 0.5, y: 1.0, w: 15, colW: [3, 12], fontSize: fs12(12), fontFace: "Pretendard" }
+  { x: 0.55, y: 1.9, w: 9, colW: [2, 7], fontSize: fs12(12), fontFace: FONT,
+    rowH: 0.5, border: { type: "solid", color: C.line, pt: 1 } }
 );
-
-// ❌ WRONG — 수동 셀 그리기
-slide.addShape(pptx.shapes.RECTANGLE, { x: 0.5, y: 1.0, w: 3, h: 0.5 });
-slide.addText("헤더1", { x: 0.5, y: 1.0, w: 3, h: 0.5 });
 ```
 
-**규칙**:
-- 셀 옵션은 `{ text, options }` 객체로 지정
-- `colW` 배열로 열 너비 명시
-- 테이블 폰트도 `fs12()` 헬퍼 경유
+**규칙**: 행/열 구조 데이터는 `slide.addTable()` 사용 — `addShape`+`addText` 수동 셀 그리기 금지. 헤더행 fill 은 `C.tableHead`.
 
-#### 6-7. 이미지 임베딩 검증
-
-스크립트에서 이미지 추가 전 파일 존재 여부 확인:
-
-```javascript
-const fs = require("fs");
-function addImage(slide, imagePath, opts) {
-  if (!fs.existsSync(imagePath)) {
-    throw new Error(`이미지 파일 없음: ${imagePath}`);
-  }
-  slide.addImage({ path: imagePath, ...opts });
-}
-```
-
-**규칙**:
-- 이미지 경로는 빌드 스크립트 기준 상대 경로 또는 절대 경로
-- 빌드 시점에 파일 존재 검증 후 임베딩
-- 마크다운 스크립트의 `![](images/foo.png)` 경로와 일치
-
-#### 6-8. 한글 폰트 처리
-
-모든 텍스트의 `fontFace`는 `"Pretendard"`로 통일:
+#### 6-10. 한글 폰트 처리
 
 ```javascript
 const FONT = "Pretendard";
-{ text: "안녕하세요", options: { fontFace: FONT, fontSize: fs12(14) } }
+{ text: "안녕하세요", options: { fontFace: FONT, fontSize: fs12(16) } }
 ```
 
 **규칙**: `Calibri`, `Arial`, `맑은 고딕` 등 직접 지정 금지. 시스템 폴백은 PPT 뷰어가 처리.
 
-#### 6-9. 빌드 스크립트 진입점
-
-빌드 스크립트는 단일 `main()` 함수에서 시작하고 에러 시 종료 코드 1로 종료:
+#### 6-11. 빌드 스크립트 진입점
 
 ```javascript
 async function main() {
   const pptx = new pptxgen();
   pptx.defineLayout({ name: "CUSTOM", width: 16, height: 9 });
   pptx.layout = "CUSTOM";
+  pptx.defineSlideMaster({ title: "MASTER", background: { color: "FFFFFF" } /* + 푸터 요소 */ });
 
-  // 마스터 슬라이드 정의
-  pptx.defineSlideMaster({ title: "MASTER", /* ... */ });
-
-  // 슬라이드 생성 (순차)
   for (const fn of [createSlide01, createSlide02 /* ... */]) {
     await fn(pptx);
   }
 
-  await pptx.writeFile({ fileName: "courseware.pptx" });
+  await pptx.writeFile({ fileName: "proposal.pptx" });
   console.log("✅ PPT 생성 완료");
 }
 
-main().catch((e) => {
-  console.error("❌ PPT 생성 실패:", e);
-  process.exit(1);
-});
+main().catch((e) => { console.error("❌ PPT 생성 실패:", e); process.exit(1); });
 ```
 
-**규칙**:
-- 진입점은 `main().catch(...)` 패턴
-- 실패 시 `process.exit(1)`로 종료 (CI/검증에서 실패 인식)
-- 성공 시 콘솔 로그 출력
+**규칙**: 진입점은 `main().catch(...)` 패턴, 실패 시 `process.exit(1)`, 성공 시 콘솔 로그 출력.
 
-#### 6-10. 생성 후 자가 검증 체크리스트
-
-PPT 파일 생성 후, 다음 항목을 **반드시 확인**하고 통과해야 완료로 보고:
+#### 6-12. 생성 후 자가 검증 체크리스트
 
 | # | 검증 항목 | 방법 | 합격 기준 |
 |---|----------|------|----------|
 | 1 | 최소 폰트 크기 | 스크립트 내 모든 fontSize 값 확인 | 12pt 이상 (fs12 경유) |
 | 2 | 하단 여백 | 최하단 콘텐츠 ~ 푸터 간 거리 계산 | 1.0인치 미만 |
-| 3 | 콘텐츠 누락 | markitdown으로 텍스트 추출 후 원본 대조 | 모든 항목 포함 |
+| 3 | 콘텐츠 누락 | 텍스트 추출 후 원본 대조 | 모든 항목 포함 |
 | 4 | 이미지 임베딩 | 스크립트의 이미지 경로 존재 여부 | 파일 존재 확인 |
-| 5 | 슬라이드 크기 | 1152 × 648pt (16" × 9") | 정확히 일치 |
+| 5 | 슬라이드 크기 | 1152 × 648pt (16″ × 9″) | 정확히 일치 |
 | 6 | 폰트 | Pretendard 사용 | Calibri/Arial/맑은 고딕 금지 |
-| 7 | Shape 참조 | `pptx.shapes.*` 사용 | `ShapeType` 직접 import 금지 |
-| 8 | 슬라이드 함수 | `async function createSlideXX` 패턴 | 동기 함수·인라인 작성 금지 |
-| 9 | 표 작성 | `slide.addTable()` 사용 | 셀 수동 그리기 금지 |
-| 10 | 빌드 종료 코드 | `node build.js` 실행 후 `$?` 확인 | 0 (성공) |
-| 11 | 출력 파일 | `.pptx` 파일 존재 및 크기 | 0바이트 초과 |
+| 7 | 컬러 팔레트 | 지정 HEX만 사용 (C.* 상수) | 임의 색상 금지 |
+| 8 | 페이지 헤더 | breadcrumb + 제목 + 언더라인 룰 | 전 슬라이드 일관 |
+| 9 | Shape 참조 | `pptx.shapes.*` 사용 | `ShapeType` 직접 import 금지 |
+| 10 | 슬라이드 함수 | `async function createSlideXX` 패턴 | 동기 함수·인라인 작성 금지 |
+| 11 | 표 작성 | `slide.addTable()` + 헤더행 `#E2EEF9` | 셀 수동 그리기 금지 |
+| 12 | 빌드 종료 코드 | `node build.js` 실행 후 `$?` 확인 | 0 (성공) |
+| 13 | 출력 파일 | `.pptx` 파일 존재 및 크기 | 0바이트 초과 |
