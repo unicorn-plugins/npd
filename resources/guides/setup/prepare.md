@@ -13,6 +13,7 @@
   - [Python 설치](#python-설치)
     - [설치](#설치-1)
     - [Alias 등록(Mac 사용자만 수행)](#alias-등록mac-사용자만-수행)
+    - [vscode 플러그인 설치](#vscode-플러그인-설치)
 - [설계 단계를 위한 추가 설치](#설계-단계를-위한-추가-설치)
   - [Node.js 설치](#nodejs-설치)
   - [Docker Desktop 설치](#docker-desktop-설치)
@@ -222,6 +223,14 @@ alias pip=pip3
 ```
 source ~/.zshrc
 ```
+
+### vscode 플러그인 설치
+확장 플러그인 탭을 클릭.    
+![](images/2026-10-21-14-18-40.png)     
+
+아래 플러그인 검색하여 설치    
+- Python (by Microsoft): 코드실행, 디버깅, 가상환경 관리 등 
+- Pylance: 코드 자동 완성, 타입 검사, 정의 이동 
 
 | [Top](#로컬-개발-환경-구성) |
 
