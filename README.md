@@ -24,10 +24,31 @@ MVP 주제를 입력하면 도메인 전문가 에이전트를 자동 생성하�
 
 ---
 
-## 사전설치
+## 설치
+1.아래 링크에서 Claude Desktop, Claude Code CLI, Git Client 설치      
+<a href="https://github.com/unicorn-plugins/npd/blob/main/resources/guides/setup/prepare.md" target="_blank">설치 가이드 보기</a>   
 
-<a href="https://github.com/unicorn-plugins/npd/blob/main/resources/guides/setup/prepare.md" target="_blank">설치 가이드 보기</a>
-  
+2.작업 공간 디렉토리 작성     
+프로젝트들을 모아 놓은 상위 작업 공간 'workspace'를 작성    
+
+```
+cd ~
+mkdir workspace
+```
+
+3.NPD플러그인 레포지토리 Clone     
+```
+cd workspace
+git clone https://github.com/unicorn-plugins/npd 
+```
+
+4.NPD플러그인 설치     
+```
+cd npd
+claude plugin marketplace add ./
+claude plugin install npd@npd
+```
+
 ---
 
 ## 업그레이드
@@ -40,10 +61,6 @@ claude plugin update npd
 
 ## 사용법
 
-**사용법 동영상 보기**:   
-아래 링크의 압축파일 다운로드 후 압축 해제하여 각 일련번호별로 실행 하세요.
-https://drive.google.com/file/d/1drUqy7xCaV0U2y9WP-Y-PXE5y1jxGW8s/view?usp=drive_link
-   
 ### 권장 사용 순서
 
 ```
@@ -77,23 +94,16 @@ cd ~/workspace
 mkdir {project directory} 
 cd {project directory}
 ```
-2.Claude Code 또는 Cursor 실행   
-Claude Code 실행: 
-```
-cy 
-```
-
-Cursor 실행  
-```
-cursor .
-```
-  
+2.Claude Desktop 실행   
+플러그인을 인식시키기 위해 Claude Desktop이 이미 실행되어 있다면    
+완전 종료(상단 맨 왼쪽 메뉴에서 파일 > 종료) 후 재시작 하세요.             
+    
 3.로컬 개발 환경 사전준비 체크 
 ```
 /npd:prepare
 ```
 
-4. 프로젝트 초기화 명령 수행    
+1. 프로젝트 초기화 명령 수행    
 ```
 /npd:create
 ```
@@ -140,16 +150,6 @@ cursor .
   - [도구셋업](docs/workflow-images/07.cicd-1.setup_tools.png)
   - [매니페스트 레포지토리 생성](docs/workflow-images/07.cicd-2.manifest_repo.png)
   - [파이프라인 개발](docs/workflow-images/07.cicd-3.pipeline.png)
-
----
-
-## 요구사항
-
-- Claude Code ≥ 1.0.0
-- Git
-- Docker (배포 단계)
-- kubectl (K8s 배포 단계)
-- GitHub 계정 + Personal Access Token (GitHub 레포 자동 생성 시)
 
 ---
 
