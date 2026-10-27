@@ -54,7 +54,7 @@ claude plugin install npd@npd
 ## 업그레이드
 
 ```bash
-claude plugin update npd
+claude plugin update npd@npd
 ```
 
 ---
